@@ -4,7 +4,6 @@ line_plot <- function(DATA, x, y, fill, color,
                       id = "USUBJID",
                       y_unit = "AVALU",
                       title_column = "PARAM",
-                      COLORS = NULL,
                       add_lines = T,
                       lines_alpha = 0.5,
                       lines_size = 1,
@@ -105,43 +104,40 @@ line_plot <- function(DATA, x, y, fill, color,
     }
     # Add smooth
     if (method_smooth == "mean") {
-      g <- g + ggplot2::geom_bootstrap_mean(
+      g <- g + nightowl::geom_bootstrap_mean(
         color = color_smooth,
         mapping = line_mapping,
         add_ribbon = add_ribbon,
         add_whiskers = add_whiskers,
         add_points = add_whiskers,
-        position = position_dodge(width = dodge, preserve = "total")
+        position = ggplot2::position_dodge(width = dodge, preserve = "total")
       )
     } else if (method_smooth == "median") {
       g <-
-        g + geom_hillow_median(
+        g + waRRior::geom_hillow_median(
           color = color_smooth,
           mapping = line_mapping,
           add_ribbon = add_ribbon,
           add_whiskers = add_whiskers,
           add_points = add_whiskers,
-          position = position_dodge(width = dodge, preserve = "total")
+          position = ggplot2::position_dodge(width = dodge, preserve = "total")
         )
     } else {
       g <-
-        g + geom_smooth(
+        g + ggplot2::geom_smooth(
           mapping = line_mapping,
           color = color_smooth,
           method = method_smooth,
           se = show_se,
-          position = position_dodge(width = dodge)
+          position = ggplot2::position_dodge(width = dodge)
         )
     }
   }
-
-
   # Facetting ----
   if (!is.null(facet_col) | !is.null(facet_row)) {
     if (is.null(facet_col)) facet_col <- "."
     if (is.null(facet_row)) facet_row <- "."
-
-    g <- g + facet_grid(
+    g <- g + ggplot2::facet_grid(
       as.formula(
         paste(
           paste(facet_row, collapse = "+"),
@@ -153,48 +149,39 @@ line_plot <- function(DATA, x, y, fill, color,
       labeller = label_both
     )
   }
-
   # AXIS ----
   if (is.factor(DATA[[x]]) | is.character(DATA[[x]])) {
-    g <- g + scale_x_discrete(expand = expand_scale(add = 0.2))
+    g <- g + ggplot2::scale_x_discrete(expand = expand_scale(add = 0.2))
   } else {
-    g <- g + scale_x_continuous(expand = expand_scale(add = 0.2))
+    g <- g + ggplot2::scale_x_continuous(expand = expand_scale(add = 0.2))
   }
-
-
   if (log_y) {
     g <- g + ggplot2::scale_y_log10()
   }
-
   if (!is.null(ylim)) {
     g <- g + ggplot2::ylim(ylim[1], ylim[2])
   }
-
   if (!is.null(xlim)) {
     g <- g + ggplot2::xlim(xlim[1], xlim[2])
   }
-
   # Theming and colors ----
-  if (!is.null(COLORS)) {
-    g <- g + scale_color_manual(values = get_COLORS(color, COLORS))
-    g <- g + scale_fill_manual(values = get_COLORS(fill, COLORS))
-    g <-
-      g + guides(colour = guide_legend(override.aes = list(
-        size = 2, color = get_COLORS(color, COLORS)[1:length(unique(DATA[[color]]))]
-      )))
-  }
-
+  #if (!is.null(COLORS)) {
+  #  g <- g + scale_color_manual(values = get_COLORS(color, COLORS))
+  #  g <- g + scale_fill_manual(values = get_COLORS(fill, COLORS))
+  #  g <-
+  #    g + guides(colour = guide_legend(override.aes = list(
+  #      size = 2, color = get_COLORS(color, COLORS)[1:length(unique(DATA[[color]]))]
+  #    )))
+  #}
   if (add_theme) {
     g <- g + theme()
     g <- g + ggplot2::theme(legend.position = "top", legend.key.width = unit(2, "cm"))
   }
-
   if (is.factor(DATA[[x]])) {
-    g <- g + ggplot2::theme(axis.text.x = element_text(angle = 90)) +
+    g <- g + ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90)) +
       xlab("")
   } else {
     g <- g + ggplot2::xlab(x)
-  }
 
   if (!is.null(title)) {
     if (ylab == "auto") {
@@ -203,7 +190,6 @@ line_plot <- function(DATA, x, y, fill, color,
       g <- g + ggplot2::ggtitle(title)
     }
   }
-
   if (!is.null(ylab)) {
     if (ylab == "auto") {
       g <- g + ggplot2::ylab(y_unit)
@@ -211,7 +197,6 @@ line_plot <- function(DATA, x, y, fill, color,
       g <- g + ggplot2::ylab(ylab)
     }
   }
-
   # Finishing up
   return(list(
     plot = g,
