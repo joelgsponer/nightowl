@@ -61,7 +61,7 @@ line_plot <- function(DATA, x, y, fill, color,
   # Setup ggplot
   g <- DATA %>%
     ggplot2::ggplot(
-      aes(
+      ggplot2::aes(
         x = !!rlang::sym(x), # as.numeric(!!rlang::sym(x)),
         y = !!rlang::sym(y),
         fill = !!rlang::sym(fill),
