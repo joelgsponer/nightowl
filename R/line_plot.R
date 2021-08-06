@@ -175,7 +175,7 @@ line_plot <- function(DATA, x, y, fill, color,
   # }
   if (add_theme) {
     g <- g + theme()
-    g <- g + ggplot2::theme(legend.position = "top", legend.key.width = unit(2, "cm"))
+    g <- g + ggplot2::theme(legend.position = "top", legend.key.width = ggplot2::unit(2, "cm"))
   }
   if (is.factor(DATA[[x]])) {
     g <- g + ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90)) +
