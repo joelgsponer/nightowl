@@ -151,9 +151,9 @@ line_plot <- function(DATA, x, y, fill, color,
   }
   # AXIS ----
   if (is.factor(DATA[[x]]) | is.character(DATA[[x]])) {
-    g <- g + ggplot2::scale_x_discrete(expand = expand_scale(add = 0.2))
+    g <- g + ggplot2::scale_x_discrete(expand = ggplot2::expand_scale(add = 0.2))
   } else {
-    g <- g + ggplot2::scale_x_continuous(expand = expand_scale(add = 0.2))
+    g <- g + ggplot2::scale_x_continuous(expand = ggplo2::expand_scale(add = 0.2))
   }
   if (log_y) {
     g <- g + ggplot2::scale_y_log10()
