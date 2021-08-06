@@ -165,14 +165,14 @@ line_plot <- function(DATA, x, y, fill, color,
     g <- g + ggplot2::xlim(xlim[1], xlim[2])
   }
   # Theming and colors ----
-  #if (!is.null(COLORS)) {
+  # if (!is.null(COLORS)) {
   #  g <- g + scale_color_manual(values = get_COLORS(color, COLORS))
   #  g <- g + scale_fill_manual(values = get_COLORS(fill, COLORS))
   #  g <-
   #    g + guides(colour = guide_legend(override.aes = list(
   #      size = 2, color = get_COLORS(color, COLORS)[1:length(unique(DATA[[color]]))]
   #    )))
-  #}
+  # }
   if (add_theme) {
     g <- g + theme()
     g <- g + ggplot2::theme(legend.position = "top", legend.key.width = unit(2, "cm"))
@@ -182,7 +182,7 @@ line_plot <- function(DATA, x, y, fill, color,
       xlab("")
   } else {
     g <- g + ggplot2::xlab(x)
-
+  }
   if (!is.null(title)) {
     if (ylab == "auto") {
       g <- g + ggplot2::ggtitle(auto_title)

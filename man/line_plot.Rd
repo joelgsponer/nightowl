@@ -13,7 +13,6 @@ line_plot(
   id = "USUBJID",
   y_unit = "AVALU",
   title_column = "PARAM",
-  COLORS = NULL,
   add_lines = T,
   lines_alpha = 0.5,
   lines_size = 1,
