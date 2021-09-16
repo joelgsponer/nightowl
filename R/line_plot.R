@@ -146,7 +146,7 @@ line_plot <- function(DATA, x, y, fill, color,
         )
       ),
       scales = scales,
-      labeller = label_both
+      labeller = ggplot2::label_both
     )
   }
   # AXIS ----
