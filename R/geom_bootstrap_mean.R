@@ -10,7 +10,7 @@ GeomBootstrapMean <- ggplot2::ggproto(
     params
   },
   setup_data = function(data, params) {
-    GeomLine$setup_data(data, params)
+    ggplot2::GeomLine$setup_data(data, params)
   },
   draw_group = function(data,
                         panel_params,
@@ -21,10 +21,10 @@ GeomBootstrapMean <- ggplot2::ggproto(
                         ribbon_alpha = 0.5,
                         add_points = F) {
     ribbon <- data %>%
-      mutate(colour = NA, alpha = ribbon_alpha)
+      dplyr::mutate(colour = NA, alpha = ribbon_alpha)
 
     whiskers <- data %>%
-      mutate(
+      dplyr::mutate(
         xmin = x - whiskers_width / 2,
         xmax = x + whiskers_width / 2,
         linetype = "solid"
@@ -33,16 +33,16 @@ GeomBootstrapMean <- ggplot2::ggproto(
     path <- transform(data, alpha = NA)
 
     points <- data %>%
-      mutate(alpha = 1, size = 3, stroke = 1, shape = 21)
+      dplyr::mutate(alpha = 1, size = 3, stroke = 1, shape = 21)
 
     has_ribbon <- add_ribbon && !is.null(data$ymax) && !is.null(data$ymin)
     has_error_bars <- add_whiskers && !is.null(data$ymax) && !is.null(data$ymin)
 
-    gList(
-      if (has_ribbon) GeomRibbon$draw_panel(ribbon, panel_params, coord),
-      if (has_error_bars) GeomErrorbar$draw_panel(whiskers, panel_params, coord),
-      GeomLine$draw_panel(path, panel_params, coord),
-      if (add_points) GeomPoint$draw_panel(points, panel_params, coord)
+    grid::gList(
+      if (has_ribbon) ggplot2::GeomRibbon$draw_panel(ribbon, panel_params, coord),
+      if (has_error_bars) ggplot2::GeomErrorbar$draw_panel(whiskers, panel_params, coord),
+      ggplot2::GeomLine$draw_panel(path, panel_params, coord),
+      if (add_points) ggplot2::GeomPoint$draw_panel(points, panel_params, coord)
     )
   },
   draw_key = ggplot2::draw_key_smooth,
@@ -63,7 +63,7 @@ StatBootstrapMean <- ggplot2::ggproto(
       dplyr::group_split(keep = T) %>%
       purrr::map_df(function(this_group) {
         current_x <- dplyr::select(this_group, x) %>% unique()
-        this_y <- dplyr::select(this_group, y) %>% pull()
+        this_y <- dplyr::select(this_group, y)
         current_PANEL <- dplyr::select(this_group, PANEL) %>% unique()
         current_group <- dplyr::select(this_group, group) %>% unique()
         cbind(current_x, ggplot2::mean_cl_boot(this_y, B = 1000), current_PANEL, current_group)
@@ -88,8 +88,8 @@ geom_bootstrap_mean <- function(mapping = NULL,
                                 whiskers_width = 0.1,
                                 ribbon_alpha = 0.5,
                                 ...) {
-  layer(
-    stat = StatBootstrapMean, data = data, mapping = mapping, geom = GeomBootstrapMean,
+  ggplot2::layer(
+    stat = nightowl::StatBootstrapMean, data = data, mapping = mapping, geom = nightowl::GeomBootstrapMean,
     position = position, show.legend = show.legend, inherit.aes = inherit.aes,
     params = list(
       na.rm = na.rm,
