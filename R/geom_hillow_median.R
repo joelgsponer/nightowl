@@ -36,7 +36,7 @@ GeomHillowMedian <- ggplot2::ggproto(
       dplyr::mutate(alpha = 1, size = 3, stroke = 1, shape = 21)
 
     has_ribbon <- add_ribbon && !is.null(data$ymax) && !is.null(data$ymin)
-    has_error_bars <- add_whiskers && !is.null(data$ymax) && !is.null(dta$ymin)
+    has_error_bars <- add_whiskers && !is.null(data$ymax) && !is.null(data$ymin)
 
     grid::gList(
       if (has_ribbon) ggplot2::GeomRibbon$draw_panel(ribbon, panel_params, coord),
