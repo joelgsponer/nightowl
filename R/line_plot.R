@@ -28,8 +28,10 @@ line_plot <- function(DATA, x, y, fill, color,
                       scales = "free_y") {
   # Add text wraping for facets
   DATA <- DATA %>%
-    dplyr::mutate_at(c(facet_row, facet_col),
-                     function(x) stringr::str_wrap(x, width = facet_label_width))
+    dplyr::mutate_at(
+      c(facet_row, facet_col),
+      function(x) stringr::str_wrap(x, width = facet_label_width)
+    )
   # Drop missing values
   DATA <- DATA %>%
     dplyr::filter_at(c(x, y), function(x) !is.na(x)) %>%
@@ -164,17 +166,18 @@ line_plot <- function(DATA, x, y, fill, color,
   }
   # Theming and colors ----
   if (!is.null(color_values)) {
-   g <- g + ggplot2::scale_color_manual(values = color_values)
-   g <- g + ggplot2::scale_fill_manual(values = color_values)
-   g <-
-     g + ggplot2::guides(colour = ggplot2::guide_legend(override.aes = list(
-       size = 2, color = color_values[1:length(unique(DATA[[color]]))]
-     )))
+    g <- g + ggplot2::scale_color_manual(values = color_values)
+    g <- g + ggplot2::scale_fill_manual(values = color_values)
+    g <-
+      g + ggplot2::guides(colour = ggplot2::guide_legend(override.aes = list(
+        size = 2, color = color_values[1:length(unique(DATA[[color]]))]
+      )))
   }
   g <- g + theme()
-  g <- g + ggplot2::theme(legend.position = "top",
-                          legend.key.width = ggplot2::unit(2, "cm"),
-                          plot.margin = ggplot2::margin(1,1,1,1,"cm")
+  g <- g + ggplot2::theme(
+    legend.position = "top",
+    legend.key.width = ggplot2::unit(2, "cm"),
+    plot.margin = ggplot2::margin(1, 1, 1, 1, "cm")
   )
   if (is.factor(DATA[[x]])) {
     g <- g + ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90)) +

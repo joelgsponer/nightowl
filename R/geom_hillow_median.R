@@ -1,4 +1,4 @@
-#===============================================================================
+# ===============================================================================
 #' Geom Hillow Median
 #' @export
 GeomHillowMedian <- ggplot2::ggproto(
@@ -10,7 +10,6 @@ GeomHillowMedian <- ggplot2::ggproto(
   setup_data = function(data, params) {
     ggplot2::GeomLine$setup_data(data, params)
   },
-
   draw_group = function(data,
                         panel_params,
                         coord,
@@ -18,15 +17,14 @@ GeomHillowMedian <- ggplot2::ggproto(
                         add_whiskers = FALSE,
                         whiskers_width = 0.2,
                         ribbon_alpha = 0.5,
-                        add_points = F
-  ) {
+                        add_points = F) {
     ribbon <- data %>%
       dplyr::mutate(colour = NA, alpha = ribbon_alpha)
 
     whiskers <- data %>%
       dplyr::mutate(
-        xmin = x - whiskers_width/2,
-        xmax = x +  whiskers_width/2,
+        xmin = x - whiskers_width / 2,
+        xmax = x + whiskers_width / 2,
         linetype = "solid"
       )
 
@@ -48,11 +46,13 @@ GeomHillowMedian <- ggplot2::ggproto(
   draw_key = ggplot2::draw_key_smooth,
   required_aes = c("x", "y"),
   optional_aes = c("ymin", "ymax"),
-  default_aes = ggplot2::aes(colour = "#3366FF", fill = "grey60", size = 1,
-                    linetype = 1, weight = 1, alpha = 0.4)
+  default_aes = ggplot2::aes(
+    colour = "#3366FF", fill = "grey60", size = 1,
+    linetype = 1, weight = 1, alpha = 0.4
+  )
 )
 
-#===============================================================================
+# ===============================================================================
 #' Stat Hillow Median
 #' @export
 StatHillowMedian <- ggplot2::ggproto(
@@ -62,12 +62,12 @@ StatHillowMedian <- ggplot2::ggproto(
     data %>%
       dplyr::group_by(x) %>%
       dplyr::group_split(keep = T) %>%
-      purrr::map_df(function(this_group){
+      purrr::map_df(function(this_group) {
         current_x <- dplyr::select(this_group, x) %>% unique()
         this_y <- dplyr::select(this_group, y)
         current_PANEL <- dplyr::select(this_group, PANEL) %>% unique()
         current_group <- dplyr::select(this_group, group) %>% unique()
-        cbind(current_x,ggplot2::median_hilow(this_y), current_PANEL, current_group)
+        cbind(current_x, ggplot2::median_hilow(this_y), current_PANEL, current_group)
       }) %>%
       dplyr::mutate(PANEL = as.factor(PANEL))
   },
@@ -75,22 +75,21 @@ StatHillowMedian <- ggplot2::ggproto(
 )
 
 
-#===============================================================================
+# ===============================================================================
 #' Geom hillow median
 #' @export
-geom_hillow_median <- function(
-  mapping = NULL,
-  data = NULL,
-  position = "identity",
-  na.rm = FALSE,
-  show.legend = NA,
-  inherit.aes = TRUE,
-  add_ribbon = T,
-  add_whiskers = F,
-  add_points = F,
-  whiskers_width = 0.1,
-  ribbon_alpha = 0.5,
-  ...) {
+geom_hillow_median <- function(mapping = NULL,
+                               data = NULL,
+                               position = "identity",
+                               na.rm = FALSE,
+                               show.legend = NA,
+                               inherit.aes = TRUE,
+                               add_ribbon = T,
+                               add_whiskers = F,
+                               add_points = F,
+                               whiskers_width = 0.1,
+                               ribbon_alpha = 0.5,
+                               ...) {
   ggplot2::layer(
     stat = nightowl::StatHillowMedian, data = data, mapping = mapping, geom = nightowl::GeomHillowMedian,
     position = position, show.legend = show.legend, inherit.aes = inherit.aes,
@@ -105,4 +104,4 @@ geom_hillow_median <- function(
     )
   )
 }
-#===============================================================================
+# ===============================================================================
