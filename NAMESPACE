@@ -2,7 +2,10 @@
 
 export("%>%")
 export(GeomBootstrapMean)
+export(GeomHillowMedian)
+export(StatHillowMedian)
 export(ci_t)
 export(geom_bootstrap_mean)
+export(geom_hillow_median)
 export(line_plot)
 importFrom(magrittr,"%>%")
