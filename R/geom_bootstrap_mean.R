@@ -54,6 +54,9 @@ GeomBootstrapMean <- ggplot2::ggproto(
   )
 )
 
+# ===============================================================================
+#' Stat Bootstrap mean
+#' @export
 StatBootstrapMean <- ggplot2::ggproto(
   "StatBootstrapMean",
   ggplot2::Stat,
@@ -74,6 +77,7 @@ StatBootstrapMean <- ggplot2::ggproto(
 )
 
 
+# ===============================================================================
 #' Bootstrap mean
 #' @export
 geom_bootstrap_mean <- function(mapping = NULL,
@@ -102,3 +106,4 @@ geom_bootstrap_mean <- function(mapping = NULL,
     )
   )
 }
+# ===============================================================================

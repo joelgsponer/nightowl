@@ -3,6 +3,7 @@
 export("%>%")
 export(GeomBootstrapMean)
 export(GeomHillowMedian)
+export(StatBootstrapMean)
 export(StatHillowMedian)
 export(ci_t)
 export(geom_bootstrap_mean)

@@ -22,7 +22,6 @@ test_that("line plot works", {
     id = "ID",
     facet_col = "GROUP"
   )
-
   testdataA <- tibble::tibble(
     Y = runif(1000),
     X = sample(seq(1, 5), 1000, T),
