@@ -40,7 +40,7 @@ line_plot <- function(DATA, x, y, fill, color,
   # Aggregate values if there are multiple present per x
   if (!is.null(summarise_y)) {
     DATA %>%
-      dplyr::group_by_at(c(x, id)) %>%
+      dplyr::group_by_at(c(x, id, facet_col, facet_row)) %>%
       dplyr::group_split() %>%
       purrr::map_df(function(.data) {
         .value <- do.call(summarise_y, list(.data[[y]]))
@@ -200,8 +200,5 @@ line_plot <- function(DATA, x, y, fill, color,
     }
   }
   # Finishing up
-  return(list(
-    plot = g,
-    data = DATA
-  ))
+  return(g)
 }
