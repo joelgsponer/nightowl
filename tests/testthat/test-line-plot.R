@@ -6,6 +6,7 @@ test_that("line plot works", {
     GROUP = c(rep("A", 5), rep("B", 5))
   )
   testdata
+
   nightowl::line_plot(testdata,
     x = "X",
     y = "Y",
@@ -14,11 +15,13 @@ test_that("line plot works", {
     id = "ID",
     facet_row = "GROUP"
   )
+
   nightowl::line_plot(testdata,
     x = "X",
     y = "Y",
     id = "ID",
-    facet_row = "GROUP"
+    facet_row = "GROUP",
+    title = "auto"
   )
 
   nightowl::line_plot(testdata,
