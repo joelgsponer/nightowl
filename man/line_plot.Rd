@@ -8,10 +8,9 @@ line_plot(
   DATA,
   x,
   y,
-  fill,
-  color,
+  fill = NULL,
+  color = NULL,
   id = "USUBJID",
-  unit = "AVALU",
   add_lines = T,
   lines_alpha = 0.5,
   lines_size = 1,
@@ -34,7 +33,8 @@ line_plot(
   dodge = 0.2,
   points_position = "identity",
   summarise_y = NULL,
-  scales = "free_y"
+  scales = "free_y",
+  ...
 )
 }
 \description{

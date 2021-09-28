@@ -1,8 +1,11 @@
 #' Line plot
 #' @export
-line_plot <- function(DATA, x, y, fill, color,
+line_plot <- function(DATA,
+                      x,
+                      y,
+                      fill = NULL,
+                      color = NULL,
                       id = "USUBJID",
-                      unit = "AVALU",
                       add_lines = T,
                       lines_alpha = 0.5,
                       lines_size = 1,
@@ -25,7 +28,9 @@ line_plot <- function(DATA, x, y, fill, color,
                       dodge = 0.2,
                       points_position = "identity",
                       summarise_y = NULL,
-                      scales = "free_y") {
+                      scales = "free_y",
+                      ...) {
+  if (!is.null(fill) && is.null(color)) color <- fill
   # Add text wraping for facets
   DATA <- DATA %>%
     dplyr::mutate_at(
@@ -58,30 +63,39 @@ line_plot <- function(DATA, x, y, fill, color,
       }) ->
     DATA
   }
+
   # Setup ggplot
+  # This was difficult, fist store parameters in list,
+  # Convert to symbols
+  # drop the onses which are null, call aes_ function (CAVE: ecex)
+  # also think of other places where params is used, e.g. params$id
+  params <- list(
+    x = x,
+    y = y,
+    fill = fill,
+    color = color,
+    group = fill,
+    id = id
+  ) %>%
+    purrr::compact() %>%
+    purrr::map(~ rlang::sym(.x))
+  f <- ggplot2::aes_
+  .aes <- rlang::exec(.fn = "f", !!!params)
   g <- DATA %>%
-    ggplot2::ggplot(
-      ggplot2::aes(
-        x = !!rlang::sym(x), # as.numeric(!!rlang::sym(x)),
-        y = !!rlang::sym(y),
-        fill = !!rlang::sym(fill),
-        color = !!rlang::sym(color),
-        group = !!rlang::sym(fill),
-      )
-    )
+    ggplot2::ggplot(.aes)
   # Layers ----
   ## Lines
   if (add_lines) {
     if (is.null(summarise_y)) {
       g <- g + ggplot2::geom_line(
-        ggplot2::aes(group = !!rlang::sym(id)),
+        ggplot2::aes_(group = params$id),
         alpha = lines_alpha,
         size = lines_size
       )
     } else {
       g <- g + ggplot2::stat_summary(
-        ggplot2::aes(group = !!rlang::sym(id)),
-        fun.y = summarise_y,
+        ggplot2::aes_(group = params$id),
+        fun = summarise_y,
         geom = "line",
         alpha = lines_alpha,
         size = lines_size
@@ -100,7 +114,7 @@ line_plot <- function(DATA, x, y, fill, color,
     if (fill %in% c(facet_row, facet_col)) {
       line_mapping <- ggplot2::aes()
     } else {
-      line_mapping <- ggplot2::aes(lty = !!rlang::sym(fill))
+      line_mapping <- ggplot2::aes_(lty = params$fill)
     }
     # Add smooth
     if (method_smooth == "mean") {
@@ -151,9 +165,9 @@ line_plot <- function(DATA, x, y, fill, color,
   }
   # AXIS ----
   if (is.factor(DATA[[x]]) | is.character(DATA[[x]])) {
-    g <- g + ggplot2::scale_x_discrete(expand = ggplot2::expand_scale(add = 0.2))
+    g <- g + ggplot2::scale_x_discrete(expand = ggplot2::expansion(add = 0.2))
   } else {
-    g <- g + ggplot2::scale_x_continuous(expand = ggplot2::expand_scale(add = 0.2))
+    g <- g + ggplot2::scale_x_continuous(expand = ggplot2::expansion(add = 0.2))
   }
   if (log_y) {
     g <- g + ggplot2::scale_y_log10()
@@ -168,10 +182,12 @@ line_plot <- function(DATA, x, y, fill, color,
   if (!is.null(color_values)) {
     g <- g + ggplot2::scale_color_manual(values = color_values)
     g <- g + ggplot2::scale_fill_manual(values = color_values)
-    g <-
-      g + ggplot2::guides(colour = ggplot2::guide_legend(override.aes = list(
-        size = 2, color = color_values[1:length(unique(DATA[[color]]))]
-      )))
+    if (!is.null(color)) {
+      g <-
+        g + ggplot2::guides(colour = ggplot2::guide_legend(override.aes = list(
+          size = 2, color = color_values[1:length(unique(DATA[[color]]))]
+        )))
+    }
   }
   g <- g + theme()
   g <- g + ggplot2::theme(
@@ -186,18 +202,15 @@ line_plot <- function(DATA, x, y, fill, color,
     g <- g + ggplot2::xlab(x)
   }
   if (!is.null(title)) {
-    if (ylab == "auto") {
+    if (title == "auto") {
+      auto_title <- glue::glue("{x} vs. {y}")
       g <- g + ggplot2::ggtitle(auto_title)
     } else {
       g <- g + ggplot2::ggtitle(title)
     }
   }
   if (!is.null(ylab)) {
-    if (ylab == "auto") {
-      g <- g + ggplot2::ylab(y_unit)
-    } else {
-      g <- g + ggplot2::ylab(ylab)
-    }
+    g <- g + ggplot2::ylab(ylab)
   }
   # Finishing up
   return(g)
