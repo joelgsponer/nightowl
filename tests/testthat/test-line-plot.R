@@ -3,19 +3,18 @@ test_that("line plot works", {
     Y = runif(10),
     X = rep(seq(1, 5), 2),
     ID = c(rep("A", 5), rep("B", 5)),
-    GROUP = c(rep("A", 5), rep("B", 5))
+    GROUP = c(rep("A", 5), rep("B", 5)),
+    `GROUP (X)` = c(rep("A", 5), rep("B", 5))
   )
   testdata
-
   nightowl::line_plot(testdata,
     x = "X",
     y = "Y",
-    fill = "GROUP",
+    fill = "GROUP (X)",
     color = "GROUP",
     id = "ID",
     facet_row = "GROUP"
   )
-
   nightowl::line_plot(testdata,
     x = "X",
     y = "Y",
@@ -23,7 +22,6 @@ test_that("line plot works", {
     facet_row = "GROUP",
     title = "auto"
   )
-
   nightowl::line_plot(testdata,
     x = "X",
     y = "Y",
@@ -53,7 +51,6 @@ test_that("line plot works", {
     color = "GROUP",
     id = "ID"
   )
-
   nightowl::line_plot(testdata,
     x = "X",
     y = "Y",
@@ -63,7 +60,6 @@ test_that("line plot works", {
     color_values = NULL,
     summarise_y = median
   )
-
   nightowl::line_plot(testdata,
     x = "X",
     y = "Y",
@@ -73,7 +69,6 @@ test_that("line plot works", {
     color_values = NULL,
     summarise_y = mean
   )
-
   nightowl::line_plot(testdata,
     x = "X",
     y = "Y",
@@ -83,7 +78,6 @@ test_that("line plot works", {
     color_values = NULL,
     summarise_y = min
   )
-
   nightowl::line_plot(testdata,
     x = "X",
     y = "Y",
