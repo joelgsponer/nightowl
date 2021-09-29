@@ -31,8 +31,6 @@ line_plot <- function(DATA,
                       scales = "free_y",
                       ...) {
   if (!is.null(fill) && is.null(color)) color <- fill
-  if (is.character(summarise_y)) summarise_y <- function(x) do.call(summarise_y, list(x))
-  if (is.character(theme)) theme <- function(x) do.call(theme, list(x))
   # Add text wraping for facets
   DATA <- DATA %>%
     dplyr::mutate_at(
@@ -191,7 +189,17 @@ line_plot <- function(DATA,
         )))
     }
   }
-  g <- g + theme()
+
+  # Add Theme
+  if (is.character(theme)) {
+    g <- g + eval(parse(text = paste0(theme, "()")))
+  } else if (is.function(theme)) {
+    g <- g + theme()
+  } else {
+    rlang::abort("theme has to be either a function name as a string or a function iself")
+  }
+
+  # Adjust margins etc,
   g <- g + ggplot2::theme(
     legend.position = "top",
     legend.key.width = ggplot2::unit(2, "cm"),

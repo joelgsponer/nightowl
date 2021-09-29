@@ -13,8 +13,10 @@ test_that("line plot works", {
     fill = "GROUP (X)",
     color = "GROUP",
     id = "ID",
-    facet_row = "GROUP"
+    facet_row = "GROUP",
+    theme = "ggplot2::theme_classic"
   )
+
   nightowl::line_plot(testdata,
     x = "X",
     y = "Y",
