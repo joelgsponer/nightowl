@@ -31,8 +31,8 @@ line_plot <- function(DATA,
                       scales = "free_y",
                       ...) {
   if (!is.null(fill) && is.null(color)) color <- fill
-  if (is.character(summarise_y)) function(x) do.call(summarise_y, list(x))
-  if (is.character(theme)) function(x) do.call(theme, list(x))
+  if (is.character(summarise_y)) summarise_y <- function(x) do.call(summarise_y, list(x))
+  if (is.character(theme)) theme <- function(x) do.call(theme, list(x))
   # Add text wraping for facets
   DATA <- DATA %>%
     dplyr::mutate_at(
