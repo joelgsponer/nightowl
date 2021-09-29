@@ -7,6 +7,7 @@ test_that("line plot works", {
     `GROUP (X)` = c(rep("A", 5), rep("B", 5))
   )
   testdata
+
   nightowl::line_plot(testdata,
     x = "X",
     y = "Y",
@@ -22,16 +23,19 @@ test_that("line plot works", {
     y = "Y",
     id = "ID",
     facet_row = "GROUP",
-    title = "auto"
+    title = "auto",
+    summarise_y = "mean"
   )
+
   nightowl::line_plot(testdata,
     x = "X",
     y = "Y",
     fill = "GROUP",
     color = "GROUP",
     id = "ID",
-    facet_col = "GROUP"
+    facet_col = "GROUP (X)"
   )
+
   testdataA <- tibble::tibble(
     Y = runif(1000),
     X = sample(seq(1, 5), 1000, T),
