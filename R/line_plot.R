@@ -111,7 +111,7 @@ line_plot <- function(DATA,
   ## Smooth
   if (!is.null(method_smooth)) {
     # Fix colors
-    if (fill %in% c(facet_row, facet_col)) {
+    if (!is.null(fill) && fill %in% c(facet_row, facet_col)) {
       line_mapping <- ggplot2::aes()
     } else {
       line_mapping <- ggplot2::aes_(lty = params$fill)
