@@ -21,6 +21,12 @@ test_that("line plot works", {
   nightowl::line_plot(testdata,
     x = "X",
     y = "Y",
+    id = NULL
+  )
+
+  nightowl::line_plot(testdata,
+    x = "X",
+    y = "Y",
     id = "ID",
     facet_row = "GROUP",
     title = "auto",
