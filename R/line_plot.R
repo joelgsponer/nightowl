@@ -42,6 +42,9 @@ line_plot <- function(DATA,
     dplyr::filter_at(c(x, y), function(x) !is.na(x)) %>%
     droplevels() %>%
     tibble::rowid_to_column("INDEX")
+  # Convert Characters to factors
+  DATA <- DATA %>% 
+    dplyr::mutate_if(is.character, factor)
   # Aggregate values if there are multiple present per x
   if (!is.null(summarise_y)) {
     DATA %>%
@@ -207,7 +210,7 @@ line_plot <- function(DATA,
   )
   if (is.factor(DATA[[x]])) {
     g <- g + ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90)) +
-      xlab("")
+      ggplot2::xlab("")
   } else {
     g <- g + ggplot2::xlab(x)
   }
