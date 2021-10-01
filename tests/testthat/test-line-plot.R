@@ -19,6 +19,16 @@ test_that("line plot works", {
   )
 
   nightowl::line_plot(testdata,
+    x = "GROUP (X)",
+    y = "Y",
+    fill = "GROUP (X)",
+    color = "GROUP",
+    id = "ID",
+    facet_row = "GROUP",
+    theme = "ggplot2::theme_classic"
+  )
+
+  nightowl::line_plot(testdata,
     x = "X",
     y = "Y",
     id = NULL

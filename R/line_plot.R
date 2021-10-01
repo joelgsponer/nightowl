@@ -43,7 +43,7 @@ line_plot <- function(DATA,
     droplevels() %>%
     tibble::rowid_to_column("INDEX")
   # Convert Characters to factors
-  DATA <- DATA %>% 
+  DATA <- DATA %>%
     dplyr::mutate_if(is.character, factor)
   # Aggregate values if there are multiple present per x
   if (!is.null(summarise_y)) {
