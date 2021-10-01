@@ -19,6 +19,7 @@ line_plot <- function(DATA,
                       ylim = NULL,
                       title = NULL,
                       ylab = NULL,
+                      axis.text.x.angle = 45,
                       show_se = T,
                       log_y = F,
                       add_ribbon = F,
@@ -43,7 +44,7 @@ line_plot <- function(DATA,
     droplevels() %>%
     tibble::rowid_to_column("INDEX")
   # Convert Characters to factors
-  DATA <- DATA %>%
+  DATA <- DATA %>% 
     dplyr::mutate_if(is.character, factor)
   # Aggregate values if there are multiple present per x
   if (!is.null(summarise_y)) {
@@ -209,7 +210,7 @@ line_plot <- function(DATA,
     plot.margin = ggplot2::margin(1, 1, 1, 1, "cm")
   )
   if (is.factor(DATA[[x]])) {
-    g <- g + ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90)) +
+    g <- g + ggplot2::theme(axis.text.x = ggplot2::element_text(angle = axis.text.x.angle)) +
       ggplot2::xlab("")
   } else {
     g <- g + ggplot2::xlab(x)
