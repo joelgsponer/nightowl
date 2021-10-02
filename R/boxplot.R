@@ -27,7 +27,8 @@ boxplot <-
            facet_label_width = 20,
            theme = picasso::theme_picasso,
            color_values = unname(picasso::roche_colors()),
-           scales = "free_x") {
+           scales = "free_x",
+           ...) {
     #*******************************************************************************
     # Parameters
     if (is.null(fill) || fill == "") fill <- x
