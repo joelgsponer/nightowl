@@ -24,6 +24,7 @@ line_plot(
   ylim = NULL,
   title = NULL,
   ylab = NULL,
+  axis.text.x.angle = 45,
   show_se = T,
   log_y = F,
   add_ribbon = F,
