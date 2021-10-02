@@ -40,17 +40,17 @@ boxplot <-
         c(facet_row, facet_col),
         function(x) stringr::str_wrap(x, width = facet_label_width)
       )
-    # Convert Characters to factors
-    DATA <- DATA %>%
-      dplyr::mutate_if(is.character, factor)
     # Drop missing values
     if (remove_missing) {
       DATA <- DATA %>%
-        dplyr::filter_at(c(x, y, fill, color), function(x) !is.na(x)) %>%
+        dplyr::filter_at(c(x, y, fill, color, facet_row, facet_col), function(x) !is.na(x)) %>%
+        dplyr::mutate_if(is.character, factor) %>%
         droplevels()
     } else {
       # Make missing factors explicit
+      # Convert Characters to factors
       DATA <- DATA %>%
+        dplyr::mutate_if(is.character, factor) %>%
         dplyr::mutate_if(is.factor, forcats::fct_explicit_na)
     }
     #*******************************************************************************
@@ -131,8 +131,10 @@ boxplot <-
     }
     #*******************************************************************************
     # Colors and theming
-    g <- g + ggplot2::scale_fill_manual(values = color_values)
-    g <- g + ggplot2::scale_color_manual(values = color_values)
+    if (is.factor(DATA[[fill]])) {
+      g <- g + ggplot2::scale_fill_manual(values = color_values)
+      g <- g + ggplot2::scale_color_manual(values = color_values)
+    }
     # Add Theme
     if (is.character(theme)) {
       g <- g + eval(parse(text = paste0(theme, "()")))

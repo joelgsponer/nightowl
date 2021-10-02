@@ -5,16 +5,29 @@ test_that("boxplot works", {
   testdata <- tibble::tibble(
     Y = runif(100),
     X = rep(seq(1, 5), 20),
-    ID = sample(species, 100, replace = T),
+    ID = sample(c(species, NA), 100, replace = T),
     GROUP = c(rep("A", 50), rep("B", 50)),
     `GROUP (X)` = c(rep("A", 50), rep("B", 50))
   )
   testdata
 
   nightowl::boxplot(testdata,
-    x = "GROUP",
+    x = "GROUP (X)",
     y = "Y",
-    fill = "GROUP"
+    add_violin = T,
+    add_boxplot = F,
+    points_size = 3,
+    facet_col = "ID"
+  )
+
+  nightowl::boxplot(testdata,
+    x = "GROUP (X)",
+    y = "Y",
+    add_violin = T,
+    add_boxplot = F,
+    points_size = 3,
+    facet_col = "ID",
+    remove_missing = F
   )
 
   nightowl::boxplot(testdata,
