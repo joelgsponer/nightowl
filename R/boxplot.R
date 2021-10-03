@@ -122,12 +122,13 @@ boxplot <-
       g <- g + ggplot2::facet_grid(
         as.formula(
           paste(
-            paste(facet_row, collapse = "+"),
+            paste0("`", facet_row, "`", collapse = "+"),
             "~",
-            paste(facet_col, collapse = "+")
+            paste0("`", facet_col, "`", collapse = "+")
           )
         ),
-        scales = scales
+        scales = scales,
+        labeller = ggplot2::label_both
       )
     }
     #*******************************************************************************

@@ -26,7 +26,17 @@ test_that("boxplot works", {
     add_violin = T,
     add_boxplot = F,
     points_size = 3,
-    facet_col = "ID",
+    facet_col = "GROUP (X)",
+    remove_missing = F
+  )
+
+  nightowl::boxplot(testdata,
+    x = "GROUP (X)",
+    y = "Y",
+    add_violin = T,
+    add_boxplot = F,
+    points_size = 3,
+    facet_row = "GROUP (X)",
     remove_missing = F
   )
 
