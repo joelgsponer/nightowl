@@ -1,79 +1,63 @@
 test_that("boxplot works", {
-  species <- iris$Species %>%
-    unique() %>%
-    as.character()
-  testdata <- tibble::tibble(
-    Y = runif(100),
-    X = rep(seq(1, 5), 20),
-    ID = sample(c(species, NA), 100, replace = T),
-    GROUP = c(rep("A", 50), rep("B", 50)),
-    `GROUP (X)` = c(rep("A", 50), rep("B", 50))
-  )
-  testdata
 
-  nightowl::boxplot(testdata,
-    x = "GROUP (X)",
-    y = "Y",
+  testdata <- palmerpenguins::penguins_raw
+  g <- nightowl::boxplot(testdata,
+    x = "Species",
+    y = "Culmen Depth (mm)",
     add_violin = T,
     add_boxplot = F,
     points_size = 3,
-    facet_col = "ID"
+    facet_col = "Island"
   )
-
   nightowl::boxplot(testdata,
-    x = "GROUP (X)",
-    y = "Y",
+    x = "Sex",
+    y = "Culmen Depth (mm)",
     add_violin = T,
     add_boxplot = F,
     points_size = 3,
-    facet_col = "GROUP (X)",
+    facet_col = "Region",
+    remove_missing = F,
+  )
+  nightowl::boxplot(testdata,
+    x = "Species",
+    y = "Culmen Depth (mm)",
+    add_violin = T,
+    add_boxplot = F,
+    points_size = 3,
+    facet_row = "Region",
     remove_missing = F
   )
-
   nightowl::boxplot(testdata,
-    x = "GROUP (X)",
-    y = "Y",
-    add_violin = T,
-    add_boxplot = F,
-    points_size = 3,
-    facet_row = "GROUP (X)",
-    remove_missing = F
+    x = "Region",
+    y = "Culmen Depth (mm)",
   )
-
   nightowl::boxplot(testdata,
-    x = "GROUP (X)",
-    y = "Y"
-  )
-
-  nightowl::boxplot(testdata,
-    x = "GROUP (X)",
-    y = "Y",
+    x = "Region",
+    y = "Island",
     theme = picasso::theme_dark
   )
-
   nightowl::boxplot(testdata,
-    x = "GROUP (X)",
-    y = "Y",
+    x = "Island",
+    y = "Culmen Depth (mm)",
     add_violin = F,
     add_points = F,
-    facet_col = "GROUP"
+    facet_col = "Region"
   )
-
   nightowl::boxplot(testdata,
-    x = "GROUP (X)",
-    y = "Y",
+    x = "Species",
+    y = "Culmen Depth (mm)",
     add_violin = F,
     add_points = F,
-    facet_row = c("GROUP", "ID")
+    facet_row = c("Region", "Sex")
   )
-
   nightowl::boxplot(testdata,
-    x = "GROUP (X)",
-    y = "Y",
+    x = "Species",
+    y = "Culmen Depth (mm)",
     add_violin = F,
     add_boxplot = F,
     add_points = T,
-    facet_row = "GROUP",
-    facet_col = "ID"
+    facet_row = "Region",
+    facet_col = "Sex"
   )
+
 })
