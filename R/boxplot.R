@@ -10,6 +10,9 @@ boxplot <-
            title = NULL,
            xlab = NULL,
            axis.text.x.angle = 45,
+           axis.text.x.hjust = 1,
+           axis.text.x.vjust = 1,
+           legend.position = "bottom",
            x_label_width = 20,
            ylab = NULL,
            log_y = F,
@@ -160,8 +163,12 @@ boxplot <-
     # Annotation
     ## Labels
     g <- g + ggplot2::theme(
-      axis.text.x = ggplot2::element_text(angle = axis.text.x.angle),
-      legend.position = "bottom"
+      axis.text.x = ggplot2::element_text(angle = axis.text.x.angle,
+                                          hjust = axis.text.x.hjust,
+                                          vjust = axis.text.x.vjust,
+                                          ),
+      legend.position = legend.position,
+      ...
     )
     ## X label
     if (!is.null(xlab)) {
