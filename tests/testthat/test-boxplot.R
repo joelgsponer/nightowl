@@ -32,8 +32,8 @@ test_that("boxplot works", {
     y = "Culmen Depth (mm)",
   )
   nightowl::boxplot(testdata,
-    x = "Region",
-    y = "Island",
+    x = "Island",
+    y = "Culmen Depth (mm)",
     theme = picasso::theme_dark
   )
   nightowl::boxplot(testdata,
