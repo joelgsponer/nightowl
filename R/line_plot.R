@@ -213,7 +213,9 @@ line_plot <- function(DATA,
     g <- g + ggplot2::theme(axis.text.x = ggplot2::element_text(angle = axis.text.x.angle)) +
       ggplot2::xlab("")
   } else {
-    g <- g + ggplot2::xlab(x)
+    g <- g + ggplot2::xlab(x) +
+      ggplot2::scale_x_continuous(n.breaks = 20) +
+      ggplot2::scale_y_continuous(n.breaks = 20)
   }
   # Title
   if (!is.null(title)) {
