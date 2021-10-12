@@ -10,6 +10,7 @@ boxplot <-
            title = NULL,
            xlab = NULL,
            axis.text.x.angle = 45,
+           x_label_width = 20,
            ylab = NULL,
            log_y = F,
            remove_missing = T,
@@ -40,7 +41,12 @@ boxplot <-
       dplyr::mutate_at(
         c(facet_row, facet_col),
         function(x) stringr::str_wrap(x, width = facet_label_width)
+      ) %>%
+      dplyr::mutate_at(
+        x,
+        function(x) stringr::str_wrap(x, width = x_label_width)
       )
+
     # Drop missing values
     if (remove_missing) {
       DATA <- DATA %>%
