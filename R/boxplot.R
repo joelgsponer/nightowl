@@ -21,7 +21,7 @@ boxplot <-
            add_violin = T,
            add_boxplot = T,
            add_points = T,
-           points_color = picasso::roche_color("black"),
+           points_color = picasso::roche_colors("black"),
            points_size = 1,
            points_stroke = 1,
            points_alpha = 0.8,
@@ -32,6 +32,8 @@ boxplot <-
            theme = picasso::theme_picasso,
            palette_discrete = picasso::roche_palette_discrete(1),
            scales = "free_x",
+           plot_height = NULL, # Drity hack
+           plot_width = NULL, # Dirty hack
            ...) {
     #*******************************************************************************
     # Parameters

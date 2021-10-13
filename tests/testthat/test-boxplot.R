@@ -17,6 +17,7 @@ test_that("boxplot works", {
     points_size = 3,
     facet_col = "Region",
     remove_missing = F,
+    plot_height = T # This is an additonal parameter that is not needed
   )
 
   nightowl::boxplot(testdata,
