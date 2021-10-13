@@ -30,7 +30,7 @@ line_plot(
   add_ribbon = F,
   add_whiskers = T,
   theme = picasso::theme_picasso,
-  color_values = unname(picasso::roche_colors()),
+  palette_discrete = picasso::roche_palette_discrete(1),
   dodge = 0.2,
   points_position = "identity",
   summarise_y = NULL,

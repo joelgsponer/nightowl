@@ -25,7 +25,7 @@ line_plot <- function(DATA,
                       add_ribbon = F,
                       add_whiskers = T,
                       theme = picasso::theme_picasso,
-                      color_values = unname(picasso::roche_colors()),
+                      palette_discrete = picasso::roche_palette_discrete(1),
                       dodge = 0.2,
                       points_position = "identity",
                       summarise_y = NULL,
@@ -168,11 +168,11 @@ line_plot <- function(DATA,
     )
   }
   # AXIS ----
-  if (is.factor(DATA[[x]]) | is.character(DATA[[x]])) {
-    g <- g + ggplot2::scale_x_discrete(expand = ggplot2::expansion(add = 0.2))
-  } else {
-    g <- g + ggplot2::scale_x_continuous(expand = ggplot2::expansion(add = 0.2))
-  }
+  # if (is.factor(DATA[[x]]) | is.character(DATA[[x]])) {
+  #   g <- g + ggplot2::scale_x_discrete(expand = ggplot2::expansion(add = 0.2))
+  # } else {
+  #   g <- g + ggplot2::scale_x_continuous(expand = ggplot2::expansion(add = 0.2))
+  # }
   if (log_y) {
     g <- g + ggplot2::scale_y_log10()
   }
@@ -183,17 +183,14 @@ line_plot <- function(DATA,
     g <- g + ggplot2::xlim(xlim[1], xlim[2])
   }
   # Theming and colors ----
-  if (!is.null(color_values)) {
-    g <- g + ggplot2::scale_color_manual(values = color_values)
-    g <- g + ggplot2::scale_fill_manual(values = color_values)
-    if (!is.null(color)) {
-      g <-
-        g + ggplot2::guides(colour = ggplot2::guide_legend(override.aes = list(
-          size = 2, color = color_values[1:length(unique(DATA[[color]]))]
-        )))
-    }
+  g <- g + ggplot2::discrete_scale("fill", "roche", palette_discrete, ...)
+  g <- g + ggplot2::discrete_scale("color", "roche", palette_discrete, ...)
+  if (!is.null(color)) {
+    g <-
+      g + ggplot2::guides(colour = ggplot2::guide_legend(override.aes = list(
+        size = 2, color = palette_discrete(length(unique(DATA[[color]])))
+      )))
   }
-
   # Add Theme
   if (is.character(theme)) {
     g <- g + eval(parse(text = paste0(theme, "()")))
@@ -213,9 +210,7 @@ line_plot <- function(DATA,
     g <- g + ggplot2::theme(axis.text.x = ggplot2::element_text(angle = axis.text.x.angle)) +
       ggplot2::xlab("")
   } else {
-    g <- g + ggplot2::xlab(x) +
-      ggplot2::scale_x_continuous(n.breaks = 20) +
-      ggplot2::scale_y_continuous(n.breaks = 20)
+    g <- g + ggplot2::xlab(x)
   }
   # Title
   if (!is.null(title)) {

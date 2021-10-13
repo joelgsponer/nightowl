@@ -28,60 +28,33 @@ boxplot <-
            add_title = T,
            facet_row = NULL,
            facet_col = NULL,
-           facet_label_width = 20,
+           label_width = 20,
            theme = picasso::theme_picasso,
-           color_values = unname(picasso::roche_colors()),
+           palette_discrete = picasso::roche_palette_discrete(1),
            scales = "free_x",
            ...) {
     #*******************************************************************************
     # Parameters
     if (is.null(fill) || fill == "") fill <- x
     if (!is.null(fill) && is.null(color)) color <- fill
-    #*******************************************************************************
-    # Data preparation
-    # Add text wraping for facets
+    # Drop columns that are not needed
     DATA <- DATA %>%
-      dplyr::mutate_at(
-        c(facet_row, facet_col),
-        function(x) stringr::str_wrap(x, width = facet_label_width)
-      ) %>%
-      dplyr::mutate_at(
-        x,
-        function(x) stringr::str_wrap(x, width = x_label_width)
-      )
-
-    # Drop missing values
-    if (remove_missing) {
-      DATA <- DATA %>%
-        dplyr::filter_at(c(x, y, fill, color, facet_row, facet_col), function(x) !is.na(x)) %>%
-        dplyr::mutate_if(is.character, factor) %>%
-        droplevels()
-    } else {
-      # Make missing factors explicit
-      # Convert Characters to factors
-      DATA <- DATA %>%
-        dplyr::mutate_if(is.character, factor) %>%
-        dplyr::mutate_if(is.factor, forcats::fct_explicit_na)
-    }
+      dplyr::select_at(c(x, y, color, fill, facet_row, facet_col))
     #*******************************************************************************
-    # Setup ggplot
-    # This was difficult, fist store parameters in list,
-    # Convert to symbols
-    # drop the onses which are null, call aes_ function (CAVE: ecex)
-    # also think of other places where params is used, e.g. params$id
-    params <- list(
+    # Drop missing values
+    DATA <- nightowl::prepare_data_for_plotting(DATA, remove_missing = remove_missing)
+    # Data preparation
+    DATA <- nightowl::add_text_wraping(DATA, width = label_width)
+    #*******************************************************************************
+    # Setup Plot
+    .aes <- list(
       x = x,
       y = y,
       fill = fill,
       color = color,
       group = fill
-    ) %>%
-      purrr::compact() %>%
-      purrr::map(~ rlang::sym(.x))
-    f <- ggplot2::aes_
-    .aes <- rlang::exec(.fn = "f", !!!params)
-    g <- DATA %>%
-      ggplot2::ggplot(.aes)
+    )
+    g <- nightowl::ggplot(DATA, .aes)
     #*******************************************************************************
     # Add Violin
     if (add_violin) {
@@ -143,8 +116,8 @@ boxplot <-
     #*******************************************************************************
     # Colors and theming
     if (is.factor(DATA[[fill]])) {
-      g <- g + ggplot2::scale_fill_manual(values = color_values)
-      g <- g + ggplot2::scale_color_manual(values = color_values)
+      g <- g + ggplot2::discrete_scale("fill", "roche", palette_discrete, ...)
+      g <- g + ggplot2::discrete_scale("color", "roche", palette_discrete, ...)
     }
     # Add Theme
     if (is.character(theme)) {
@@ -163,13 +136,16 @@ boxplot <-
     # Annotation
     ## Labels
     g <- g + ggplot2::theme(
-      axis.text.x = ggplot2::element_text(angle = axis.text.x.angle,
-                                          hjust = axis.text.x.hjust,
-                                          vjust = axis.text.x.vjust,
-                                          ),
+      axis.text.x = ggplot2::element_text(
+        angle = axis.text.x.angle,
+        hjust = axis.text.x.hjust,
+        vjust = axis.text.x.vjust,
+      ),
       legend.position = legend.position,
       ...
-    )
+    ) +
+      ggplot2::scale_y_continuous(n.breaks = 20)
+
     ## X label
     if (!is.null(xlab)) {
       g <- g + ggplot2::xlab(xlab)

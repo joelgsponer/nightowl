@@ -1,112 +1,58 @@
 test_that("line plot works", {
-  testdata <- tibble::tibble(
-    Y = runif(10),
-    X = rep(seq(1, 5), 2),
-    ID = c(rep("A", 5), rep("B", 5)),
-    GROUP = c(rep("A", 5), rep("B", 5)),
-    `GROUP (X)` = c(rep("A", 5), rep("B", 5))
-  )
-  testdata
+  testdata <- datasets::ChickWeight %>%
+    tibble::as_tibble()
 
   nightowl::line_plot(testdata,
-    x = "X",
-    y = "Y",
-    fill = "GROUP (X)",
-    color = "GROUP",
-    id = "ID",
-    facet_row = "GROUP",
+    x = "Time",
+    y = "weight",
+    fill = "Diet",
+    color = "Diet",
+    id = "Chick",
+    facet_row = "Diet",
     theme = "ggplot2::theme_classic"
   )
 
   nightowl::line_plot(testdata,
-    x = "GROUP (X)",
-    y = "Y",
-    fill = "GROUP (X)",
-    color = "GROUP",
-    id = "ID",
-    facet_row = "GROUP",
-    theme = "ggplot2::theme_classic"
-  )
-
-  nightowl::line_plot(testdata,
-    x = "X",
-    y = "Y",
-    id = NULL
-  )
-
-  nightowl::line_plot(testdata,
-    x = "X",
-    y = "Y",
-    id = "ID",
-    facet_row = "GROUP",
+    x = "Time",
+    y = "weight",
+    id = "Chick",
+    facet_row = "Diet",
     title = "auto",
     summarise_y = "mean"
   )
 
   nightowl::line_plot(testdata,
-    x = "X",
-    y = "Y",
-    fill = "GROUP",
-    color = "GROUP",
-    id = "ID",
-    facet_col = "GROUP (X)"
+    x = "Time",
+    y = "weight",
+    id = "Chick",
+    facet_col = "Diet",
+    title = "auto",
+    summarise_y = "min",
+    scales = "free_y"
   )
 
-  testdataA <- tibble::tibble(
-    Y = runif(1000),
-    X = sample(seq(1, 5), 1000, T),
-    ID = sample(letters[1:10], 1000, T),
-    GROUP = "A"
+  nightowl::line_plot(testdata,
+    x = "Time",
+    y = "weight",
+    fill = "Diet",
+    id = "Chick",
+    facet_col = "Diet",
+    title = "auto",
+    summarise_y = "min",
+    scales = "free_y",
+    method_smooth = "median",
+    add_whiskers = F
   )
-  testdataB <- tibble::tibble(
-    Y = runif(1000),
-    X = sample(seq(1, 5), 1000, T),
-    ID = sample(letters[11:20], 1000, T),
-    GROUP = "B"
-  )
-  testdata <- dplyr::bind_rows(testdataA, testdataB)
 
   nightowl::line_plot(testdata,
-    x = "X",
-    y = "Y",
-    fill = "GROUP",
-    color = "GROUP",
-    id = "ID"
-  )
-  nightowl::line_plot(testdata,
-    x = "X",
-    y = "Y",
-    fill = "GROUP",
-    color = "GROUP",
-    id = "ID",
-    color_values = NULL,
-    summarise_y = median
-  )
-  nightowl::line_plot(testdata,
-    x = "X",
-    y = "Y",
-    fill = "GROUP",
-    color = "GROUP",
-    id = "ID",
-    color_values = NULL,
-    summarise_y = mean
-  )
-  nightowl::line_plot(testdata,
-    x = "X",
-    y = "Y",
-    fill = "GROUP",
-    color = "GROUP",
-    id = "ID",
-    color_values = NULL,
-    summarise_y = min
-  )
-  nightowl::line_plot(testdata,
-    x = "X",
-    y = "Y",
-    fill = "GROUP",
-    color = "GROUP",
-    id = "ID",
-    summarise_y = median,
-    method_smooth = "median"
+    x = "Time",
+    y = "weight",
+    fill = "Diet",
+    id = "Chick",
+    title = "auto",
+    summarise_y = "min",
+    scales = "free_y",
+    method_smooth = "median",
+    add_whiskers = F
   )
 })

@@ -13,6 +13,10 @@ boxplot(
   title = NULL,
   xlab = NULL,
   axis.text.x.angle = 45,
+  axis.text.x.hjust = 1,
+  axis.text.x.vjust = 1,
+  legend.position = "bottom",
+  x_label_width = 20,
   ylab = NULL,
   log_y = F,
   remove_missing = T,
@@ -27,9 +31,9 @@ boxplot(
   add_title = T,
   facet_row = NULL,
   facet_col = NULL,
-  facet_label_width = 20,
+  label_width = 20,
   theme = picasso::theme_picasso,
-  color_values = unname(picasso::roche_colors()),
+  palette_discrete = picasso::roche_palette_discrete(1),
   scales = "free_x",
   ...
 )

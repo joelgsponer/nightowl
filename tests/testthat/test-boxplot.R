@@ -1,7 +1,6 @@
 test_that("boxplot works", {
-
   testdata <- palmerpenguins::penguins_raw
-  g <- nightowl::boxplot(testdata,
+  nightowl::boxplot(testdata,
     x = "Species",
     y = "Culmen Depth (mm)",
     add_violin = T,
@@ -9,6 +8,7 @@ test_that("boxplot works", {
     points_size = 3,
     facet_col = "Island"
   )
+
   nightowl::boxplot(testdata,
     x = "Sex",
     y = "Culmen Depth (mm)",
@@ -18,6 +18,7 @@ test_that("boxplot works", {
     facet_col = "Region",
     remove_missing = F,
   )
+
   nightowl::boxplot(testdata,
     x = "Species",
     y = "Culmen Depth (mm)",
@@ -27,6 +28,7 @@ test_that("boxplot works", {
     facet_row = "Region",
     remove_missing = F
   )
+
   nightowl::boxplot(testdata,
     x = "Region",
     y = "Culmen Depth (mm)",
@@ -59,5 +61,4 @@ test_that("boxplot works", {
     facet_row = "Region",
     facet_col = "Sex"
   )
-
 })
