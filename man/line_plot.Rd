@@ -35,6 +35,8 @@ line_plot(
   points_position = "identity",
   summarise_y = NULL,
   scales = "free_y",
+  plot_height = NULL,
+  plot_width = NULL,
   ...
 )
 }

@@ -30,6 +30,8 @@ line_plot <- function(DATA,
                       points_position = "identity",
                       summarise_y = NULL,
                       scales = "free_y",
+                      plot_height = NULL, # Drity hack
+                      plot_width = NULL, # Dirty hack
                       ...) {
   if (!is.null(fill) && is.null(color)) color <- fill
   # Add text wraping for facets
