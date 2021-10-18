@@ -1,4 +1,4 @@
-#===============================================================================
+# ===============================================================================
 #' Summry table
 #' Table to display data that is being used in plots. All character columns
 #' are converted into factors.
@@ -39,11 +39,11 @@ summary_table <- function(DATA,
   #*******************************************************************************
   # Build table
   .lty <- rtables::basic_table()
-  .lty <- purrr::reduce(facet_cols, ~rtables::split_cols_by(.x, .y), .init = .lty)
-  .lty <- purrr::reduce(facet_rows, ~rtables::split_rows_by(.x, .y), .init = .lty)
+  .lty <- purrr::reduce(facet_cols, ~ rtables::split_cols_by(.x, .y), .init = .lty)
+  .lty <- purrr::reduce(facet_rows, ~ rtables::split_rows_by(.x, .y), .init = .lty)
   .lty <- rtables::split_cols_by(.lty, x)
-  if(!is.null(group) && group_split == "rows") .lty <- rtables::split_rows_by(.lty, group)
-  if(!is.null(group) && group_split == "cols") .lty <- rtables::split_cols_by(.lty, group)
+  if (!is.null(group) && group_split == "rows") .lty <- rtables::split_rows_by(.lty, group)
+  if (!is.null(group) && group_split == "cols") .lty <- rtables::split_cols_by(.lty, group)
   .lty <- tern::summarize_vars(.lty, y, denom = denom)
   rtables::build_table(.lty, DATA)
 }

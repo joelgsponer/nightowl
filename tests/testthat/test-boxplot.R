@@ -1,5 +1,4 @@
 test_that("boxplot works", {
-
   testdata <- palmerpenguins::penguins_raw
   nightowl::boxplot(testdata,
     x = "Species",
