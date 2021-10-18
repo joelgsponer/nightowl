@@ -1,4 +1,5 @@
 test_that("boxplot works", {
+
   testdata <- palmerpenguins::penguins_raw
   nightowl::boxplot(testdata,
     x = "Species",
@@ -6,6 +7,12 @@ test_that("boxplot works", {
     add_violin = T,
     add_boxplot = F,
     points_size = 3,
+    facet_col = "Island"
+  )
+
+  nightowl::summary_table(testdata,
+    x = "Species",
+    y = "Culmen Depth (mm)",
     facet_col = "Island"
   )
 

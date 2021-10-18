@@ -21,6 +21,7 @@ Imports:
     peacock,
     picasso,
     purrr,
+    rtables,
     stringr,
     testthat,
     tibble,

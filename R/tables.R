@@ -9,7 +9,9 @@ summary_table <- function(DATA,
                           facet_cols = NULL,
                           facet_rows = NULL,
                           remove_missing = FALSE,
-                          label_width = 20) {
+                          label_width = 20,
+                          denom = "n",
+                          ...) {
   #*******************************************************************************
   # Drop columns that are not needed
   DATA <- DATA %>%
@@ -25,7 +27,7 @@ summary_table <- function(DATA,
   .lty <- purrr::reduce(facet_cols, ~rtables::split_cols_by(.x, .y), .init = .lty)
   .lty <- purrr::reduce(facet_rows, ~rtables::split_rows_by(.x, .y), .init = .lty)
   .lty <- rtables::split_cols_by(.lty, x)
-  .lty <- rtables::split_rows_by(.lty, group)
-  .lty <- tern::summarize_vars(.lty, y)
+  if(!is.null(group)) .lty <- rtables::split_rows_by(.lty, group)
+  .lty <- tern::summarize_vars(.lty, y, denom = denom)
   rtables::build_table(.lty, DATA)
 }
