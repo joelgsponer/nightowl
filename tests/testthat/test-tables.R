@@ -10,43 +10,43 @@ test_that("tables works", {
   )
   nightowl::summary_table(testdata,
     x = c("Species"),
-    facet_cols = c("Island"),
+    facet_col = c("Island"),
     y = c("Culmen Depth (mm)"),
   )
   nightowl::summary_table(testdata,
     x = "Species",
     group = "Sex",
     y = c("Culmen Depth (mm)"),
-    facet_rows = c("Island")
+    facet_row = c("Island")
   )
   nightowl::summary_table(testdata,
     x = "Species",
     group = "Sex",
-    group_split = "cols",
+    group_split = "col",
     y = c("Culmen Depth (mm)"),
-    facet_rows = c("Island")
+    facet_row = c("Island")
   )
   nightowl::summary_table(testdata,
     x = "Species",
     y = c("Sex"),
-    facet_rows = c("Island")
+    facet_row = c("Island")
   )
   nightowl::summary_table(testdata,
     x = "Species",
     y = c("Sex"),
-    facet_rows = c("Island"),
+    facet_row = c("Island"),
     denom = "N_row"
   )
   nightowl::summary_table(testdata,
     x = "Species",
     y = c("Sex"),
-    facet_rows = c("Island"),
+    facet_row = c("Island"),
     denom = "N_col"
   )
   nightowl::summary_table(testdata,
     x = "Species",
     y = c("Sex"),
-    facet_rows = c("Island"),
+    facet_row = c("Island"),
     denom = "N_col",
     notused = "lorem"
   )
