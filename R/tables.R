@@ -6,9 +6,9 @@
 #' @param x Split columns by
 #' @param y Variable to summarise
 #' @param group Grouping variable
-#' @param group_split Split Groups be split into "cols" or "rows"
-#' @param facet_cols Split columns by, additionally  to x.
-#' @param facet_rows Split rows by
+#' @param group_split Split Groups be split into "col" or "row"
+#' @param facet_col Split columns by, additionally  to x.
+#' @param facet_row Split row by
 #' @param remove_missing If TRUE any missing values in character or factor
 #'   columns are remove. If FALSE they are recoded as (Missing).
 #' @param label_width Width of labels for text wraping
@@ -20,9 +20,9 @@ summary_table <- function(DATA,
                           x,
                           y,
                           group = NULL,
-                          group_split = "rows",
-                          facet_cols = NULL,
-                          facet_rows = NULL,
+                          group_split = "row",
+                          facet_col = NULL,
+                          facet_row = NULL,
                           remove_missing = FALSE,
                           label_width = 20,
                           denom = "n",
@@ -30,7 +30,7 @@ summary_table <- function(DATA,
   #*******************************************************************************
   # Drop columns that are not needed
   DATA <- DATA %>%
-    dplyr::select_at(c(x, y, group, facet_cols, facet_rows))
+    dplyr::select_at(c(x, y, group, facet_col, facet_row))
   #*******************************************************************************
   # Drop missing values
   DATA <- nightowl::prepare_data_for_plotting(DATA, remove_missing = remove_missing)
@@ -39,11 +39,11 @@ summary_table <- function(DATA,
   #*******************************************************************************
   # Build table
   .lty <- rtables::basic_table()
-  .lty <- purrr::reduce(facet_cols, ~ rtables::split_cols_by(.x, .y), .init = .lty)
-  .lty <- purrr::reduce(facet_rows, ~ rtables::split_rows_by(.x, .y), .init = .lty)
-  .lty <- rtables::split_cols_by(.lty, x)
-  if (!is.null(group) && group_split == "rows") .lty <- rtables::split_rows_by(.lty, group)
-  if (!is.null(group) && group_split == "cols") .lty <- rtables::split_cols_by(.lty, group)
+  .lty <- purrr::reduce(facet_col, ~ rtables::split_col_by(.x, .y), .init = .lty)
+  .lty <- purrr::reduce(facet_row, ~ rtables::split_row_by(.x, .y), .init = .lty)
+  .lty <- rtables::split_col_by(.lty, x)
+  if (!is.null(group) && group_split == "row") .lty <- rtables::split_row_by(.lty, group)
+  if (!is.null(group) && group_split == "col") .lty <- rtables::split_col_by(.lty, group)
   .lty <- tern::summarize_vars(.lty, y, denom = denom)
   rtables::build_table(.lty, DATA)
 }
