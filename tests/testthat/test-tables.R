@@ -43,4 +43,11 @@ test_that("tables works", {
     facet_rows = c("Island"),
     denom = "N_col"
   )
+  nightowl::summary_table(testdata,
+    x = "Species",
+    y = c("Sex"),
+    facet_rows = c("Island"),
+    denom = "N_col",
+    notused = "lorem"
+  )
 })
