@@ -39,11 +39,11 @@ summary_table <- function(DATA,
   #*******************************************************************************
   # Build table
   .lty <- rtables::basic_table()
-  .lty <- purrr::reduce(facet_col, ~ rtables::split_col_by(.x, .y), .init = .lty)
-  .lty <- purrr::reduce(facet_row, ~ rtables::split_row_by(.x, .y), .init = .lty)
-  .lty <- rtables::split_col_by(.lty, x)
-  if (!is.null(group) && group_split == "row") .lty <- rtables::split_row_by(.lty, group)
-  if (!is.null(group) && group_split == "col") .lty <- rtables::split_col_by(.lty, group)
+  .lty <- purrr::reduce(facet_col, ~ rtables::split_cols_by(.x, .y), .init = .lty)
+  .lty <- purrr::reduce(facet_row, ~ rtables::split_rows_by(.x, .y), .init = .lty)
+  .lty <- rtables::split_cols_by(.lty, x)
+  if (!is.null(group) && group_split == "row") .lty <- rtables::split_rows_by(.lty, group)
+  if (!is.null(group) && group_split == "col") .lty <- rtables::split_cols_by(.lty, group)
   .lty <- tern::summarize_vars(.lty, y, denom = denom)
   rtables::build_table(.lty, DATA)
 }
