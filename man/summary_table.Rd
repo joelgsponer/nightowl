@@ -11,9 +11,9 @@ summary_table(
   x,
   y,
   group = NULL,
-  group_split = "rows",
-  facet_cols = NULL,
-  facet_rows = NULL,
+  group_split = "row",
+  facet_col = NULL,
+  facet_row = NULL,
   remove_missing = FALSE,
   label_width = 20,
   denom = "n",
@@ -27,11 +27,11 @@ summary_table(
 
 \item{group}{Grouping variable}
 
-\item{group_split}{Split Groups be split into "cols" or "rows"}
+\item{group_split}{Split Groups be split into "col" or "row"}
 
-\item{facet_cols}{Split columns by, additionally  to x.}
+\item{facet_col}{Split columns by, additionally  to x.}
 
-\item{facet_rows}{Split rows by}
+\item{facet_row}{Split row by}
 
 \item{remove_missing}{If TRUE any missing values in character or factor
 columns are remove. If FALSE they are recoded as (Missing).}

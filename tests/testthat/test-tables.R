@@ -1,9 +1,11 @@
 test_that("tables works", {
+  library(magrittr)
   testdata <- palmerpenguins::penguins_raw
   nightowl::summary_table(testdata,
     x = "Species",
     y = "Culmen Depth (mm)",
   )
+
   nightowl::summary_table(testdata,
     x = "Species",
     y = c("Island", "Culmen Depth (mm)"),
@@ -50,4 +52,5 @@ test_that("tables works", {
     denom = "N_col",
     notused = "lorem"
   )
+  testthat::expect_true(TRUE)
 })
