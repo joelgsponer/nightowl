@@ -6,7 +6,7 @@
 #' @param x Split columns by
 #' @param y Variable to summarise
 #' @param group Grouping variable
-#' @group_split Split Groups be split into "cols" or "rows"
+#' @param group_split Split Groups be split into "cols" or "rows"
 #' @param facet_cols Split columns by, additionally  to x.
 #' @param facet_rows Split rows by
 #' @param remove_missing If TRUE any missing values in character or factor
@@ -14,7 +14,7 @@
 #' @param label_width Width of labels for text wraping
 #' @param denom Denominator to be used for frequency calculations.
 #'   Possible values are "n", "N_col", "N_row".
-#'   See also \code{\link[tern]{summarize_vars}}
+#'   See also \link{[https://docs.roche.com/doc/tern/v0.7.5/reference/summarize_variables.html]{tern::summarize_vars()}}
 #' @export
 summary_table <- function(DATA,
                           x,

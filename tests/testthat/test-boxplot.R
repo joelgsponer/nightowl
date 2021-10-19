@@ -1,6 +1,6 @@
 test_that("boxplot works", {
   testdata <- palmerpenguins::penguins_raw
-  nightowl::boxplot(testdata,
+  g <- nightowl::boxplot(testdata,
     x = "Species",
     y = "Culmen Depth (mm)",
     add_violin = T,

@@ -27,6 +27,8 @@ summary_table(
 
 \item{group}{Grouping variable}
 
+\item{group_split}{Split Groups be split into "cols" or "rows"}
+
 \item{facet_cols}{Split columns by, additionally  to x.}
 
 \item{facet_rows}{Split rows by}
@@ -38,7 +40,7 @@ columns are remove. If FALSE they are recoded as (Missing).}
 
 \item{denom}{Denominator to be used for frequency calculations.
 Possible values are "n", "N_col", "N_row".
-See also \code{\link[tern]{summarize_vars}}}
+See also \link{[https://docs.roche.com/doc/tern/v0.7.5/reference/summarize_variables.html]{tern::summarize_vars()}}}
 }
 \description{
 Summry table
