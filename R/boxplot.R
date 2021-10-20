@@ -118,8 +118,8 @@ boxplot <-
     #*******************************************************************************
     # Colors and theming
     if (is.factor(DATA[[fill]])) {
-      g <- g + ggplot2::discrete_scale("fill", "roche", palette_discrete, ...)
-      g <- g + ggplot2::discrete_scale("color", "roche", palette_discrete, ...)
+      g <- g + ggplot2::discrete_scale("fill", "roche", palette_discrete)
+      g <- g + ggplot2::discrete_scale("color", "roche", palette_discrete)
     }
     # Add Theme
     if (is.character(theme)) {

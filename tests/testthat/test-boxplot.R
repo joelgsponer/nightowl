@@ -6,7 +6,8 @@ test_that("boxplot works", {
     add_violin = T,
     add_boxplot = F,
     points_size = 3,
-    facet_col = "Island"
+    facet_col = "Island",
+    unused = "unused"
   ) %>%
     waRRior::expect_ggplot()
 
