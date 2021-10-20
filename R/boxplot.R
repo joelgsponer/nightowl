@@ -143,8 +143,7 @@ boxplot <-
         hjust = axis.text.x.hjust,
         vjust = axis.text.x.vjust,
       ),
-      legend.position = legend.position,
-      ...
+      legend.position = legend.position
     ) +
       ggplot2::scale_y_continuous(n.breaks = 20)
 
