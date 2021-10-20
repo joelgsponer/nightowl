@@ -9,7 +9,8 @@ test_that("line plot works", {
     color = "Diet",
     id = "Chick",
     facet_row = "Diet",
-    theme = "ggplot2::theme_classic"
+    theme = "ggplot2::theme_classic",
+    notused = "notused"
   )
 
   nightowl::line_plot(testdata,

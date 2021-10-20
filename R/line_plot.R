@@ -185,8 +185,8 @@ line_plot <- function(DATA,
     g <- g + ggplot2::xlim(xlim[1], xlim[2])
   }
   # Theming and colors ----
-  g <- g + ggplot2::discrete_scale("fill", "roche", palette_discrete, ...)
-  g <- g + ggplot2::discrete_scale("color", "roche", palette_discrete, ...)
+  g <- g + ggplot2::discrete_scale("fill", "roche", palette_discrete)
+  g <- g + ggplot2::discrete_scale("color", "roche", palette_discrete)
   if (!is.null(color)) {
     g <-
       g + ggplot2::guides(colour = ggplot2::guide_legend(override.aes = list(
