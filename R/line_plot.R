@@ -6,19 +6,19 @@ line_plot <- function(DATA,
                       fill = NULL,
                       color = NULL,
                       id = "USUBJID",
+                      add_points = F,
+                      facet_row = NULL,
+                      title = NULL,
+                      ylab = NULL,
                       add_lines = T,
                       lines_alpha = 0.5,
                       lines_size = 1,
-                      add_points = F,
-                      facet_row = NULL,
                       facet_col = NULL,
-                      facet_label_width = 20,
+                      label_width = 20,
                       method_smooth = NULL,
                       color_smooth = "black",
                       xlim = NULL,
                       ylim = NULL,
-                      title = NULL,
-                      ylab = NULL,
                       axis.text.x.angle = 45,
                       show_se = T,
                       log_y = F,
@@ -29,78 +29,48 @@ line_plot <- function(DATA,
                       dodge = 0.2,
                       points_position = "identity",
                       summarise_y = NULL,
+                      remove_missing = T,
                       scales = "free_y",
                       plot_height = NULL, # Drity hack
                       plot_width = NULL, # Dirty hack
                       ...) {
+  #*******************************************************************************
+  # Parameters
   if (!is.null(fill) && is.null(color)) color <- fill
-  # Add text wraping for facets
+  # Drop columns that are not needed
   DATA <- DATA %>%
-    dplyr::mutate_at(
-      c(facet_row, facet_col),
-      function(x) stringr::str_wrap(x, width = facet_label_width)
-    )
+    dplyr::select_at(c(x, y, color, fill, facet_row, facet_col, id))
+  #*******************************************************************************
   # Drop missing values
-  DATA <- DATA %>%
-    dplyr::filter_at(c(x, y), function(x) !is.na(x)) %>%
-    droplevels() %>%
-    tibble::rowid_to_column("INDEX")
-  # Convert Characters to factors
-  DATA <- DATA %>%
-    dplyr::mutate_if(is.character, factor)
+  DATA <- nightowl::prepare_data_for_plotting(DATA, remove_missing = remove_missing)
+  # Data preparation
+  DATA <- nightowl::add_text_wraping(DATA, width = label_width)
   # Aggregate values if there are multiple present per x
-  if (!is.null(summarise_y)) {
-    DATA %>%
-      dplyr::group_by_at(c(x, id, facet_col, facet_row)) %>%
-      dplyr::group_split() %>%
-      purrr::map_df(function(.data) {
-        .value <- do.call(summarise_y, list(.data[[y]]))
-        .data %>%
-          dplyr::filter_at(y, function(x) x == .value) %>%
-          head(1) ->
-        .res
-        if (nrow(.res) < 1) {
-          .data %>%
-            head(1) %>%
-            dplyr::mutate(AVAL = .value) ->
-          .res
-        }
-        return(.res)
-      }) ->
-    DATA
-  }
-
+  #DATA <- nightowl::aggregate_y_values(DATA, summarise_y, x, y)
+  #*******************************************************************************  
   # Setup ggplot
-  # This was difficult, fist store parameters in list,
-  # Convert to symbols
-  # drop the onses which are null, call aes_ function (CAVE: ecex)
-  # also think of other places where params is used, e.g. params$id
-  params <- list(
+  .aes <- list(
     x = x,
     y = y,
     fill = fill,
     color = color,
     group = fill,
     id = id
-  ) %>%
-    purrr::compact() %>%
-    purrr::map(~ rlang::sym(.x))
-  f <- ggplot2::aes_
-  .aes <- rlang::exec(.fn = "f", !!!params)
-  g <- DATA %>%
-    ggplot2::ggplot(.aes)
+  ) 
+  g <- nightowl::ggplot(DATA, .aes)
+  #*******************************************************************************
   # Layers ----
   ## Lines
   if (add_lines) {
     if (is.null(summarise_y)) {
       g <- g + ggplot2::geom_line(
-        ggplot2::aes_(group = params$id),
+        ggplot2::aes_(group = rlang::sym(.aes$id)),
         alpha = lines_alpha,
         size = lines_size
       )
     } else {
       g <- g + ggplot2::stat_summary(
-        ggplot2::aes_(group = params$id),
+        ggplot2::aes_(group = rlang::sym(.aes$id)),
         fun = summarise_y,
         geom = "line",
         alpha = lines_alpha,
@@ -120,7 +90,7 @@ line_plot <- function(DATA,
     if (!is.null(fill) && fill %in% c(facet_row, facet_col)) {
       line_mapping <- ggplot2::aes()
     } else {
-      line_mapping <- ggplot2::aes_(lty = params$fill)
+      line_mapping <- ggplot2::aes_(lty = rlang::sym(.aes$fill))
     }
     # Add smooth
     if (method_smooth == "mean") {

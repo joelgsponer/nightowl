@@ -30,6 +30,33 @@ prepare_data_for_plotting <- function(DATA, cols = NULL, remove_missing = T) {
   }
   return(DATA)
 }
+#===============================================================================
+#' Aggregate y values
+#' @export
+aggregate_y_values <- function(DATA, summarise_y, x, y, cols = NULL) {
+  if(is.null(cols)) cols <- waRRior::pop(names(DATA), y)
+  if (!is.null(summarise_y)) {
+    DATA %>%
+      dplyr::group_by_at(cols) %>%
+      dplyr::group_split() %>%
+      purrr::map_df(function(.data) {
+        .value <- do.call(summarise_y, list(.data[[y]]))
+        .data %>%
+          dplyr::filter_at(y, function(x) x == .value) %>%
+          head(1) ->
+        .res
+        if (nrow(.res) < 1) {
+          .data %>%
+            head(1) %>%
+            dplyr::mutate(AVAL = .value) ->
+          .res
+        }
+        return(.res)
+      })
+  } else {
+    return(DATA)
+  }
+}
 # ===============================================================================
 #' Create ggplot form list
 #' Setup ggplot

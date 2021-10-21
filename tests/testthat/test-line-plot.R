@@ -1,6 +1,9 @@
 test_that("line plot works", {
+
+  library(magrittr)
   testdata <- datasets::ChickWeight %>%
-    tibble::as_tibble()
+    tibble::as_tibble() %>%
+    dplyr::mutate(`Diet 2` = Diet)
 
   nightowl::line_plot(testdata,
     x = "Time",
@@ -8,7 +11,7 @@ test_that("line plot works", {
     fill = "Diet",
     color = "Diet",
     id = "Chick",
-    facet_row = "Diet",
+    facet_row = "Diet 2",
     theme = "ggplot2::theme_classic",
     notused = "notused"
   )
@@ -53,7 +56,8 @@ test_that("line plot works", {
     title = "auto",
     summarise_y = "min",
     scales = "free_y",
-    method_smooth = "median",
+    method_smooth = "lm",
     add_whiskers = F
   )
+
 })
