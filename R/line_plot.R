@@ -148,7 +148,7 @@ line_plot <- function(DATA,
   #*******************************************************************************
   # Colors and theming
   if (is.factor(DATA[[fill]])) {
-    if(length(unique(DATA[[fill]])) <= 10){
+    if (length(unique(DATA[[fill]])) <= 10) {
       g <- g + ggplot2::discrete_scale("fill", "roche", palette_discrete)
       g <- g + ggplot2::discrete_scale("color", "roche", palette_discrete)
     } else {
@@ -156,7 +156,7 @@ line_plot <- function(DATA,
     }
   }
   if (!is.null(color)) {
-    if(length(unique(DATA[[color]])) <= 10){
+    if (length(unique(DATA[[color]])) <= 10) {
       g <-
         g + ggplot2::guides(colour = ggplot2::guide_legend(override.aes = list(
           size = 2, color = palette_discrete(length(unique(DATA[[color]])))
