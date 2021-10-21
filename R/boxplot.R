@@ -147,11 +147,11 @@ boxplot <-
       ggplot2::scale_y_continuous(n.breaks = 20)
 
     ## X label
-    if (!is.null(xlab)) {
+    if (!is.null(xlab) && xlab != "auto") {
       g <- g + ggplot2::xlab(xlab)
     }
     ## Y label
-    if (!is.null(ylab)) {
+    if (!is.null(ylab) && ylab != "auto") {
       g <- g + ggplot2::ylab(ylab)
     }
     ## Title

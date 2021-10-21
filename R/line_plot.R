@@ -9,6 +9,7 @@ line_plot <- function(DATA,
                       add_points = F,
                       facet_row = NULL,
                       title = NULL,
+                      xlab = NULL,
                       ylab = NULL,
                       add_lines = T,
                       lines_alpha = 0.5,
@@ -20,6 +21,9 @@ line_plot <- function(DATA,
                       xlim = NULL,
                       ylim = NULL,
                       axis.text.x.angle = 45,
+                      axis.text.x.hjust = 1,
+                      axis.text.x.vjust = 1,
+                      legend.position = "bottom",
                       show_se = T,
                       log_y = F,
                       add_ribbon = F,
@@ -36,6 +40,7 @@ line_plot <- function(DATA,
                       ...) {
   #*******************************************************************************
   # Parameters
+  if (is.null(fill)) fill <- id
   if (!is.null(fill) && is.null(color)) color <- fill
   # Drop columns that are not needed
   DATA <- DATA %>%
@@ -123,6 +128,7 @@ line_plot <- function(DATA,
         )
     }
   }
+  #*******************************************************************************
   # Facetting ----
   if (!is.null(facet_col) | !is.null(facet_row)) {
     if (is.null(facet_col)) facet_col <- "."
@@ -139,29 +145,23 @@ line_plot <- function(DATA,
       labeller = ggplot2::label_both
     )
   }
-  # AXIS ----
-  # if (is.factor(DATA[[x]]) | is.character(DATA[[x]])) {
-  #   g <- g + ggplot2::scale_x_discrete(expand = ggplot2::expansion(add = 0.2))
-  # } else {
-  #   g <- g + ggplot2::scale_x_continuous(expand = ggplot2::expansion(add = 0.2))
-  # }
-  if (log_y) {
-    g <- g + ggplot2::scale_y_log10()
+  #*******************************************************************************
+  # Colors and theming
+  if (is.factor(DATA[[fill]])) {
+    if(length(unique(DATA[[fill]])) <= 10){
+      g <- g + ggplot2::discrete_scale("fill", "roche", palette_discrete)
+      g <- g + ggplot2::discrete_scale("color", "roche", palette_discrete)
+    } else {
+      legend.position <- "none"
+    }
   }
-  if (!is.null(ylim)) {
-    g <- g + ggplot2::ylim(ylim[1], ylim[2])
-  }
-  if (!is.null(xlim)) {
-    g <- g + ggplot2::xlim(xlim[1], xlim[2])
-  }
-  # Theming and colors ----
-  g <- g + ggplot2::discrete_scale("fill", "roche", palette_discrete)
-  g <- g + ggplot2::discrete_scale("color", "roche", palette_discrete)
   if (!is.null(color)) {
-    g <-
-      g + ggplot2::guides(colour = ggplot2::guide_legend(override.aes = list(
-        size = 2, color = palette_discrete(length(unique(DATA[[color]])))
-      )))
+    if(length(unique(DATA[[color]])) <= 10){
+      g <-
+        g + ggplot2::guides(colour = ggplot2::guide_legend(override.aes = list(
+          size = 2, color = palette_discrete(length(unique(DATA[[color]])))
+        )))
+    }
   }
   # Add Theme
   if (is.character(theme)) {
@@ -171,20 +171,33 @@ line_plot <- function(DATA,
   } else {
     rlang::abort("theme has to be either a function name as a string or a function iself")
   }
-
   # Adjust margins etc,
   g <- g + ggplot2::theme(
-    legend.position = "top",
     legend.key.width = ggplot2::unit(2, "cm"),
     plot.margin = ggplot2::margin(1, 1, 1, 1, "cm")
   )
-  if (is.factor(DATA[[x]])) {
-    g <- g + ggplot2::theme(axis.text.x = ggplot2::element_text(angle = axis.text.x.angle)) +
-      ggplot2::xlab("")
-  } else {
-    g <- g + ggplot2::xlab(x)
+  #*******************************************************************************
+  # Annotation
+  ## Labels
+  g <- g + ggplot2::theme(
+    axis.text.x = ggplot2::element_text(
+      angle = axis.text.x.angle,
+      hjust = axis.text.x.hjust,
+      vjust = axis.text.x.vjust,
+    ),
+    legend.position = legend.position
+  ) +
+    ggplot2::scale_y_continuous(n.breaks = 20)
+
+  ## X label
+  if (!is.null(xlab) && xlab != "auto") {
+    g <- g + ggplot2::xlab(xlab)
   }
-  # Title
+  ## Y label
+  if (!is.null(ylab) && ylab != "auto") {
+    g <- g + ggplot2::ylab(ylab)
+  }
+  ## Title
   if (!is.null(title)) {
     if (title == "auto") {
       auto_title <- glue::glue("{x} vs. {y}")
@@ -193,9 +206,16 @@ line_plot <- function(DATA,
       g <- g + ggplot2::ggtitle(title)
     }
   }
-  if (!is.null(ylab)) {
-    g <- g + ggplot2::ylab(ylab)
+  #*******************************************************************************
+  # Axis
+  if (log_y) g <- g + ggplot2::scale_y_log10()
+  if (!is.null(ylim)) {
+    g <- g + ggplot2::ylim(ylim[1], ylim[2])
   }
+  if (!is.null(xlim)) {
+    g <- g + ggplot2::xlim(xlim[1], xlim[2])
+  }
+  #*******************************************************************************
   # Finishing up
   return(g)
 }

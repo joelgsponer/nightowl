@@ -1,4 +1,5 @@
 test_that("line plot works", {
+
   library(magrittr)
   testdata <- datasets::ChickWeight %>%
     tibble::as_tibble() %>%
@@ -12,6 +13,7 @@ test_that("line plot works", {
     id = "Chick",
     facet_row = "Diet 2",
     theme = "ggplot2::theme_classic",
+    ylab = "THIS IS A LABEL",
     notused = "notused"
   )
 
@@ -19,7 +21,6 @@ test_that("line plot works", {
     x = "Time",
     y = "weight",
     id = "Chick",
-    facet_row = "Diet",
     title = "auto",
     summarise_y = "mean"
   )
