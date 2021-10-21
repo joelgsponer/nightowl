@@ -1,5 +1,4 @@
 test_that("line plot works", {
-
   library(magrittr)
   testdata <- datasets::ChickWeight %>%
     tibble::as_tibble() %>%
@@ -59,5 +58,4 @@ test_that("line plot works", {
     method_smooth = "lm",
     add_whiskers = F
   )
-
 })

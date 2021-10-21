@@ -30,11 +30,11 @@ prepare_data_for_plotting <- function(DATA, cols = NULL, remove_missing = T) {
   }
   return(DATA)
 }
-#===============================================================================
+# ===============================================================================
 #' Aggregate y values
 #' @export
 aggregate_y_values <- function(DATA, summarise_y, x, y, cols = NULL) {
-  if(is.null(cols)) cols <- waRRior::pop(names(DATA), y)
+  if (is.null(cols)) cols <- waRRior::pop(names(DATA), y)
   if (!is.null(summarise_y)) {
     DATA %>%
       dplyr::group_by_at(cols) %>%

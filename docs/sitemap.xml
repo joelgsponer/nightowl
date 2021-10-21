@@ -34,6 +34,9 @@
     <loc>/reference/add_text_wraping.html</loc>
   </url>
   <url>
+    <loc>/reference/aggregate_y_values.html</loc>
+  </url>
+  <url>
     <loc>/reference/boxplot.html</loc>
   </url>
   <url>
@@ -59,6 +62,9 @@
   </url>
   <url>
     <loc>/reference/prepare_data_for_plotting.html</loc>
+  </url>
+  <url>
+    <loc>/reference/render_svg.html</loc>
   </url>
   <url>
     <loc>/reference/summary_table.html</loc>

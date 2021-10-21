@@ -16,7 +16,6 @@ boxplot(
   axis.text.x.hjust = 1,
   axis.text.x.vjust = 1,
   legend.position = "bottom",
-  x_label_width = 20,
   ylab = NULL,
   log_y = F,
   remove_missing = T,

@@ -46,8 +46,8 @@ line_plot <- function(DATA,
   # Data preparation
   DATA <- nightowl::add_text_wraping(DATA, width = label_width)
   # Aggregate values if there are multiple present per x
-  #DATA <- nightowl::aggregate_y_values(DATA, summarise_y, x, y)
-  #*******************************************************************************  
+  # DATA <- nightowl::aggregate_y_values(DATA, summarise_y, x, y)
+  #*******************************************************************************
   # Setup ggplot
   .aes <- list(
     x = x,
@@ -56,7 +56,7 @@ line_plot <- function(DATA,
     color = color,
     group = fill,
     id = id
-  ) 
+  )
   g <- nightowl::ggplot(DATA, .aes)
   #*******************************************************************************
   # Layers ----
