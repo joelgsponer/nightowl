@@ -40,7 +40,7 @@ line_plot <- function(DATA,
                       ...) {
   #*******************************************************************************
   # Parameters
-  if (is.null(id)){
+  if (is.null(id)) {
     id <- "ID"
     DATA <- DATA %>%
       dplyr::mutate(ID = "")

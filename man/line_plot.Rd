@@ -10,7 +10,7 @@ line_plot(
   y,
   fill = NULL,
   color = NULL,
-  id = "USUBJID",
+  id = NULL,
   add_points = F,
   facet_row = NULL,
   title = NULL,
