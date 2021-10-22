@@ -1,4 +1,5 @@
 test_that("line plot works", {
+
   library(magrittr)
   testdata <- datasets::ChickWeight %>%
     tibble::as_tibble() %>%
@@ -19,9 +20,14 @@ test_that("line plot works", {
   nightowl::line_plot(testdata,
     x = "Time",
     y = "weight",
-    id = "Chick",
     title = "auto",
     summarise_y = "mean"
+  )
+
+  nightowl::line_plot(testdata,
+    x = "Time",
+    y = "weight",
+    title = "auto"
   )
 
   nightowl::line_plot(testdata,

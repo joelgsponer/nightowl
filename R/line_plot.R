@@ -5,7 +5,7 @@ line_plot <- function(DATA,
                       y,
                       fill = NULL,
                       color = NULL,
-                      id = "USUBJID",
+                      id = NULL,
                       add_points = F,
                       facet_row = NULL,
                       title = NULL,
@@ -40,6 +40,12 @@ line_plot <- function(DATA,
                       ...) {
   #*******************************************************************************
   # Parameters
+  if (is.null(id)){
+    id <- "ID"
+    DATA <- DATA %>%
+      dplyr::mutate(ID = "")
+    legend.position <- "none"
+  }
   if (is.null(fill)) fill <- id
   if (!is.null(fill) && is.null(color)) color <- fill
   # Drop columns that are not needed
