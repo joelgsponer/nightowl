@@ -4,13 +4,15 @@ test_that("boxplot works", {
     x = "Species",
     y = "Culmen Depth (mm)",
     add_violin = T,
-    add_boxplot = F,
-    points_size = 3,
+    add_points = T,
+    add_boxplot = T,
+    points_size = 0.5,
+    points_alpha = 1,
+    points_color = "black",
     facet_col = "Island",
     unused = "unused"
   ) %>%
     waRRior::expect_ggplot()
-
   nightowl::boxplot(testdata,
     x = "Sex",
     y = "Culmen Depth (mm)",

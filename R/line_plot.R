@@ -3,40 +3,49 @@
 line_plot <- function(DATA,
                       x,
                       y,
+                      group = NULL,
                       fill = NULL,
                       color = NULL,
-                      id = NULL,
-                      add_points = F,
+                      size = NULL,
+                      shape = NULL,
+                      facet_col = NULL,
                       facet_row = NULL,
+                      scales = "free_y",
                       title = NULL,
                       xlab = NULL,
                       ylab = NULL,
+                      xlim = NULL,
+                      ylim = NULL,
+                      label_width = 20,
+                      axis_text_x_angle = 45,
+                      axis_text_x_hjust = 1,
+                      axis_text_x_vjust = 1,
+                      legend_position = "bottom",
+                      log_x = F,
+                      log_y = F,
+                      theme = picasso::theme_picasso,
+                      palette_discrete = picasso::roche_palette_discrete(1),
+                      remove_missing = T,
+                      plot_height = NULL, # Drity hack
+                      plot_width = NULL, # Dirty hack
+                      # Specific
+                      id = NULL,
+                      summarise_y = NULL,
+                      add_points = F,
+                      points_color = picasso::roche_colors("black"),
+                      points_alpha = 0.5,
+                      points_position = "identity",
+                      points_size = 1,
+                      points_stroke = 1,
+                      dodge = 0.2,
                       add_lines = T,
                       lines_alpha = 0.5,
                       lines_size = 1,
-                      facet_col = NULL,
-                      label_width = 20,
-                      method_smooth = NULL,
+                      add_smooth = NULL,
                       color_smooth = "black",
-                      xlim = NULL,
-                      ylim = NULL,
-                      axis.text.x.angle = 45,
-                      axis.text.x.hjust = 1,
-                      axis.text.x.vjust = 1,
-                      legend.position = "bottom",
-                      show_se = T,
-                      log_y = F,
                       add_ribbon = F,
                       add_whiskers = T,
-                      theme = picasso::theme_picasso,
-                      palette_discrete = picasso::roche_palette_discrete(1),
-                      dodge = 0.2,
-                      points_position = "identity",
-                      summarise_y = NULL,
-                      remove_missing = T,
-                      scales = "free_y",
-                      plot_height = NULL, # Drity hack
-                      plot_width = NULL, # Dirty hack
+                      show_se = T,
                       ...) {
   #*******************************************************************************
   # Parameters
@@ -46,8 +55,9 @@ line_plot <- function(DATA,
       dplyr::mutate(ID = "")
     legend.position <- "none"
   }
-  if (is.null(fill)) fill <- id
-  if (!is.null(fill) && is.null(color)) color <- fill
+  if (is.null(group)) group <- id
+  if (is.null(fill)) fill <- group
+  if (is.null(color)) color <- fill
   # Drop columns that are not needed
   DATA <- DATA %>%
     dplyr::select_at(c(x, y, color, fill, facet_row, facet_col, id))
@@ -63,9 +73,9 @@ line_plot <- function(DATA,
   .aes <- list(
     x = x,
     y = y,
+    group = group,
     fill = fill,
     color = color,
-    group = fill,
     id = id
   )
   g <- nightowl::ggplot(DATA, .aes)
@@ -93,10 +103,15 @@ line_plot <- function(DATA,
   if (add_points) {
     g <- g + ggplot2::geom_point(
       position = ggplot2::position_dodge(width = dodge, preserve = "total"),
+      alpha = points_alpha
     )
   }
   ## Smooth
-  if (!is.null(method_smooth)) {
+  if (!is.null(add_smooth)) {
+    attributes(g)$caption <- c(
+      attributes(g)$caption,
+      glue::glue("Method for trendline: '{add_smooth}'")
+    )
     # Fix colors
     if (!is.null(fill) && fill %in% c(facet_row, facet_col)) {
       line_mapping <- ggplot2::aes()
@@ -104,7 +119,7 @@ line_plot <- function(DATA,
       line_mapping <- ggplot2::aes_(lty = rlang::sym(.aes$fill))
     }
     # Add smooth
-    if (method_smooth == "mean") {
+    if (add_smooth == "mean") {
       g <- g + nightowl::geom_bootstrap_mean(
         color = color_smooth,
         mapping = line_mapping,
@@ -113,7 +128,7 @@ line_plot <- function(DATA,
         add_points = add_whiskers,
         position = ggplot2::position_dodge(width = dodge, preserve = "total")
       )
-    } else if (method_smooth == "median") {
+    } else if (add_smooth == "median") {
       g <-
         g + nightowl::geom_hillow_median(
           color = color_smooth,
@@ -128,7 +143,7 @@ line_plot <- function(DATA,
         g + ggplot2::geom_smooth(
           mapping = line_mapping,
           color = color_smooth,
-          method = method_smooth,
+          method = add_smooth,
           se = show_se,
           position = ggplot2::position_dodge(width = dodge)
         )
@@ -136,91 +151,31 @@ line_plot <- function(DATA,
   }
   #*******************************************************************************
   # Facetting ----
-  if (!is.null(facet_col) | !is.null(facet_row)) {
-    if (is.null(facet_col)) facet_col <- "."
-    if (is.null(facet_row)) facet_row <- "."
-    g <- g + ggplot2::facet_grid(
-      as.formula(
-        paste(
-          paste0("`", facet_row, "`", collapse = "+"),
-          "~",
-          paste0("`", facet_col, "`", collapse = "+")
-        )
-      ),
-      scales = scales,
-      labeller = ggplot2::label_both
-    )
-  }
+  g <- nightowl::apply_facetting(g, facet_col, facet_row, scales)
   #*******************************************************************************
   # Colors and theming
-  if (is.factor(DATA[[fill]])) {
-    if (length(unique(DATA[[fill]])) <= 10) {
-      g <- g + ggplot2::discrete_scale("fill", "roche", palette_discrete)
-      g <- g + ggplot2::discrete_scale("color", "roche", palette_discrete)
-    } else {
-      legend.position <- "none"
-    }
-  }
-  if (!is.null(color)) {
-    if (length(unique(DATA[[color]])) <= 10) {
-      g <-
-        g + ggplot2::guides(colour = ggplot2::guide_legend(override.aes = list(
-          size = 2, color = palette_discrete(length(unique(DATA[[color]])))
-        )))
-    }
-  }
+  g <- nightowl::apply_colors(g, DATA, fill, color)
   # Add Theme
-  if (is.character(theme)) {
-    g <- g + eval(parse(text = paste0(theme, "()")))
-  } else if (is.function(theme)) {
-    g <- g + theme()
-  } else {
-    rlang::abort("theme has to be either a function name as a string or a function iself")
-  }
-  # Adjust margins etc,
-  g <- g + ggplot2::theme(
-    legend.key.width = ggplot2::unit(2, "cm"),
-    plot.margin = ggplot2::margin(1, 1, 1, 1, "cm")
-  )
+  g <- nightowl::apply_theme(g, theme)
   #*******************************************************************************
   # Annotation
   ## Labels
-  g <- g + ggplot2::theme(
-    axis.text.x = ggplot2::element_text(
-      angle = axis.text.x.angle,
-      hjust = axis.text.x.hjust,
-      vjust = axis.text.x.vjust,
-    ),
-    legend.position = legend.position
-  ) +
-    ggplot2::scale_y_continuous(n.breaks = 20)
-
-  ## X label
-  if (!is.null(xlab) && xlab != "auto") {
-    g <- g + ggplot2::xlab(xlab)
-  }
-  ## Y label
-  if (!is.null(ylab) && ylab != "auto") {
-    g <- g + ggplot2::ylab(ylab)
-  }
-  ## Title
-  if (!is.null(title)) {
-    if (title == "auto") {
-      auto_title <- glue::glue("{x} vs. {y}")
-      g <- g + ggplot2::ggtitle(auto_title)
-    } else {
-      g <- g + ggplot2::ggtitle(title)
-    }
-  }
+  g <- nightowl::apply_annotation(
+    g,
+    x,
+    y,
+    title,
+    xlab,
+    ylab,
+    axis_text_x,
+    axis_text_x_angle,
+    axis_text_x_hjust,
+    axis_text_x_vjust,
+    legend_position
+  )
   #*******************************************************************************
   # Axis
-  if (log_y) g <- g + ggplot2::scale_y_log10()
-  if (!is.null(ylim)) {
-    g <- g + ggplot2::ylim(ylim[1], ylim[2])
-  }
-  if (!is.null(xlim)) {
-    g <- g + ggplot2::xlim(xlim[1], xlim[2])
-  }
+  g <- nightowl::apply_axis(g, log_x, log_y, xlim, ylim)
   #*******************************************************************************
   # Finishing up
   return(g)

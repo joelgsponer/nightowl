@@ -7,10 +7,25 @@ test_that("line plot works", {
   nightowl::line_plot(testdata,
     x = "Time",
     y = "weight",
-    fill = "Diet",
+    group = "Diet",
     color = "Diet",
     id = "Chick",
     facet_row = "Diet 2",
+    theme = "ggplot2::theme_classic",
+    ylab = "THIS IS A LABEL",
+    log_y = T,
+    log_x = T,
+    notused = "notused"
+  )
+
+  nightowl::line_plot(testdata,
+    x = "Time",
+    y = "weight",
+    group = "Diet",
+    color = "Diet",
+    id = "Chick",
+    facet_col = "Diet 2",
+    scales = "free",
     theme = "ggplot2::theme_classic",
     ylab = "THIS IS A LABEL",
     notused = "notused"
@@ -19,7 +34,7 @@ test_that("line plot works", {
   nightowl::line_plot(testdata,
     x = "Time",
     y = "weight",
-    title = "auto",
+    id = "Chick",
     summarise_y = "mean"
   )
 
@@ -42,25 +57,58 @@ test_that("line plot works", {
   nightowl::line_plot(testdata,
     x = "Time",
     y = "weight",
-    fill = "Diet",
+    group = "Diet",
     id = "Chick",
     facet_col = "Diet",
     title = "auto",
     summarise_y = "min",
     scales = "free_y",
-    method_smooth = "median",
-    add_whiskers = F
+    add_smooth = "median",
+    add_whiskers = F,
+    ylim = c(100, 200)
   )
 
   nightowl::line_plot(testdata,
     x = "Time",
     y = "weight",
-    fill = "Diet",
+    group = "Diet",
+    id = "Chick",
+    add_smooth = "median",
+    add_points = T,
+    add_whiskers = T,
+    lines_alpha = 0.1,
+    points_alpha = 0.1,
+    add_violin = T,
+    dodge = 2
+  )
+
+  nightowl::line_plot(testdata,
+    x = "Time",
+    y = "weight",
+    group = "Diet",
     id = "Chick",
     title = "auto",
     summarise_y = "min",
     scales = "free_y",
-    method_smooth = "lm",
+    add_smooth = "lm",
     add_whiskers = F
+  )
+
+  # Experimental section
+  g <- nightowl::line_plot(testdata,
+    x = "Time",
+    y = "weight",
+    group = "Diet",
+    color = "Diet",
+    id = "Chick",
+    facet_col = "Diet 2",
+    scales = "free",
+    theme = "ggplot2::theme_classic",
+    ylab = "THIS IS A LABEL",
+    notused = "notused"
+  )
+
+  g + ggplot::stat_summary(
+    ggplot2::aes_(group = rlang::sym(.aes$id)),
   )
 })
