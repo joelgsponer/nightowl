@@ -1,4 +1,5 @@
 test_that("boxplot works", {
+
   testdata <- palmerpenguins::penguins_raw
   nightowl::boxplot(testdata,
     x = "Species",
@@ -11,7 +12,9 @@ test_that("boxplot works", {
     points_color = "black",
     facet_col = "Island",
     unused = "unused"
-  ) %>%
+  )
+
+  %>%
     waRRior::expect_ggplot()
   nightowl::boxplot(testdata,
     x = "Sex",
