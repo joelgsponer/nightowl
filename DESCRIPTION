@@ -17,6 +17,7 @@ Imports:
     dplyr,
     GGally,
     ggplot2,
+    ggpmisc,
     magrittr,
     palmerpenguins,
     peacock,

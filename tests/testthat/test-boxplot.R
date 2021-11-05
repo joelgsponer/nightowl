@@ -5,14 +5,17 @@ test_that("boxplot works", {
     x = "Species",
     y = "Culmen Depth (mm)",
     add_violin = T,
-    add_points = T,
-    add_boxplot = T,
+    add_points = F,
+    add_boxplot = F,
     points_size = 0.5,
     points_alpha = 1,
     points_color = "black",
     facet_col = "Island",
+    add_lines = T,
+    add_smooth = "loess",
     unused = "unused"
   )
+
 
   %>%
     waRRior::expect_ggplot()
