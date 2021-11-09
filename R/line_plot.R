@@ -85,13 +85,12 @@ line_plot <- function(DATA,
   if (add_lines) {
     if (is.null(summarise_y)) {
       g <- g + ggplot2::geom_line(
-        ggplot2::aes_(group = rlang::sym(.aes$id)),
-        alpha = lines_alpha,
-        size = lines_size
+        ggplot2::aes_(group = rlang::sym(.aes$id), size = lines_size),
+        alpha = lines_alpha
       )
     } else {
       g <- g + ggplot2::stat_summary(
-        ggplot2::aes_(group = rlang::sym(.aes$id)),
+        ggplot2::aes_(group = rlang::sym(.aes$id), size = lines_size),
         fun = summarise_y,
         geom = "line",
         alpha = lines_alpha,
