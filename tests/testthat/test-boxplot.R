@@ -14,10 +14,7 @@ test_that("boxplot works", {
     add_lines = T,
     add_smooth = "loess",
     unused = "unused"
-  )
-
-
-  %>%
+  ) %>%
     waRRior::expect_ggplot()
   nightowl::boxplot(testdata,
     x = "Sex",

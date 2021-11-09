@@ -16,7 +16,7 @@ test_that("line plot works", {
     ylab = "THIS IS A LABEL",
     log_y = T,
     log_x = T,
-    line_size = 3,
+    lines_size = 0.1,
     notused = "notused"
   ) %>% peek()
 

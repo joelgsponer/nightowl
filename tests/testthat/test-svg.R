@@ -1,4 +1,5 @@
 test_that("svg works", {
+
   testdata <- palmerpenguins::penguins_raw
   nightowl::boxplot(testdata,
     x = "Species",
@@ -8,5 +9,7 @@ test_that("svg works", {
     points_size = 3,
     facet_col = "Island"
   ) %>%
-    nightowl::render_svg()
+    nightowl::render_svg(height = 50, width = 40, scaling = 3) %>%
+    htmltools::browsable()
+    
 })

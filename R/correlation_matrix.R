@@ -90,6 +90,11 @@ ggpairs <- function(DATA,
                     ...) {
   #*******************************************************************************
   # Parameters
+  if(length(key) > 1) {
+    if(!is.null(value)) {
+      rlang::abort("Key/Value spreading can only be used with a single Key argmuent")
+    }
+  }
   if(!is.null(value)){
     if(is.null(id)){
       id <- key
