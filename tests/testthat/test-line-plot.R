@@ -1,5 +1,4 @@
 test_that("line plot works", {
-
   library(magrittr)
   testdata <- datasets::ChickWeight %>%
     tibble::as_tibble() %>%

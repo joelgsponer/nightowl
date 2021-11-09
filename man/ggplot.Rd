@@ -9,7 +9,7 @@ Convert to symbols
 drop the onses which are null, call aes_ function (CAVE: ecex)
 also think of other places where params is used, e.g. params$id}
 \usage{
-ggplot(DATA, aes, ...)
+ggplot(DATA, aes, only_aes = F, ...)
 }
 \description{
 Create ggplot form list

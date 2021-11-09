@@ -1,4 +1,4 @@
-#===============================================================================
+# ===============================================================================
 #' Function for the lower (diagnonal) triangle of the correlation matrix
 #' @export
 lowerFn <- function(data, mapping, method = "lm", ...) {
@@ -7,18 +7,22 @@ lowerFn <- function(data, mapping, method = "lm", ...) {
     ggplot2::geom_smooth(method = method, color = picasso::roche_color("blue"), ...) +
     picasso::theme_picasso()
 }
-#===============================================================================
+# ===============================================================================
 #' Function for the upper (diagnonal) triangle of the correlation matrix
 #' @export
 upperFn <- function(data, mapping, method = "lm", ...) {
   res <- dplyr::select(data, !!!mapping) %>% cor(., use = "complete.obs")
   res <- res[1, 2]
-  if(is.na(res)) {
+  if (is.na(res)) {
     peacock::error("Computation failed.")
     print(res)
     msg <- "Computation failed"
-    return(ggplot2::ggplot() + ggplot2::geom_text(ggplot2::aes(x = 1,
-        y = 1, label = msg), col = "red") + ggplot2::theme_void())
+    return(ggplot2::ggplot() +
+      ggplot2::geom_text(ggplot2::aes(
+        x = 1,
+        y = 1, label = msg
+      ), col = "red") +
+      ggplot2::theme_void())
   }
   if (res == 0) col <- picasso::roche_color("black", alpha = 0.1)
   if (res < 0) col <- picasso::roche_color("red", alpha = 1)
@@ -36,7 +40,7 @@ upperFn <- function(data, mapping, method = "lm", ...) {
     ggplot2::theme_void()
   p
 }
-#===============================================================================
+# ===============================================================================
 #' Function for the diagnonal correlation matrix
 #' @export
 diagFn <- function(data, mapping, method = "lm", ...) {
@@ -45,24 +49,24 @@ diagFn <- function(data, mapping, method = "lm", ...) {
     picasso::theme_picasso()
   p
 }
-#===============================================================================
+# ===============================================================================
 #' ggpairs theme
 #' @export
-ggpairs_theme <- function(g){
-   g + ggplot2::theme(
-      plot.title = ggplot2::element_text(size = 20, face = "bold", hjust = 0, vjust = 2),
-      plot.subtitle = ggplot2::element_text(size = 14, hjust = 0, vjust = 2),
-      panel.background = ggplot2::element_rect(fill = "white"),
-      plot.background = ggplot2::element_rect(fill = "white"),
-      panel.border = ggplot2::element_rect(color = "#231F20FF", fill = NA),
-      strip.background = ggplot2::element_rect(fill = "white"),
-      legend.position = "bottom",
-      legend.background = ggplot2::element_rect(fill = "white", colour = "white"),
-      legend.key = ggplot2::element_rect(fill = "white"),
-      axis.text = ggplot2::element_text(colour = "#231F20FF"),
-      strip.text.x = ggplot2::element_text(color = "#231F20FF"),
-      strip.text.y = ggplot2::element_text(color = "#231F20FF"),
-    )
+ggpairs_theme <- function(g) {
+  g + ggplot2::theme(
+    plot.title = ggplot2::element_text(size = 20, face = "bold", hjust = 0, vjust = 2),
+    plot.subtitle = ggplot2::element_text(size = 14, hjust = 0, vjust = 2),
+    panel.background = ggplot2::element_rect(fill = "white"),
+    plot.background = ggplot2::element_rect(fill = "white"),
+    panel.border = ggplot2::element_rect(color = "#231F20FF", fill = NA),
+    strip.background = ggplot2::element_rect(fill = "white"),
+    legend.position = "bottom",
+    legend.background = ggplot2::element_rect(fill = "white", colour = "white"),
+    legend.key = ggplot2::element_rect(fill = "white"),
+    axis.text = ggplot2::element_text(colour = "#231F20FF"),
+    strip.text.x = ggplot2::element_text(color = "#231F20FF"),
+    strip.text.y = ggplot2::element_text(color = "#231F20FF"),
+  )
 }
 # ===============================================================================
 #' Boxplot
@@ -90,13 +94,13 @@ ggpairs <- function(DATA,
                     ...) {
   #*******************************************************************************
   # Parameters
-  if(length(key) > 1) {
-    if(!is.null(value)) {
+  if (length(key) > 1) {
+    if (!is.null(value)) {
       rlang::abort("Key/Value spreading can only be used with a single Key argmuent")
     }
   }
-  if(!is.null(value)){
-    if(is.null(id)){
+  if (!is.null(value)) {
+    if (is.null(id)) {
       id <- key
     }
   }
@@ -118,10 +122,10 @@ ggpairs <- function(DATA,
   #*******************************************************************************
   # Setup Plot
   .aes <- list(
-      fill = fill,
-      color = color,
-      group = fill
-    )
+    fill = fill,
+    color = color,
+    group = fill
+  )
   .aes <- nightowl:::ggplot(DATA, .aes, only_aes = T)
   g <- GGally::ggpairs(
     mapping = .aes,

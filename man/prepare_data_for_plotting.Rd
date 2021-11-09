@@ -4,7 +4,12 @@
 \alias{prepare_data_for_plotting}
 \title{Handle missing values}
 \usage{
-prepare_data_for_plotting(DATA, cols = NULL, remove_missing = T)
+prepare_data_for_plotting(
+  DATA,
+  cols = NULL,
+  remove_missing = T,
+  to_factor = TRUE
+)
 }
 \description{
 Handle missing values

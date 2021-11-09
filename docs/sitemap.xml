@@ -37,16 +37,40 @@
     <loc>/reference/aggregate_y_values.html</loc>
   </url>
   <url>
+    <loc>/reference/apply_annotation.html</loc>
+  </url>
+  <url>
+    <loc>/reference/apply_axis.html</loc>
+  </url>
+  <url>
+    <loc>/reference/apply_colors.html</loc>
+  </url>
+  <url>
+    <loc>/reference/apply_facetting.html</loc>
+  </url>
+  <url>
+    <loc>/reference/apply_theme.html</loc>
+  </url>
+  <url>
     <loc>/reference/boxplot.html</loc>
   </url>
   <url>
     <loc>/reference/ci_t.html</loc>
   </url>
   <url>
+    <loc>/reference/diagFn.html</loc>
+  </url>
+  <url>
     <loc>/reference/geom_bootstrap_mean.html</loc>
   </url>
   <url>
     <loc>/reference/geom_hillow_median.html</loc>
+  </url>
+  <url>
+    <loc>/reference/ggpairs.html</loc>
+  </url>
+  <url>
+    <loc>/reference/ggpairs_theme.html</loc>
   </url>
   <url>
     <loc>/reference/ggplot.html</loc>
@@ -58,6 +82,12 @@
     <loc>/reference/line_plot.html</loc>
   </url>
   <url>
+    <loc>/reference/lowerFn.html</loc>
+  </url>
+  <url>
+    <loc>/reference/peek.html</loc>
+  </url>
+  <url>
     <loc>/reference/pipe.html</loc>
   </url>
   <url>
@@ -67,6 +97,12 @@
     <loc>/reference/render_svg.html</loc>
   </url>
   <url>
+    <loc>/reference/spread_data.html</loc>
+  </url>
+  <url>
     <loc>/reference/summary_table.html</loc>
+  </url>
+  <url>
+    <loc>/reference/upperFn.html</loc>
   </url>
 </urlset>

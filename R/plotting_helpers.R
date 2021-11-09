@@ -1,6 +1,6 @@
 # ===============================================================================
 #' Wrap text label at a certain width
-#' @param width 
+#' @param width
 #' @export
 add_text_wraping <- function(DATA, cols = NULL, width) {
   if (is.null(cols)) cols <- names(DATA)[purrr::map_lgl(DATA, ~ is.factor(.x))]
@@ -70,7 +70,9 @@ ggplot <- function(DATA, aes, only_aes = F, ...) {
     purrr::map(~ rlang::sym(.x))
   f <- ggplot2::aes_
   .aes <- rlang::exec(.fn = "f", !!!aes)
-  if(only_aes) return(.aes)
+  if (only_aes) {
+    return(.aes)
+  }
   ggplot2::ggplot(data = DATA, .aes)
 }
 # ===============================================================================
@@ -218,8 +220,8 @@ spread_data <- function(DATA, key, value = NULL) {
     tryCatch({
       DATA %>%
         dplyr::ungroup() %>%
-        tidyr::pivot_wider(names_from = key, values_from = value) 
+        tidyr::pivot_wider(names_from = key, values_from = value)
     })
   }
 }
-#===============================================================================
+# ===============================================================================

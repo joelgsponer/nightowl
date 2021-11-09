@@ -3,7 +3,8 @@
 #' @param g ggplot object
 #' @export
 render_svg <- function(g, ...) {
-  tryCatch({
+  tryCatch(
+    {
       svg <- svglite::svgstring(...)
       print(g)
       svg <- waRRior::regex_replace_element_parameter(svg(), "width", "100%") %>%
@@ -13,16 +14,17 @@ render_svg <- function(g, ...) {
     error = function(e) {
       dev.off()
       stop(e)
-    }, finally = function() {
-            dev.off()
+    },
+    finally = function() {
+      dev.off()
     }
   )
 }
-#===============================================================================
+# ===============================================================================
 #' peek
 #' @export
-peek <- function(g, ...){
+peek <- function(g, ...) {
   nightowl::render_svg(g) %>%
     htmltools::browsable()
 }
-#===============================================================================
+# ===============================================================================
