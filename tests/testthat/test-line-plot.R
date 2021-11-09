@@ -1,4 +1,5 @@
 test_that("line plot works", {
+
   library(magrittr)
   testdata <- datasets::ChickWeight %>%
     tibble::as_tibble() %>%
@@ -15,8 +16,9 @@ test_that("line plot works", {
     ylab = "THIS IS A LABEL",
     log_y = T,
     log_x = T,
+    line_size = 3,
     notused = "notused"
-  )
+  ) %>% peek()
 
   nightowl::line_plot(testdata,
     x = "Time",
