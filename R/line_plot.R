@@ -3,6 +3,7 @@
 line_plot <- function(DATA,
                       x,
                       y,
+                      id = NULL,
                       group = NULL,
                       fill = NULL,
                       color = NULL,
@@ -29,7 +30,6 @@ line_plot <- function(DATA,
                       plot_height = NULL, # Drity hack
                       plot_width = NULL, # Dirty hack
                       # Specific
-                      id = NULL,
                       summarise_y = NULL,
                       add_points = F,
                       points_color = picasso::roche_colors("black"),
