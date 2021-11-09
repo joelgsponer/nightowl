@@ -33,7 +33,7 @@ upperFn <- function(data, mapping, method = "lm", ...) {
       color = "black",
       size = 0.1,
       fill = col,
-      alpha = log10(abs(res*10)),
+      alpha = log10(abs(res * 10)),
       ...
     ) +
     ggpmisc::stat_correlation(color = picasso::roche_color("black")) +
