@@ -70,7 +70,7 @@ boxplot <- function(DATA,
     color = color,
     group = fill
   )
-  g <- nightowl::ggplot(DATA, .aes)
+  g <- nightowl:::ggplot(DATA, .aes)
   #*******************************************************************************
   # Add Violin
   if (add_violin) {

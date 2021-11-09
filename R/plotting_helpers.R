@@ -14,14 +14,14 @@ add_text_wraping <- function(DATA, cols = NULL, width) {
 # ===============================================================================
 #' Handle missing values
 #' @export
-prepare_data_for_plotting <- function(DATA, cols = NULL, remove_missing = T) {
+prepare_data_for_plotting <- function(DATA, cols = NULL, remove_missing = T, to_factor = TRUE) {
   if (is.null(cols)) cols <- names(DATA)
   if (remove_missing) {
     DATA <- DATA %>%
       dplyr::filter_at(c(cols), function(x) !is.na(x)) %>%
       dplyr::mutate_if(is.character, factor) %>%
       droplevels()
-  } else {
+  } else if (to_factor) {
     # Make missing factors explicit
     # Convert Characters to factors
     DATA <- DATA %>%
@@ -64,13 +64,13 @@ aggregate_y_values <- function(DATA, summarise_y, x, y, cols = NULL) {
 #' Convert to symbols
 #' drop the onses which are null, call aes_ function (CAVE: ecex)
 #' also think of other places where params is used, e.g. params$id
-#' @export
-ggplot <- function(DATA, aes, ...) {
+ggplot <- function(DATA, aes, only_aes = F, ...) {
   aes <- aes %>%
     purrr::compact() %>%
     purrr::map(~ rlang::sym(.x))
   f <- ggplot2::aes_
   .aes <- rlang::exec(.fn = "f", !!!aes)
+  if(only_aes) return(.aes)
   ggplot2::ggplot(data = DATA, .aes)
 }
 # ===============================================================================
@@ -209,3 +209,17 @@ apply_axis <- function(g, log_x, log_y, xlim, ylim) {
   return(g)
 }
 # ===============================================================================
+#' Spread data
+#' @export
+spread_data <- function(DATA, key, value = NULL) {
+  if (is.null(value)) {
+    return(DATA)
+  } else {
+    tryCatch({
+      DATA %>%
+        dplyr::ungroup() %>%
+        tidyr::pivot_wider(names_from = key, values_from = value) 
+    })
+  }
+}
+#===============================================================================

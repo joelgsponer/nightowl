@@ -78,7 +78,7 @@ line_plot <- function(DATA,
     color = color,
     id = id
   )
-  g <- nightowl::ggplot(DATA, .aes)
+  g <- nightowl:::ggplot(DATA, .aes)
   #*******************************************************************************
   # Layers ----
   ## Lines
