@@ -6,9 +6,6 @@
 \usage{
 add_text_wraping(DATA, cols = NULL, width)
 }
-\arguments{
-\item{width}{}
-}
 \description{
 Wrap text label at a certain width
 }

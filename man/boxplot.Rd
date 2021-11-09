@@ -8,6 +8,7 @@ boxplot(
   DATA,
   x,
   y,
+  id,
   group = NULL,
   fill = NULL,
   color = NULL,
