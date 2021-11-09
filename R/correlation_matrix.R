@@ -11,7 +11,7 @@ lowerFn <- function(data, mapping, method = "lm", ...) {
 #' Function for the upper (diagnonal) triangle of the correlation matrix
 #' @export
 upperFn <- function(data, mapping, method = "lm", ...) {
-  res <- dplyr::select(data, !!!mapping) %>% cor(., use = "complete.obs")
+  res <- dplyr::select(data, !!!mapping) %>% cor(use = "complete.obs")
   res <- res[1, 2]
   if (is.na(res)) {
     peacock::error("Computation failed.")
@@ -33,7 +33,7 @@ upperFn <- function(data, mapping, method = "lm", ...) {
       color = "black",
       size = 0.1,
       fill = col,
-      alpha = abs(res) * 0.8,
+      alpha = log10(abs(res*10)),
       ...
     ) +
     ggpmisc::stat_correlation(color = picasso::roche_color("black")) +

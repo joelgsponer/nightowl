@@ -9,14 +9,12 @@ render_svg <- function(g, ...) {
       print(g)
       svg <- waRRior::regex_replace_element_parameter(svg(), "width", "100%") %>%
         waRRior::regex_replace_element_parameter("height", "100%")
+      dev.off()
       return(svg)
     },
     error = function(e) {
       dev.off()
       stop(e)
-    },
-    finally = function() {
-      dev.off()
     }
   )
 }
