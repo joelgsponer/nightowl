@@ -15,6 +15,34 @@ test_that("boxplot works", {
     unused = "unused"
   ) %>%
     waRRior::expect_ggplot()
+
+  nightowl::boxplot(ChickWeight,
+    x = "Time",
+    y = "weight",
+    fill = "Diet",
+    add_violin = T,
+    add_points = F,
+    add_boxplot = F,
+    points_size = 0.5,
+    points_alpha = 1,
+    points_color = "black",
+    add_lines = T,
+    add_smooth = "mean",
+    dodge = 0.5,
+    unused = "unused"
+  ) +
+    ggplot2::stat_summary(mapping = ggplot2::aes(x = as.numeric(Time)), fun = mean, geom = "line")
+
+  colors <- picasso::roche_palette_discrete()(length(unique(ChickWeight$Diet)))
+  g <- ggplot2::ggplot()
+  ChickWeight %>%
+    tibble::as_tibble() %>%
+    dplyr::group_split(Diet) %>%
+    purrr::reduce(function(.in, .out) {
+      .in +
+        ggplot2::geom_boxplot(data = .out, mapping = ggplot2::aes(x = as.factor(Time), y = weight))
+    }, .init = g)
+
   nightowl::boxplot(testdata,
     x = "Sex",
     y = "Culmen Depth (mm)",

@@ -2,7 +2,7 @@
 #' Wrap text label at a certain width
 #' @param width
 #' @export
-add_text_wraping <- function(DATA, cols = NULL, width) {
+add_text_wraping <- function(DATA, cols = NULL, width = 20) {
   if (is.null(cols)) cols <- names(DATA)[purrr::map_lgl(DATA, ~ is.factor(.x))]
   purrr::reduce(cols, function(.out, .col) {
     .x <- .out[[.col]]
@@ -15,17 +15,18 @@ add_text_wraping <- function(DATA, cols = NULL, width) {
 #' Handle missing values
 #' @export
 prepare_data_for_plotting <- function(DATA, cols = NULL, remove_missing = T, to_factor = TRUE) {
+  DATA <- tibble::as_tibble(DATA)
   if (is.null(cols)) cols <- names(DATA)
   if (remove_missing) {
     DATA <- DATA %>%
       dplyr::filter_at(c(cols), function(x) !is.na(x)) %>%
       dplyr::mutate_if(is.character, factor) %>%
       droplevels()
-  } else if (to_factor) {
+  }
+  if (to_factor) {
     # Make missing factors explicit
     # Convert Characters to factors
     DATA <- DATA %>%
-      dplyr::mutate_if(is.character, factor) %>%
       dplyr::mutate_if(is.factor, forcats::fct_explicit_na)
   }
   return(DATA)
@@ -79,7 +80,7 @@ ggplot <- function(DATA, aes, only_aes = F, ...) {
 #' Define colors
 #' @export
 apply_colors <- function(g, DATA, fill, color) {
-  if (is.factor(DATA[[fill]])) {
+  if (!is.null(fill) && is.factor(DATA[[fill]])) {
     if (length(unique(DATA[[fill]])) <= 10) {
       g <- g + ggplot2::discrete_scale("fill", "roche", picasso::roche_palette_discrete(1))
     } else {
@@ -90,23 +91,18 @@ apply_colors <- function(g, DATA, fill, color) {
       )
     }
   }
-  if (is.factor(DATA[[color]])) {
+  if (!is.null(color) && is.factor(DATA[[color]])) {
     if (length(unique(DATA[[fill]])) <= 10) {
       g <- g + ggplot2::discrete_scale("color", "roche", picasso::roche_palette_discrete(1))
+      g <- g + ggplot2::guides(colour = ggplot2::guide_legend(override.aes = list(
+          size = 2, color = picasso::roche_palette_discrete()(length(unique(DATA[[color]])))
+        )))
     } else {
       g <- g + ggplot2::guides(color = "none")
       attributes(g)$caption <- c(
         attributes(g)$caption,
         glue::glue("Legend for {color} not shown (to many values)")
       )
-    }
-  }
-  if (!is.null(color)) {
-    if (length(unique(DATA[[color]])) <= 10) {
-      g <-
-        g + ggplot2::guides(colour = ggplot2::guide_legend(override.aes = list(
-          size = 2, color = picasso::roche_palette_discrete()(length(unique(DATA[[color]])))
-        )))
     }
   }
   return(g)
