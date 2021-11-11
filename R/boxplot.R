@@ -1,5 +1,6 @@
 # ===============================================================================
 #' Boxplot
+#' @importFrom ggplot2 aes mean_cl_boot mean_cl_normal mean_se mean_sdl
 #' @export
 plot <- function(DATA,
                  processing = list(

@@ -1,4 +1,3 @@
-#' @importFrom ggplot2 aes mean_cl_boot mean_cl_normal mean_se mean_sdl
 # ===============================================================================
 #' Wrap text label at a certain width
 #' @param width
