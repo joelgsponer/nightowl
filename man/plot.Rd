@@ -23,6 +23,7 @@ plot(
   traces = NULL,
   facets = NULL,
   dodge = NULL,
+  svg = NULL,
   ...
 )
 }

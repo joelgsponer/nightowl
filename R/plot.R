@@ -134,7 +134,7 @@ plot <- function(DATA,
   g <- do.call(nightowl::add_annotation, c(list(g = g), mapping, annotation, axis))
   #*******************************************************************************
   # Create SVG
-  if(!is.null(svg)){
+  if (!is.null(svg)) {
     g <- do.call(nightowl::render_svg, c(list(g = g), svg))
   }
   # Finishing u
