@@ -1,5 +1,4 @@
 test_that("multiplication works", {
-
   testdata <- ChickWeight %>%
     dplyr::filter(Time < 10)
   nightowl::plot(testdata,
@@ -19,7 +18,7 @@ test_that("multiplication works", {
     axis = list(log_y = TRUE, xlim = c(2, 4), units_x = "days", units_y = "g"),
     dodge = 0.5
   ) %>%
-  peek()
+    peek()
 
   nightowl::plot(testdata,
     mapping = list(

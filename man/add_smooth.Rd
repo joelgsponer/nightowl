@@ -4,7 +4,7 @@
 \alias{add_smooth}
 \title{Add smooth}
 \usage{
-add_smooth(g, mapping, dodge = 0, method = "lm", ...)
+add_smooth(g, mapping, dodge = 0, method = "lm", color = "black", ...)
 }
 \description{
 Add smooth

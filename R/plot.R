@@ -103,7 +103,7 @@ plot <- function(DATA,
   }
   # #*******************************************************************************
   # # Axis
-  if(!is.null(axis)){
+  if (!is.null(axis)) {
     g <- do.call(nightowl::add_axis, c(list(g = g), axis))
   }
   #*******************************************************************************
@@ -123,7 +123,7 @@ plot <- function(DATA,
         do.call(nightowl::add_traces, c(list(g = .out, mapping = mapping), .in))
       }, .init = g)
   }
- # #*******************************************************************************
+  # #*******************************************************************************
   # Colors and theming
   g <- do.call(nightowl::add_colors, c(list(g = g, DATA = DATA, mapping = mapping)))
   # # Add Theme
