@@ -79,33 +79,34 @@ add_summary <- function(g,
                         fun = NULL,
                         shape = 21,
                         ...) {
-  if(!is.null(fun.data) && !is.null(fun)){
+  if (!is.null(fun.data) && !is.null(fun)) {
     rlang::abort("Error in summary: Please specify either fun or fun.data, not both")
   }
-  if(is.null(fun.data) && is.null(fun)){
+  if (is.null(fun.data) && is.null(fun)) {
     method <- "mean_se"
   }
-  if(!is.null(fun.data)) method <- fun.data
-  if(!is.null(fun)) method <- fun
+  if (!is.null(fun.data)) method <- fun.data
+  if (!is.null(fun)) method <- fun
   attributes(g)$caption <- c(
-  attributes(g)$caption, glue::glue("Method for summary: '{method}'"))
+    attributes(g)$caption, glue::glue("Method for summary: '{method}'")
+  )
   g + ggplot2::stat_summary(
     mapping = ggplot2::aes(
       x = as.numeric(forcats::as_factor(.data[[mapping$x]]))
     ),
     position = ggplot2::position_dodge(dodge, preserve = "total"),
-    shape = shape, 
+    shape = shape,
     ...
   )
 }
-#===============================================================================
+# ===============================================================================
 #' Add smooth
-#' @export  
+#' @export
 add_smooth <- function(g,
-                        mapping,
-                        dodge = 0,
-                        method = "lm",
-                        ...) {
+                       mapping,
+                       dodge = 0,
+                       method = "lm",
+                       ...) {
   attributes(g)$caption <- c(
     attributes(g)$caption,
     glue::glue("Method for summary: '{method}'")
@@ -116,7 +117,7 @@ add_smooth <- function(g,
     ...
   )
 }
-#===============================================================================
+# ===============================================================================
 #' Add facet_grid
 #' @export
 add_facets <- function(g,
@@ -127,23 +128,23 @@ add_facets <- function(g,
                        labeller = "label_both",
                        ...) {
   if (!is.null(column) | !is.null(row)) {
-  if (is.null(column)) column <- "."
-  if (is.null(row)) row <- "."
+    if (is.null(column)) column <- "."
+    if (is.null(row)) row <- "."
 
-  .f <- switch(type,
-    grid = ggplot2::facet_grid,
-    wrap = ggplot2::facet_wrap,
-    NULL
-  )
-  if(is.null(.f)){
-    rlang::abort(
-      glue::glue(
-        "Error in facetting: type {type} is not valid. Use 'grid' or 'wrap'"
-      )
+    .f <- switch(type,
+      grid = ggplot2::facet_grid,
+      wrap = ggplot2::facet_wrap,
+      NULL
     )
-  }
+    if (is.null(.f)) {
+      rlang::abort(
+        glue::glue(
+          "Error in facetting: type {type} is not valid. Use 'grid' or 'wrap'"
+        )
+      )
+    }
 
-  g + .f(
+    g + .f(
       as.formula(
         paste(
           paste0("`", row, "`", collapse = "+"),
@@ -157,33 +158,34 @@ add_facets <- function(g,
     )
   }
 }
-#===============================================================================
+# ===============================================================================
 #' Add traces
 #' @export
 add_traces <- function(g,
-                        mapping,
-                        dodge = 0,
-                        fun.data = NULL,
-                        fun = NULL,
-                        shape = 21,
-                        ...) {
-  if(!is.null(fun.data) && !is.null(fun)){
+                       mapping,
+                       dodge = 0,
+                       fun.data = NULL,
+                       fun = NULL,
+                       shape = 21,
+                       ...) {
+  if (!is.null(fun.data) && !is.null(fun)) {
     rlang::abort("Error in summary: Please specify either fun or fun.data, not both")
   }
-  if(is.null(fun.data) && is.null(fun)){
+  if (is.null(fun.data) && is.null(fun)) {
     method <- "mean_se"
   }
-  if(!is.null(fun.data)) method <- fun.data
-  if(!is.null(fun)) method <- fun
+  if (!is.null(fun.data)) method <- fun.data
+  if (!is.null(fun)) method <- fun
   attributes(g)$caption <- c(
-  attributes(g)$caption, glue::glue("Method for summary: '{method}'"))
+    attributes(g)$caption, glue::glue("Method for summary: '{method}'")
+  )
   g + ggplot2::stat_summary(
     mapping = ggplot2::aes(
       x = as.numeric(forcats::as_factor(.data[[mapping$x]])),
       group = .data[[mapping$id]]
     ),
     position = ggplot2::position_dodge(dodge, preserve = "total"),
-    shape = shape, 
+    shape = shape,
     ...
   )
 }

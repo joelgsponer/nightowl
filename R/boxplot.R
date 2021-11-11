@@ -32,13 +32,13 @@ plot <- function(DATA,
                  ...) {
   #*******************************************************************************
   # Dodge override
-  if (!is.null(dodge)){
-    if(!is.null(violin)) violin$dodge <- dodge
-    if(!is.null(boxplot)) boxplot$dodge <- dodge
-    if(!is.null(dotplot)) dotplot$dodge <- dodge
-    if(!is.null(summary)){
+  if (!is.null(dodge)) {
+    if (!is.null(violin)) violin$dodge <- dodge
+    if (!is.null(boxplot)) boxplot$dodge <- dodge
+    if (!is.null(dotplot)) dotplot$dodge <- dodge
+    if (!is.null(summary)) {
       summary <- summary %>%
-        purrr::map(function(.x){
+        purrr::map(function(.x) {
           .x["dodge"] <- dodge
           .x
         })
@@ -81,8 +81,10 @@ plot <- function(DATA,
   # Add Summary
   if (!is.null(summary)) {
     g <- summary %>%
-      purrr::imap(~{c(.x, list(geom = .y))}) %>%
-      purrr::reduce(function(.out, .in){
+      purrr::imap(~ {
+        c(.x, list(geom = .y))
+      }) %>%
+      purrr::reduce(function(.out, .in) {
         do.call(nightowl::add_summary, c(list(g = .out, mapping = mapping), .in))
       }, .init = g)
   }
@@ -90,14 +92,16 @@ plot <- function(DATA,
   # Add Smooth
   if (!is.null(smooth)) {
     g <- smooth %>%
-      purrr::imap(~{c(.x, list(method = .y))}) %>%
-      purrr::reduce(function(.out, .in){
+      purrr::imap(~ {
+        c(.x, list(method = .y))
+      }) %>%
+      purrr::reduce(function(.out, .in) {
         do.call(nightowl::add_smooth, c(list(g = .out, mapping = mapping), .in))
       }, .init = g)
   }
   #*******************************************************************************
   # Add facetting
-  if (!is.null(facets)){
+  if (!is.null(facets)) {
     g <- do.call(nightowl::add_facets, c(list(g = g), facets))
   }
 
@@ -105,8 +109,10 @@ plot <- function(DATA,
   # Add Traces
   if (!is.null(traces)) {
     g <- traces %>%
-      purrr::imap(~{c(.x, list(geom = .y))}) %>%
-      purrr::reduce(function(.out, .in){
+      purrr::imap(~ {
+        c(.x, list(geom = .y))
+      }) %>%
+      purrr::reduce(function(.out, .in) {
         do.call(nightowl::add_traces, c(list(g = .out, mapping = mapping), .in))
       }, .init = g)
   }

@@ -67,12 +67,12 @@ add_colors <- function(g, DATA, mapping) {
       )
     }
   }
- if (!is.null(color) && is.factor(DATA[[color]])) {
+  if (!is.null(color) && is.factor(DATA[[color]])) {
     if (length(unique(DATA[[color]])) <= 10) {
       g <- g + ggplot2::discrete_scale("color", "roche", picasso::roche_palette_discrete(1))
       g <- g + ggplot2::guides(colour = ggplot2::guide_legend(override.aes = list(
-          size = 2, color = picasso::roche_palette_discrete()(length(unique(DATA[[color]])))
-        )))
+        size = 2, color = picasso::roche_palette_discrete()(length(unique(DATA[[color]])))
+      )))
     } else {
       g <- g + ggplot2::guides(color = "none")
       attributes(g)$caption <- c(
