@@ -58,7 +58,7 @@ boxplot <- function(DATA,
   DATA <- DATA %>%
     dplyr::select_at(c(x, y, color, fill, facet_row, facet_col))
   #*******************************************************************************
-  # Drop missing values
+  # Drop missing values 
   DATA <- nightowl::prepare_data_for_plotting(DATA, remove_missing = remove_missing)
   # Data preparation
   DATA <- nightowl::add_text_wraping(DATA, width = label_width)
