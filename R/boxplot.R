@@ -12,70 +12,38 @@ plot <- function(DATA,
                    fill = NULL,
                    color = NULL,
                    size = NULL,
-                   shape = NULL
+                   shape = NULL,
+                   id = NULL
                  ),
-                 facetting = list(
-                   facet_col = NULL,
-                   facet_row = NULL,
-                   scales = "free_y"
-                 ),
-                 annotation = list(
-                   title = NULL,
-                   xlab = NULL,
-                   ylab = NULL,
-                   xlim = NULL,
-                   ylim = NULL,
-                   label_width = 20,
-                   axis_text_x_angle = 45,
-                   axis_text_x_hjust = 1,
-                   axis_text_x_vjust = 1,
-                   legend_position = "bottom"
-                 ),
-                 axis = list(
-                   log_x = F,
-                   log_y = F
-                 ),
-                 theming = list(
-                   theme = picasso::theme_picasso,
-                   palette_discrete = picasso::roche_palette_discrete(1)
-                 ),
-                 points = list(
-                   color = picasso::roche_colors("black"),
-                   alpha = 0.5,
-                   position = "identity",
-                   size = 0.5,
-                   stroke = 1,
-                 ),
-                 dotplot = list(
-                   color = picasso::roche_colors("black"),
-                   alpha = 0.5,
-                   position = "identity",
-                   size = 0.5,
-                   stroke = 1,
-                 ),
-                 lines = list(
-                   alpha = 0.5,
-                   size = 0.5,
-                 ),
-                 boxplot = list(
-                   dodge = 0.2
-                 ),
-                 violin = list(
-                   width = 0.3,
-                   alpha = 0.5
-                 ),
-                 smooth = list(
-                   method = "lm",
-                   color = "black",
-                   se = T
-                 ),
-                 summary = list(
-                   method = "mean",
-                   ribbon = FALSE,
-                   whiskers = FALSE,
-                 ),
+                 facetting = NULL,
+                 annotation = NULL,
+                 axis = NULL,
+                 theming = NULL,
+                 points = NULL,
+                 dotplot = NULL,
+                 lines = NULL,
+                 boxplot = NULL,
+                 violin = NULL,
+                 smooth = NULL,
+                 summary = NULL,
+                 traces = NULL,
+                 facets = NULL,
+                 dodge = NULL,
                  ...) {
   #*******************************************************************************
+  # Dodge override
+  if (!is.null(dodge)){
+    if(!is.null(violin)) violin$dodge <- dodge
+    if(!is.null(boxplot)) boxplot$dodge <- dodge
+    if(!is.null(dotplot)) dotplot$dodge <- dodge
+    if(!is.null(summary)){
+      summary <- summary %>%
+        purrr::map(function(.x){
+          .x["dodge"] <- dodge
+          .x
+        })
+    }
+  }
   # Drop columns that are not needed
   DATA <- DATA %>%
     dplyr::select_at(unlist(unname(mapping)))
@@ -84,83 +52,68 @@ plot <- function(DATA,
   # Drop missing values
   DATA <- do.call(nightowl::prepare_data_for_plotting, c(list(DATA = DATA), processing))
   # Data preparation
-  DATA <- nightowl::add_text_wraping(DATA, width = annotation$label_width)
+  DATA <- do.call(nightowl::add_text_wraping, c(list(DATA = DATA), annotation))
   #*******************************************************************************
   # Setup Plot
-  g <- nightowl:::ggplot(DATA, mapping)
+  g <- nightowl:::ggplot(DATA, mapping) +
+    ggplot2::geom_blank(mapping = ggplot2::aes(x = forcats::as_factor(.data[[mapping$x]])))
   #*******************************************************************************
   # Add Violin
-  browser()
   if (!is.null(violin)) {
-    g <- do.call(nightowl::add_violin, c(list(DATA, g = g, x = mapping$x), violin))
+    g <- do.call(nightowl::add_violin, c(list(g = g, mapping = mapping), violin))
   }
   #*******************************************************************************
   # Add Boxplot
-  if (!is.null(violin)) {
-    g <- do.call(nightowl::add_boxplot, c(list(DATA, g = g, x = mapping$x), boxplot))
+  if (!is.null(boxplot)) {
+    g <- do.call(nightowl::add_boxplot, c(list(g = g, mapping = mapping), boxplot))
   }
- # #*******************************************************************************
-  # # Add points
-  # if (add_points) {
-  #   g <- g + ggplot2::geom_dotplot(
-  #     binaxis = "y",
-  #     stackdir = "center",
-  #     color = points_color,
-  #     alpha = points_alpha,
-  #     stroke = points_stroke,
-  #     dotsize = points_size,
-  #   )
-  # }
+  #*******************************************************************************
+  # Add points
+  if (!is.null(dotplot)) {
+    g <- do.call(nightowl::add_dotplot, c(list(g = g, mapping = mapping), dotplot))
+  }
+  #*******************************************************************************
+  # Add points r
+  if (!is.null(points)) {
+    g <- do.call(nightowl::add_points, c(list(g = g, mapping = mapping), points))
+  }
   # #*******************************************************************************
-  # ## Smooth
-  # if (!is.null(add_smooth)) {
-  #   attributes(g)$caption <- c(
-  #     attributes(g)$caption,
-  #     glue::glue("Method for trendline: '{add_smooth}'")
-  #   )
-  #   # Fix colors
-  #   # if (!is.null(group) && group %in% c(facet_row, facet_col)) {
-  #   #   line_mapping <- ggplot2::aes()
-  #   # } else {
-  #   #   line_mapping <- ggplot2::aes_(lty = rlang::sym(.aes$group))
-  #   # }
-  #   # Add smooth
-  #   if (add_smooth == "mean") {
-  #     g <- g + nightowl::geom_bootstrap_mean(
-  #       color = color_smooth,
-  #       # mapping = line_mapping,
-  #       add_ribbon = add_ribbon,
-  #       add_whiskers = add_whiskers,
-  #       add_points = add_whiskers,
-  #       position = ggplot2::position_dodge(width = dodge, preserve = "total")
-  #     )
-  #   } else if (add_smooth == "median") {
-  #     g <-
-  #       g + nightowl::geom_hillow_median(
-  #         color = color_smooth,
-  #         mapping = line_mapping,
-  #         add_ribbon = add_ribbon,
-  #         add_whiskers = add_whiskers,
-  #         add_points = add_whiskers,
-  #         position = ggplot2::position_dodge(width = dodge, preserve = "total")
-  #       )
-  #   } else {
-  #     g <-
-  #       g + ggplot2::geom_smooth(
-  #         mapping = line_mapping,
-  #         color = color_smooth,
-  #         method = add_smooth,
-  #         se = show_se,
-  #         position = ggplot2::position_dodge(width = dodge)
-  #       )
-  #   }
-  # }
+  # Add Summary
+  if (!is.null(summary)) {
+    g <- summary %>%
+      purrr::imap(~{c(.x, list(geom = .y))}) %>%
+      purrr::reduce(function(.out, .in){
+        do.call(nightowl::add_summary, c(list(g = .out, mapping = mapping), .in))
+      }, .init = g)
+  }
+  #*******************************************************************************
+  # Add Smooth
+  if (!is.null(smooth)) {
+    g <- smooth %>%
+      purrr::imap(~{c(.x, list(method = .y))}) %>%
+      purrr::reduce(function(.out, .in){
+        do.call(nightowl::add_smooth, c(list(g = .out, mapping = mapping), .in))
+      }, .init = g)
+  }
+  #*******************************************************************************
+  # Add facetting
+  if (!is.null(facets)){
+    g <- do.call(nightowl::add_facets, c(list(g = g), facets))
+  }
+
+  #*******************************************************************************
+  # Add Traces
+  if (!is.null(traces)) {
+    g <- traces %>%
+      purrr::imap(~{c(.x, list(geom = .y))}) %>%
+      purrr::reduce(function(.out, .in){
+        do.call(nightowl::add_traces, c(list(g = .out, mapping = mapping), .in))
+      }, .init = g)
+  }
+
   # #*******************************************************************************
-  # # Facetting ----
-  # g <- nightowl::apply_facetting(g, facet_col, facet_row, scales)
-  # #*******************************************************************************
-  # # Colors and theming
-  # g <- nightowl::apply_colors(g, DATA, fill, color)
+  # Colors and theming
+  g <- do.call(nightowl::add_colors, c(list(g = g, DATA = DATA, mapping = mapping)))
   # # Add Theme
   # g <- nightowl::apply_theme(g, theme)
   # #*******************************************************************************

@@ -1,8 +1,9 @@
+#' @importFrom ggplot2 aes mean_cl_boot mean_cl_normal mean_se mean_sdl
 # ===============================================================================
 #' Wrap text label at a certain width
 #' @param width
 #' @export
-add_text_wraping <- function(DATA, cols = NULL, width = 20) {
+add_text_wraping <- function(DATA, cols = NULL, width = 20, ...) {
   if (is.null(cols)) cols <- names(DATA)[purrr::map_lgl(DATA, ~ is.factor(.x))]
   purrr::reduce(cols, function(.out, .col) {
     .x <- .out[[.col]]
@@ -32,33 +33,6 @@ prepare_data_for_plotting <- function(DATA, cols = NULL, remove_missing = T, to_
   return(DATA)
 }
 # ===============================================================================
-#' Aggregate y values
-#' @export
-aggregate_y_values <- function(DATA, summarise_y, x, y, cols = NULL) {
-  if (is.null(cols)) cols <- waRRior::pop(names(DATA), y)
-  if (!is.null(summarise_y)) {
-    DATA %>%
-      dplyr::group_by_at(cols) %>%
-      dplyr::group_split() %>%
-      purrr::map_df(function(.data) {
-        .value <- do.call(summarise_y, list(.data[[y]]))
-        .data %>%
-          dplyr::filter_at(y, function(x) x == .value) %>%
-          head(1) ->
-        .res
-        if (nrow(.res) < 1) {
-          .data %>%
-            head(1) %>%
-            dplyr::mutate(AVAL = .value) ->
-          .res
-        }
-        return(.res)
-      })
-  } else {
-    return(DATA)
-  }
-}
-# ===============================================================================
 #' Create ggplot form list
 #' Setup ggplot
 #' This was difficult, fist store parameters in list,
@@ -79,7 +53,9 @@ ggplot <- function(DATA, aes, only_aes = F, ...) {
 # ===============================================================================
 #' Define colors
 #' @export
-apply_colors <- function(g, DATA, fill, color) {
+add_colors <- function(g, DATA, mapping) {
+  fill <- mapping$fill
+  color <- mapping$color
   if (!is.null(fill) && is.factor(DATA[[fill]])) {
     if (length(unique(DATA[[fill]])) <= 10) {
       g <- g + ggplot2::discrete_scale("fill", "roche", picasso::roche_palette_discrete(1))
@@ -91,8 +67,8 @@ apply_colors <- function(g, DATA, fill, color) {
       )
     }
   }
-  if (!is.null(color) && is.factor(DATA[[color]])) {
-    if (length(unique(DATA[[fill]])) <= 10) {
+ if (!is.null(color) && is.factor(DATA[[color]])) {
+    if (length(unique(DATA[[color]])) <= 10) {
       g <- g + ggplot2::discrete_scale("color", "roche", picasso::roche_palette_discrete(1))
       g <- g + ggplot2::guides(colour = ggplot2::guide_legend(override.aes = list(
           size = 2, color = picasso::roche_palette_discrete()(length(unique(DATA[[color]])))
@@ -108,26 +84,6 @@ apply_colors <- function(g, DATA, fill, color) {
   return(g)
 }
 # ===============================================================================
-#' Apply facetting
-#' @export
-apply_facetting <- function(g, facet_col, facet_row, scales) {
-  if (!is.null(facet_col) | !is.null(facet_row)) {
-    if (is.null(facet_col)) facet_col <- "."
-    if (is.null(facet_row)) facet_row <- "."
-    g <- g + ggplot2::facet_grid(
-      as.formula(
-        paste(
-          paste0("`", facet_row, "`", collapse = "+"),
-          "~",
-          paste0("`", facet_col, "`", collapse = "+")
-        )
-      ),
-      scales = scales,
-      labeller = ggplot2::label_both
-    )
-  }
-  return(g)
-}
 # ===============================================================================
 #' Apply theme
 #' @export
