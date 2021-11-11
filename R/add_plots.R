@@ -106,6 +106,7 @@ add_smooth <- function(g,
                        mapping,
                        dodge = 0,
                        method = "lm",
+                       color = "black",
                        ...) {
   attributes(g)$caption <- c(
     attributes(g)$caption,

@@ -86,7 +86,7 @@ add_colors <- function(g, DATA, mapping) {
 # ===============================================================================
 #' Apply theme
 #' @export
-apply_theme <- function(g, theme) {
+add_theme <- function(g, theme = "picasso::theme_picasso", ...) {
   if (is.character(theme)) {
     g <- g + eval(parse(text = paste0(theme, "()")))
   } else if (is.function(theme)) {
@@ -104,18 +104,18 @@ apply_theme <- function(g, theme) {
 # ===============================================================================
 #' Apply annotation
 #' @export
-apply_annotation <- function(g,
-                             x,
-                             y,
-                             title,
-                             xlab,
-                             ylab,
-                             axis_text_x,
-                             axis_text_x_angle,
-                             axis_text_x_hjust,
-                             axis_text_x_vjust,
-                             legend_position,
-                             n_breaks_y = 20) {
+add_annotation <- function(g,
+                           x,
+                           y,
+                           title = NULL,
+                           xlab = NULL,
+                           ylab = NULL,
+                           axis_text_x_angle = 45,
+                           axis_text_x_hjust = 1,
+                           axis_text_x_vjust = 1,
+                           legend_position = "bottom",
+                           n_breaks_y = 20,
+                           ...) {
   g <- g + ggplot2::theme(
     axis.text.x = ggplot2::element_text(
       angle = axis_text_x_angle,
@@ -150,14 +150,41 @@ apply_annotation <- function(g,
 # ===============================================================================
 #' Apply axis
 #' @export
-apply_axis <- function(g, log_x, log_y, xlim, ylim) {
-  if (log_x) g <- g + ggplot2::scale_x_log10()
-  if (log_y) g <- g + ggplot2::scale_y_log10()
+add_axis <- function(g,
+                     log_x = F,
+                     log_y = F,
+                     xlim = NULL,
+                     ylim = NULL,
+                     units_x = NULL,
+                     units_y = NULL,
+                     ...) {
+  if (!is.null(units_x)) {
+    g$labels$x <- paste0(g$labels$x, "(", units_x, ")")
+  }
+  if (!is.null(units_y)) {
+    g$labels$y <- paste0(g$labels$y, "(", units_y, ")")
+  }
+  if (log_x) {
+    g <- g + ggplot2::scale_x_log10()
+    g$labels$x <- glue::glue("log10({g$labels$x})")
+  }
+  if (log_y) {
+    g <- g + ggplot2::scale_y_log10()
+    g$labels$y <- glue::glue("log10({g$labels$y})")
+  }
   if (!is.null(xlim)) {
     g <- g + ggplot2::coord_cartesian(xlim = xlim)
+    attributes(g)$caption <- c(
+      attributes(g)$caption,
+      glue::glue("Zoom on X Axis: {paste0(xlim, units_x, collapse = ' - ')}")
+    )
   }
   if (!is.null(ylim)) {
     g <- g + ggplot2::coord_cartesian(ylim = ylim)
+    attributes(g)$caption <- c(
+      attributes(g)$caption,
+      glue::glue("Zoom on Y Axis: {paste0(ylim, units_y, collapse = ' - ')}")
+    )
   }
   return(g)
 }

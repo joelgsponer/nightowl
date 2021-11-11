@@ -5,12 +5,7 @@
 render_svg <- function(g, ...) {
   tryCatch(
     {
-      fonts <- list(
-        sans = "Helvetica",
-        mono = "Consolas",
-        `Times New Roman` = "DejaVu Serif"
-      )
-      svg <- svglite::svgstring(system_fonts = fonts, ...)
+      svg <- svglite::svgstring(web_fonts = "https://fonts.googleapis.com/css2?family=Lato:wght@100;300;400;700;900&display=swap", ...)
       print(g)
       svg <- waRRior::regex_replace_element_parameter(svg(), "width", "100%") %>%
         waRRior::regex_replace_element_parameter("height", "100%")
