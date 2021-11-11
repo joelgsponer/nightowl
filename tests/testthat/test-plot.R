@@ -1,4 +1,5 @@
 test_that("multiplication works", {
+
   testdata <- ChickWeight %>%
     dplyr::filter(Time < 10)
   nightowl::plot(testdata,
@@ -16,9 +17,10 @@ test_that("multiplication works", {
     summary = list(line = list()),
     annotation = list(title = "TEST"),
     axis = list(log_y = TRUE, xlim = c(2, 4), units_x = "days", units_y = "g"),
+    svg = list(),
     dodge = 0.5
   ) %>%
-    peek()
+  htmltools::browsable()
 
   nightowl::plot(testdata,
     mapping = list(

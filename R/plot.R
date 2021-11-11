@@ -31,6 +31,7 @@ plot <- function(DATA,
                  traces = NULL,
                  facets = NULL,
                  dodge = NULL,
+                 svg = NULL,
                  ...) {
   #*******************************************************************************
   # Dodge override
@@ -132,7 +133,11 @@ plot <- function(DATA,
   # # Annotation
   g <- do.call(nightowl::add_annotation, c(list(g = g), mapping, annotation, axis))
   #*******************************************************************************
-  # Finishing up
+  # Create SVG
+  if(!is.null(svg)){
+    g <- do.call(nightowl::render_svg, c(list(g = g), svg))
+  }
+  # Finishing u
   return(g)
 }
 # ===============================================================================
