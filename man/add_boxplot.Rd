@@ -4,17 +4,7 @@
 \alias{add_boxplot}
 \title{Add Boxplot}
 \usage{
-add_boxplot(
-  g,
-  mapping,
-  dodge = 0.5,
-  outlier.shape = NA,
-  coef = 0,
-  alpha = 1,
-  width = 0.2,
-  color = "black",
-  ...
-)
+add_boxplot(g, mapping, dodge = 0.5, color = "black", ...)
 }
 \description{
 Add Boxplot
