@@ -30,7 +30,8 @@ summary_table <- function(DATA,
   #*******************************************************************************
   # Drop columns that are not needed
   DATA <- DATA %>%
-    dplyr::select_at(c(x, y, group, facet_col, facet_row))
+    dplyr::select_at(c(x, y, group, facet_col, facet_row)) %>%
+    droplevels()
   #*******************************************************************************
   # Drop missing values
   DATA <- nightowl::prepare_data_for_plotting(DATA, remove_missing = remove_missing)

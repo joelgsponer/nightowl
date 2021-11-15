@@ -1,4 +1,5 @@
 test_that("tables works", {
+
   library(magrittr)
   testdata <- palmerpenguins::penguins_raw
   nightowl::summary_table(testdata,
