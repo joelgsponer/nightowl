@@ -13,7 +13,7 @@ render_svg <- function(g, ...) {
       return(svg)
     },
     error = function(e) {
-      dev.off()
+      try(dev.off())
       stop(e)
     }
   )
