@@ -6,24 +6,11 @@
 \usage{
 plot(
   DATA,
-  processing = list(remove_missing = T),
   mapping = list(x = NULL, y = NULL, group = NULL, fill = NULL, color = NULL, size =
     NULL, shape = NULL, lty = NULL, id = NULL),
-  facetting = NULL,
-  annotation = NULL,
-  axis = NULL,
-  theming = NULL,
-  points = NULL,
-  dotplot = NULL,
-  lines = NULL,
-  boxplot = NULL,
-  violin = NULL,
-  smooth = NULL,
-  summary = NULL,
-  traces = NULL,
-  facets = NULL,
+  processing = NULL,
+  layers = list(),
   dodge = NULL,
-  svg = NULL,
   ...
 )
 }

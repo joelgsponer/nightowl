@@ -54,104 +54,104 @@ plot <- function(DATA,
   # Drop missing values
   DATA <- do.call(nightowl::prepare_data_for_plotting, c(list(DATA = DATA), processing))
   # Data preparation
-  #DATA <- do.call(nightowl::add_text_wraping, c(list(DATA = DATA), annotation))
+  # DATA <- do.call(nightowl::add_text_wraping, c(list(DATA = DATA), annotation))
   #*******************************************************************************
   # Setup Plot
   g <- nightowl:::ggplot(DATA, mapping)
   #*******************************************************************************
   # Add name to layers
-  layers <- purrr::imap(layers, function(.x, .y){
-     c(list(type = .y), .x)
+  layers <- purrr::imap(layers, function(.x, .y) {
+    c(list(type = .y), .x)
   })
   # Layers
 
-  purrr::reduce(layers, function(.x, .y){
+  purrr::reduce(layers, function(.x, .y) {
     browser()
     .f <- paste0("nightowl::", .y$type)
     do.call(.f, .y)
   }, .init = g)
 
-#   #*******************************************************************************
-#   # Add points r
-#   if (!is.null(points)) {
-#     g <- do.call(nightowl::add_points, c(list(g = g, mapping = mapping), points))
-#   }
-#   # Add Violin
-#   if (!is.null(violin)) {
-#     g <- do.call(nightowl::add_violin, c(list(g = g, mapping = mapping), violin))
-#   }
-#   #*******************************************************************************
-#   # Add Boxplot
-#   if (!is.null(boxplot)) {
-#     g <- do.call(nightowl::add_boxplot, c(list(g = g, mapping = mapping), boxplot))
-#   }
-#   #*******************************************************************************
-#   # Add points
-#   if (!is.null(dotplot)) {
-#     g <- do.call(nightowl::add_dotplot, c(list(g = g, mapping = mapping), dotplot))
-#   }
-#   #*******************************************************************************
-#   # Add points r
-#   if (!is.null(points)) {
-#     g <- do.call(nightowl::add_points, c(list(g = g, mapping = mapping), points))
-#   }
-#   # #*******************************************************************************
-#   # Add Summary
-#   if (!is.null(summary)) {
-#     g <- summary %>%
-#       purrr::imap(~ {
-#         c(.x, list(geom = .y))
-#       }) %>%
-#       purrr::reduce(function(.out, .in) {
-#         do.call(nightowl::add_summary, c(list(g = .out, mapping = mapping), .in))
-#       }, .init = g)
-#   }
-#   #*******************************************************************************
-#   # Add Smooth
-#   if (!is.null(smooth)) {
-#     g <- smooth %>%
-#       purrr::imap(~ {
-#         c(.x, list(method = .y))
-#       }) %>%
-#       purrr::reduce(function(.out, .in) {
-#         do.call(nightowl::add_smooth, c(list(g = .out, mapping = mapping), .in))
-#       }, .init = g)
-#   }
-#   # #*******************************************************************************
-#   # # Axis
-#   if (!is.null(axis)) {
-#     g <- do.call(nightowl::add_axis, c(list(g = g), axis))
-#   }
-#   #*******************************************************************************
-#   # Add facetting
-#   if (!is.null(facets)) {
-#     g <- do.call(nightowl::add_facets, c(list(g = g), facets))
-#   }
-# 
-#   #*******************************************************************************
-#   # Add Traces
-#   if (!is.null(traces)) {
-#     g <- traces %>%
-#       purrr::imap(~ {
-#         c(.x, list(geom = .y))
-#       }) %>%
-#       purrr::reduce(function(.out, .in) {
-#         do.call(nightowl::add_traces, c(list(g = .out, mapping = mapping), .in))
-#       }, .init = g)
-#   }
-#   # #*******************************************************************************
-#   # Colors and theming
-#   g <- do.call(nightowl::add_colors, c(list(g = g, DATA = DATA, mapping = mapping)))
-#   # # Add Theme
-#   g <- do.call(nightowl::add_theme, c(list(g = g), theming))
-#   # #*******************************************************************************
-#   # # Annotation
-#   g <- do.call(nightowl::add_annotation, c(list(g = g), mapping, annotation, axis))
-#   #*******************************************************************************
-#   # Create SVG
-#   if (!is.null(svg)) {
-#     g <- do.call(nightowl::render_svg, c(list(g = g), svg))
-#   }
+  #   #*******************************************************************************
+  #   # Add points r
+  #   if (!is.null(points)) {
+  #     g <- do.call(nightowl::add_points, c(list(g = g, mapping = mapping), points))
+  #   }
+  #   # Add Violin
+  #   if (!is.null(violin)) {
+  #     g <- do.call(nightowl::add_violin, c(list(g = g, mapping = mapping), violin))
+  #   }
+  #   #*******************************************************************************
+  #   # Add Boxplot
+  #   if (!is.null(boxplot)) {
+  #     g <- do.call(nightowl::add_boxplot, c(list(g = g, mapping = mapping), boxplot))
+  #   }
+  #   #*******************************************************************************
+  #   # Add points
+  #   if (!is.null(dotplot)) {
+  #     g <- do.call(nightowl::add_dotplot, c(list(g = g, mapping = mapping), dotplot))
+  #   }
+  #   #*******************************************************************************
+  #   # Add points r
+  #   if (!is.null(points)) {
+  #     g <- do.call(nightowl::add_points, c(list(g = g, mapping = mapping), points))
+  #   }
+  #   # #*******************************************************************************
+  #   # Add Summary
+  #   if (!is.null(summary)) {
+  #     g <- summary %>%
+  #       purrr::imap(~ {
+  #         c(.x, list(geom = .y))
+  #       }) %>%
+  #       purrr::reduce(function(.out, .in) {
+  #         do.call(nightowl::add_summary, c(list(g = .out, mapping = mapping), .in))
+  #       }, .init = g)
+  #   }
+  #   #*******************************************************************************
+  #   # Add Smooth
+  #   if (!is.null(smooth)) {
+  #     g <- smooth %>%
+  #       purrr::imap(~ {
+  #         c(.x, list(method = .y))
+  #       }) %>%
+  #       purrr::reduce(function(.out, .in) {
+  #         do.call(nightowl::add_smooth, c(list(g = .out, mapping = mapping), .in))
+  #       }, .init = g)
+  #   }
+  #   # #*******************************************************************************
+  #   # # Axis
+  #   if (!is.null(axis)) {
+  #     g <- do.call(nightowl::add_axis, c(list(g = g), axis))
+  #   }
+  #   #*******************************************************************************
+  #   # Add facetting
+  #   if (!is.null(facets)) {
+  #     g <- do.call(nightowl::add_facets, c(list(g = g), facets))
+  #   }
+  #
+  #   #*******************************************************************************
+  #   # Add Traces
+  #   if (!is.null(traces)) {
+  #     g <- traces %>%
+  #       purrr::imap(~ {
+  #         c(.x, list(geom = .y))
+  #       }) %>%
+  #       purrr::reduce(function(.out, .in) {
+  #         do.call(nightowl::add_traces, c(list(g = .out, mapping = mapping), .in))
+  #       }, .init = g)
+  #   }
+  #   # #*******************************************************************************
+  #   # Colors and theming
+  #   g <- do.call(nightowl::add_colors, c(list(g = g, DATA = DATA, mapping = mapping)))
+  #   # # Add Theme
+  #   g <- do.call(nightowl::add_theme, c(list(g = g), theming))
+  #   # #*******************************************************************************
+  #   # # Annotation
+  #   g <- do.call(nightowl::add_annotation, c(list(g = g), mapping, annotation, axis))
+  #   #*******************************************************************************
+  #   # Create SVG
+  #   if (!is.null(svg)) {
+  #     g <- do.call(nightowl::render_svg, c(list(g = g), svg))
+  #   }
   # Finishing u
   return(g)
 }

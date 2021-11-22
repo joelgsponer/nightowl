@@ -1,5 +1,4 @@
 test_that("multiplication works", {
-
   testdata <- ChickWeight %>%
     dplyr::filter(Time < 10)
   nightowl::plot(testdata,
@@ -11,7 +10,7 @@ test_that("multiplication works", {
     ),
     layers = list(
       boxplot = list()
-    ) 
+    )
   )
 
 
@@ -25,7 +24,7 @@ test_that("multiplication works", {
     boxplot = list(),
     violin = list(),
     dotplot = list(),
-    #points = list(),
+    # points = list(),
     smooth = list(lm = list()),
     summary = list(line = list()),
     annotation = list(title = "TEST"),

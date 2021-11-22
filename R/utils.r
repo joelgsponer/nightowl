@@ -9,4 +9,3 @@ expand_mapping <- function(mapping,
     }
   })
 }
-
