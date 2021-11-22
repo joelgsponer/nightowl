@@ -9,3 +9,11 @@ expand_mapping <- function(mapping,
     }
   })
 }
+# =================================================
+#' Natural sort factor
+#' @export
+fct_natural <- function(x) {
+  x <- forcats::as_factor(x)
+  l <- levels(x)
+  forcats::fct_relevel(x, gtools::mixedsort(l))
+}

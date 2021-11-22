@@ -4,15 +4,7 @@
 \alias{dotplot}
 \title{Add dotplot}
 \usage{
-dotplot(
-  g,
-  mapping,
-  dodge = 0.5,
-  binaxis = "y",
-  stackdir = "center",
-  dotsize = 0.3,
-  ...
-)
+dotplot(binaxis = "y", stackdir = "center", ...)
 }
 \description{
 Add dotplot

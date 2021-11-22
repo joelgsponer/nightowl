@@ -4,15 +4,7 @@
 \alias{points}
 \title{Add points}
 \usage{
-points(
-  g,
-  mapping,
-  dodge = 0.5,
-  binaxis = "y",
-  stackdir = "center",
-  size = 0.3,
-  ...
-)
+points(g, mapping = list(), ...)
 }
 \description{
 Add points

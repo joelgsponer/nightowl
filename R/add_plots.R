@@ -1,95 +1,83 @@
-# ===============================================================================
-#' Add Violin
+#' Add generic
 #' @export
-violin <- function(g,
-                   mapping,
-                   dodge = 0.5,
-                   width = 0.3,
-                   alpha = 0.5,
-                   ...) {
-  g + ggplot2::geom_violin(
-    mapping = ggplot2::aes(x = forcats::as_factor(.data[[mapping$x]])),
+add_geom <- function(geom,
+                     g,
+                     mapping = list(
+                       lty = NULL,
+                       color = NULL,
+                       group = NULL
+                     ),
+                     dodge = 0.5,
+                     color = "black",
+                     cut_f = ggplot2::cut_interval,
+                     cut_args = list(n = 5),
+                     ...) {
+  nightowl:::expand_mapping(mapping)
+  if (is.numeric(dplyr::pull(g$data, !!g$mapping$x))) {
+    if (is.character(cut_f)) cut_f <- eval(parse(text = cut_f))
+    if (!is.null(g$mapping$fill)) {
+      peacock::log("cutting")
+      .group <- do.call(cut_f, c(
+        list(x = g$data[[rlang::as_label(g$mapping$x)]]),
+        cut_args
+      ))
+      .data <- cbind(g$data, .group)
+      .aes <- ggplot2::aes(group = interaction(!!g$mapping$fill, .group))
+    } else {
+      .aes <- ggplot2::aes(group = cut_f(!!g$mapping$x, cut_n))
+    }
+    # .aes <- do.call(ggplot2::aes, mapping)
+  } else {
+    .aes <- do.call(ggplot2::aes, mapping)
+  }
+
+  g + geom(
+    data = .data,
+    mapping = .aes,
     position = ggplot2::position_dodge(dodge, preserve = "total"),
     ...
   )
+}
+# ===============================================================================
+#' Add Violin
+#' @export
+violin <- function(...) {
+  nightowl::add_geom(ggplot2::geom_violin, ...)
 }
 # ===============================================================================
 #' Add Boxplot
 #' @export
-boxplot <- function(g,
-                    mapping,
-                    dodge = 0.5,
-                    color = "black",
-                    breaks = 10,
-                    ...) {
-  data <- g$data
-  nightowl:::expand_mapping(mapping)
-  if (is.numeric(data[[mapping$x]])) {
-    data <- data %>%
-      dplyr::mutate(group = cut(!!x, breaks)) %>%
-      dplyr::mutate(lower = as.numeric(sub("\\((.+),.*", "\\1", group))) %>%
-      dplyr::mutate(upper = as.numeric(sub("[^,]*,([^]]*)\\]", "\\1", group))) %>%
-      dplyr::mutate(width = upper - lower) %>%
-      dplyr::mutate()
-    dplyr::group_by(group) %>%
-      dplyr::group_split() %>%
-      purrr::map_df(function(.data) {
-        .data %>%
-          dplyr::mutate(midpoint = mean(!!x))
-      })
-    browser()
-    .aes <- ggplot2::aes(x = data$midpoint, group = data$group)
-  } else {
-    .aes <- ggplot2::aes()
-  }
-  g + ggplot2::geom_boxplot(
-    mapping = .aes,
-    position = ggplot2::position_dodge(dodge, preserve = "total"),
-    color = color,
-    ...
-  )
+boxplot <- function(...) {
+  nightowl::add_geom(ggplot2::geom_boxplot, ...)
 }
 # ===============================================================================
 #' Add dotplot
 #' @export
-dotplot <- function(g,
-                    mapping,
-                    dodge = 0.5,
-                    binaxis = "y",
+dotplot <- function(binaxis = "y",
                     stackdir = "center",
-                    dotsize = 0.3,
                     ...) {
-  g + ggplot2::geom_dotplot(
-    mapping = ggplot2::aes(x = forcats::as_factor(.data[[mapping$x]]), group = NULL),
-    position = ggplot2::position_dodge(dodge, preserve = "total"),
+  nightowl::add_geom(
+    ggplot2::geom_dotplot,
     binaxis = binaxis,
     stackdir = stackdir,
-    dotsize = dotsize,
     ...
   )
 }
 # ===============================================================================
 #' Add points
 #' @export
-points <- function(g,
-                   mapping,
-                   dodge = 0.5,
-                   binaxis = "y",
-                   stackdir = "center",
-                   size = 0.3,
-                   ...) {
-  g + ggplot2::geom_point(
-    ...
-  )
+points <- function(g, mapping = list(), ...) {
+  .aes <- do.call(ggplot2::aes, mapping)
+  g + ggplot2::geom_point(mapping = .aes, ...)
 }
 # ===============================================================================
 #' Add summary
 #' @export
 summary <- function(g,
-                    mapping,
-                    dodge = 0,
+                    mapping = list(),
                     fun.data = NULL,
                     fun = NULL,
+                    dodge = 1,
                     shape = 21,
                     ...) {
   if (!is.null(fun.data) && !is.null(fun)) {
@@ -103,20 +91,19 @@ summary <- function(g,
   attributes(g)$caption <- c(
     attributes(g)$caption, glue::glue("Method for summary: '{method}'")
   )
-  g + ggplot2::stat_summary(
-    mapping = ggplot2::aes(
-      x = as.numeric(forcats::as_factor(.data[[mapping$x]]))
-    ),
-    position = ggplot2::position_dodge(dodge, preserve = "total"),
-    shape = shape,
-    ...
-  )
+  if (is.numeric(dplyr::pull(g$data, !!g$mapping$x))) {
+    .f <- ggplot2::stat_summary_bin
+  } else {
+    .f <- ggplot2::stat_summary
+  }
+  .aes <- do.call(ggplot2::aes, mapping)
+  g + .f(mapping = .aes, position = ggplot2::position_dodge2(dodge, preserve = "total"), shape = shape, fun = fun, fun.data = fun.data, ...)
 }
 # ===============================================================================
 #' Add smooth
 #' @export
 smooth <- function(g,
-                   mapping,
+                   mapping = list(),
                    dodge = 0,
                    method = "lm",
                    color = "black",
@@ -125,8 +112,9 @@ smooth <- function(g,
     attributes(g)$caption,
     glue::glue("Method for summary: '{method}'")
   )
+  .aes <- do.call(ggplot2::aes, mapping)
   g + ggplot2::geom_smooth(
-    mapping = ggplot2::aes(x = as.numeric(forcats::as_factor(.data[[mapping$x]]))),
+    mapping = .aes,
     position = ggplot2::position_dodge(dodge, preserve = "total"),
     ...
   )
@@ -170,13 +158,15 @@ facets <- function(g,
       labeller = match.fun(labeller),
       ...
     )
+  } else {
+    return(g)
   }
 }
 # ===============================================================================
 #' Add traces
 #' @export
 traces <- function(g,
-                   mapping,
+                   mapping = list(),
                    dodge = 0,
                    fun.data = NULL,
                    fun = NULL,
@@ -193,11 +183,9 @@ traces <- function(g,
   attributes(g)$caption <- c(
     attributes(g)$caption, glue::glue("Method for summary: '{method}'")
   )
+  .aes <- nightowl::aes(mapping)
   g + ggplot2::stat_summary(
-    mapping = ggplot2::aes(
-      x = as.numeric(forcats::as_factor(.data[[mapping$x]])),
-      group = .data[[mapping$id]]
-    ),
+    mapping = .aes,
     position = ggplot2::position_dodge(dodge, preserve = "total"),
     shape = shape,
     ...

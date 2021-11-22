@@ -4,7 +4,7 @@
 \alias{violin}
 \title{Add Violin}
 \usage{
-violin(g, mapping, dodge = 0.5, width = 0.3, alpha = 0.5, ...)
+violin(...)
 }
 \description{
 Add Violin

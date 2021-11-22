@@ -9,8 +9,14 @@ plot(
   mapping = list(x = NULL, y = NULL, group = NULL, fill = NULL, color = NULL, size =
     NULL, shape = NULL, lty = NULL, id = NULL),
   processing = NULL,
+  transform = NULL,
   layers = list(),
-  dodge = NULL,
+  annotation = NULL,
+  axis = NULL,
+  theming = NULL,
+  facets = NULL,
+  svg = NULL,
+  dodge = 1,
   ...
 )
 }

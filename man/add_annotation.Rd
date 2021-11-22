@@ -15,7 +15,6 @@ add_annotation(
   axis_text_x_hjust = 1,
   axis_text_x_vjust = 1,
   legend_position = "bottom",
-  n_breaks_y = 20,
   ...
 )
 }

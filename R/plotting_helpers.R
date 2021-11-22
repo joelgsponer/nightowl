@@ -32,22 +32,19 @@ prepare_data_for_plotting <- function(DATA, cols = NULL, remove_missing = T, to_
   return(DATA)
 }
 # ===============================================================================
-#' Create ggplot form list
+#' Create aes from list
 #' Setup ggplot
 #' This was difficult, fist store parameters in list,
 #' Convert to symbols
 #' drop the onses which are null, call aes_ function (CAVE: ecex)
 #' also think of other places where params is used, e.g. params$id
-ggplot <- function(DATA, aes, only_aes = F, ...) {
+#' @export
+aes <- function(aes) {
   aes <- aes %>%
     purrr::compact() %>%
     purrr::map(~ rlang::sym(.x))
   f <- ggplot2::aes_
-  .aes <- rlang::exec(.fn = "f", !!!aes)
-  if (only_aes) {
-    return(.aes)
-  }
-  ggplot2::ggplot(data = DATA, .aes)
+  rlang::exec(.fn = "f", !!!aes)
 }
 # ===============================================================================
 #' Define colors
@@ -83,7 +80,6 @@ add_colors <- function(g, DATA, mapping) {
   return(g)
 }
 # ===============================================================================
-# ===============================================================================
 #' Apply theme
 #' @export
 add_theme <- function(g, theme = "picasso::theme_picasso", ...) {
@@ -114,7 +110,6 @@ add_annotation <- function(g,
                            axis_text_x_hjust = 1,
                            axis_text_x_vjust = 1,
                            legend_position = "bottom",
-                           n_breaks_y = 20,
                            ...) {
   g <- g + ggplot2::theme(
     axis.text.x = ggplot2::element_text(
@@ -123,8 +118,7 @@ add_annotation <- function(g,
       vjust = axis_text_x_vjust,
     ),
     legend.position = legend_position
-  ) +
-    ggplot2::scale_y_continuous(n.breaks = n_breaks_y)
+  )
   ## X label
   if (!is.null(xlab)) {
     g <- g + ggplot2::xlab(xlab)
@@ -150,14 +144,14 @@ add_annotation <- function(g,
 # ===============================================================================
 #' Apply axis
 #' @export
-add_axis <- function(g,
-                     log_x = F,
-                     log_y = F,
-                     xlim = NULL,
-                     ylim = NULL,
-                     units_x = NULL,
-                     units_y = NULL,
-                     ...) {
+axis <- function(g,
+                 log_x = F,
+                 log_y = F,
+                 xlim = NULL,
+                 ylim = NULL,
+                 units_x = NULL,
+                 units_y = NULL,
+                 ...) {
   if (!is.null(units_x)) {
     g$labels$x <- paste0(g$labels$x, "(", units_x, ")")
   }

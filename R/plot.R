@@ -1,6 +1,6 @@
 # ===============================================================================
 #' Boxplot
-#' @importFrom ggplot2 aes mean_cl_boot mean_cl_normal mean_se mean_sdl
+#' @importFrom ggplot2 aes mean_cl_boot mean_cl_normal mean_se mean_sdl label_both
 #' @export
 plot <- function(DATA,
                  mapping = list(
@@ -15,144 +15,83 @@ plot <- function(DATA,
                    id = NULL
                  ),
                  processing = NULL,
+                 transform = NULL,
                  layers = list(),
-                 # facetting = NULL,
-                 # annotation = NULL,
-                 # axis = NULL,
-                 # theming = NULL,
-                 # points = NULL,
-                 # dotplot = NULL,
-                 # lines = NULL,
-                 # boxplot = NULL,
-                 # violin = NULL,
-                 # smooth = NULL,
-                 # summary = NULL,
-                 # traces = NULL,
-                 # facets = NULL,
-                 # svg = NULL,
-                 dodge = NULL,
+                 annotation = NULL,
+                 axis = NULL,
+                 theming = NULL,
+                 facets = NULL,
+                 svg = NULL,
+                 dodge = 1,
                  ...) {
   #*******************************************************************************
-  # Dodge override
-  # if (!is.null(dodge)) {
-  #   if (!is.null(violin)) violin$dodge <- dodge
-  #   if (!is.null(boxplot)) boxplot$dodge <- dodge
-  #   if (!is.null(dotplot)) dotplot$dodge <- dodge
-  #   if (!is.null(summary)) {
-  #     summary <- summary %>%
-  #       purrr::map(function(.x) {
-  #         .x["dodge"] <- dodge
-  #         .x
-  #       })
-  #   }
-  # }
   # Drop columns that are not needed
+  cols <- c(
+    unlist(unname(mapping)),
+    purrr::map(layers, ~ unlist(unname(.x$mapping))) %>% unlist()
+  ) %>%
+    unique()
   DATA <- DATA %>%
-    dplyr::select_at(unlist(unname(mapping)))
+    tibble::as_tibble() %>%
+    dplyr::select_at(cols)
   if (any(dim(DATA) == 0)) rlang::abort("No data, check mapping")
   #*******************************************************************************
-  # Drop missing values
-  DATA <- do.call(nightowl::prepare_data_for_plotting, c(list(DATA = DATA), processing))
-  # Data preparation
-  # DATA <- do.call(nightowl::add_text_wraping, c(list(DATA = DATA), annotation))
+  # Transformations
+  purrr::iwalk(transform, function(.f, .var) {
+    .f <- match.fun(.f)
+    .var <- mapping[[.var]]
+    DATA <<- DATA %>%
+      dplyr::mutate(!!rlang::sym(.var) := .f(!!rlang::sym(.var)))
+  })
+  #*******************************************************************************
+  # Prepare facets (if any)
+  if (is.null(facets) &&
+    (!is.null(mapping$facet_row) ||
+      !is.null(mapping$facet_col))
+  ) {
+    facets <- list()
+  }
+  if (!is.null(mapping$facet_col)) facets$column <- mapping$facet_col
+  if (!is.null(mapping$facet_row)) facets$row <- mapping$facet_row
+  mapping <- mapping[waRRior::pop(names(mapping), c("facet_row", "facet_col"))]
   #*******************************************************************************
   # Setup Plot
-  g <- nightowl:::ggplot(DATA, mapping)
+  .aes <- nightowl:::aes(mapping)
+  g <- ggplot2::ggplot(DATA, .aes)
   #*******************************************************************************
-  # Add name to layers
+  # Add type to layers
   layers <- purrr::imap(layers, function(.x, .y) {
     c(list(type = .y), .x)
   })
-  # Layers
-
-  purrr::reduce(layers, function(.x, .y) {
-    browser()
-    .f <- paste0("nightowl::", .y$type)
-    do.call(.f, .y)
+  #*******************************************************************************
+  # Add layers
+  g <- purrr::reduce(layers, function(.x, .y) {
+    .y$g <- .x
+    if (is.null(.y$dodge)) .y$dodge <- dodge
+    thiscall <- glue::glue("do.call(nightowl::{.y$type}, .y)")
+    .y$type <- NULL
+    eval(parse(text = thiscall))
   }, .init = g)
-
-  #   #*******************************************************************************
-  #   # Add points r
-  #   if (!is.null(points)) {
-  #     g <- do.call(nightowl::add_points, c(list(g = g, mapping = mapping), points))
-  #   }
-  #   # Add Violin
-  #   if (!is.null(violin)) {
-  #     g <- do.call(nightowl::add_violin, c(list(g = g, mapping = mapping), violin))
-  #   }
-  #   #*******************************************************************************
-  #   # Add Boxplot
-  #   if (!is.null(boxplot)) {
-  #     g <- do.call(nightowl::add_boxplot, c(list(g = g, mapping = mapping), boxplot))
-  #   }
-  #   #*******************************************************************************
-  #   # Add points
-  #   if (!is.null(dotplot)) {
-  #     g <- do.call(nightowl::add_dotplot, c(list(g = g, mapping = mapping), dotplot))
-  #   }
-  #   #*******************************************************************************
-  #   # Add points r
-  #   if (!is.null(points)) {
-  #     g <- do.call(nightowl::add_points, c(list(g = g, mapping = mapping), points))
-  #   }
-  #   # #*******************************************************************************
-  #   # Add Summary
-  #   if (!is.null(summary)) {
-  #     g <- summary %>%
-  #       purrr::imap(~ {
-  #         c(.x, list(geom = .y))
-  #       }) %>%
-  #       purrr::reduce(function(.out, .in) {
-  #         do.call(nightowl::add_summary, c(list(g = .out, mapping = mapping), .in))
-  #       }, .init = g)
-  #   }
-  #   #*******************************************************************************
-  #   # Add Smooth
-  #   if (!is.null(smooth)) {
-  #     g <- smooth %>%
-  #       purrr::imap(~ {
-  #         c(.x, list(method = .y))
-  #       }) %>%
-  #       purrr::reduce(function(.out, .in) {
-  #         do.call(nightowl::add_smooth, c(list(g = .out, mapping = mapping), .in))
-  #       }, .init = g)
-  #   }
-  #   # #*******************************************************************************
-  #   # # Axis
-  #   if (!is.null(axis)) {
-  #     g <- do.call(nightowl::add_axis, c(list(g = g), axis))
-  #   }
-  #   #*******************************************************************************
-  #   # Add facetting
-  #   if (!is.null(facets)) {
-  #     g <- do.call(nightowl::add_facets, c(list(g = g), facets))
-  #   }
-  #
-  #   #*******************************************************************************
-  #   # Add Traces
-  #   if (!is.null(traces)) {
-  #     g <- traces %>%
-  #       purrr::imap(~ {
-  #         c(.x, list(geom = .y))
-  #       }) %>%
-  #       purrr::reduce(function(.out, .in) {
-  #         do.call(nightowl::add_traces, c(list(g = .out, mapping = mapping), .in))
-  #       }, .init = g)
-  #   }
-  #   # #*******************************************************************************
-  #   # Colors and theming
-  #   g <- do.call(nightowl::add_colors, c(list(g = g, DATA = DATA, mapping = mapping)))
-  #   # # Add Theme
-  #   g <- do.call(nightowl::add_theme, c(list(g = g), theming))
-  #   # #*******************************************************************************
-  #   # # Annotation
-  #   g <- do.call(nightowl::add_annotation, c(list(g = g), mapping, annotation, axis))
-  #   #*******************************************************************************
-  #   # Create SVG
-  #   if (!is.null(svg)) {
-  #     g <- do.call(nightowl::render_svg, c(list(g = g), svg))
-  #   }
-  # Finishing u
+  #*******************************************************************************
+  # Facets
+  g <- do.call(nightowl::facets, c(list(g = g), facets))
+  #*******************************************************************************
+  # Facets
+  g <- do.call(nightowl::axis, c(list(g = g), axis))
+  # #*******************************************************************************
+  # Colors and theming
+  g <- do.call(nightowl::add_colors, c(list(g = g, DATA = DATA, mapping = mapping)))
+  # # Add Theme
+  g <- do.call(nightowl::add_theme, c(list(g = g), theming))
+  # #*******************************************************************************
+  # # Annotation
+  g <- do.call(nightowl::add_annotation, c(list(g = g), mapping, annotation, axis))
+  #*******************************************************************************
+  # Create SVG
+  if (!is.null(svg)) {
+    g <- do.call(nightowl::render_svg, c(list(g = g), svg))
+  }
+  # Finishing up
   return(g)
 }
 # ===============================================================================

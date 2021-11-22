@@ -4,7 +4,15 @@
 \alias{traces}
 \title{Add traces}
 \usage{
-traces(g, mapping, dodge = 0, fun.data = NULL, fun = NULL, shape = 21, ...)
+traces(
+  g,
+  mapping = list(),
+  dodge = 0,
+  fun.data = NULL,
+  fun = NULL,
+  shape = 21,
+  ...
+)
 }
 \description{
 Add traces

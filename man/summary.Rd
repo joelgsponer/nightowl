@@ -4,7 +4,15 @@
 \alias{summary}
 \title{Add summary}
 \usage{
-summary(g, mapping, dodge = 0, fun.data = NULL, fun = NULL, shape = 21, ...)
+summary(
+  g,
+  mapping = list(),
+  fun.data = NULL,
+  fun = NULL,
+  dodge = 1,
+  shape = 21,
+  ...
+)
 }
 \description{
 Add summary
