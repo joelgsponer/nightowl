@@ -9,6 +9,19 @@ test_that("multiplication works", {
       fill = "Diet",
       lty = "Diet"
     ),
+    layers = list(
+      boxplot = list()
+    ) 
+  )
+
+
+  nightowl::plot(testdata,
+    mapping = list(
+      x = "Time",
+      y = "weight",
+      fill = "Diet",
+      lty = "Diet"
+    ),
     boxplot = list(),
     violin = list(),
     dotplot = list(),
