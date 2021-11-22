@@ -3,9 +3,7 @@
 #' @importFrom ggplot2 aes mean_cl_boot mean_cl_normal mean_se mean_sdl
 #' @export
 plot <- function(DATA,
-                 processing = list(
-                   remove_missing = T
-                 ),
+                 mapping,
                  mapping = list(
                    x = NULL,
                    y = NULL,
@@ -17,36 +15,38 @@ plot <- function(DATA,
                    lty = NULL,
                    id = NULL
                  ),
-                 facetting = NULL,
-                 annotation = NULL,
-                 axis = NULL,
-                 theming = NULL,
-                 points = NULL,
-                 dotplot = NULL,
-                 lines = NULL,
-                 boxplot = NULL,
-                 violin = NULL,
-                 smooth = NULL,
-                 summary = NULL,
-                 traces = NULL,
-                 facets = NULL,
-                 dodge = NULL,
-                 svg = NULL,
+                 processing = NULL,
+                 layers = list(),
+                 # facetting = NULL,
+                 # annotation = NULL,
+                 # axis = NULL,
+                 # theming = NULL,
+                 # points = NULL,
+                 # dotplot = NULL,
+                 # lines = NULL,
+                 # boxplot = NULL,
+                 # violin = NULL,
+                 # smooth = NULL,
+                 # summary = NULL,
+                 # traces = NULL,
+                 # facets = NULL,
+                 # svg = NULL,
+                 dodge = NULL
                  ...) {
   #*******************************************************************************
   # Dodge override
-  if (!is.null(dodge)) {
-    if (!is.null(violin)) violin$dodge <- dodge
-    if (!is.null(boxplot)) boxplot$dodge <- dodge
-    if (!is.null(dotplot)) dotplot$dodge <- dodge
-    if (!is.null(summary)) {
-      summary <- summary %>%
-        purrr::map(function(.x) {
-          .x["dodge"] <- dodge
-          .x
-        })
-    }
-  }
+  # if (!is.null(dodge)) {
+  #   if (!is.null(violin)) violin$dodge <- dodge
+  #   if (!is.null(boxplot)) boxplot$dodge <- dodge
+  #   if (!is.null(dotplot)) dotplot$dodge <- dodge
+  #   if (!is.null(summary)) {
+  #     summary <- summary %>%
+  #       purrr::map(function(.x) {
+  #         .x["dodge"] <- dodge
+  #         .x
+  #       })
+  #   }
+  # }
   # Drop columns that are not needed
   DATA <- DATA %>%
     dplyr::select_at(unlist(unname(mapping)))
@@ -58,9 +58,12 @@ plot <- function(DATA,
   DATA <- do.call(nightowl::add_text_wraping, c(list(DATA = DATA), annotation))
   #*******************************************************************************
   # Setup Plot
-  g <- nightowl:::ggplot(DATA, mapping) +
-    ggplot2::geom_blank(mapping = ggplot2::aes(x = forcats::as_factor(.data[[mapping$x]])))
+  g <- nightowl:::ggplot(DATA, mapping)
   #*******************************************************************************
+  # Add points r
+  if (!is.null(points)) {
+    g <- do.call(nightowl::add_points, c(list(g = g, mapping = mapping), points))
+  }
   # Add Violin
   if (!is.null(violin)) {
     g <- do.call(nightowl::add_violin, c(list(g = g, mapping = mapping), violin))

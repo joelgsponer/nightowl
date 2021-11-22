@@ -2,7 +2,7 @@
 #' Wrap text label at a certain width
 #' @param width
 #' @export
-add_text_wraping <- function(DATA, cols = NULL, width = 20, ...) {
+text_wraping <- function(DATA, cols = NULL, width = 20, ...) {
   if (is.null(cols)) cols <- names(DATA)[purrr::map_lgl(DATA, ~ is.factor(.x))]
   purrr::reduce(cols, function(.out, .col) {
     .x <- .out[[.col]]

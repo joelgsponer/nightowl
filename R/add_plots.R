@@ -1,7 +1,7 @@
 # ===============================================================================
 #' Add Violin
 #' @export
-add_violin <- function(g,
+violin <- function(g,
                        mapping,
                        dodge = 0.5,
                        width = 0.3,
@@ -16,22 +16,45 @@ add_violin <- function(g,
 # ===============================================================================
 #' Add Boxplot
 #' @export
-add_boxplot <- function(g,
+boxplot <- function(g,
                         mapping,
                         dodge = 0.5,
                         color = "black",
+                        breaks = 10,
                         ...) {
+  data <- g$data
+  nightowl:::expand_mapping(mapping)
+  if(is.numeric(data[[mapping$x]])){
+    data <- data %>%
+      dplyr::mutate(group = cut(!!x, breaks)) %>%
+      dplyr::mutate(lower = as.numeric( sub("\\((.+),.*", "\\1", group))) %>%
+      dplyr::mutate(upper = as.numeric( sub("[^,]*,([^]]*)\\]", "\\1", group))) %>%
+      dplyr::mutate(width = upper - lower) %>%
+      dplyr::mutate()
+      dplyr::group_by(group) %>%
+      dplyr::group_split() %>%
+      purrr::map_df(function(.data){
+        .data %>%
+          dplyr::mutate(midpoint = mean(!!x))
+      })
+      browser()
+    .aes <- ggplot2::aes(x = data$midpoint, group = data$group)
+
+  } else {
+    .aes <- ggplot2::aes()
+  }
   g + ggplot2::geom_boxplot(
-    mapping = ggplot2::aes(x = forcats::as_factor(.data[[mapping$x]])),
+    mapping = .aes,
     position = ggplot2::position_dodge(dodge, preserve = "total"),
     color = color,
     ...
   )
+
 }
 # ===============================================================================
 #' Add dotplot
 #' @export
-add_dotplot <- function(g,
+dotplot <- function(g,
                         mapping,
                         dodge = 0.5,
                         binaxis = "y",
@@ -50,7 +73,7 @@ add_dotplot <- function(g,
 # ===============================================================================
 #' Add points
 #' @export
-add_points <- function(g,
+points <- function(g,
                        mapping,
                        dodge = 0.5,
                        binaxis = "y",
@@ -58,14 +81,13 @@ add_points <- function(g,
                        size = 0.3,
                        ...) {
   g + ggplot2::geom_point(
-    mapping = ggplot2::aes(x = as.numeric(forcats::as_factor(.data[[mapping$x]]))),
     ...
   )
 }
 # ===============================================================================
 #' Add summary
 #' @export
-add_summary <- function(g,
+summary <- function(g,
                         mapping,
                         dodge = 0,
                         fun.data = NULL,
@@ -95,7 +117,7 @@ add_summary <- function(g,
 # ===============================================================================
 #' Add smooth
 #' @export
-add_smooth <- function(g,
+smooth <- function(g,
                        mapping,
                        dodge = 0,
                        method = "lm",
@@ -114,7 +136,7 @@ add_smooth <- function(g,
 # ===============================================================================
 #' Add facet_grid
 #' @export
-add_facets <- function(g,
+facets <- function(g,
                        type = "grid",
                        column = NULL,
                        row = NULL,
@@ -155,7 +177,7 @@ add_facets <- function(g,
 # ===============================================================================
 #' Add traces
 #' @export
-add_traces <- function(g,
+traces <- function(g,
                        mapping,
                        dodge = 0,
                        fun.data = NULL,
