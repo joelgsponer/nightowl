@@ -1,3 +1,13 @@
+#' generic
+#' @export
+generic <- function(geom,
+                    g,
+                    mapping = list(),
+                    ...) {
+  .aes <- do.call(ggplot2::aes, mapping)
+  .f <- eval(parse(text = geom))
+  g + .f(mapping = .aes, ...)
+}
 #' Add generic
 #' @export
 add_geom <- function(geom,

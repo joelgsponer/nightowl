@@ -17,6 +17,19 @@ test_that("multiplication works", {
     )
   )
 
+  nightowl::plot(ChickWeight,
+    transform = list(x = fct_natural),
+    mapping = list(
+      x = "Time",
+      y = "Chick",
+      fill = "weight",
+      facet_row = "Diet"
+    ),
+    layers = list(
+      generic = list(geom = "ggplot2::geom_tile", color = "black")
+    )
+  )
+
   big <- data.frame(
     time = c(runif(1000, 0, 10)),
     group = sample(c("A", "B"), 1000, T)
