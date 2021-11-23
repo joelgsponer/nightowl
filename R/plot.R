@@ -62,9 +62,9 @@ plot <- function(DATA,
   g <- ggplot2::ggplot(DATA, .aes)
   #*******************************************************************************
   # Add type to layers
-  layers <- purrr::imap(layers, function(.x, .y) {
-    c(list(type = .y), .x)
-  })
+  # layers <- purrr::imap(layers, function(.x, .y) {
+  #   c(list(type = .y), .x)
+  # })
   #*******************************************************************************
   # Add layers
   g <- purrr::reduce(layers, function(.x, .y) {
