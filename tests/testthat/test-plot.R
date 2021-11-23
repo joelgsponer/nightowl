@@ -22,10 +22,12 @@ test_that("multiplication works", {
     mapping = list(
       x = "Time",
       y = "weight",
-      color = "Diet"
+      color = "Diet",
+      group = "Diet"
     ),
     transform = list(x = "factor"),
     layers = list(
+      mapping = list(group = NULL),
       list(type = "boxplot")
     )
   )

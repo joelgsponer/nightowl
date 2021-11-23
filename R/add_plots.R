@@ -20,7 +20,6 @@ add_geom <- function(geom,
                      cut_args = list(n = 5),
                      ...) {
   .data <- g$data
-  browser()
   nightowl:::expand_mapping(mapping)
   if (is.numeric(dplyr::pull(g$data, !!g$mapping$x))) {
     if (is.character(cut_f)) cut_f <- eval(parse(text = cut_f))
@@ -38,7 +37,6 @@ add_geom <- function(geom,
   } else {
     .aes <- do.call(ggplot2::aes, mapping)
   }
-
   g + geom(
     data = .data,
     mapping = .aes,
@@ -190,7 +188,7 @@ traces <- function(g,
   attributes(g)$caption <- c(
     attributes(g)$caption, glue::glue("Method for summary: '{method}'")
   )
-  .aes <- ggplot2::aes(group = !!g$mapping$id)
+  .aes <- ggplot2::aes(group = !!g$mapping$id, lty = NULL)
   g + ggplot2::stat_summary(
     mapping = .aes,
     position = ggplot2::position_dodge(0, preserve = "total"),
