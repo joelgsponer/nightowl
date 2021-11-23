@@ -26,18 +26,17 @@ add_geom <- function(geom,
   nightowl:::expand_mapping(mapping)
   if (is.numeric(dplyr::pull(g$data, !!g$mapping$x))) {
     if (is.character(cut_f)) cut_f <- eval(parse(text = cut_f))
+    peacock::log("cutting")
+    .group <- do.call(cut_f, c(
+      list(x = g$data[[rlang::as_label(g$mapping$x)]]),
+      cut_args
+    ))
+    .data <- cbind(g$data, .group)
     if (!is.null(g$mapping$fill)) {
-      peacock::log("cutting")
-      .group <- do.call(cut_f, c(
-        list(x = g$data[[rlang::as_label(g$mapping$x)]]),
-        cut_args
-      ))
-      .data <- cbind(g$data, .group)
       .aes <- ggplot2::aes(group = interaction(!!g$mapping$fill, .group))
     } else {
-      .aes <- ggplot2::aes(group = cut_f(!!g$mapping$x, cut_n))
+      .aes <- ggplot2::aes(group = .group)
     }
-    # .aes <- do.call(ggplot2::aes, mapping)
   } else {
     .aes <- do.call(ggplot2::aes, mapping)
   }
