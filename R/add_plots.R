@@ -12,6 +12,7 @@ add_geom <- function(geom,
                      cut_f = ggplot2::cut_interval,
                      cut_args = list(n = 5),
                      ...) {
+  .data <- g$data
   nightowl:::expand_mapping(mapping)
   if (is.numeric(dplyr::pull(g$data, !!g$mapping$x))) {
     if (is.character(cut_f)) cut_f <- eval(parse(text = cut_f))
