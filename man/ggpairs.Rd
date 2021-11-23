@@ -6,25 +6,14 @@
 \usage{
 ggpairs(
   DATA,
-  key,
-  value = NULL,
-  id = NULL,
-  group = NULL,
-  fill = NULL,
-  color = NULL,
-  size = NULL,
-  shape = NULL,
-  title = NULL,
-  xlab = NULL,
-  ylab = NULL,
-  xlim = NULL,
-  ylim = NULL,
-  label_width = 20,
-  axis_text_x_angle = 45,
-  axis_text_x_hjust = 1,
-  axis_text_x_vjust = 1,
-  legend_position = "bottom",
-  remove_missing = T,
+  mapping = list(key = NULL, y = NULL, group = NULL, fill = NULL, color = NULL, size =
+    NULL, shape = NULL, lty = NULL, id = NULL),
+  processing = NULL,
+  transform = NULL,
+  annotation = NULL,
+  facets = NULL,
+  label_width = 10,
+  svg = NULL,
   ...
 )
 }

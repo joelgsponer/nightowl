@@ -72,70 +72,74 @@ ggpairs_theme <- function(g) {
 #' Boxplot
 #' @export
 ggpairs <- function(DATA,
-                    key,
-                    value = NULL,
-                    id = NULL,
-                    group = NULL,
-                    fill = NULL,
-                    color = NULL,
-                    size = NULL,
-                    shape = NULL,
-                    title = NULL,
-                    xlab = NULL,
-                    ylab = NULL,
-                    xlim = NULL,
-                    ylim = NULL,
-                    label_width = 20,
-                    axis_text_x_angle = 45,
-                    axis_text_x_hjust = 1,
-                    axis_text_x_vjust = 1,
-                    legend_position = "bottom",
-                    remove_missing = T,
+                    mapping = list(
+                      key = NULL,
+                      y = NULL,
+                      group = NULL,
+                      fill = NULL,
+                      color = NULL,
+                      size = NULL,
+                      shape = NULL,
+                      lty = NULL,
+                      id = NULL
+                    ),
+                    processing = NULL,
+                    transform = NULL,
+                    annotation = NULL,
+                    facets = NULL,
+                    label_width = 10,
+                    svg = NULL,
                     ...) {
   #*******************************************************************************
   # Parameters
-  if (length(key) > 1) {
-    if (!is.null(value)) {
+  if (length(mapping$key) > 1) {
+    if (!is.null(mapping$value)) {
       rlang::abort("Key/Value spreading can only be used with a single Key argmuent")
     }
   }
-  if (!is.null(value)) {
-    if (is.null(id)) {
-      id <- key
+  if (!is.null(mapping$value)) {
+    if (is.null(mapping$id)) {
+      mapping$id <- mapping$key
     }
   }
-  if (is.null(fill)) fill <- group
-  if (is.null(color)) color <- fill
   #*******************************************************************************
   # Drop columns that are not needed
   DATA <- DATA %>%
     dplyr::ungroup() %>%
-    dplyr::select_at(unique(c(id, key, value, color, fill)))
+    dplyr::select_at(unique(unlist(unname(mapping))))
   #*******************************************************************************
-  # Drop missing values
-  DATA <- nightowl::prepare_data_for_plotting(DATA, remove_missing = remove_missing, to_factor = FALSE)
+  # Transformations
+  if (!is.null(transform)) {
+    purrr::iwalk(transform, function(.f, .var) {
+      .f <- match.fun(.f)
+      .var <- mapping[[.var]]
+      DATA <<- DATA %>%
+        dplyr::mutate(!!rlang::sym(.var) := .f(!!rlang::sym(.var)))
+    })
+  }
   #*******************************************************************************
   # Spread data
-  DATA <- nightowl::spread_data(DATA, key, value)
+  DATA <- nightowl::spread_data(DATA, mapping$key, mapping$value)
   # Data preparation
-  DATA <- nightowl::add_text_wraping(DATA, width = label_width)
+  DATA <- nightowl::text_wraping(DATA, width = label_width)
   #*******************************************************************************
   # Setup Plot
-  .aes <- list(
-    fill = fill,
-    color = color,
-    group = fill
-  )
-  .aes <- nightowl:::ggplot(DATA, .aes, only_aes = T)
+  .aes <- mapping[waRRior::pop(names(mapping), c("key", "value", "id"))] %>%
+    nightowl:::aes()
   g <- GGally::ggpairs(
     mapping = .aes,
     data = DATA,
-    columns = which(!names(DATA) %in% c(id, fill, color, group)),
+    columns = which(!names(DATA) %in% c(mapping$id, mapping$fill, mapping$color, mapping$group)),
     lower = list(continuous = GGally::wrap(nightowl::lowerFn, method = "lm")),
     diag = list(continuous = GGally::wrap(nightowl::diagFn)),
     upper = list(continuous = GGally::wrap(nightowl::upperFn))
   )
   g <- nightowl::ggpairs_theme(g)
+  #*******************************************************************************
+  # Create SVG
+  if (!is.null(svg)) {
+    g <- do.call(nightowl::render_svg, c(list(g = g), svg))
+  }
   #*******************************************************************************
   # Finishing up
   return(g)

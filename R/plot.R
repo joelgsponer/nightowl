@@ -37,12 +37,14 @@ plot <- function(DATA,
   if (any(dim(DATA) == 0)) rlang::abort("No data, check mapping")
   #*******************************************************************************
   # Transformations
-  purrr::iwalk(transform, function(.f, .var) {
-    .f <- match.fun(.f)
-    .var <- mapping[[.var]]
-    DATA <<- DATA %>%
-      dplyr::mutate(!!rlang::sym(.var) := .f(!!rlang::sym(.var)))
-  })
+  if (!is.null(transform)) {
+    purrr::iwalk(transform, function(.f, .var) {
+      .f <- match.fun(.f)
+      .var <- mapping[[.var]]
+      DATA <<- DATA %>%
+        dplyr::mutate(!!rlang::sym(.var) := .f(!!rlang::sym(.var)))
+    })
+  }
   #*******************************************************************************
   # Prepare facets (if any)
   if (is.null(facets) &&
@@ -76,7 +78,7 @@ plot <- function(DATA,
   # Facets
   g <- do.call(nightowl::facets, c(list(g = g), facets))
   #*******************************************************************************
-  # Facets
+  # Axis
   g <- do.call(nightowl::axis, c(list(g = g), axis))
   # #*******************************************************************************
   # Colors and theming
