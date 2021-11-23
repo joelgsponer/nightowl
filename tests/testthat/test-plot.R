@@ -3,17 +3,18 @@ test_that("multiplication works", {
     dplyr::filter(Time < 10)
 
   nightowl::plot(testdata,
-    transform = list(x = fct_natural),
+    transform = list(x = "fct_natural"),
     mapping = list(
       x = "Time",
       y = "weight",
-      fill = "Diet"
+      color = "Diet",
+      group = "Diet",
+      id = "Chick",
+      lty = "Diet"
     ),
     layers = list(
-      points = list(),
-      violin = list(cut_n = 5),
-      dotplot = list(dotsize = 0.1),
-      summary = list(bins = 5)
+      traces = list(geom = "line", alpha = 0.3),
+      summary = list(mapping = list(color = NULL), geom = "line", dodge = 0, size = 1.5)
     )
   )
 

@@ -107,7 +107,7 @@ summary <- function(g,
     .f <- ggplot2::stat_summary
   }
   .aes <- do.call(ggplot2::aes, mapping)
-  g + .f(mapping = .aes, position = ggplot2::position_dodge2(dodge, preserve = "total"), shape = shape, fun = fun, fun.data = fun.data, ...)
+  g + .f(mapping = .aes, position = ggplot2::position_dodge(dodge, preserve = "total"), shape = shape, fun = fun, fun.data = fun.data, ...)
 }
 # ===============================================================================
 #' Add smooth
@@ -177,7 +177,6 @@ facets <- function(g,
 #' @export
 traces <- function(g,
                    mapping = list(),
-                   dodge = 0,
                    fun.data = NULL,
                    fun = NULL,
                    shape = 21,
@@ -193,10 +192,10 @@ traces <- function(g,
   attributes(g)$caption <- c(
     attributes(g)$caption, glue::glue("Method for summary: '{method}'")
   )
-  .aes <- nightowl::aes(mapping)
+  .aes <- ggplot2::aes(group = !!g$mapping$id)
   g + ggplot2::stat_summary(
     mapping = .aes,
-    position = ggplot2::position_dodge(dodge, preserve = "total"),
+    position = ggplot2::position_dodge(0, preserve = "total"),
     shape = shape,
     ...
   )
