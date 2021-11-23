@@ -8,19 +8,27 @@ test_that("tables works", {
 
   nightowl::summary_table(testdata,
     x = "Species",
-    y = c("Island", "Culmen Depth (mm)"),
+    y = "Island"
   )
+
+  nightowl::summary_table(testdata,
+    x = "Species",
+    y = c("Sex", "Culmen Depth (mm)"),
+  )
+
   nightowl::summary_table(testdata,
     x = c("Species"),
     facet_col = c("Island"),
     y = c("Culmen Depth (mm)"),
   )
+
   nightowl::summary_table(testdata,
     x = "Species",
     group = "Sex",
     y = c("Culmen Depth (mm)"),
     facet_row = c("Island")
   )
+
   nightowl::summary_table(testdata,
     x = "Species",
     group = "Sex",

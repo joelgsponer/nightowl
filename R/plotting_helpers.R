@@ -19,15 +19,15 @@ prepare_data_for_plotting <- function(DATA, cols = NULL, remove_missing = T, to_
   if (is.null(cols)) cols <- names(DATA)
   if (remove_missing) {
     DATA <- DATA %>%
-      dplyr::filter_at(c(cols), function(x) !is.na(x)) %>%
-      dplyr::mutate_if(is.character, factor) %>%
-      droplevels()
+      dplyr::filter_at(c(cols), function(x) !is.na(x))
   }
   if (to_factor) {
     # Make missing factors explicit
     # Convert Characters to factors
     DATA <- DATA %>%
-      dplyr::mutate_if(is.factor, forcats::fct_explicit_na)
+      dplyr::mutate_if(is.character, factor) %>%
+      dplyr::mutate_if(is.factor, forcats::fct_explicit_na) %>%
+      droplevels()
   }
   return(DATA)
 }

@@ -36,7 +36,7 @@ summary_table <- function(DATA,
   # Drop missing values
   DATA <- nightowl::prepare_data_for_plotting(DATA, remove_missing = remove_missing)
   # Data preparation
-  DATA <- nightowl::add_text_wraping(DATA, width = label_width)
+  DATA <- nightowl::text_wraping(DATA, width = label_width)
   #*******************************************************************************
   # Build table
   .lty <- rtables::basic_table()
