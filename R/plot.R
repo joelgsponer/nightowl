@@ -37,6 +37,7 @@ plot <- function(DATA,
   if (any(dim(DATA) == 0)) rlang::abort("No data, check mapping")
   #*******************************************************************************
   # Transformations
+  print(DATA)
   if (!is.null(transform)) {
     purrr::iwalk(transform, function(.f, .var) {
       .f <- match.fun(.f)
@@ -45,6 +46,7 @@ plot <- function(DATA,
         dplyr::mutate(!!rlang::sym(.var) := .f(!!rlang::sym(.var)))
     })
   }
+  print(DATA)
   #*******************************************************************************
   # Prepare facets (if any)
   if (is.null(facets) &&

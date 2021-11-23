@@ -7,7 +7,7 @@
 add_geom(
   geom,
   g,
-  mapping = list(lty = NULL, color = NULL, group = NULL),
+  mapping = list(),
   dodge = 0.5,
   color = "black",
   cut_f = ggplot2::cut_interval,

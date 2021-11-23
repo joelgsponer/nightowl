@@ -8,21 +8,19 @@ generic <- function(geom,
   .f <- eval(parse(text = geom))
   g + .f(mapping = .aes, ...)
 }
+# ===============================================================================
 #' Add generic
 #' @export
 add_geom <- function(geom,
                      g,
-                     mapping = list(
-                       lty = NULL,
-                       color = NULL,
-                       group = NULL
-                     ),
+                     mapping = list(),
                      dodge = 0.5,
                      color = "black",
                      cut_f = ggplot2::cut_interval,
                      cut_args = list(n = 5),
                      ...) {
   .data <- g$data
+  browser()
   nightowl:::expand_mapping(mapping)
   if (is.numeric(dplyr::pull(g$data, !!g$mapping$x))) {
     if (is.character(cut_f)) cut_f <- eval(parse(text = cut_f))

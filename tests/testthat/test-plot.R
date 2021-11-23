@@ -13,8 +13,20 @@ test_that("multiplication works", {
       lty = "Diet"
     ),
     layers = list(
-      traces = list(geom = "line", alpha = 0.3),
-      summary = list(mapping = list(color = NULL), geom = "line", dodge = 0, size = 1.5)
+      list(type = "traces", geom = "line", alpha = 0.3),
+      list(type = "summary", mapping = list(color = NULL), geom = "line", dodge = 0, size = 1.5)
+    )
+  )
+
+  nightowl::plot(testdata,
+    mapping = list(
+      x = "Time",
+      y = "weight",
+      color = "Diet"
+    ),
+    transform = list(x = "factor"),
+    layers = list(
+      list(type = "boxplot")
     )
   )
 
