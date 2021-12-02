@@ -1,4 +1,6 @@
 test_that("multiplication works", {
+
+  require(magrittr)
   testdata <- ChickWeight %>%
     dplyr::filter(Time < 10)
 
@@ -23,6 +25,7 @@ test_that("multiplication works", {
       x = "Time",
       y = "weight",
       color = "Diet",
+      fill = "Diet",
       group = "Diet"
     ),
     transform = list(x = "factor"),
