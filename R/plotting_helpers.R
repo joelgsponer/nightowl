@@ -101,16 +101,16 @@ theme <- function(g, theme = "picasso::theme_picasso", ...) {
 #' Apply annotation
 #' @export
 annotation <- function(g,
-                           x,
-                           y,
-                           title = NULL,
-                           xlab = NULL,
-                           ylab = NULL,
-                           axis_text_x_angle = 45,
-                           axis_text_x_hjust = 1,
-                           axis_text_x_vjust = 1,
-                           legend_position = "bottom",
-                           ...) {
+                       x,
+                       y,
+                       title = NULL,
+                       xlab = NULL,
+                       ylab = NULL,
+                       axis_text_x_angle = 45,
+                       axis_text_x_hjust = 1,
+                       axis_text_x_vjust = 1,
+                       legend_position = "bottom",
+                       ...) {
   g <- g + ggplot2::theme(
     axis.text.x = ggplot2::element_text(
       angle = axis_text_x_angle,

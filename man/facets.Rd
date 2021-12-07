@@ -10,7 +10,7 @@ facets(
   column = NULL,
   row = NULL,
   scales = "free",
-  labeller = "label_both",
+  labeller = "label_with_wraping",
   ...
 )
 }
