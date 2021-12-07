@@ -17,3 +17,9 @@ fct_natural <- function(x) {
   l <- levels(x)
   forcats::fct_relevel(x, gtools::mixedsort(l))
 }
+#=================================================
+#' wrapping labeleer
+#' @export
+label_with_wraping <- function(x, width = 10) {
+    purrr::map(ggplot2::label_both(x), ~stringr::str_wrap(.x, width))
+}

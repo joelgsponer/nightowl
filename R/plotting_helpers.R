@@ -49,7 +49,7 @@ aes <- function(aes) {
 # ===============================================================================
 #' Define colors
 #' @export
-add_colors <- function(g, DATA, mapping) {
+colors <- function(g, DATA, mapping) {
   fill <- mapping$fill
   color <- mapping$color
   if (!is.null(fill) && is.factor(DATA[[fill]])) {
@@ -82,7 +82,7 @@ add_colors <- function(g, DATA, mapping) {
 # ===============================================================================
 #' Apply theme
 #' @export
-add_theme <- function(g, theme = "picasso::theme_picasso", ...) {
+theme <- function(g, theme = "picasso::theme_picasso", ...) {
   if (is.character(theme)) {
     g <- g + eval(parse(text = paste0(theme, "()")))
   } else if (is.function(theme)) {
@@ -100,7 +100,7 @@ add_theme <- function(g, theme = "picasso::theme_picasso", ...) {
 # ===============================================================================
 #' Apply annotation
 #' @export
-add_annotation <- function(g,
+annotation <- function(g,
                            x,
                            y,
                            title = NULL,

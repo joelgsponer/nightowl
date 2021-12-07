@@ -133,7 +133,7 @@ facets <- function(g,
                    column = NULL,
                    row = NULL,
                    scales = "free",
-                   labeller = "label_both",
+                   labeller =  "label_with_wraping",
                    ...) {
   if (!is.null(column) | !is.null(row)) {
     if (is.null(column)) column <- "."

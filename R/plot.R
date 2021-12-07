@@ -37,7 +37,6 @@ plot <- function(DATA,
   if (any(dim(DATA) == 0)) rlang::abort("No data, check mapping")
   #*******************************************************************************
   # Transformations
-  print(DATA)
   if (!is.null(transform)) {
     purrr::iwalk(transform, function(.f, .var) {
       .f <- match.fun(.f)
@@ -46,7 +45,6 @@ plot <- function(DATA,
         dplyr::mutate(!!rlang::sym(.var) := .f(!!rlang::sym(.var)))
     })
   }
-  print(DATA)
   #*******************************************************************************
   # Prepare facets (if any)
   if (is.null(facets) &&
@@ -84,12 +82,12 @@ plot <- function(DATA,
   g <- do.call(nightowl::axis, c(list(g = g), axis))
   # #*******************************************************************************
   # Colors and theming
-  g <- do.call(nightowl::add_colors, c(list(g = g, DATA = DATA, mapping = mapping)))
+  g <- do.call(nightowl::colors, c(list(g = g, DATA = DATA, mapping = mapping)))
   # # Add Theme
-  g <- do.call(nightowl::add_theme, c(list(g = g), theming))
+  g <- do.call(nightowl::theme, c(list(g = g), theming))
   # #*******************************************************************************
   # # Annotation
-  g <- do.call(nightowl::add_annotation, c(list(g = g), mapping, annotation, axis))
+  g <- do.call(nightowl::annotation, c(list(g = g), mapping, annotation, axis))
   #*******************************************************************************
   # Create SVG
   if (!is.null(svg)) {
