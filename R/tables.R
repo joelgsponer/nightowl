@@ -1,50 +1,50 @@
-# ===============================================================================
+# ar ===============================================================================
 #' Summry table
-#' Table to display data that is being used in plots. All character columns
-#' are converted into factors.
-#' @param DATA
-#' @param x Split columns by
-#' @param y Variable to summarise
-#' @param group Grouping variable
-#' @param group_split Split Groups be split into "col" or "row"
-#' @param facet_col Split columns by, additionally  to x.
-#' @param facet_row Split row by
-#' @param remove_missing If TRUE any missing values in character or factor
-#'   columns are remove. If FALSE they are recoded as (Missing).
-#' @param label_width Width of labels for text wraping
-#' @param denom Denominator to be used for frequency calculations.
-#'   Possible values are "n", "N_col", "N_row".
-#'   See also \link{[https://docs.roche.com/doc/tern/v0.7.5/reference/summarize_variables.html]{tern::summarize_vars()}}
 #' @export
-summary_table <- function(DATA,
-                          x,
-                          y,
-                          group = NULL,
-                          group_split = "row",
-                          facet_col = NULL,
-                          facet_row = NULL,
-                          remove_missing = FALSE,
-                          label_width = 20,
-                          denom = "n",
-                          ...) {
+table <- function(DATA,
+                  mapping,
+                  options = list(group_split = "row"),
+                  layers = list(
+                    list(type = "tern::summarize_vars", denom = "n")
+                  ),
+                  ...) {
   #*******************************************************************************
+  #Adjust naming for 
+  if (!is.null(mapping$cols) && is.null(mapping$x)) mapping$x <- mapping$columns
+  if (!is.null(mapping$rows) && is.null(mapping$y)) mapping$y <- mapping$rows
+  if (!is.null(mapping$split_rows_by) && is.null(mapping$facet_row)) {
+    mapping$facet_row <- mapping$split_rows_by
+  }
+  if (!is.null(mapping$split_cols_by) && is.null(mapping$facet_col)) {
+    mapping$facet_col <- mapping$split_cols_by
+  }
   # Drop columns that are not needed
   DATA <- DATA %>%
-    dplyr::select_at(c(x, y, group, facet_col, facet_row)) %>%
+    dplyr::select_at(unlist(unname(mapping))) %>%
     droplevels()
   #*******************************************************************************
   # Drop missing values
-  DATA <- nightowl::prepare_data_for_plotting(DATA, remove_missing = remove_missing)
+  DATA <- DATA %>%
+    dplyr::mutate_if(is.character, factor) %>%
+    dplyr::mutate_if(is.factor, forcats::fct_explicit_na) %>%
+    droplevels()
   # Data preparation
-  DATA <- nightowl::text_wraping(DATA, width = label_width)
+  DATA <- nightowl::text_wraping(DATA)
   #*******************************************************************************
   # Build table
-  .lty <- rtables::basic_table()
-  .lty <- purrr::reduce(facet_col, ~ rtables::split_cols_by(.x, .y), .init = .lty)
-  .lty <- purrr::reduce(facet_row, ~ rtables::split_rows_by(.x, .y), .init = .lty)
-  .lty <- rtables::split_cols_by(.lty, x)
-  if (!is.null(group) && group_split == "row") .lty <- rtables::split_rows_by(.lty, group)
-  if (!is.null(group) && group_split == "col") .lty <- rtables::split_cols_by(.lty, group)
-  .lty <- tern::summarize_vars(.lty, y, denom = denom)
-  rtables::build_table(.lty, DATA)
+  .lyt <- rtables::basic_table()
+  .lyt <- purrr::reduce(mapping$facet_col, ~ rtables::split_cols_by(.x, .y), .init = .lyt)
+  .lyt <- purrr::reduce(mapping$facet_row, ~ rtables::split_rows_by(.x, .y), .init = .lyt)
+  .lyt <- rtables::split_cols_by(.lyt, mapping$x)
+  if (!is.null(mapping$group) && options$group_split == "row") .lyt <- rtables::split_rows_by(.lyt, mapping$group)
+  if (!is.null(mapping$group) && optiosn$group_split == "col") .lyt <- rtables::split_cols_by(.lyt, mapping$group)
+  .lyt <- purrr::reduce(layers, function(.x, .y){
+    type <- .y$type
+    .y <- .y[names(.y) %in% waRRior::pop(names(.y), "type")]
+    .y$lyt <- .x
+    if(!is.null(mapping$y)) .y$vars <- mapping$y
+    do.call(waRRior::getfun(type), .y)
+  }, .init = .lyt)
+  rtables::build_table(.lyt, DATA)
 }
+# =================================================
