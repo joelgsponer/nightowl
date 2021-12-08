@@ -9,7 +9,7 @@ table <- function(DATA,
                   ),
                   ...) {
   #*******************************************************************************
-  #Adjust naming for 
+  # Adjust naming for
   if (!is.null(mapping$cols) && is.null(mapping$x)) mapping$x <- mapping$columns
   if (!is.null(mapping$rows) && is.null(mapping$y)) mapping$y <- mapping$rows
   if (!is.null(mapping$split_rows_by) && is.null(mapping$facet_row)) {
@@ -38,11 +38,11 @@ table <- function(DATA,
   .lyt <- rtables::split_cols_by(.lyt, mapping$x)
   if (!is.null(mapping$group) && options$group_split == "row") .lyt <- rtables::split_rows_by(.lyt, mapping$group)
   if (!is.null(mapping$group) && optiosn$group_split == "col") .lyt <- rtables::split_cols_by(.lyt, mapping$group)
-  .lyt <- purrr::reduce(layers, function(.x, .y){
+  .lyt <- purrr::reduce(layers, function(.x, .y) {
     type <- .y$type
     .y <- .y[names(.y) %in% waRRior::pop(names(.y), "type")]
     .y$lyt <- .x
-    if(!is.null(mapping$y)) .y$vars <- mapping$y
+    if (!is.null(mapping$y)) .y$vars <- mapping$y
     do.call(waRRior::getfun(type), .y)
   }, .init = .lyt)
   rtables::build_table(.lyt, DATA)

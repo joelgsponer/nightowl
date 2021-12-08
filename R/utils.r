@@ -22,7 +22,7 @@ fct_natural <- function(x) {
 #' @export
 label_with_wraping <- function(x, width = 10) {
   purrr::map(ggplot2::label_both(x), ~ stringr::str_wrap(.x, width))
-}# ===============================================================================
+} # ===============================================================================
 #' Spread data
 #' @export
 spread_data <- function(DATA, key, value = NULL) {
@@ -49,4 +49,4 @@ text_wraping <- function(DATA, cols = NULL, width = 20, ...) {
     .out
   }, .init = DATA)
 }
-#=================================================
+# =================================================

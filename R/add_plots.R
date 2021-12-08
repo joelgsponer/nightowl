@@ -281,7 +281,7 @@ annotation <- function(g,
   }
   return(g)
 }
-#=================================================
+# =================================================
 #' Create aes from list
 #' Setup ggplot
 #' This was difficult, fist store parameters in list,
