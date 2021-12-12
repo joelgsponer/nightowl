@@ -2,10 +2,10 @@
 #' Function for the lower (diagnonal) triangle of the correlation matrix
 #' @export
 lowerFn <- function(data, mapping, method = "lm", ...) {
-  if(!is.null(mapping$group)){
+  if (!is.null(mapping$group)) {
     alpha_points <- 0.3
     alpha_lines <- 0.8
-  } else{
+  } else {
     alpha_points <- 1
     alpha_lines <- 1
   }
@@ -20,13 +20,13 @@ lowerFn <- function(data, mapping, method = "lm", ...) {
 upperFn <- function(data, mapping, method = "lm", ...) {
   res <- dplyr::select(data, !!mapping$x, !!mapping$y) %>% cor(use = "complete.obs")
   res <- res[1, 2]
-  if(!is.null(mapping$group)){
+  if (!is.null(mapping$group)) {
     show_se <- FALSE
     alpha <- 0
     size <- 0
     l <- waRRior::length_unique(dplyr::pull(data, !!mapping$group))
     vstep <- 1 / l
-  } else{
+  } else {
     show_se <- TRUE
     alpha <- log10(abs(res * 10))
     size <- 0.1
@@ -47,14 +47,14 @@ upperFn <- function(data, mapping, method = "lm", ...) {
   if (res < 0) col <- picasso::roche_color("red", alpha = 1)
   if (res > 0) col <- picasso::roche_color("green", alpha = 1)
   p <- ggplot2::ggplot(data = data, mapping = mapping) +
-      ggplot2::geom_smooth(
-        method = method,
-        size = size,
-        fill = col,
-        alpha = alpha,
-        se = show_se,
-        ...
-      ) +
+    ggplot2::geom_smooth(
+      method = method,
+      size = size,
+      fill = col,
+      alpha = alpha,
+      se = show_se,
+      ...
+    ) +
     ggpmisc::stat_correlation(vstep = vstep) +
     ggplot2::theme_void()
   p
@@ -63,9 +63,9 @@ upperFn <- function(data, mapping, method = "lm", ...) {
 #' Function for the diagnonal correlation matrix
 #' @export
 diagFn <- function(data, mapping, method = "lm", ...) {
-  if(!is.null(mapping$group)){
+  if (!is.null(mapping$group)) {
     fill <- NA
-  } else{
+  } else {
     fill <- picasso::roche_color("blue")
   }
   p <- ggplot2::ggplot(data = data, mapping = mapping) +
@@ -126,8 +126,8 @@ ggpairs <- function(DATA,
       mapping$id <- mapping$key
     }
   }
-  if(is.null(mapping$group) && !is.null(mapping$color)) mapping$group <- mapping$color 
-  if(is.null(mapping$fill) && !is.null(mapping$color)) mapping$fill <- mapping$color 
+  if (is.null(mapping$group) && !is.null(mapping$color)) mapping$group <- mapping$color
+  if (is.null(mapping$fill) && !is.null(mapping$color)) mapping$fill <- mapping$color
   #*******************************************************************************
   # Drop columns that are not needed
   DATA <- DATA %>%
