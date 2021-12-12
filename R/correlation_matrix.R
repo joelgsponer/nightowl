@@ -2,41 +2,60 @@
 #' Function for the lower (diagnonal) triangle of the correlation matrix
 #' @export
 lowerFn <- function(data, mapping, method = "lm", ...) {
+  if(!is.null(mapping$group)){
+    alpha_points <- 0.3
+    alpha_lines <- 0.8
+  } else{
+    alpha_points <- 1
+    alpha_lines <- 1
+  }
   ggplot2::ggplot(data = data, mapping = mapping) +
-    ggplot2::geom_point() +
-    ggplot2::geom_smooth(method = method, color = picasso::roche_color("blue"), ...) +
+    ggplot2::geom_point(alpha = alpha_points) +
+    ggplot2::geom_smooth(method = method, alpha = alpha_lines, se = FALSE, ...) +
     picasso::theme_picasso()
 }
 # ===============================================================================
 #' Function for the upper (diagnonal) triangle of the correlation matrix
 #' @export
 upperFn <- function(data, mapping, method = "lm", ...) {
-  res <- dplyr::select(data, !!!mapping) %>% cor(use = "complete.obs")
+  res <- dplyr::select(data, !!mapping$x, !!mapping$y) %>% cor(use = "complete.obs")
   res <- res[1, 2]
+  if(!is.null(mapping$group)){
+    show_se <- FALSE
+    alpha <- 0
+    size <- 0
+    l <- waRRior::length_unique(dplyr::pull(data, !!mapping$group))
+    vstep <- 1 / l
+  } else{
+    show_se <- TRUE
+    alpha <- log10(abs(res * 10))
+    size <- 0.1
+    vstep <- 1
+  }
   if (is.na(res)) {
     peacock::error("Computation failed.")
-    print(res)
     msg <- "Computation failed"
     return(ggplot2::ggplot() +
       ggplot2::geom_text(ggplot2::aes(
         x = 1,
-        y = 1, label = msg
-      ), col = "red") +
+        y = 1,
+        label = msg
+      ), col = "red", dodge = ggplot2::position_dodge()) +
       ggplot2::theme_void())
   }
   if (res == 0) col <- picasso::roche_color("black", alpha = 0.1)
   if (res < 0) col <- picasso::roche_color("red", alpha = 1)
   if (res > 0) col <- picasso::roche_color("green", alpha = 1)
   p <- ggplot2::ggplot(data = data, mapping = mapping) +
-    ggplot2::geom_smooth(
-      method = method,
-      color = "black",
-      size = 0.1,
-      fill = col,
-      alpha = log10(abs(res * 10)),
-      ...
-    ) +
-    ggpmisc::stat_correlation(color = picasso::roche_color("black")) +
+      ggplot2::geom_smooth(
+        method = method,
+        size = size,
+        fill = col,
+        alpha = alpha,
+        se = show_se,
+        ...
+      ) +
+    ggpmisc::stat_correlation(vstep = vstep) +
     ggplot2::theme_void()
   p
 }
@@ -44,8 +63,13 @@ upperFn <- function(data, mapping, method = "lm", ...) {
 #' Function for the diagnonal correlation matrix
 #' @export
 diagFn <- function(data, mapping, method = "lm", ...) {
+  if(!is.null(mapping$group)){
+    fill <- NA
+  } else{
+    fill <- picasso::roche_color("blue")
+  }
   p <- ggplot2::ggplot(data = data, mapping = mapping) +
-    ggplot2::geom_density(fill = picasso::roche_color("blue"), alpha = 0.4) +
+    ggplot2::geom_density(fill = fill, alpha = 0.4) +
     picasso::theme_picasso()
   p
 }
@@ -102,6 +126,8 @@ ggpairs <- function(DATA,
       mapping$id <- mapping$key
     }
   }
+  if(is.null(mapping$group) && !is.null(mapping$color)) mapping$group <- mapping$color 
+  if(is.null(mapping$fill) && !is.null(mapping$color)) mapping$fill <- mapping$color 
   #*******************************************************************************
   # Drop columns that are not needed
   DATA <- DATA %>%
@@ -119,7 +145,8 @@ ggpairs <- function(DATA,
   }
   #*******************************************************************************
   # Spread data
-  DATA <- nightowl::spread_data(DATA, mapping$key, mapping$value)
+  DATA <-
+    nightowl::spread_data(DATA, mapping$key, mapping$value)
   # Data preparation
   DATA <- nightowl::text_wraping(DATA, width = label_width)
   #*******************************************************************************
@@ -134,6 +161,7 @@ ggpairs <- function(DATA,
     diag = list(continuous = GGally::wrap(nightowl::diagFn)),
     upper = list(continuous = GGally::wrap(nightowl::upperFn))
   )
+
   g <- nightowl::ggpairs_theme(g)
   #*******************************************************************************
   # Create SVG

@@ -1,12 +1,14 @@
 test_that("ggally works", {
-  testdata <- mtcars[, c(1, 3, 4, 5, 6, 7)]
+
+  library(magrittr) 
+  testdata <- mtcars[, c(1, 3, 4, 5, 6, 7, 8)]
   nightowl::ggpairs(testdata,
     mapping = list(
-      key = names(testdata)
-    ),
-    svg = list()
-  ) %>%
-    testthat::expect_s3_class(c("gg", "ggmatrix"))
+      key = names(testdata),
+      color = "vs",
+      group = "vs"
+    )
+  )
 
   nightowl::ggpairs(ChickWeight,
     mapping = list(
@@ -14,6 +16,16 @@ test_that("ggally works", {
       value = "weight",
       id = "Chick"
     )
-  ) %>%
-    testthat::expect_s3_class(c("gg", "ggmatrix"))
+  )
+
+  nightowl::ggpairs(ChickWeight,
+    transform = list(color=factor),
+    mapping = list(
+      key = "Time",
+      value = "weight",
+      id = "Chick",
+      color= "Diet"
+    )
+  )
+
 })
