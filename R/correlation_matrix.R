@@ -149,7 +149,7 @@ ggpairs <- function(DATA,
     nightowl::spread_data(DATA, mapping$key, mapping$value)
   # Data preparation
   DATA <- nightowl::text_wraping(DATA, width = label_width)
-  #*******************************************************************************
+  #****************************************************************************
   # Setup Plot
   .aes <- mapping[waRRior::pop(names(mapping), c("key", "value", "id"))] %>%
     nightowl:::aes()
