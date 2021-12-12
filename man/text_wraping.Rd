@@ -4,7 +4,7 @@
 \alias{text_wraping}
 \title{Wrap text label at a certain width}
 \usage{
-text_wraping(DATA, cols = NULL, width = 20, ...)
+text_wraping(DATA, cols = NULL, width = 30, ...)
 }
 \description{
 Wrap text label at a certain width
