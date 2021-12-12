@@ -2,7 +2,6 @@ test_that("tables works", {
 
   library(magrittr)
   testdata <- palmerpenguins::penguins_raw
-
   nightowl::table(testdata,
     mapping = list(
       x = "Species",
