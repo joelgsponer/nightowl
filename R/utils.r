@@ -38,11 +38,11 @@ spread_data <- function(DATA, key, value = NULL) {
 #' Wrap text label at a certain width
 #' @param width
 #' @export
-text_wraping <- function(DATA, cols = NULL, width = 20, ...) {
+text_wraping <- function(DATA, cols = NULL, width = 30, ...) {
   if (is.null(cols)) cols <- names(DATA)[purrr::map_lgl(DATA, ~ is.factor(.x))]
   purrr::reduce(cols, function(.out, .col) {
     .x <- .out[[.col]]
-    levels(.x) <- stringr::str_wrap(levels(.x), width)
+    levels(.x) <- stringr::str_wrap(levels(.x), width = width)
     .out[[.col]] <- .x
     .out
   }, .init = DATA)
