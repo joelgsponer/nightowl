@@ -41,8 +41,10 @@ plot <- function(DATA,
     purrr::iwalk(transform, function(.f, .var) {
       .f <- match.fun(.f)
       .var <- mapping[[.var]]
-      DATA <<- DATA %>%
-        dplyr::mutate(!!rlang::sym(.var) := .f(!!rlang::sym(.var)))
+      if(!is.null(.var)){
+        DATA <<- DATA %>%
+          dplyr::mutate(!!rlang::sym(.var) := .f(!!rlang::sym(.var)))
+      }
     })
   }
   #*******************************************************************************
