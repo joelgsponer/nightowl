@@ -25,6 +25,5 @@ test_that("ggally works", {
       id = "Chick",
       color = "Diet"
     )
-  ) 
-
+  )
 })

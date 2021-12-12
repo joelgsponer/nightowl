@@ -155,8 +155,11 @@ ggpairs <- function(DATA,
   # Setup Plot
   .aes <- mapping[waRRior::pop(names(mapping), c("key", "value", "id"))] %>%
     nightowl:::aes()
-  if(!is.null(mapping$color) || !is.null(mapping$fill)) legend <- 1
-  else legend <- NULL
+  if (!is.null(mapping$color) || !is.null(mapping$fill)) {
+    legend <- 1
+  } else {
+    legend <- NULL
+  }
   g <- GGally::ggpairs(
     mapping = .aes,
     data = DATA,
