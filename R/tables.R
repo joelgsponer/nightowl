@@ -37,7 +37,7 @@ table <- function(DATA,
   .lyt <- purrr::reduce(mapping$facet_row, ~ rtables::split_rows_by(.x, .y), .init = .lyt)
   .lyt <- rtables::split_cols_by(.lyt, mapping$x)
   if (!is.null(mapping$group) && options$group_split == "row") .lyt <- rtables::split_rows_by(.lyt, mapping$group)
-  if (!is.null(mapping$group) && optiosn$group_split == "col") .lyt <- rtables::split_cols_by(.lyt, mapping$group)
+  if (!is.null(mapping$group) && options$group_split == "col") .lyt <- rtables::split_cols_by(.lyt, mapping$group)
   .lyt <- purrr::reduce(layers, function(.x, .y) {
     type <- .y$type
     .y <- .y[names(.y) %in% waRRior::pop(names(.y), "type")]
