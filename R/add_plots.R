@@ -271,7 +271,7 @@ annotation <- function(g,
   if (!is.null(title)) {
     g <- g + ggplot2::ggtitle(title)
   } else {
-    auto_title <- glue::glue("{x} vs. {y}")
+    auto_title <- stringr::str_wrap(glue::glue("{x} vs. {y}"), width = 30)
     g <- g + ggplot2::ggtitle(auto_title)
   }
   if (!is.null(attributes(g)$caption)) {
