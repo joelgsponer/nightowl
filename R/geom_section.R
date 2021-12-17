@@ -27,7 +27,7 @@ buildPoly <- function(slope, intercept, above, xr, yr) {
       rs <- rbind(rs, c(-Inf, xCross[1]))
     }
     if (xCross[2] < yr[2]) {
-      rs <- rbind(rs, c(Inf, xCross[2]), c(Inf, Inf)
+      rs <- rbind(rs, c(Inf, xCross[2]), c(Inf, Inf))
     } else {
       rs <- rbind(rs, c(yCross[2], Inf))
     }
@@ -160,4 +160,3 @@ geom_section <- function(mapping = NULL,
     inherit.aes = FALSE, params = list(na.rm = na.rm, ...)
   )
 }
-)
