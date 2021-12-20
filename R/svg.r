@@ -3,9 +3,9 @@
 #' @param g ggplot object
 #' @export
 render_svg <- function(g, height = 8, width = 8, scaling = 1) {
-  fix_font <- function(html, param = "font-family", value = "Lato") {
+  fix_font <- function(html, param = "font-family", old_value = "Arial", value = "Lato") {
     str <- as.character(html)
-    pattern <- glue::glue("{param}: Arial")
+    pattern <- glue::glue("{param}: {old_value}")
     print(pattern)
     replace <- glue::glue("{param}: {value}")
     new_str <- stringr::str_replace_all(str, pattern, replace)
@@ -17,7 +17,8 @@ render_svg <- function(g, height = 8, width = 8, scaling = 1) {
       print(g)
       svg <- waRRior::regex_replace_element_parameter(svg(), "width", "100%") %>%
         waRRior::regex_replace_element_parameter("height", "100%") %>%
-        fix_font()
+        fix_font() %>%
+        fix_font(old_value = "Liberation Sans")
       try(dev.off())
       return(svg)
     },

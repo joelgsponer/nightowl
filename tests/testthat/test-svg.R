@@ -17,7 +17,8 @@ test_that("svg works", {
       list(type = "summary", mapping = list(color = NULL), geom = "line", dodge = 0, size = 1.5)
     )
   ) %>%
-    nightowl::render_svg(height = 50, width = 40, scaling = 3) %>%
-    replace_all("font-family", "Lato") ->
+    nightowl::render_svg(height = 50, width = 40, scaling = 3)
+
+  replace_all("font-family", "Lato") ->
   a
 })
