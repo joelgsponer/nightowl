@@ -10,12 +10,6 @@ expand_mapping <- function(mapping,
   })
 }
 # =================================================
-#' Natural sort factor
-#' @export
-fct_natural <- function(x) {
-  waRRior::fct_natural(x)
-}
-# =================================================
 #' wrapping labeleer
 #' @export
 label_with_wraping <- function(x, width = 15) {

@@ -4,7 +4,7 @@ test_that("multiplication works", {
     dplyr::filter(Time < 10)
 
   nightowl::plot(testdata,
-    transform = list(x = "fct_natural"),
+    transform = list(x = "waRRior::fct_lexicographic"),
     mapping = list(
       x = "Time",
       y = "weight",
