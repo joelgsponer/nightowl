@@ -5,7 +5,7 @@ generic <- function(geom,
                     mapping = list(),
                     ...) {
   .aes <- do.call(ggplot2::aes, mapping)
-  .f <- eval(parse(text = geom))
+  .f <- waRRior::getfun(geom)
   g + .f(mapping = .aes, ...)
 }
 # ===============================================================================

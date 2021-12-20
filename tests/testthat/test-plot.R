@@ -14,6 +14,7 @@ test_that("multiplication works", {
       lty = "Diet"
     ),
     layers = list(
+      list(type = "generic", geom = "ggplot2::geom_jitter", alpha = 0.3),
       list(type = "traces", geom = "line", alpha = 0.3),
       list(type = "summary", mapping = list(color = NULL), geom = "line", dodge = 0, size = 1.5)
     )
