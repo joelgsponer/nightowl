@@ -18,7 +18,7 @@ fct_natural <- function(x) {
 # =================================================
 #' wrapping labeleer
 #' @export
-label_with_wraping <- function(x, width = 10) {
+label_with_wraping <- function(x, width = 15) {
   purrr::map(ggplot2::label_both(x), ~ stringr::str_wrap(.x, width))
 } # ===============================================================================
 #' Spread data

@@ -4,7 +4,7 @@
 \alias{label_with_wraping}
 \title{wrapping labeleer}
 \usage{
-label_with_wraping(x, width = 10)
+label_with_wraping(x, width = 15)
 }
 \description{
 wrapping labeleer
