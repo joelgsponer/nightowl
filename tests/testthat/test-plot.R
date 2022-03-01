@@ -21,6 +21,19 @@ test_that("multiplication works", {
   )
 
   nightowl::plot(testdata,
+    transform = list(x = "waRRior::fct_lexicographic"),
+    mapping = list(
+      x = "Time",
+      y = "Chick",
+      fill = "weight",
+      facet_row = "Diet"
+    ),
+    layers = list(
+      list(type = "generic", geom = "ggplot2::geom_tile", color = "black")
+    )
+  )
+
+  nightowl::plot(testdata,
     mapping = list(
       x = "Time",
       y = "weight",
@@ -134,6 +147,7 @@ test_that("multiplication works", {
     ),
     annotation = list(title = "TEST"),
     axis = list(log_y = TRUE, units_x = "days", units_y = "g"),
+    facet = list(),
     svg = list(),
     dodge = 0.5
   ) %>%

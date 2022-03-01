@@ -39,7 +39,7 @@ plot <- function(DATA,
   # Transformations
   if (!is.null(transform)) {
     purrr::iwalk(transform, function(.f, .var) {
-      .f <- waRRior::getfun(.f)
+      if (is.character(.f)) .f <- waRRior::getfun(.f)
       .var <- mapping[[.var]]
       if (!is.null(.var)) {
         DATA <<- DATA %>%
