@@ -34,7 +34,7 @@ render_svg <- function(g, height = 8, width = 8, scaling = 1) {
 #' peek
 #' @export
 peek <- function(g, ...) {
-  nightowl::render_svg(g) %>%
+  nightowl::render_svg(g, ...) %>%
     htmltools::browsable()
 }
 
