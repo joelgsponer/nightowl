@@ -24,6 +24,7 @@ Imports:
     peacock,
     picasso,
     purrr,
+    reactable,
     rtables,
     stringr,
     testthat,

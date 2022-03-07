@@ -48,3 +48,20 @@ table <- function(DATA,
   rtables::build_table(.lyt, DATA)
 }
 # =================================================
+# =================================================
+#' @title
+#' MISSING_TITLE
+#' @description
+#' @detail
+#' @param
+#' @return
+#' @export
+reactable_default <- function(x) {
+  reactable::reactable(
+    x,
+    filterable = T,
+    style = list(fontFamily = "Work Sans, sans-serif", fontSize = "14px", padding = "10px"),
+    searchable = TRUE
+  )
+}
+# =================================================
