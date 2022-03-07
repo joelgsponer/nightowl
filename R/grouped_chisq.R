@@ -21,7 +21,7 @@ grouped_chisq <- function(df, split_by, x, y, ...) {
           chisq.test(...) %>%
           broom::tidy()
         info[[split_by]] <- .split
-        info$N <- nrow(df)
+        info$N <- nrow(.df)
         info <- info %>%
           dplyr::select(!!rlang::sym(split_by), N, statistic, p.value, tidyselect::everything())
         info
