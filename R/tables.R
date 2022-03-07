@@ -56,14 +56,25 @@ table <- function(DATA,
 #' @param
 #' @return
 #' @export
-reactable_default <- function(x) {
+reactable_default <- function(x,
+                              filterable = T,
+                              style = list(fontFamily = "Work Sans, sans-serif", fontSize = "14px", padding = "10px"),
+                              searchable = TRUE,
+                              selection = "multiple",
+                              onClick = "select",
+                              showPageSizeOptions = TRUE,
+                              pageSizeOptions = c(10, 25, 50, 100),
+                              ...) {
   reactable::reactable(
     x,
-    filterable = T,
-    style = list(fontFamily = "Work Sans, sans-serif", fontSize = "14px", padding = "10px"),
-    searchable = TRUE,
-    selection = "multiple",
-    onClick = "select"
+    filterable = filterable,
+    style = style,
+    searchable = searchable,
+    selection = selection,
+    onClick = onClick,
+    showPageSizeOptions = showPageSizeOptions,
+    pageSizeOptions = pageSizeOptions,
+    ...
   )
 }
 # =================================================

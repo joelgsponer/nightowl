@@ -4,7 +4,18 @@
 \alias{reactable_default}
 \title{MISSING_TITLE}
 \usage{
-reactable_default(x)
+reactable_default(
+  x,
+  filterable = T,
+  style = list(fontFamily = "Work Sans, sans-serif", fontSize = "14px", padding =
+    "10px"),
+  searchable = TRUE,
+  selection = "multiple",
+  onClick = "select",
+  showPageSizeOptions = TRUE,
+  pageSizeOptions = c(10, 25, 50, 100),
+  ...
+)
 }
 \value{
 
