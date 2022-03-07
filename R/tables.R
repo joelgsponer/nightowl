@@ -61,7 +61,9 @@ reactable_default <- function(x) {
     x,
     filterable = T,
     style = list(fontFamily = "Work Sans, sans-serif", fontSize = "14px", padding = "10px"),
-    searchable = TRUE
+    searchable = TRUE,
+    selection = "multiple",
+    onClick = "select"
   )
 }
 # =================================================
