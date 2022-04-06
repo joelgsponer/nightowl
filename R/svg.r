@@ -52,32 +52,14 @@ peek <- function(g, ...) {
 #' @export
 add_download_button <- function(x) {
   shiny::div(
-    lowRider::useLowRider(force = F),
-    shiny::HTML('
-      <script>
-          function download(e) {
-            var svg = e.parentElement.querySelector(\"svg\");
-
-            var svgXml = (new XMLSerializer).serializeToString(svg);
-            var blob = new Blob([svgXml], {type: \"image/svg+xml\"});
-            var url = URL.createObjectURL(blob);
-
-            var link = document.createElement(\'a\');
-            link.href = url;
-            link.download = \"image.svg\";
-            link.style.display = \'none\';
-            document.body.appendChild(link);
-
-            // your code goes here
-            link.click();
-            document.body.removeChild(link);
-          };
-      </script>
-    '),
-    x,
+    AceOfSpades::useAceOfSpades(),
     shiny::HTML("
-      <button onclick='download(this)', class = 'lowrider-button lowrider-button-small'><i class=\"fa fa-download\" aria-hidden=\"true\"></i> Save</button>
-    ")
+      <div
+       onclick='AOS_download_svg(this)'
+       style = 'text-align:right; font-weight:900; font-family:sans-serif;cursor:pointer;'
+      >&#10515; Save</div>
+    "),
+    x
   ) %>%
     htmltools::browsable()
 }
