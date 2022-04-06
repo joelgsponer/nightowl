@@ -57,7 +57,7 @@ add_download_button <- function(x) {
       <div
        onclick='AOS_download_svg(this)'
        style = 'text-align:right; font-weight:900; font-family:sans-serif;cursor:pointer;'
-      >&#10515; Save</div>
+      >&#10515; Save Plot</div>
     "),
     x
   ) %>%
