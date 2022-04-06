@@ -17,6 +17,7 @@ plot(
   facets = NULL,
   svg = NULL,
   dodge = 1,
+  wrap = 10,
   ...
 )
 }

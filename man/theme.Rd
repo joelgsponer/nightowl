@@ -4,7 +4,7 @@
 \alias{theme}
 \title{Apply theme}
 \usage{
-theme(g, theme = "picasso::theme_picasso", ...)
+theme(g, theme = "ggplot2::theme_bw", ...)
 }
 \description{
 Apply theme

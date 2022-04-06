@@ -305,6 +305,7 @@ colors <- function(g, DATA, mapping) {
   if (!is.null(fill) && is.factor(DATA[[fill]])) {
     if (length(unique(DATA[[fill]])) <= 10) {
       g <- g + ggplot2::discrete_scale("fill", "roche", picasso::roche_palette_discrete(1))
+      g <- g + ggplot2::guides(fill = ggplot2::guide_legend(nrow = 2))
     } else {
       g <- g + ggplot2::guides(fill = "none")
       attributes(g)$caption <- c(
@@ -316,7 +317,7 @@ colors <- function(g, DATA, mapping) {
   if (!is.null(color) && is.factor(DATA[[color]])) {
     if (length(unique(DATA[[color]])) <= 10) {
       g <- g + ggplot2::discrete_scale("color", "roche", picasso::roche_palette_discrete(1))
-      g <- g + ggplot2::guides(colour = ggplot2::guide_legend(override.aes = list(
+      g <- g + ggplot2::guides(colour = ggplot2::guide_legend(nrow = 2, override.aes = list(
         size = 2, color = picasso::roche_palette_discrete()(length(unique(DATA[[color]])))
       )))
     } else {
@@ -332,7 +333,7 @@ colors <- function(g, DATA, mapping) {
 # ===============================================================================
 #' Apply theme
 #' @export
-theme <- function(g, theme = "picasso::theme_picasso", ...) {
+theme <- function(g, theme = "ggplot2::theme_bw", ...) {
   if (is.character(theme)) {
     g <- g + eval(parse(text = paste0(theme, "()")))
   } else if (is.function(theme)) {
