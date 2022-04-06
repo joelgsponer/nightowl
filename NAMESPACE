@@ -2,6 +2,7 @@
 
 export("%>%")
 export(GeomSection)
+export(add_download_button)
 export(add_geom)
 export(aes)
 export(annotation)

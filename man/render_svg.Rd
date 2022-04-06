@@ -4,7 +4,7 @@
 \alias{render_svg}
 \title{Create SVG string}
 \usage{
-render_svg(g, height = 8, width = 8, scaling = 1)
+render_svg(g, height = 8, width = 8, scaling = 1, add_download_button = T)
 }
 \arguments{
 \item{g}{ggplot object}
