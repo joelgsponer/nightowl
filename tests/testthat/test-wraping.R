@@ -1,5 +1,4 @@
 test_that("wraping works", {
-
   varname <- "the brown fox jumped over the lazy dog"
   varname2 <- "lorem ipsum dolor sit amet"
 
@@ -13,7 +12,7 @@ test_that("wraping works", {
     transform = list(x = "factor"),
     mapping = list(
       y = varname2,
-      x = varname, 
+      x = varname,
       color = varname,
       fill = varname,
       lty = varname
@@ -21,7 +20,20 @@ test_that("wraping works", {
     layers = list(
       list(type = "boxplot")
     ),
-    annotation = list(wrap_y = 30, wrap_guides = 10)
+    annotation = list(wrap_title = 60, wrap_y = 40, wrap_guides = 10)
   )
 
+  nightowl::plot(testdata,
+    transform = list(x = "factor"),
+    mapping = list(
+      y = varname2,
+      x = varname,
+      color = varname,
+      fill = varname,
+      lty = varname
+    ),
+    layers = list(
+      list(type = "boxplot")
+    )
+  )
 })

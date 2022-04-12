@@ -9,6 +9,14 @@ test_that("tables works", {
     )
   )
 
+  nightowl::model(testdata,
+    mapping = list(
+      x = "Island",
+      y = c("Culmen Depth (mm)")
+    )
+  )
+
+
   random.cdisc.data::cadae$AESER
 
   nightowl::table(random.cdisc.data::cadae,

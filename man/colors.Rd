@@ -4,7 +4,7 @@
 \alias{colors}
 \title{Define colors}
 \usage{
-colors(g, DATA, mapping)
+colors(g, DATA, mapping, ...)
 }
 \description{
 Define colors

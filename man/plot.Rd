@@ -13,11 +13,11 @@ plot(
   layers = list(),
   annotation = NULL,
   axis = NULL,
+  colors = NULL,
   theming = NULL,
   facets = NULL,
   svg = NULL,
   dodge = 1,
-  wrap = 10,
   ...
 )
 }

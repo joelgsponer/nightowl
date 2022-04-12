@@ -24,13 +24,8 @@ plot <- function(DATA,
                  facets = NULL,
                  svg = NULL,
                  dodge = 1,
-                 wrap = 20,
                  ...) {
   #*******************************************************************************
-  if (!is.null(wrap)) {
-    names(DATA) <- stringr::str_wrap(names(DATA), wrap)
-    mapping <- purrr::map(mapping, ~ stringr::str_wrap(.x, wrap))
-  }
   # Drop columns that are not needed
   cols <- c(
     unlist(unname(mapping)),

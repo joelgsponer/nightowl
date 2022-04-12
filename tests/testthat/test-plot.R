@@ -1,8 +1,8 @@
 test_that("multiplication works", {
-
   require(magrittr)
   testdata <- ChickWeight %>%
     dplyr::filter(Time < 10)
+
 
   nightowl::plot(testdata,
     transform = list(x = "waRRior::fct_lexicographic"),
@@ -15,10 +15,12 @@ test_that("multiplication works", {
       lty = "Diet"
     ),
     layers = list(
-      list(type = "generic", geom = "ggplot2::geom_jitter", alpha = 0.3),
+      list(type = "generic", geom = "ggplot2::geom_jitter", alpha = 0.3, width = 0.1),
       list(type = "traces", geom = "line", alpha = 0.3),
       list(type = "summary", mapping = list(color = NULL), geom = "line", dodge = 0, size = 1.5)
-    )
+    ),
+    annotation = list(test = "lm"),
+    svg = list()
   )
 
   .p <- nightowl::plot(testdata,
@@ -42,16 +44,21 @@ test_that("multiplication works", {
       x = "Diet",
       y = "weight",
       group = "Diet",
-      fill = "Diet"
+      fill = "Diet",
+      facet_rows = "Time"
     ),
     layers = list(
       list(type = "boxplot"),
-      list(type="generic",
-           geom = "ggpubr::stat_compare_means",
-           comparisons = list(c("1", "2"))),
-      list(type="generic",
-           geom = "ggpubr::stat_compare_means",
-           method = "anova")
+      list(
+        type = "generic",
+        geom = "ggpubr::stat_compare_means",
+        comparisons = list(c("1", "2"))
+      ),
+      list(
+        type = "generic",
+        geom = "ggpubr::stat_compare_means",
+        method = "anova"
+      )
     )
   )
 

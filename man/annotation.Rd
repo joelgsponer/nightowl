@@ -15,6 +15,11 @@ annotation(
   axis_text_x_hjust = 1,
   axis_text_x_vjust = 1,
   legend_position = "bottom",
+  test = NULL,
+  wrap_title = 30,
+  wrap_x = 30,
+  wrap_y = 30,
+  wrap_guides = 30,
   ...
 )
 }

@@ -6,7 +6,6 @@ render_svg <- function(g, height = 8, width = 8, scaling = 1, add_download_butto
   fix_font <- function(html, param = "font-family", value = "Lato", old_value = "[^;]*") {
     str <- as.character(html)
     pattern <- glue::glue("{param}: {old_value}")
-    print(pattern)
     replace <- glue::glue("{param}: {value}")
     new_str <- stringr::str_replace_all(str, pattern, replace)
     return(shiny::HTML(new_str))
@@ -20,7 +19,7 @@ render_svg <- function(g, height = 8, width = 8, scaling = 1, add_download_butto
       print(g)
       svg <- waRRior::regex_replace_element_parameter(svg(), "width", "100%") %>%
         waRRior::regex_replace_element_parameter("height", "100%") %>%
-        fix_font() %>%
+        # fix_font() %>%
         htmltools::browsable()
       try(dev.off())
       if (add_download_button) {
