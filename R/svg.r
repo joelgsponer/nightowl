@@ -19,7 +19,7 @@ render_svg <- function(g, height = 8, width = 8, scaling = 1, add_download_butto
       print(g)
       svg <- waRRior::regex_replace_element_parameter(svg(), "width", "100%") %>%
         waRRior::regex_replace_element_parameter("height", "100%") %>%
-        # fix_font() %>%
+        fix_font() %>%
         htmltools::browsable()
       try(dev.off())
       if (add_download_button) {

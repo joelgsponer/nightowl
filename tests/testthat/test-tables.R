@@ -9,10 +9,11 @@ test_that("tables works", {
     )
   )
 
-  nightowl::model(testdata,
+  nightowl::model_output(testdata,
     mapping = list(
       x = "Island",
-      y = c("Culmen Depth (mm)")
+      y = c("Culmen Depth (mm)"), 
+      facet_col = c("Species", "Sex")
     )
   )
 
