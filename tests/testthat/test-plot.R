@@ -1,4 +1,5 @@
 test_that("multiplication works", {
+
   require(magrittr)
   testdata <- ChickWeight %>%
     dplyr::filter(Time < 10)
@@ -20,7 +21,7 @@ test_that("multiplication works", {
     )
   )
 
-  nightowl::plot(testdata,
+  .p <- nightowl::plot(testdata,
     transform = list(x = "waRRior::fct_lexicographic"),
     mapping = list(
       x = "Time",
@@ -32,34 +33,28 @@ test_that("multiplication works", {
       list(type = "generic", geom = "ggplot2::geom_tile", color = "black")
     )
   )
+  .p
+  plotly::ggplotly(.p)
 
   nightowl::plot(testdata,
+    transform = list(x = "waRRior::fct_lexicographic"),
     mapping = list(
-      x = "Time",
+      x = "Diet",
       y = "weight",
-      color = "Diet",
-      fill = "Diet",
-      group = "Diet"
+      group = "Diet",
+      fill = "Diet"
     ),
-    transform = list(x = "factor"),
     layers = list(
-      mapping = list(group = NULL),
-      list(type = "boxplot")
+      list(type = "boxplot"),
+      list(type="generic",
+           geom = "ggpubr::stat_compare_means",
+           comparisons = list(c("1", "2"))),
+      list(type="generic",
+           geom = "ggpubr::stat_compare_means",
+           method = "anova")
     )
   )
 
-  nightowl::plot(ChickWeight,
-    transform = list(x = fct_natural),
-    mapping = list(
-      x = "Time",
-      y = "Chick",
-      fill = "weight",
-      facet_row = "Diet"
-    ),
-    layers = list(
-      generic = list(geom = "ggplot2::geom_tile", color = "black")
-    )
-  )
 
   big <- data.frame(
     time = c(runif(1000, 0, 10)),

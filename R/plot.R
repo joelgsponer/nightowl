@@ -19,11 +19,12 @@ plot <- function(DATA,
                  layers = list(),
                  annotation = NULL,
                  axis = NULL,
+                 colors = NULL,
                  theming = NULL,
                  facets = NULL,
                  svg = NULL,
                  dodge = 1,
-                 wrap = 10,
+                 wrap = 20,
                  ...) {
   #*******************************************************************************
   if (!is.null(wrap)) {
@@ -89,7 +90,7 @@ plot <- function(DATA,
   g <- do.call(nightowl::axis, c(list(g = g), axis))
   # #*******************************************************************************
   # Colors and theming
-  g <- do.call(nightowl::colors, c(list(g = g, DATA = DATA, mapping = mapping)))
+  g <- do.call(nightowl::colors, c(list(g = g, DATA = DATA, mapping = mapping), colors))
   # # Add Theme
   g <- do.call(nightowl::theme, c(list(g = g), theming))
   # #*******************************************************************************

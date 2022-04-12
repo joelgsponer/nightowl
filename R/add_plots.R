@@ -250,6 +250,10 @@ annotation <- function(g,
                        axis_text_x_hjust = 1,
                        axis_text_x_vjust = 1,
                        legend_position = "bottom",
+                       wrap_title = 30,
+                       wrap_x = 30,
+                       wrap_y = 30,
+                       wrap_guides = 30,
                        ...) {
   g <- g + ggplot2::theme(
     axis.text.x = ggplot2::element_text(
@@ -262,16 +266,24 @@ annotation <- function(g,
   ## X label
   if (!is.null(xlab)) {
     g <- g + ggplot2::xlab(xlab)
+  } else {
+    xlab <- stringr::str_replace_all(g$labels$x, "\n", " ")
+    xlab <- stringr::str_wrap(xlab, wrap_x)
+    g <- g + ggplot2::xlab(xlab)
   }
   ## Y label
   if (!is.null(ylab)) {
+    g <- g + ggplot2::ylab(ylab)
+  } else {
+    ylab <- stringr::str_replace_all(g$labels$y, "\n", " ")
+    ylab <- stringr::str_wrap(ylab, wrap_y)
     g <- g + ggplot2::ylab(ylab)
   }
   ## Title
   if (!is.null(title)) {
     g <- g + ggplot2::ggtitle(title)
   } else {
-    auto_title <- stringr::str_wrap(glue::glue("{x} vs. {y}"), width = 30)
+    auto_title <- stringr::str_wrap(glue::glue("{x} vs. {y}"), width = wrap_title)
     g <- g + ggplot2::ggtitle(auto_title)
   }
   if (!is.null(attributes(g)$caption)) {
@@ -279,6 +291,16 @@ annotation <- function(g,
       caption = paste(unique(attributes(g)$caption), collapse = "\n")
     )
   }
+  ## Guides
+  g$labels <- purrr::imap(g$labels, function(x, y){
+    if(!y %in% c("title", "caption")) {
+      stringr::str_replace_all(x, "\n", " ") %>%
+        stringr::str_wrap(wrap_guides)
+     } else {
+       return(x)
+     }
+  })
+
   return(g)
 }
 # =================================================
@@ -299,7 +321,7 @@ aes <- function(aes) {
 # ===============================================================================
 #' Define colors
 #' @export
-colors <- function(g, DATA, mapping) {
+colors <- function(g, DATA, mapping, ...) {
   fill <- mapping$fill
   color <- mapping$color
   if (!is.null(fill) && is.factor(DATA[[fill]])) {
