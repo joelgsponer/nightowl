@@ -95,7 +95,13 @@ report_errors_grouped_chisq <- function(x) {
 #' @param
 #' @return
 #' @export
-plot_grouped_chisq <- function(df, split_by, x, y, test = NULL, order_by = "p.value", pal = NULL, ...) {
+plot_grouped_chisq <- function(df, split_by, x, y, test = NULL, order_by = "p.value",
+                               pal = NULL,
+                               width = 3,
+                               height = 3,
+                               flex_direction = "row",
+                               flex_wrap = "wrap",
+                               ...) {
   if (is.null(test)) {
     test <- nightowl::grouped_chisq(df, split_by, x, y) %>%
       nightowl::extract_results_grouped_chisq()
@@ -116,7 +122,7 @@ plot_grouped_chisq <- function(df, split_by, x, y, test = NULL, order_by = "p.va
       dplyr::select(N, statistic, `p.value`) %>%
       dplyr::mutate_if(is.numeric, function(x) round(x, 5)) %>%
       purrr::imap(~ glue::glue("{.y}: {.x}")) %>%
-      paste(collapse = " ") %>%
+      paste(collapse = "\n") %>%
       paste("χ2 -- ", .)
     p <- nightowl::plot_stacked_percentages(data, x = x, y = y, add_labels = F) +
       ggplot2::coord_flip() +
@@ -131,9 +137,9 @@ plot_grouped_chisq <- function(df, split_by, x, y, test = NULL, order_by = "p.va
       p <- p +
         ggplot2::scale_fill_manual(values = pal)
     }
-    nightowl::ggplot_to_girafe(p, width = 3, height = 3)
+    nightowl::ggplot_to_girafe(p, width = width, height = height)
   }) %>%
-    shiny::div(style = "display:flex;flex-wrap:wrap;") %>%
+    shiny::div(style = glue::glue("display:flex;flex-wrap:{flex_wrap};flex-direction:{flex_direction};")) %>%
     htmltools::browsable()
 }
 # =================================================

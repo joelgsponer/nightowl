@@ -12,6 +12,10 @@ plot_grouped_chisq(
   test = NULL,
   order_by = "p.value",
   pal = NULL,
+  width = 3,
+  height = 3,
+  flex_direction = "row",
+  flex_wrap = "wrap",
   ...
 )
 }

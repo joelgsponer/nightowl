@@ -13,5 +13,5 @@ test_that("grouped chisq works", {
   nightowl::extract_errors_grouped_chisq(test)
   nightowl::report_errors_grouped_chisq(test)
 
-  nightowl::plot_grouped_chisq(input, "my_split", "group", "values")
+  nightowl::plot_grouped_chisq(input, "my_split", "group", "values", flex_direction = "column")
 })
