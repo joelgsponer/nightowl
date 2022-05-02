@@ -65,7 +65,7 @@ fit_coxph <- function(data, time, event, treatment, covariates, strata, ...) {
 #' @param
 #' @oetun
 #' @export
-plot_coxph <- function(data, time, event, treatment, covariates, strata, ...) {
+plot_coxph <- function(data, time, event, treatment, covariates, strata, engine = "kable", ...) {
   .result <- nightowl::fit_coxph(data, time, event, treatment, covariates, strata)
 
   conf_range <- range(.result$conf.low, .result$conf.high)
@@ -91,13 +91,30 @@ plot_coxph <- function(data, time, event, treatment, covariates, strata, ...) {
 
   .result$Visualization <- .viz
 
-  .result %>%
-    dplyr::mutate_if(is.numeric, ~ round(.x, 3)) %>%
-    dplyr::mutate(HR = glue::glue("{estimate}({conf.low}-{conf.high})")) %>%
-    dplyr::select(Variable = variable, Reference = reference, `Hazard Ratio` = HR, `p  Value` = p.value, `<Reference Better | Comparison better >` = Visualization) %>%
-    knitr::kable("html", escape = F) %>%
-    kableExtra::footnote(paste("Stratified by: ", paste(attributes(.result)$strata, collapse = "; "))) %>%
-    kableExtra::kable_classic(full_width = F) %>%
-    kableExtra::collapse_rows(columns = 1)
+  if (engine == "kable") {
+    .result %>%
+      dplyr::mutate_if(is.numeric, ~ round(.x, 3)) %>%
+      dplyr::mutate(HR = glue::glue("{estimate}({conf.low}-{conf.high})")) %>%
+      dplyr::select(Variable = variable, Reference = reference, `Hazard Ratio` = HR, `p  Value` = p.value, `<Reference Better | Comparison better >` = Visualization) %>%
+      knitr::kable("html", escape = F) %>%
+      kableExtra::footnote(paste("Stratified by: ", paste(attributes(.result)$strata, collapse = "; "))) %>%
+      kableExtra::kable_classic(full_width = F) %>%
+      kableExtra::collapse_rows(columns = 1)
+  } else if (engine == "reactable") {
+    .result %>%
+      dplyr::mutate_if(is.numeric, ~ round(.x, 3)) %>%
+      dplyr::mutate(HR = glue::glue("{estimate}({conf.low}-{conf.high})")) %>%
+      dplyr::select(Variable = variable, Reference = reference, `Hazard Ratio` = HR, `p  Value` = p.value, `<Reference Better | Comparison better >` = Visualization) %>%
+      reactable::reactable(
+        columns = list(`<Reference Better | Comparison better >` = reactable::colDef(html = TRUE, minWidt = 200)),
+        filterable = T,
+        style = list(fontFamily = "Work Sans, sans-serif", fontSize = "14px", padding = "10px"),
+        searchable = TRUE,
+        bordered = TRUE,
+        onClick = "select",
+        showPageSizeOptions = TRUE,
+        pageSizeOptions = c(10, 25, 50, 100)
+      )
+  }
 }
 # =================================================

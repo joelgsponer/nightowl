@@ -27,4 +27,13 @@ test_that("coxph works", {
     covariates = c("c1", "c2", "c3"),
     strata = c("s1", "s2")
   )
+
+  nightowl::plot_coxph(testdata,
+    time = "time",
+    event = "event",
+    treatment = "treatment",
+    covariates = c("c1", "c2", "c3"),
+    strata = c("s1", "s2"),
+    engine = "reactable"
+  )
 })

@@ -4,7 +4,16 @@
 \alias{plot_coxph}
 \title{MISSING_TITLE}
 \usage{
-plot_coxph(data, time, event, treatment, covariates, strata, ...)
+plot_coxph(
+  data,
+  time,
+  event,
+  treatment,
+  covariates,
+  strata,
+  engine = "kable",
+  ...
+)
 }
 \description{
 MISSING_TITLE
