@@ -9,9 +9,12 @@ plot_coxph(
   time,
   event,
   treatment,
-  covariates,
-  strata,
+  covariates = NULL,
+  strata = NULL,
   engine = "kable",
+  kable_style = kableExtra::kable_paper,
+  split = NULL,
+  title = NULL,
   ...
 )
 }

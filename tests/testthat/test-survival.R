@@ -8,6 +8,7 @@ test_that("survival functions work", {
     c3 = sample(c("YES"), size = 100, replace = TRUE),
     s1 = sample(c("NO", "YES"), size = 100, replace = TRUE),
     s2 = sample(c("NO", "YES"), size = 100, replace = TRUE),
+    split = sample(LETTERS[1:10], size = 100, replace = TRUE)
   )
 
   nightowl::create_Surv_formula(testdata,
@@ -16,5 +17,65 @@ test_that("survival functions work", {
     treatment = "treatment",
     covariates = c("c1", "c2", "c3"),
     strata = c("s1", "s2")
+  )
+
+  nightowl::create_Surv_formula(testdata,
+    time = "time",
+    event = "event",
+    treatment = "treatment"
+  )
+
+  nightowl::create_Surv_formula(testdata,
+    time = "time",
+    event = "event",
+    treatment = "treatment"
+  ) %>%
+    nightowl::km_pvalue(testdata)
+
+  nightowl::create_Surv_formula(testdata,
+    time = "time",
+    event = "event",
+    treatment = "treatment"
+  ) %>%
+    nightowl::km_summary(testdata)
+
+  nightowl::fit_km(testdata,
+    time = "time",
+    event = "event",
+    treatment = "treatment"
+  )
+
+  nightowl::fit_km(testdata,
+    time = "time",
+    event = "event",
+    treatment = "treatment"
+  ) %>% nightowl::km_table()
+
+  nightowl::fit_km(testdata,
+    time = "time",
+    event = "event",
+    treatment = "treatment"
+  ) %>% nightowl::km_add_0()
+
+  nightowl::plot_km(testdata,
+    time = "time",
+    event = "event",
+    treatment = "treatment"
+  )
+
+
+  nightowl::plot_grouped_km(testdata,
+    time = "time",
+    event = "event",
+    treatment = "treatment",
+    split = "c1"
+  )
+
+  nightowl::plot_grouped_km_compact(testdata,
+    time = "time",
+    event = "event",
+    treatment = "treatment",
+    split = "split",
+    width = "300px"
   )
 })

@@ -8,6 +8,7 @@
 #' @export
 fit_coxph <- function(data, time, event, treatment, covariates, strata, ...) {
   cli::cli_h1("🦉 Fitting Cox Proportional Hazard Model")
+  require(survival)
   # Select relevant variables --------------------------------------------------
   .data <- data %>%
     dplyr::select_at(c(time, event, treatment, covariates, strata)) %>%
@@ -16,6 +17,10 @@ fit_coxph <- function(data, time, event, treatment, covariates, strata, ...) {
   .reference <- .data %>%
     dplyr::select_if(is.factor) %>%
     purrr::map(~ levels(.x)[1])
+  .numeric <- .data %>%
+    dplyr::select_if(is.numeric) %>%
+    purrr::map(~"")
+  .reference <- c(.reference, .numeric)
   # Fit CoxPH model ------------------------------------------------------------
   .formula <- nightowl::create_Surv_formula(.data, time, event, treatment, covariates, strata)
   .model <- survival::coxph(.formula, data = .data, ...)
@@ -40,7 +45,7 @@ fit_coxph <- function(data, time, event, treatment, covariates, strata, ...) {
     dplyr::arrange(estimate) %>%
     dplyr::mutate(term = factor(term, c(treatment, unique(waRRior::pop(.$term, treatment))))) %>%
     dplyr::arrange(term) %>%
-    dplyr::mutate(reference = unlist(.reference[term])) %>%
+    dplyr::mutate(reference = purrr::map_chr(as.character(term), ~ .reference[[.x]])) %>%
     dplyr::select(variable = term, reference, group, estimate, tidyselect::everything())
   # Store metainfomation -------------------------------------------------------
   cli::cli_progress_step("🦉 Storing metainfomation")
@@ -65,12 +70,34 @@ fit_coxph <- function(data, time, event, treatment, covariates, strata, ...) {
 #' @param
 #' @oetun
 #' @export
-plot_coxph <- function(data, time, event, treatment, covariates, strata, engine = "kable", ...) {
-  .result <- nightowl::fit_coxph(data, time, event, treatment, covariates, strata)
+plot_coxph <- function(data,
+                       time,
+                       event,
+                       treatment,
+                       covariates = NULL,
+                       strata = NULL,
+                       engine = "kable",
+                       kable_style = kableExtra::kable_paper,
+                       split = NULL,
+                       title = NULL,
+                       ...) {
+  if (is.null(split)) {
+    .result <- nightowl::fit_coxph(data, time, event, treatment, covariates, strata)
+  } else {
+    .result <- data %>%
+      waRRior::named_group_split_at(split) %>%
+      purrr::imap(~ nightowl::fit_coxph(.x, time, event, treatment, covariates, strata) %>%
+        dplyr::mutate(!!rlang::sym(split) := .y)) %>%
+      dplyr::bind_rows() %>%
+      dplyr::ungroup()
+  }
 
-  conf_range <- range(.result$conf.low, .result$conf.high)
+  .result <- dplyr::filter(.result, !is.na(estimate))
+  conf_range <- range.default(.result$conf.low, .result$conf.high, na.rm = TRUE, finite = TRUE)
+  conf_range[conf_range > 5] <- 3
 
-  .viz <- .result %>%
+
+  .result <- .result %>%
     dplyr::group_by_all() %>%
     dplyr::group_split() %>%
     purrr::map(function(.x) {
@@ -86,27 +113,38 @@ plot_coxph <- function(data, time, event, treatment, covariates, strata, engine 
         ggplot2::xlim(conf_range) +
         ggplot2::theme_void() +
         ggplot2::theme(legend.position = "none")
-      nightowl::render_svg(.p, height = 0.3, add_download_button = FALSE)
-    })
+      .p <- nightowl::render_svg(.p, height = 0.3, add_download_button = FALSE)
+      .x$Visualization <- .p
+      .x
+    }) %>%
+    dplyr::bind_rows()
 
-  .result$Visualization <- .viz
+  .result <- .result %>%
+    dplyr::mutate_if(is.numeric, ~ round(.x, 3)) %>%
+    dplyr::mutate(HR = glue::glue("{estimate}({conf.low}-{conf.high})"))
+
+  if (!is.null(split)) {
+    .result <- .result %>%
+      dplyr::select(Variable = variable, Reference = reference, `Hazard Ratio` = HR, `p  Value` = p.value, `← Comparison better | Reference better →` = Visualization, split) %>%
+      dplyr::select_at(c(split, waRRior::pop(names(.), split)))
+    collapse_this <- 1
+  } else {
+    .result <- .result %>%
+      dplyr::select(Variable = variable, Reference = reference, `Hazard Ratio` = HR, `p  Value` = p.value, `← Comparison better | Reference better →` = Visualization)
+    collapse_this <- 1
+  }
 
   if (engine == "kable") {
     .result %>%
-      dplyr::mutate_if(is.numeric, ~ round(.x, 3)) %>%
-      dplyr::mutate(HR = glue::glue("{estimate}({conf.low}-{conf.high})")) %>%
-      dplyr::select(Variable = variable, Reference = reference, `Hazard Ratio` = HR, `p  Value` = p.value, `<Reference Better | Comparison better >` = Visualization) %>%
-      knitr::kable("html", escape = F) %>%
+      knitr::kable("html", escape = F, caption = glue::glue("Cox's Proportional Hazard Model {title}")) %>%
+      kableExtra::column_spec(1, bold = T) %>%
+      kableExtra::collapse_rows(columns = collapse_this, valign = "top") %>%
       kableExtra::footnote(paste("Stratified by: ", paste(attributes(.result)$strata, collapse = "; "))) %>%
-      kableExtra::kable_classic(full_width = F) %>%
-      kableExtra::collapse_rows(columns = 1)
+      kable_style(full_width = F)
   } else if (engine == "reactable") {
     .result %>%
-      dplyr::mutate_if(is.numeric, ~ round(.x, 3)) %>%
-      dplyr::mutate(HR = glue::glue("{estimate}({conf.low}-{conf.high})")) %>%
-      dplyr::select(Variable = variable, Reference = reference, `Hazard Ratio` = HR, `p  Value` = p.value, `<Reference Better | Comparison better >` = Visualization) %>%
       reactable::reactable(
-        columns = list(`<Reference Better | Comparison better >` = reactable::colDef(html = TRUE, minWidt = 200)),
+        columns = list(`← Comparison better | Reference better →` = reactable::colDef(html = TRUE, minWidt = 200)),
         filterable = T,
         style = list(fontFamily = "Work Sans, sans-serif", fontSize = "14px", padding = "10px"),
         searchable = TRUE,
