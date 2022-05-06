@@ -2,7 +2,7 @@
 #' Create SVG string
 #' @param g ggplot object
 #' @export
-render_svg <- function(g, height = 8, width = 8, scaling = 1, add_download_button = T) {
+render_svg <- function(g, height = 8, width = 8, scaling = 1, add_download_button = T, standalone = F, ...) {
   fix_font <- function(html, param = "font-family", value = "Lato", old_value = "[^;]*") {
     str <- as.character(html)
     pattern <- glue::glue("{param}: {old_value}")
@@ -14,7 +14,9 @@ render_svg <- function(g, height = 8, width = 8, scaling = 1, add_download_butto
     {
       svg <- svglite::svgstring(
         height = height, width = width, scaling = scaling,
-        web_fonts = "https://fonts.googleapis.com/css2?family=Lato:wght@100;300;400;700;900&display=swap"
+        web_fonts = "https://fonts.googleapis.com/css2?family=Lato:wght@100;300;400;700;900&display=swap",
+        standalone = F,
+        ...
       )
       print(g)
       svg <- waRRior::regex_replace_element_parameter(svg(), "width", "100%") %>%
