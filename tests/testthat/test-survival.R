@@ -64,6 +64,14 @@ test_that("survival functions work", {
     break_width = 20
   )
 
+  nightowl::plot_km(testdata,
+    time = "time",
+    event = "event",
+    treatment = "treatment",
+    break_width = 20,
+    lowrider_theme = "roche"
+  )
+
 
   nightowl::plot_grouped_km(testdata,
     time = "time",
