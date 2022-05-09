@@ -151,8 +151,8 @@ plot_km <- function(data,
       style = glue::glue("width:{width};"),
       shiny::div(
         class = "lowrider-card-header",
-        shiny::h1(title),
-        shiny::h4(subtitle)
+        shiny::h4(title),
+        shiny::h5(subtitle)
       ),
       shiny::div(
         class = "lowrider-card-body",
@@ -336,6 +336,7 @@ plot_grouped_km_compact <- function(data,
     add_p = add_p,
     add_table = FALSE,
     add_summary = FALSE,
+    add_median = FALSE,
     ...
   )
 }
