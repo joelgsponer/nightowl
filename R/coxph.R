@@ -48,14 +48,26 @@ fit_coxph <- function(data, time, event, treatment, covariates, strata, ...) {
     dplyr::arrange(term) %>%
     dplyr::mutate(reference = purrr::map_chr(as.character(term), ~ .reference[[.x]])) %>%
     dplyr::select(variable = term, reference, group, estimate, tidyselect::everything())
+
   .n <- purrr::map(c(treatment, covariates, strata), function(.var) {
-    dplyr::select_at(data, c(.var, event)) %>%
-      waRRior::tally_at(c(.var, event)) %>%
-      dplyr::filter(!!rlang::sym(event) == 1) %>%
-      dplyr::select_at(c(.var, "n")) %>%
-      dplyr::rename(group = .var) %>%
-      dplyr::mutate(variable = .var) %>%
-      dplyr::rename(`N Events` = n)
+    if (!is.numeric(data[[.var]])) {
+      dplyr::select_at(data, c(.var, event)) %>%
+        waRRior::tally_at(c(.var, event)) %>%
+        dplyr::filter(!!rlang::sym(event) == 1) %>%
+        dplyr::select_at(c(.var, "n")) %>%
+        dplyr::rename(group = .var) %>%
+        dplyr::mutate(variable = .var) %>%
+        dplyr::rename(`N Events` = n) %>%
+        dplyr::mutate(group = as.character(group))
+    } else {
+      dplyr::select_at(data, c(.var, event)) %>%
+        waRRior::tally_at(c(event)) %>%
+        dplyr::filter(!!rlang::sym(event) == 1) %>%
+        dplyr::select_at(c("n")) %>%
+        dplyr::mutate(variable = .var) %>%
+        dplyr::rename(`N Events` = n) %>%
+        dplyr::mutate(group = "")
+    }
   }) %>%
     dplyr::bind_rows()
   res <- dplyr::inner_join(res, .n)

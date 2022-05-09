@@ -5,7 +5,7 @@ test_that("coxph works", {
     treatment = sample(c("NO", "YES"), size = 100, replace = TRUE),
     c1 = sample(c("NO", "YES"), size = 100, replace = TRUE),
     c2 = sample(c("NO", "YES", "MAYBE"), size = 100, replace = TRUE),
-    c3 = sample(c("YES"), size = 100, replace = TRUE),
+    c3 = factor(sample(c("YES"), size = 100, replace = TRUE)),
     n1 = runif(100, 0, 1),
     s1 = sample(c("NO", "YES"), size = 100, replace = TRUE),
     s2 = sample(c("NO", "YES"), size = 100, replace = TRUE),
