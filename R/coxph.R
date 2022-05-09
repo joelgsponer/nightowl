@@ -16,6 +16,7 @@ fit_coxph <- function(data, time, event, treatment, covariates, strata, ...) {
   # Store reference information ------------------------------------------------
   .reference <- .data %>%
     dplyr::select_if(is.factor) %>%
+    droplevels() %>%
     purrr::map(~ levels(.x)[1])
   .numeric <- .data %>%
     dplyr::select_if(is.numeric) %>%
@@ -47,6 +48,17 @@ fit_coxph <- function(data, time, event, treatment, covariates, strata, ...) {
     dplyr::arrange(term) %>%
     dplyr::mutate(reference = purrr::map_chr(as.character(term), ~ .reference[[.x]])) %>%
     dplyr::select(variable = term, reference, group, estimate, tidyselect::everything())
+  .n <- purrr::map(c(treatment, covariates, strata), function(.var) {
+    dplyr::select_at(data, c(.var, event)) %>%
+      waRRior::tally_at(c(.var, event)) %>%
+      dplyr::filter(!!rlang::sym(event) == 1) %>%
+      dplyr::select_at(c(.var, "n")) %>%
+      dplyr::rename(group = .var) %>%
+      dplyr::mutate(variable = .var) %>%
+      dplyr::rename(`N Events` = n)
+  }) %>%
+    dplyr::bind_rows()
+  res <- dplyr::inner_join(res, .n)
   # Store metainfomation -------------------------------------------------------
   cli::cli_progress_step("🦉 Storing metainfomation")
   attributes(res)$model <- .model
@@ -96,11 +108,11 @@ plot_coxph <- function(data,
   }
   .attributes <- attributes(.result)
   .result <- dplyr::filter(.result, !is.na(estimate))
+  if (show_only_treatment) .result <- dplyr::filter(.result, variable == treatment)
   if (is.null(conf_range)) {
     conf_range <- range.default(.result$conf.low, .result$conf.high, na.rm = TRUE, finite = TRUE)
     conf_range[conf_range > 5] <- 3
   }
-
   .result <- .result %>%
     dplyr::group_by_all() %>%
     dplyr::group_split() %>%
@@ -127,13 +139,16 @@ plot_coxph <- function(data,
     dplyr::mutate_if(is.numeric, ~ round(.x, 3)) %>%
     dplyr::mutate(HR = glue::glue("{estimate}({conf.low}-{conf.high})"))
 
+
   forest_label <- glue::glue("← {label_left} | {label_right} →")
 
   if (!is.null(split)) {
     .result <- .result %>%
       dplyr::select(
         Variable = variable,
+        Comparison = group,
         Reference = reference,
+        `N Events`,
         `Hazard Ratio` = HR,
         `p  Value` = p.value,
         !!rlang::sym(forest_label) := Visualization,
@@ -145,7 +160,9 @@ plot_coxph <- function(data,
     .result <- .result %>%
       dplyr::select(
         Variable = variable,
+        Comparison = group,
         Reference = reference,
+        `N Events`,
         `Hazard Ratio` = HR,
         `p  Value` = p.value,
         !!rlang::sym(forest_label) := Visualization,
@@ -154,7 +171,6 @@ plot_coxph <- function(data,
   }
 
   if (engine == "kable") {
-    if (show_only_treatment) .result <- dplyr::filter(.result, Variable == treatment)
     .result %>%
       knitr::kable("html", escape = F, caption = glue::glue("Cox's Proportional Hazard Model {title}")) %>%
       kableExtra::column_spec(1, bold = T) %>%
