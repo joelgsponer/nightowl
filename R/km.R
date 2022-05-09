@@ -146,7 +146,7 @@ plot_km <- function(data,
     align-items:center;
     ",
     shiny::div(
-      lowRider::useLowRider(lowrider_theme),
+      lowRider::useLowRiderNoFontAwewsome(lowrider_theme),
       class = "lowrider-card",
       style = glue::glue("width:{width};"),
       shiny::div(
