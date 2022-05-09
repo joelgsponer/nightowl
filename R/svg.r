@@ -53,7 +53,7 @@ peek <- function(g, ...) {
 #' @export
 add_download_button <- function(x) {
   shiny::div(
-    AceOfSpades::useAceOfSpades(),
+    AceOfSpades::useAceOfSpadesJS(),
     shiny::HTML("
       <div
        onclick='AOS_download_svg(this)'
