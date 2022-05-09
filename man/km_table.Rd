@@ -4,7 +4,7 @@
 \alias{km_table}
 \title{MISSING_TITLE}
 \usage{
-km_table(fit, what = "n.risk", n_breaks = 10)
+km_table(fit, what = "n.risk", break_width = 10)
 }
 \value{
 

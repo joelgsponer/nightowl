@@ -60,7 +60,8 @@ test_that("survival functions work", {
   nightowl::plot_km(testdata,
     time = "time",
     event = "event",
-    treatment = "treatment"
+    treatment = "treatment",
+    break_width = 20
   )
 
 

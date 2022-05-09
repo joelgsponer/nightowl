@@ -59,7 +59,8 @@ plot_km <- function(data,
                     legend_position = "top",
                     width = "66%",
                     colors = unname(unlist(picasso::roche_colors())),
-                    lowrider_theme = "bulma") {
+                    lowrider_theme = "bulma",
+                    break_width = 10) {
   .formula <- nightowl::create_Surv_formula(data = data, time = time, event = event, treatment = treatment, covariates = covariates)
   fit <- nightowl::fit_km(data, time, event, treatment, covariates)
   fit <- nightowl::km_add_0(fit)
@@ -95,6 +96,8 @@ plot_km <- function(data,
     ) +
     ggplot2::theme(legend.position = legend_position)
 
+  .p$guides$colour$title <- ""
+
   if (add_median) {
     .median <- base::summary(survival::survfit(.formula, data))$table %>%
       as.data.frame()
@@ -110,7 +113,7 @@ plot_km <- function(data,
         size = 4,
         color = "white"
       ) +
-      ggplot2::geom_text(
+      ggrepel::geom_text_repel(
         data = .median,
         mapping = ggplot2::aes(x = median, y = 0.8, label = round(median, 2), nrisk = NULL),
         size = 4,
@@ -160,7 +163,7 @@ plot_km <- function(data,
           shiny::div()
         },
         if (add_table) {
-          nightowl::km_table(fit)
+          nightowl::km_table(fit, break_width = break_width)
         } else {
           shiny::div()
         },
@@ -273,9 +276,9 @@ km_summary <- function(.formula, data) {
 #' @param
 #' @return
 #' @export
-km_table <- function(fit, what = "n.risk", n_breaks = 10) {
+km_table <- function(fit, what = "n.risk", break_width = 10) {
   fit <- nightowl::km_add_0(fit)
-  breakpoints <- seq(0, max(fit$time), n_breaks)
+  breakpoints <- seq(0, max(fit$time), break_width)
   risk.table <- waRRior::named_group_split(fit, strata) %>%
     purrr::imap(function(.x, .group) {
       N <- max(.x$n.risk, na.rm = T)

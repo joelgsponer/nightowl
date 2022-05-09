@@ -22,7 +22,8 @@ plot_km(
   legend_position = "top",
   width = "66\%",
   colors = unname(unlist(picasso::roche_colors())),
-  lowrider_theme = "bulma"
+  lowrider_theme = "bulma",
+  break_width = 10
 )
 }
 \value{
