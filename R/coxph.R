@@ -55,7 +55,6 @@ fit_coxph <- function(data, time, event, treatment, covariates, strata, ...) {
   attributes(res)$time <- time
   attributes(res)$event <- event
   attributes(res)$covariates <- covariates
-  attributes(res)$reference <- .reference
   attributes(res)$strata <- strata
   # Return results -------------------------------------------------------------
   cli::cli_progress_step("🦉 Returning results")
@@ -75,11 +74,15 @@ plot_coxph <- function(data,
                        event,
                        treatment,
                        covariates = NULL,
+                       show_only_treatment = FALSE,
                        strata = NULL,
                        engine = "kable",
                        kable_style = kableExtra::kable_paper,
                        split = NULL,
-                       title = NULL,
+                       conf_range = NULL,
+                       label_left = "Comparison better",
+                       label_right = "Reference better",
+                       title = "",
                        ...) {
   if (is.null(split)) {
     .result <- nightowl::fit_coxph(data, time, event, treatment, covariates, strata)
@@ -91,11 +94,12 @@ plot_coxph <- function(data,
       dplyr::bind_rows() %>%
       dplyr::ungroup()
   }
-
+  .attributes <- attributes(.result)
   .result <- dplyr::filter(.result, !is.na(estimate))
-  conf_range <- range.default(.result$conf.low, .result$conf.high, na.rm = TRUE, finite = TRUE)
-  conf_range[conf_range > 5] <- 3
-
+  if (is.null(conf_range)) {
+    conf_range <- range.default(.result$conf.low, .result$conf.high, na.rm = TRUE, finite = TRUE)
+    conf_range[conf_range > 5] <- 3
+  }
 
   .result <- .result %>%
     dplyr::group_by_all() %>%
@@ -123,28 +127,52 @@ plot_coxph <- function(data,
     dplyr::mutate_if(is.numeric, ~ round(.x, 3)) %>%
     dplyr::mutate(HR = glue::glue("{estimate}({conf.low}-{conf.high})"))
 
+  forest_label <- glue::glue("← {label_left} | {label_right} →")
+
   if (!is.null(split)) {
     .result <- .result %>%
-      dplyr::select(Variable = variable, Reference = reference, `Hazard Ratio` = HR, `p  Value` = p.value, `← Comparison better | Reference better →` = Visualization, split) %>%
+      dplyr::select(
+        Variable = variable,
+        Reference = reference,
+        `Hazard Ratio` = HR,
+        `p  Value` = p.value,
+        !!rlang::sym(forest_label) := Visualization,
+        split
+      ) %>%
       dplyr::select_at(c(split, waRRior::pop(names(.), split)))
     collapse_this <- 1
   } else {
     .result <- .result %>%
-      dplyr::select(Variable = variable, Reference = reference, `Hazard Ratio` = HR, `p  Value` = p.value, `← Comparison better | Reference better →` = Visualization)
+      dplyr::select(
+        Variable = variable,
+        Reference = reference,
+        `Hazard Ratio` = HR,
+        `p  Value` = p.value,
+        !!rlang::sym(forest_label) := Visualization,
+      )
     collapse_this <- 1
   }
 
   if (engine == "kable") {
+    if (show_only_treatment) .result <- dplyr::filter(.result, Variable == treatment)
     .result %>%
       knitr::kable("html", escape = F, caption = glue::glue("Cox's Proportional Hazard Model {title}")) %>%
       kableExtra::column_spec(1, bold = T) %>%
       kableExtra::collapse_rows(columns = collapse_this, valign = "top") %>%
-      kableExtra::footnote(paste("Stratified by: ", paste(attributes(.result)$strata, collapse = "; "))) %>%
+      kableExtra::footnote(
+        paste(
+          paste("Covariates: ", paste(.attributes$covariates, collapse = "; ")),
+          paste("Stratified by: ", paste(.attributes$strata, collapse = "; ")),
+          sep = "\n"
+        )
+      ) %>%
       kable_style(full_width = F)
   } else if (engine == "reactable") {
-    .result %>%
+    col_def <- list()
+    col_def[[forest_label]] <- reactable::colDef(html = TRUE, minWidt = 200)
+    tbl <- .result %>%
       reactable::reactable(
-        columns = list(`← Comparison better | Reference better →` = reactable::colDef(html = TRUE, minWidt = 200)),
+        columns = col_def,
         filterable = T,
         style = list(fontFamily = "Work Sans, sans-serif", fontSize = "14px", padding = "10px"),
         searchable = TRUE,
@@ -153,6 +181,13 @@ plot_coxph <- function(data,
         showPageSizeOptions = TRUE,
         pageSizeOptions = c(10, 25, 50, 100)
       )
+    shiny::div(
+      shiny::h3(glue::glue("Cox's Proportional Hazard Model {title}")),
+      tbl,
+      paste("Covariates: ", paste(.attributes$covariates, collapse = "; ")),
+      paste("Stratified by: ", paste(.attributes$strata, collapse = "; ")),
+    ) %>%
+      htmltools::browsable()
   }
 }
 # =================================================

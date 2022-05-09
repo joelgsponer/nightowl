@@ -10,11 +10,15 @@ plot_coxph(
   event,
   treatment,
   covariates = NULL,
+  show_only_treatment = FALSE,
   strata = NULL,
   engine = "kable",
   kable_style = kableExtra::kable_paper,
   split = NULL,
-  title = NULL,
+  conf_range = NULL,
+  label_left = "Comparison better",
+  label_right = "Reference better",
+  title = "",
   ...
 )
 }

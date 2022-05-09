@@ -38,6 +38,15 @@ test_that("coxph works", {
     time = "time",
     event = "event",
     treatment = "treatment",
+    covariates = c("n1", "c1", "c2", "c3"),
+    strata = c("s1", "s2"),
+    show_only_treatment = TRUE
+  )
+
+  nightowl::plot_coxph(testdata,
+    time = "time",
+    event = "event",
+    treatment = "treatment",
     covariates = c("c2", "c3"),
     strata = c("s1", "s2"),
     split = "c1",
@@ -52,5 +61,15 @@ test_that("coxph works", {
     covariates = c("c1", "c2", "c3"),
     strata = c("s1", "s2"),
     engine = "reactable"
+  )
+
+  nightowl::plot_coxph(testdata,
+    time = "time",
+    event = "event",
+    treatment = "treatment",
+    covariates = c("c1", "c2", "c3"),
+    strata = c("s1", "s2"),
+    engine = "reactable",
+    conf_range = c(-1, 1)
   )
 })
