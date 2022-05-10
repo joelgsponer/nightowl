@@ -143,3 +143,56 @@ plot_grouped_chisq <- function(df, split_by, x, y, test = NULL, order_by = "p.va
     htmltools::browsable()
 }
 # =================================================
+#' @title
+#' MISSING_TITLE
+#' @description
+#' @detail
+#' @param
+#' @return
+#' @export
+reactable_grouped_chisq <- function(df, split_by, x, y, test = NULL, order_by = "p.value",
+                                    pal = NULL,
+                                    width = 3,
+                                    height = 3,
+                                    ...) {
+  if (is.null(test)) {
+    test <- nightowl::grouped_chisq(df, split_by, x, y) %>%
+      nightowl::extract_results_grouped_chisq()
+  }
+  test <- test %>%
+    dplyr::arrange(.data[[order_by]])
+  split_order <- test[[split_by]]
+  test <- waRRior::named_group_split_at(test, split_by)
+  df_split <- waRRior::named_group_split_at(df, split_by)
+  df_split <- df_split[split_order]
+  cli::cli_h1("Reactable Grouped Chisq")
+
+  .l <- list(data = df_split, info = test, name = names(df_split))
+  browser()
+  purrr::pmap(.l, function(data, info, name) {
+    cli::cli_progress_step("{name}")
+    info <- info %>%
+      dplyr::select(N, statistic, `p.value`) %>%
+      dplyr::mutate_if(is.numeric, function(x) round(x, 5)) %>%
+      purrr::imap(~ glue::glue("{.y}: {.x}")) %>%
+      paste(collapse = "\n") %>%
+      paste("χ2 -- ", .)
+    p <- nightowl::plot_stacked_percentages(data, x = x, y = y, add_labels = F) +
+      ggplot2::coord_flip() +
+      ggplot2::ggtitle(stringr::str_wrap(name)) +
+      ggplot2::labs(caption = info) +
+      ggplot2::theme_bw() +
+      ggplot2::theme(
+        legend.position = "none",
+        plot.caption = ggplot2::element_text(hjust = 0, face = "italic")
+      )
+    if (!is.null(pal)) {
+      p <- p +
+        ggplot2::scale_fill_manual(values = pal)
+    }
+    nightowl::ggplot_to_girafe(p, width = width, height = height)
+  }) %>%
+    shiny::div(style = glue::glue("display:flex;flex-wrap:{flex_wrap};flex-direction:{flex_direction};")) %>%
+    htmltools::browsable()
+}
+# =================================================
