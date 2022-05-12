@@ -56,6 +56,7 @@ add_download_button <- function(x) {
     AceOfSpades::useAceOfSpadesJS(),
     shiny::HTML("
       <div
+       class = 'nightowl-svg-download-button'
        onclick='AOS_download_svg(this)'
        style = 'text-align:right; font-weight:900; font-family:sans-serif;cursor:pointer;'
       >&#10515; Save Plot</div>
