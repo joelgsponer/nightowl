@@ -194,7 +194,7 @@ plot_coxph <- function(data,
           sep = "\n"
         )
       ) %>%
-      kable_style(full_width = F)
+      kableExtra::kable_style(full_width = F)
   } else if (engine == "reactable") {
     col_def <- list()
     col_def[[forest_label]] <- reactable::colDef(html = TRUE, minWidt = 200)

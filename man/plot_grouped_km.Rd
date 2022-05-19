@@ -13,6 +13,7 @@ plot_grouped_km(
   split = NULL,
   width = "75vw",
   flex_direction = "column",
+  as_ggplot = FALSE,
   ...
 )
 }

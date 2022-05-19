@@ -72,6 +72,24 @@ test_that("survival functions work", {
     lowrider_theme = "roche"
   )
 
+  nightowl::plot_km(testdata,
+    time = "time",
+    event = "event",
+    treatment = "treatment",
+    break_width = 20,
+    lowrider_theme = "roche",
+    as_ggplot = TRUE
+  )
+
+  nightowl::plot_km(testdata,
+    time = "time",
+    event = "event",
+    treatment = "treatment",
+    break_width = 20,
+    lowrider_theme = "roche",
+    as_ggplot = TRUE
+  )
+
 
   nightowl::plot_grouped_km(testdata,
     time = "time",
@@ -80,11 +98,28 @@ test_that("survival functions work", {
     split = "c1"
   )
 
+  nightowl::plot_grouped_km(testdata,
+    time = "time",
+    event = "event",
+    treatment = "treatment",
+    split = "c1",
+    as_ggplot = T
+  )
+
   nightowl::plot_grouped_km_compact(testdata,
     time = "time",
     event = "event",
     treatment = "treatment",
     split = "split",
     width = "300px"
+  )
+
+  nightowl::plot_grouped_km_compact(testdata,
+    time = "time",
+    event = "event",
+    treatment = "treatment",
+    split = "split",
+    width = "300px",
+    as_ggplot = TRUE
   )
 })

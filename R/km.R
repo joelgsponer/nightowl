@@ -6,9 +6,9 @@
 #' @param
 #' @return
 #' @export
-plot_grouped_km <- function(data, time, event, treatment, covariates = NULL, split = NULL, width = "75vw", flex_direction = "column", ...) {
+plot_grouped_km <- function(data, time, event, treatment, covariates = NULL, split = NULL, width = "75vw", flex_direction = "column", as_ggplot = FALSE, ...) {
   .formula <- nightowl::create_Surv_formula(data = data, time = time, event = event, treatment = treatment, covariates = covariates)
-  data %>%
+  res <- data %>%
     waRRior::named_group_split_at(split) %>%
     purrr::imap(function(.data, .split) {
       cli::cli_progress_step(.split)
@@ -20,9 +20,17 @@ plot_grouped_km <- function(data, time, event, treatment, covariates = NULL, spl
         treatment = treatment,
         covariates = covariates,
         width = width,
+        as_ggplot = as_ggplot,
         ...
       )
-    }) %>%
+    })
+  if (as_ggplot) {
+    require("patchwork")
+    .p <- purrr::reduce(res, ~ .x + .y)
+    return(.p)
+  }
+
+  res %>%
     shiny::div(style = glue::glue("
                                   display:flex;
                                   flex-wrap:wrap;
@@ -56,10 +64,12 @@ plot_km <- function(data,
                     add_table = TRUE,
                     add_summary = FALSE,
                     add_median = TRUE,
+                    wrap = NULL,
                     legend_position = "top",
                     width = "66%",
                     colors = unname(unlist(picasso::roche_colors())),
                     lowrider_theme = "bulma",
+                    as_ggplot = FALSE,
                     break_width = 10) {
   .formula <- nightowl::create_Surv_formula(data = data, time = time, event = event, treatment = treatment, covariates = covariates)
   fit <- nightowl::fit_km(data, time, event, treatment, covariates)
@@ -132,6 +142,12 @@ plot_km <- function(data,
   } else {
     "v"
   }
+
+  if (as_ggplot) {
+    .p <- .p + ggplot2::ggtitle(title)
+    return(.p)
+  }
+
   .img <- plotly::ggplotly(.p) %>%
     plotly::layout(legend = list(
       orientation = legend_orientation,

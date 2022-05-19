@@ -153,3 +153,16 @@ reactable_default <- function(x,
   )
 }
 # =================================================
+#' @title
+#' MISSING_TITLE
+#' @description
+#' @detail
+#' @param
+#' @return
+#' @export
+render_kable <- function(.tbl, caption = NULL, full_width = FALSE, ...) {
+  .tbl %>%
+    knitr::kable(escape = FALSE, caption = caption) %>%
+    kableExtra::kable_styling(full_width = full_width, ...)
+}
+# s-------------------------------------------------------------------------------

@@ -19,10 +19,12 @@ plot_km(
   add_table = TRUE,
   add_summary = FALSE,
   add_median = TRUE,
+  wrap = NULL,
   legend_position = "top",
   width = "66\%",
   colors = unname(unlist(picasso::roche_colors())),
   lowrider_theme = "bulma",
+  as_ggplot = FALSE,
   break_width = 10
 )
 }
