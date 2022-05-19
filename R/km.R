@@ -6,7 +6,21 @@
 #' @param
 #' @return
 #' @export
-plot_grouped_km <- function(data, time, event, treatment, covariates = NULL, split = NULL, width = "75vw", flex_direction = "column", as_ggplot = FALSE, ...) {
+plot_grouped_km <- function(data,
+                            time,
+                            event,
+                            treatment,
+                            covariates = NULL,
+                            split = NULL,
+                            width = "75vw",
+                            flex_direction = "column",
+                            as_ggplot = FALSE,
+                            title = function() {
+                              glue::glue("{.split}", .envir = parent.frame())
+                            },
+                            subtitle = function() NULL,
+                            note = function() NULL,
+                            ...) {
   .formula <- nightowl::create_Surv_formula(data = data, time = time, event = event, treatment = treatment, covariates = covariates)
   res <- data %>%
     waRRior::named_group_split_at(split) %>%
@@ -16,7 +30,9 @@ plot_grouped_km <- function(data, time, event, treatment, covariates = NULL, spl
       nightowl::plot_km(.data,
         time,
         event = event,
-        title = glue::glue("{.split} {event}"),
+        title = title(),
+        subtitle = subtitle(),
+        note = note(),
         treatment = treatment,
         covariates = covariates,
         width = width,
@@ -36,7 +52,7 @@ plot_grouped_km <- function(data, time, event, treatment, covariates = NULL, spl
                                   flex-wrap:wrap;
                                   flex-direction:{flex_direction};
                                   align-content: stretch;
-                                  align-items: center;
+                                  align-items: flex-start;
                                   justify-content: space-evenly;
                                   ")) %>%
     htmltools::browsable()
@@ -70,6 +86,7 @@ plot_km <- function(data,
                     colors = unname(unlist(picasso::roche_colors())),
                     lowrider_theme = "bulma",
                     as_ggplot = FALSE,
+                    note = NULL,
                     break_width = 10) {
   .formula <- nightowl::create_Surv_formula(data = data, time = time, event = event, treatment = treatment, covariates = covariates)
   fit <- nightowl::fit_km(data, time, event, treatment, covariates)
@@ -123,7 +140,7 @@ plot_km <- function(data,
         size = 4,
         color = "white"
       ) +
-      ggrepel::geom_text_repel(
+      ggplot2::geom_text(
         data = .median,
         mapping = ggplot2::aes(x = median, y = 0.8, label = round(median, 2), nrisk = NULL),
         size = 4,
@@ -144,10 +161,10 @@ plot_km <- function(data,
   }
 
   if (as_ggplot) {
-    .p <- .p + ggplot2::ggtitle(title)
+    .p <- .p + ggplot2::ggtitle(title) +
+      ggplot2::labs(subtitle = subtitle)
     return(.p)
   }
-
   .img <- plotly::ggplotly(.p) %>%
     plotly::layout(legend = list(
       orientation = legend_orientation,
@@ -159,7 +176,7 @@ plot_km <- function(data,
     style = "
     display:flex;
     flex-direction:column;
-    align-items:center;
+    align-items:flex-start;
     ",
     shiny::div(
       lowRider::includeCSS(lowrider_theme),
@@ -168,10 +185,10 @@ plot_km <- function(data,
       shiny::div(
         class = "lowrider-card-header",
         shiny::h4(title),
-        shiny::h5(subtitle)
       ),
       shiny::div(
         class = "lowrider-card-body",
+        shiny::div(subtitle),
         .img,
         if (add_p) {
           nightowl::km_pvalue(.formula, data)
@@ -188,6 +205,11 @@ plot_km <- function(data,
         } else {
           shiny::div()
         },
+        if (!is.null(note)) {
+          shiny::div(style = "font-size: 0.8rem;", note)
+        } else {
+          shiny::div()
+        }
       )
     )
   ) %>%

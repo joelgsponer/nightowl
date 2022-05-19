@@ -61,7 +61,8 @@ test_that("survival functions work", {
     time = "time",
     event = "event",
     treatment = "treatment",
-    break_width = 20
+    break_width = 20,
+    note = "This is a note"
   )
 
   nightowl::plot_km(testdata,
@@ -95,7 +96,8 @@ test_that("survival functions work", {
     time = "time",
     event = "event",
     treatment = "treatment",
-    split = "c1"
+    split = "c1",
+    subtitle = function() "Hello"
   )
 
   nightowl::plot_grouped_km(testdata,
@@ -103,7 +105,8 @@ test_that("survival functions work", {
     event = "event",
     treatment = "treatment",
     split = "c1",
-    as_ggplot = T
+    as_ggplot = T,
+    subtitle = function() "Hello"
   )
 
   nightowl::plot_grouped_km_compact(testdata,

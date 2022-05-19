@@ -6,7 +6,7 @@ test_that("summary works", {
     "qux" = sample(c("Apple", "Pears", "Banana"), 200, T)
   )
 
-  nightowl::summary(testdata, "bar", "foo")
+  nightowl::summary(testdata, "bar", "foo", output = "kable")
 
   nightowl::summary(testdata, "bar", "foo", output = "kable")
   nightowl::summary(testdata, "qux", "foo", output = "kable")

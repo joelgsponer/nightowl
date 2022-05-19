@@ -7,7 +7,7 @@
 calc_summary_numeric(
   data,
   column,
-  calculations = list(N = nightowl::n, Median = median, Mean = ggplot2::mean_cl_boot),
+  calculations = list(N. = nightowl::n, Median = median, Mean = ggplot2::mean_cl_boot),
   unnest = TRUE
 )
 }

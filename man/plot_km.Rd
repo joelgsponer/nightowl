@@ -25,6 +25,7 @@ plot_km(
   colors = unname(unlist(picasso::roche_colors())),
   lowrider_theme = "bulma",
   as_ggplot = FALSE,
+  note = NULL,
   break_width = 10
 )
 }

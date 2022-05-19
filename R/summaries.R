@@ -13,6 +13,7 @@ summary <- function(data,
                     add_forest = TRUE,
                     output = "raw",
                     ...) {
+  cli::cli_h1("Calculating summary for {column}")
   if (output == "raw") add_forest <- FALSE
   .data <- data %>%
     dplyr::select_at(c(column, group_by))
@@ -54,7 +55,7 @@ summary <- function(data,
 #' @param
 #' @return
 #' @export
-calc_summary <- function(data, column, calculations = list(N = nightowl::n), unnest = TRUE, names_sep = ".") {
+calc_summary <- function(data, column, calculations = list(`N.` = nightowl::n), unnest = TRUE, names_sep = ".") {
   .calculations <- purrr::imap(calculations, ~ list(column = .y, calculation = .x))
   .group <- attributes(data)$groups
   if (!is.null(.group)) {
@@ -75,7 +76,7 @@ calc_summary <- function(data, column, calculations = list(N = nightowl::n), unn
     if (unnest) {
       if (any(class(.x[[.y$column]]) %in% c("tibble", "data.frame", "list"))) {
         cli::cli_progress_step("Unesting {.y$column}")
-        .x <- tidyr::unnest(.x, !!rlang::sym(.y$column), names_sep = names_sep)
+        .x <- tidyr::unnest(.x, !!rlang::sym(.y$column), names_sep = names_sep, names_repair = "minimal")
       }
     }
     return(.x)
@@ -97,7 +98,7 @@ calc_summary <- function(data, column, calculations = list(N = nightowl::n), unn
 #' @param
 #' @return
 #' @export
-calc_summary_numeric <- function(data, column, calculations = list(N = nightowl::n, Median = median, Mean = ggplot2::mean_cl_boot), unnest = TRUE) {
+calc_summary_numeric <- function(data, column, calculations = list(`N.` = nightowl::n, Median = median, Mean = ggplot2::mean_cl_boot), unnest = TRUE) {
   do.call(nightowl::calc_summary, as.list(environment()))
 }
 # =================================================
@@ -108,7 +109,7 @@ calc_summary_numeric <- function(data, column, calculations = list(N = nightowl:
 #' @param
 #' @return
 #' @export
-calc_summary_categorical <- function(data, column, calculations = list(N = nightowl::n, Freq = nightowl::frequencies, Bar = function(x) {
+calc_summary_categorical <- function(data, column, calculations = list(`N.` = nightowl::n, Freq = nightowl::frequencies, Bar = function(x) {
                                        nightowl::frequencies(x,
                                          output = "barplot"
                                        )
@@ -126,20 +127,21 @@ calc_summary_categorical <- function(data, column, calculations = list(N = night
 frequencies <- function(x, output = "print") {
   N <- length(x)
   raw <- tibble::tibble(x = x) %>%
+    dplyr::mutate(x = factor(x)) %>%
+    dplyr::mutate(x = forcats::fct_explicit_na(x)) %>%
     dplyr::group_by(x) %>%
     dplyr::summarise(count = dplyr::n(), percent = dplyr::n() / N * 100)
-
-  stopifnot(sum(raw$percent) == 100)
+  stopifnot(round(sum(raw$percent)) == 100)
   if (output == "raw") res <- raw
   if (output == "count") {
     res <- raw %>%
       dplyr::select_at(c("x", "count")) %>%
-      tidyr::pivot_wider(names_from = "x", values_from = "count")
+      tidyr::pivot_wider(names_from = "x", values_from = "count", names_repair = "minimal")
   }
   if (output == "percent") {
     res <- raw %>%
       dplyr::select_at(c("x", "percent")) %>%
-      tidyr::pivot_wider(names_from = "x", values_from = "percent")
+      tidyr::pivot_wider(names_from = "x", values_from = "percent", names_repair = "minimal")
   }
   if (output == "barplot") res <- nightowl::add_barplot(raw)
   if (output == "print") {
@@ -147,7 +149,7 @@ frequencies <- function(x, output = "print") {
       dplyr::mutate_if(is.numeric, ~ round(.x, 1)) %>%
       dplyr::mutate(value = glue::glue("{percent}% ({count})")) %>%
       dplyr::select_at(c("x", "value")) %>%
-      tidyr::pivot_wider(names_from = "x", values_from = "value")
+      tidyr::pivot_wider(names_from = "x", values_from = "value", names_repair = "minimal")
   }
   return(res)
 }

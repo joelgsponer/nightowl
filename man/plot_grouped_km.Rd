@@ -14,6 +14,9 @@ plot_grouped_km(
   width = "75vw",
   flex_direction = "column",
   as_ggplot = FALSE,
+  title = function() {     glue::glue("{.split}", .envir = parent.frame()) },
+  subtitle = function() NULL,
+  note = function() NULL,
   ...
 )
 }

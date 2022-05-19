@@ -11,7 +11,6 @@ test_that("coxph works", {
     s2 = sample(c("NO", "YES"), size = 100, replace = TRUE),
   )
 
-
   nightowl::fit_coxph(testdata,
     time = "time",
     event = "event",
