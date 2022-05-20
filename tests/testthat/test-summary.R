@@ -3,10 +3,16 @@ test_that("summary works", {
     "foo" = sample(LETTERS[1:5], 200, T),
     "bar" = runif(200),
     "baz" = runif(200),
-    "qux" = sample(c("Apple", "Pears", "Banana"), 200, T)
+    "qux" = sample(c("Apple", "Pears", "Banana", "This  is something very long ...."), 200, T),
+    "s1" = sample(c("Morning", "Midday", "Evening"), 200, T)
   )
 
+  nightowl::summary(testdata, "bar", "foo", output = "raw")
   nightowl::summary(testdata, "bar", "foo", output = "kable")
+
+  nightowl::reactable_summary(testdata, "s1", c("bar", "qux"), "foo")
+
+
 
   nightowl::summary(testdata, "bar", "foo", output = "kable")
   nightowl::summary(testdata, "qux", "foo", output = "kable")

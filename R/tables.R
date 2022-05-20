@@ -166,3 +166,41 @@ render_kable <- function(.tbl, caption = NULL, full_width = FALSE, ...) {
     kableExtra::kable_styling(full_width = full_width, ...)
 }
 # s-------------------------------------------------------------------------------
+# =================================================
+#' @title
+#' MISSING_TITLE
+#' @description
+#' @detail
+#' @param
+#' @return
+#' @export
+render_reactable <- function(tibble, html_columns = NULL, theme = "table") {
+  if (is.null(html_columns)) {
+    html_columns <- purrr::imap(tibble, ~ if (inherits(.x, "html")) .y) %>%
+      purrr::compact() %>%
+      unlist()
+  }
+  col_def <- list()
+  if (!is.null(html_columns)) {
+    col_def[[html_columns]] <- reactable::colDef(html = TRUE, minWidth = 300)
+  }
+
+  .tbl <- tibble %>%
+    reactable::reactable(
+      columns = col_def,
+      filterable = T,
+      defaultPageSize = 1,
+      style = list(fontFamily = "Work Sans, sans-serif", fontSize = "14px", padding = "10px"),
+      searchable = FALSE,
+      bordered = TRUE,
+      showPageSizeOptions = TRUE,
+      pageSizeOptions = c(1, 5, 10, 100)
+    )
+
+  shiny::div(
+    if (!is.null(theme)) lowRider::includeCSS(theme = theme),
+    .tbl
+  ) %>%
+    htmltools::browsable()
+}
+# =================================================

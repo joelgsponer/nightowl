@@ -9,7 +9,9 @@ summary(
   column,
   group_by = NULL,
   .mean = ggplot2::mean_cl_boot,
+  add_caption = TRUE,
   add_forest = TRUE,
+  wrap_header = TRUE,
   output = "raw",
   ...
 )
@@ -19,7 +21,9 @@ summary(
   column,
   group_by = NULL,
   .mean = ggplot2::mean_cl_boot,
+  add_caption = TRUE,
   add_forest = TRUE,
+  wrap_header = TRUE,
   output = "raw",
   ...
 )

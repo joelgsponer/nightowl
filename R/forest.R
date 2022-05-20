@@ -24,7 +24,9 @@ forestplot <- function(x, xmin, xmax, xlim = NULL, xintercept = NULL) {
     ggplot2::geom_point(cex = 8, shape = 18, color = picasso::roche_colors("blue")) +
     ggplot2::xlim(xlim) +
     ggplot2::theme_void() +
-    ggplot2::theme(legend.position = "none")
+    ggplot2::theme(
+      legend.position = "none"
+    )
   nightowl::render_svg(.p, height = 0.3, add_download_button = FALSE) %>%
     shiny::HTML()
 }

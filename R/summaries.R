@@ -6,15 +6,42 @@
 #' @param
 #' @return
 #' @export
+reactable_summary <- function(data, split, columns, group_by = NULL, ...) {
+  data %>%
+    waRRior::named_group_split_at(split) %>%
+    purrr::imap(function(.x, .y) {
+      cli::cli_h1("{.y}")
+      purrr::map(columns, function(.column) {
+        .html <- nightowl::summary(.x, .column, group_by, add_caption = FALSE, output = "html", ...)
+        tibble::tibble(
+          Split = .y,
+          Variable = .column,
+          Output = .html
+        )
+      }) %>%
+        dplyr::bind_rows()
+    }) %>%
+    dplyr::bind_rows() %>%
+    nightowl::render_reactable()
+}
+# =================================================
+#' @title
+#' MISSING_TITLE
+#' @description
+#' @detail
+#' @param
+#' @return
+#' @export
 summary <- function(data,
                     column,
                     group_by = NULL,
                     .mean = ggplot2::mean_cl_boot,
+                    add_caption = TRUE,
                     add_forest = TRUE,
+                    wrap_header = TRUE,
                     output = "raw",
                     ...) {
-  cli::cli_h1("Calculating summary for {column}")
-  if (output == "raw") add_forest <- FALSE
+  cli::cli_h2("Calculating summary for {column}")
   .data <- data %>%
     dplyr::select_at(c(column, group_by))
   if (!is.null(group_by)) {
@@ -35,16 +62,26 @@ summary <- function(data,
   } else {
     res <- nightowl::calc_summary_categorical(data = .data, column = column, ...)
   }
-
-
-
   attributes(res)$column <- column
   attributes(res)$group_by <- group_by
+  if (add_caption) {
+    .caption <- glue::glue("Summary for {column}")
+  } else {
+    .caption <- NULL
+  }
+  if (wrap_header) {
+    names(res) <- stringr::str_wrap(names(res), width = 20)
+  }
   if (output == "raw") {
+    # res$column <- column
+    # res <- dplyr::select(res, column, tidyselect::everything())
     return(res)
   }
   if (output == "kable") {
-    return(nightowl::render_kable(res, caption = glue::glue("Summary for {column}"), ...))
+    return(nightowl::render_kable(res, caption = .caption, ...))
+  }
+  if (output == "html") {
+    return(nightowl::render_kable(res, caption = .caption, ...) %>% shiny::HTML())
   }
 }
 # =================================================
@@ -98,7 +135,14 @@ calc_summary <- function(data, column, calculations = list(`N.` = nightowl::n), 
 #' @param
 #' @return
 #' @export
-calc_summary_numeric <- function(data, column, calculations = list(`N.` = nightowl::n, Median = median, Mean = ggplot2::mean_cl_boot), unnest = TRUE) {
+calc_summary_numeric <- function(data,
+                                 column,
+                                 calculations = list(
+                                   `N.` = nightowl::n,
+                                   Median = function(x) median(x, na.rm = T),
+                                   Mean = ggplot2::mean_cl_boot
+                                 ),
+                                 unnest = TRUE) {
   do.call(nightowl::calc_summary, as.list(environment()))
 }
 # =================================================
@@ -183,11 +227,9 @@ add_barplot <- function(raw) {
     ggplot2::theme_void() +
     ggplot2::coord_flip() +
     ggplot2:::scale_fill_viridis_d() +
-    ggplot2::theme(
-      plot.margin = ggplot2::margin(0, 0, 0, 0, "cm"),
-      panel.spacing = grid::unit(0, "cm"),
-      legend.position = "none"
-    )
+    ggplot2:::scale_x_discrete(expand = ggplot2::expansion(0)) +
+    ggplot2:::scale_y_continuous(expand = ggplot2::expansion(0)) +
+    picasso::theme_void()
   nightowl::render_svg(.p, height = 0.8, add_download_button = FALSE) %>%
     shiny::HTML()
 }
