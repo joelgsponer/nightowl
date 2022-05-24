@@ -6,7 +6,7 @@
 #' @param
 #' @return
 #' @export
-fit_coxph <- function(data, time, event, treatment, covariates, strata, ...) {
+fit_coxph <- function(data, time, event, treatment, covariates, strata, exponentiate = FALSE, ...) {
   cli::cli_h1("🦉 Fitting Cox Proportional Hazard Model")
   require(survival)
   # Select relevant variables --------------------------------------------------
@@ -27,7 +27,7 @@ fit_coxph <- function(data, time, event, treatment, covariates, strata, ...) {
   .model <- survival::coxph(.formula, data = .data, ...)
   # Tidy outputs ---------------------------------------------------------------
   res <- .model %>%
-    broom::tidy(exponentiate = TRUE, conf.int = TRUE) %>%
+    broom::tidy(exponentiate = exponentiate, conf.int = TRUE) %>%
     purrr::reduce(c(treatment, covariates), function(.in, .cov) {
       .in$term <- stringr::str_replace(.in$term, .cov, paste0(.cov, "splithere"))
       .in
@@ -80,6 +80,7 @@ fit_coxph <- function(data, time, event, treatment, covariates, strata, ...) {
   attributes(res)$event <- event
   attributes(res)$covariates <- covariates
   attributes(res)$strata <- strata
+  attributes(res)$exponentiate <- exponentiate
   # Return results -------------------------------------------------------------
   cli::cli_progress_step("🦉 Returning results")
   res
@@ -98,8 +99,8 @@ plot_coxph <- function(data,
                        event,
                        treatment,
                        covariates = NULL,
-                       show_only_treatment = FALSE,
                        strata = NULL,
+                       show_only_treatment = FALSE,
                        engine = "kable",
                        kable_style = kableExtra::kable_paper,
                        split = NULL,
@@ -107,49 +108,47 @@ plot_coxph <- function(data,
                        label_left = "Comparison better",
                        label_right = "Reference better",
                        title = "",
+                       labels = NULL,
+                       plan = "sequential",
                        ...) {
+  future::plan(plan)
   if (is.null(split)) {
-    .result <- nightowl::fit_coxph(data, time, event, treatment, covariates, strata)
+    .result <- nightowl::fit_coxph(data, time, event, treatment, covariates, strata, exponentiate = TRUE)
   } else {
     .result <- data %>%
       waRRior::named_group_split_at(split) %>%
-      purrr::imap(~ nightowl::fit_coxph(.x, time, event, treatment, covariates, strata) %>%
+      furrr::future_imap(~ nightowl::fit_coxph(.x, time, event, treatment, covariates, strata, exponentiate = TRUE) %>%
         dplyr::mutate(!!rlang::sym(split) := .y)) %>%
       dplyr::bind_rows() %>%
       dplyr::ungroup()
   }
   .attributes <- attributes(.result)
   .result <- dplyr::filter(.result, !is.na(estimate))
-  if (show_only_treatment) .result <- dplyr::filter(.result, variable == treatment)
+  if (show_only_treatment) .result <- dplyr::filter(.result, variable == treatment) %>% waRRior::drop_empty_columns()
   if (is.null(conf_range)) {
     conf_range <- range.default(.result$conf.low, .result$conf.high, na.rm = TRUE, finite = TRUE)
-    conf_range[conf_range > 5] <- 3
   }
   .result <- .result %>%
     dplyr::group_by_all() %>%
     dplyr::group_split() %>%
     purrr::map(function(.x) {
-      .p <- ggplot2::ggplot(.x, ggplot2::aes(
-        y = variable,
-        x = estimate,
-        xmin = conf.low,
-        xmax = conf.high
-      )) +
-        ggplot2::geom_vline(xintercept = 1, color = picasso::roche_colors("red"), linetype = "solid", size = 1) +
-        ggplot2::geom_errorbarh(position = ggplot2::position_dodge(width = 0.5)) +
-        ggplot2::geom_point(cex = 8, shape = 18, position = ggplot2::position_dodge(width = 0.5), color = picasso::roche_colors("blue")) +
-        ggplot2::xlim(conf_range) +
-        ggplot2::theme_void() +
-        ggplot2::theme(legend.position = "none")
-      .p <- nightowl::render_svg(.p, height = 0.3, add_download_button = FALSE)
+      .p <- nightowl::forestplot(
+        x = .x$estimate,
+        xmin = .x$conf.low,
+        xmax = .x$conf.high,
+        xlim = conf_range,
+        xintercept = 1
+      )
+
       .x$Visualization <- .p
       .x
     }) %>%
     dplyr::bind_rows()
 
+
   .result <- .result %>%
     dplyr::mutate_if(is.numeric, ~ round(.x, 3)) %>%
-    dplyr::mutate(HR = glue::glue("{estimate}({conf.low}-{conf.high})"))
+    dplyr::mutate(HR = glue::glue("{estimate} ({conf.low}-{conf.high})"))
 
 
   forest_label <- glue::glue("← {label_left} | {label_right} →")
@@ -162,7 +161,7 @@ plot_coxph <- function(data,
         Reference = reference,
         `N Events`,
         `Hazard Ratio` = HR,
-        `p  Value` = p.value,
+        `p Value` = p.value,
         !!rlang::sym(forest_label) := Visualization,
         split
       ) %>%
@@ -176,10 +175,40 @@ plot_coxph <- function(data,
         Reference = reference,
         `N Events`,
         `Hazard Ratio` = HR,
-        `p  Value` = p.value,
+        `p Value` = p.value,
         !!rlang::sym(forest_label) := Visualization,
       )
     collapse_this <- 1
+  }
+
+  .result$`p Value` <- purrr::map_chr(.result$`p Value`, ~ nightowl::format_p_value(.x))
+
+  .result <- .result[, purrr::map_lgl(.result, ~ !all(.x == ""))]
+
+  if (!is.null(labels)) {
+    .result$Variable <- purrr::reduce(names(labels), function(.x, .y) {
+      stringr::str_replace_all(.x, .y, labels[.y])
+    }, .init = .result$Variable)
+  }
+
+
+  if (is.null(covariates) && is.null(strata)) {
+    .footnote <- "Univariate Analysis"
+  } else {
+    comb <- c(covariates, strata)
+    if (is.null(labels)) labels <- comb %>% purrr::set_names(comb)
+    .labeled_covariates <- labels[covariates]
+    .labeled_covariates[is.na(.labeled_covariates)] <- covariates[is.na(.labeled_covariates)]
+    .labeled_strata <- labels[strata]
+    .labeled_strata[is.na(.labeled_strata)] <- strata[is.na(.labeled_strata)]
+
+    if (length(.labeled_covariates) == 0) .labeled_covariates <- "none"
+    if (length(.labeled_strata) == 0) .labeled_strata <- "none"
+    .footnote <- paste(
+      stringr::str_wrap(paste("Covariates: ", paste(.labeled_covariates, collapse = "; ")), width = 200),
+      stringr::str_wrap(paste("Stratified by: ", paste(.labeled_strata, collapse = "; ")), width = 200),
+      sep = "\n"
+    )
   }
 
   if (engine == "kable") {
@@ -187,13 +216,7 @@ plot_coxph <- function(data,
       knitr::kable("html", escape = F, caption = glue::glue("Cox's Proportional Hazard Model {title}")) %>%
       kableExtra::column_spec(1, bold = T) %>%
       kableExtra::collapse_rows(columns = collapse_this, valign = "top") %>%
-      kableExtra::footnote(
-        paste(
-          paste("Covariates: ", paste(.attributes$covariates, collapse = "; ")),
-          paste("Stratified by: ", paste(.attributes$strata, collapse = "; ")),
-          sep = "\n"
-        )
-      ) %>%
+      kableExtra::footnote(.footnote) %>%
       kableExtra::kable_styling(full_width = F)
   } else if (engine == "reactable") {
     col_def <- list()
@@ -212,8 +235,7 @@ plot_coxph <- function(data,
     shiny::div(
       shiny::h3(glue::glue("Cox's Proportional Hazard Model {title}")),
       tbl,
-      paste("Covariates: ", paste(.attributes$covariates, collapse = "; ")),
-      paste("Stratified by: ", paste(.attributes$strata, collapse = "; ")),
+      stringr::str_replace(.footnote, "\n", "<br>")
     ) %>%
       htmltools::browsable()
   }

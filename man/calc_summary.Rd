@@ -7,7 +7,8 @@
 calc_summary(
   data,
   column,
-  calculations = list(N. = nightowl::n),
+  calculations = list(N. = length),
+  parameters = list(),
   unnest = TRUE,
   names_sep = "."
 )

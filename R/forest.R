@@ -7,13 +7,8 @@
 #' @return
 #' @export
 forestplot <- function(x, xmin, xmax, xlim = NULL, xintercept = NULL) {
-  if (is.null(xlim)) {
-    xlim <- c(xmin, xmax) + c(xmin, xmax) / 100 * 10
-  }
-  .data <- tibble::as_tibble(x = x, xmin = xmin, xmax = xmax)
-  if (is.null(xlim)) {
-  }
-  .p <- ggplot2::ggplot(.data, ggplot2::aes(
+  .data <- tibble::tibble(x = x, xmin = xmin, xmax = xmax)
+  .p <- ggplot2::ggplot(NULL, ggplot2::aes(
     y = 0,
     x = x,
     xmin = xmin,
@@ -22,26 +17,54 @@ forestplot <- function(x, xmin, xmax, xlim = NULL, xintercept = NULL) {
     ggplot2::geom_vline(xintercept = xintercept, color = picasso::roche_colors("red"), linetype = "solid", size = 1) +
     ggplot2::geom_errorbarh() +
     ggplot2::geom_point(cex = 8, shape = 18, color = picasso::roche_colors("blue")) +
-    ggplot2::xlim(xlim) +
     ggplot2::theme_void() +
     ggplot2::theme(
       legend.position = "none"
     )
-  nightowl::render_svg(.p, height = 0.3, add_download_button = FALSE) %>%
+
+  if (!is.null(xlim)) {
+    .p <- .p + ggplot2::xlim(xlim[1], xlim[2])
+
+    if (xmin < xlim[1]) {
+      .p <- .p + ggplot2::geom_text(
+        mapping = ggplot2::aes(x = xlim[1], label = "<<<"),
+        color = picasso::roche_colors("black"),
+        hjust = 0.3,
+        size = 9
+      ) +
+        ggplot2::geom_point(mapping = ggplot2::aes(x = xmax), cex = 8, shape = 108, color = picasso::roche_colors("black"))
+    }
+
+    if (xmax > xlim[2]) {
+      .p <- .p + ggplot2::geom_text(
+        mapping = ggplot2::aes(x = xlim[2], label = ">>>"),
+        color = picasso::roche_colors("black"),
+        size = 9
+      ) +
+        ggplot2::geom_point(mapping = ggplot2::aes(x = xmin), cex = 8, shape = 108, color = picasso::roche_colors("black"))
+    }
+
+    if (x < xlim[1]) {
+      .p <- .p + ggplot2::geom_text(
+        mapping = ggplot2::aes(x = xlim[1], label = "<<<"),
+        color = picasso::roche_colors("blue"),
+        hjust = 0.3,
+        size = 9
+      )
+    }
+
+
+    if (x > xlim[2]) {
+      .p <- .p + ggplot2::geom_text(
+        mapping = ggplot2::aes(x = xlim[2], label = ">>>"),
+        color = picasso::roche_colors("blue"),
+        size = 9
+      )
+    }
+  }
+
+
+  nightowl::render_svg(.p, height = 0.5, add_download_button = FALSE) %>%
     shiny::HTML()
-}
-# =================================================
-#' @title
-#' MISSING_TITLE
-#' @description
-#' @detail
-#' @param
-#' @return
-#' @export
-add_forestplot <- function(data, x, xmin, xmax, xintercept = NULL) {
-  .range <- c(min(data[[xmin]]), max(data[[xmax]]))
-  data %>%
-    dplyr::rowwise() %>%
-    dplyr::mutate(Forest = nightowl::forestplot(!!rlang::sym(x), !!rlang::sym(xmin), !!rlang::sym(xmax), xlim = .range, xintercept = xintercept))
 }
 # =================================================

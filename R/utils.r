@@ -42,3 +42,28 @@ text_wraping <- function(DATA, cols = NULL, width = 30, ...) {
   }, .init = DATA)
 }
 # =================================================
+# =================================================
+#' @title
+#' MISSING_TITLE
+#' @description
+#' @detail
+#' @param
+#' @return
+#' @export
+format_p_value <- function(p) {
+  p <- round(p, digits = 4)
+  pval <- base::format.pval(p,
+    digits = 4, eps = 0.0001, nsmall = 4,
+    scientific = FALSE
+  )
+  if (p < 0.001) {
+    return(paste(pval, "(***)"))
+  } else if (p < 0.01) {
+    return(paste(pval, "(**)"))
+  } else if (p < 0.05) {
+    return(paste(p, "(*)"))
+  } else {
+    return(paste(p, "(n.s.)"))
+  }
+}
+# =================================================

@@ -8,6 +8,7 @@ test_that("survival functions work", {
     c3 = sample(c("YES"), size = 100, replace = TRUE),
     s1 = sample(c("NO", "YES"), size = 100, replace = TRUE),
     s2 = sample(c("NO", "YES"), size = 100, replace = TRUE),
+    n1 = runif(100),
     split = sample(LETTERS[1:10], size = 100, replace = TRUE)
   )
 
@@ -16,7 +17,15 @@ test_that("survival functions work", {
     event = "event",
     treatment = "treatment",
     covariates = c("c1", "c2", "c3"),
-    strata = c("s1", "s2")
+    strata = c("s1", "s2"),
+    random_effect = c("split", "Second")
+  )
+
+  nightowl::create_Surv_formula(testdata,
+    time = "time",
+    event = "event",
+    treatment = "treatment",
+    covariates = c("c1", "c2", "c3", "n1"),
   )
 
   nightowl::create_Surv_formula(testdata,

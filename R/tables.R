@@ -80,7 +80,6 @@ model_output <- function(DATA,
     droplevels()
   # Data preparation
   DATA <- nightowl::text_wraping(DATA)
-
   DATA$combination <- DATA[, c(mapping$facet_col, mapping$facet_row)] %>%
     as.matrix() %>%
     apply(1, function(x) {
@@ -91,7 +90,6 @@ model_output <- function(DATA,
       )
     })
   print(head(DATA))
-
   DATA %>%
     waRRior::named_group_split_at("combination") %>%
     purrr::imap(function(.x, .y) {
@@ -160,10 +158,16 @@ reactable_default <- function(x,
 #' @param
 #' @return
 #' @export
-render_kable <- function(.tbl, caption = NULL, full_width = FALSE, ...) {
-  .tbl %>%
-    knitr::kable(escape = FALSE, caption = caption) %>%
-    kableExtra::kable_styling(full_width = full_width, ...)
+render_kable <- function(.tbl, caption = NULL, full_width = FALSE, column_width = "20em", ...) {
+  .kable <- .tbl %>%
+    knitr::kable("html", escape = FALSE, caption = caption)
+
+  # .kable <- purrr::reduce( 1:length(names(.tbl)), function(.x, i){
+  #   .x %>%
+  #     kableExtra::column_spec(i, width = column_width)
+  # }, .init  = .kable)
+  .kable <- kableExtra::kable_styling(.kable, full_width = full_width, ...)
+  return(.kable)
 }
 # s-------------------------------------------------------------------------------
 # =================================================
@@ -174,7 +178,13 @@ render_kable <- function(.tbl, caption = NULL, full_width = FALSE, ...) {
 #' @param
 #' @return
 #' @export
-render_reactable <- function(tibble, html_columns = NULL, theme = "table") {
+render_reactable <- function(tibble,
+                             html_columns = NULL,
+                             theme = "table",
+                             defaultPageSize = 10,
+                             minWidth_html = 300,
+                             fullWidth = FALSE,
+                             ...) {
   if (is.null(html_columns)) {
     html_columns <- purrr::imap(tibble, ~ if (inherits(.x, "html")) .y) %>%
       purrr::compact() %>%
@@ -182,21 +192,38 @@ render_reactable <- function(tibble, html_columns = NULL, theme = "table") {
   }
   col_def <- list()
   if (!is.null(html_columns)) {
-    col_def[[html_columns]] <- reactable::colDef(html = TRUE, minWidth = 300)
+    col_def <- purrr::reduce(html_columns, function(.old, .new) {
+      .old[[.new]] <- reactable::colDef(minWidth = minWidth_html, html = TRUE, class = "nightowl-html-column")
+      .old
+    }, .init = col_def)
   }
-
+  non_html_columns <- purrr::imap(tibble, ~ if (!inherits(.x, "html")) .y) %>%
+    purrr::compact() %>%
+    unlist()
+  col_def <- purrr::reduce(non_html_columns, function(.old, .new) {
+    .old[[.new]] <- reactable::colDef(minWidth = 100, maxWidth = 100)
+    .old
+  }, .init = col_def)
   .tbl <- tibble %>%
     reactable::reactable(
+      defaultColDef = reactable::colDef(
+        header = function(value) gsub(".", " ", value, fixed = TRUE),
+        cell = function(value) format(value, nsmall = 1),
+        align = "center",
+        minWidth = 100,
+        headerStyle = list(background = "#f7f7f8"),
+        html = TRUE
+      ),
       columns = col_def,
       filterable = T,
-      defaultPageSize = 1,
+      defaultPageSize = defaultPageSize,
       style = list(fontFamily = "Work Sans, sans-serif", fontSize = "14px", padding = "10px"),
       searchable = FALSE,
-      bordered = TRUE,
+      bordered = FALSE,
       showPageSizeOptions = TRUE,
-      pageSizeOptions = c(1, 5, 10, 100)
+      pageSizeOptions = c(1, 5, 10, 100),
+      fullWidth = fullWidth
     )
-
   shiny::div(
     if (!is.null(theme)) lowRider::includeCSS(theme = theme),
     .tbl
@@ -204,3 +231,17 @@ render_reactable <- function(tibble, html_columns = NULL, theme = "table") {
     htmltools::browsable()
 }
 # =================================================
+#' @title
+#' Style a cell for kable tables
+#' @description
+#' Function arguments are translated into CSS adn applied to the cell content
+#' @param
+#' @return
+#' @export
+style_cell <- function(x, ...) {
+  style <- list(...) %>%
+    purrr::imap(~ glue::glue("{stringr::str_replace(.y, '_', '-')}:{.x};")) %>%
+    paste(collapse = "")
+  purrr::map(x, ~ shiny::HTML(as.character(glue::glue("<div style='{style}'>{.x}</div>"))))
+}
+#*************************************************

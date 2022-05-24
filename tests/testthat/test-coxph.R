@@ -16,21 +16,21 @@ test_that("coxph works", {
     event = "event",
     treatment = "treatment",
     covariates = c("n1", "c1", "c2", "c3"),
-    strata = c("s1", "s2")
-  )
-
-  nightowl::plot_coxph(testdata,
-    time = "time",
-    event = "event",
-    treatment = "treatment"
+    strata = c("s1", "s2"),
+    exponentiate = FALSE
   )
 
   nightowl::plot_coxph(testdata,
     time = "time",
     event = "event",
     treatment = "treatment",
-    covariates = c("n1", "c1", "c2", "c3"),
-    strata = c("s1", "s2")
+    exponentiate = FALSE
+  )
+
+  nightowl::plot_coxph(testdata,
+    time = "time",
+    event = "event",
+    treatment = "n1"
   )
 
   nightowl::plot_coxph(testdata,
@@ -39,7 +39,18 @@ test_that("coxph works", {
     treatment = "treatment",
     covariates = c("n1", "c1", "c2", "c3"),
     strata = c("s1", "s2"),
-    show_only_treatment = TRUE
+    labels = c(n1 = "hello")
+  )
+
+  nightowl::plot_coxph(testdata,
+    time = "time",
+    event = "event",
+    treatment = "treatment",
+    covariates = c("n1", "c1", "c2", "c3"),
+    strata = c("s1", "s2"),
+    show_only_treatment = TRUE,
+    plan = "multicore",
+    conf_range = c(-0.1, 0.1)
   )
 
   nightowl::plot_coxph(testdata,
@@ -71,4 +82,17 @@ test_that("coxph works", {
     engine = "reactable",
     conf_range = c(-1, 1)
   )
+
+  nightowl::forestplot(1.5, 0, 2.1, xlim = c(1.1, 2)) %>%
+    htmltools::browsable()
+
+  nightowl::forestplot(1, 0, 2.1, xlim = c(1.1, 2)) %>%
+    htmltools::browsable()
+
+  nightowl::forestplot(1.4, 1.1, 2.1, xlim = c(1.1, 2)) %>%
+    htmltools::browsable()
+
+
+  nightowl::forestplot(1.4, 1.1, 2.1, xlim = c(1.1, 2), log = T) %>%
+    htmltools::browsable()
 })

@@ -10,7 +10,8 @@ create_Surv_formula(
   event,
   treatment,
   covariates = NULL,
-  strata = NULL
+  strata = NULL,
+  random_effects = NULL
 )
 }
 \value{

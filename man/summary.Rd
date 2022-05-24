@@ -9,10 +9,13 @@ summary(
   column,
   group_by = NULL,
   .mean = ggplot2::mean_cl_boot,
+  calc_p = TRUE,
+  show_p = TRUE,
   add_caption = TRUE,
-  add_forest = TRUE,
   wrap_header = TRUE,
   output = "raw",
+  labels = NULL,
+  .range = NULL,
   ...
 )
 
@@ -21,10 +24,13 @@ summary(
   column,
   group_by = NULL,
   .mean = ggplot2::mean_cl_boot,
+  calc_p = TRUE,
+  show_p = TRUE,
   add_caption = TRUE,
-  add_forest = TRUE,
   wrap_header = TRUE,
   output = "raw",
+  labels = NULL,
+  .range = NULL,
   ...
 )
 }

@@ -4,7 +4,13 @@
 \alias{render_kable}
 \title{MISSING_TITLE}
 \usage{
-render_kable(.tbl, caption = NULL, full_width = FALSE, ...)
+render_kable(
+  .tbl,
+  caption = NULL,
+  full_width = FALSE,
+  column_width = "20em",
+  ...
+)
 }
 \value{
 

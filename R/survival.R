@@ -6,7 +6,7 @@
 #' @param
 #' @return
 #' @export
-create_Surv_formula <- function(data, time, event, treatment, covariates = NULL, strata = NULL) {
+create_Surv_formula <- function(data, time, event, treatment, covariates = NULL, strata = NULL, random_effects = NULL) {
   stopifnot(length(treatment) == 1)
   # Remove time and event if present in covariates or strata -------------------
   # Covariates and strata need to have at least two levels ---------------------
@@ -34,6 +34,18 @@ create_Surv_formula <- function(data, time, event, treatment, covariates = NULL,
     }) %>%
       purrr::compact()
   }
+  # if (!is.null(random_effects)) {
+  #   random_effects <- waRRior::pop(effects, c(time, event))
+  #   random_effects <- purrr::map(random_effects, function(.random_effect) {
+  #     if (waRRior::length_unique(data[[.random_effect]]) > 1) {
+  #       return(.random_effect)
+  #     } else {
+  #       cli::cli_alert("🦉⛔ Random Effect `{.random_effect}` has only one level. Skipping.")
+  #       return(NULL)
+  #     }
+  #   }) %>%
+  #     purrr::compact()
+  # }
   # Put everything together ---------------------------------------------------
   str_covariates <- if (!is.null(covariates)) {
     paste0(" + ", covariates, collapse = " ")
@@ -45,7 +57,12 @@ create_Surv_formula <- function(data, time, event, treatment, covariates = NULL,
   } else {
     NULL
   }
-  base <- glue::glue("survival::Surv({time}, {event}) ~ {paste(treatment, str_covariates, str_strata, collapse = '', sep = '')}")
+  str_random_effects <- if (!is.null(random_effects)) {
+    paste0(" + (1|", random_effects, ")", collapse = "", sep = "")
+  } else {
+    NULL
+  }
+  base <- glue::glue("survival::Surv({time}, {event}) ~ {paste(treatment, str_covariates, str_strata, str_random_effects, collapse = '', sep = '')}")
   cli::cli_alert("🦉 Formula: `{base}`")
   as.formula(base)
 }

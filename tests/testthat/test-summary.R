@@ -1,20 +1,53 @@
 test_that("summary works", {
   testdata <- tibble::tibble(
-    "foo" = sample(LETTERS[1:5], 200, T),
-    "bar" = runif(200),
+    "foo" = c(rep("A", 50), rep("B", 50), rep("C", 50), rep("D", 50)),
+    "bar" = c(rnorm(50, 0, 1), rnorm(50, 1, 2), rnorm(50, 2, 3), rnorm(50, 3, 4)),
     "baz" = runif(200),
     "qux" = sample(c("Apple", "Pears", "Banana", "This  is something very long ...."), 200, T),
     "s1" = sample(c("Morning", "Midday", "Evening"), 200, T)
+  ) %>%
+    dplyr::mutate(qux = dplyr::case_when(
+      foo == "A" & qux == "Apple" ~ "Pears",
+      foo == "B" & qux == "Banana" ~ NA_character_,
+      TRUE ~ qux
+    )) %>%
+    dplyr::mutate(bar = dplyr::case_when(
+      foo == "A" & bar < 0 ~ NA_real_,
+      TRUE ~ bar
+    ))
+  testdata
+
+  nightowl::summary(testdata, "bar", "foo", output = "count", labels = c(bar = "Bar", foo = "Foo"))
+  nightowl::summary(testdata, "bar", "foo", output = "kable")
+  nightowl::summary(testdata, "qux", "foo", output = "kable")
+  nightowl::summary(testdata, "qux", "foo", output = "raw")
+
+  nightowl::summary(testdata, "qux", c("foo", "s1"), output = "kable")
+  nightowl::render_reactable()
+
+  nightowl::summary(testdata, "bar", c("foo", "s1"), output = "raw", calc_p = F) %>%
+    nightowl::render_reactable() %>%
+    as.character()
+
+  nightowl::reactable_summary(testdata,
+    "s1",
+    c("bar", "qux"),
+    "foo",
+    labels = c(bar = "Bar", foo = "Foo", qux = "This variable"),
+    plan = "sequential"
   )
 
-  nightowl::summary(testdata, "bar", "foo", output = "raw")
+  nightowl::mean(runif(10))
+
+  nightowl::reactable_summary(testdata,
+    split = NULL,
+    c("bar", "qux"),
+    "foo",
+    labels = c(bar = "Bar", foo = "Foo", qux = "This variable")
+  )
+
   nightowl::summary(testdata, "bar", "foo", output = "kable")
-
-  nightowl::reactable_summary(testdata, "s1", c("bar", "qux"), "foo")
-
-
-
-  nightowl::summary(testdata, "bar", "foo", output = "kable")
+  nightowl::summary(testdata, "baz", "foo", output = "kable")
   nightowl::summary(testdata, "qux", "foo", output = "kable")
 
   nightowl::forestplot(1, 0, 2)
@@ -24,7 +57,28 @@ test_that("summary works", {
     attributes()
 
   nightowl::calc_summary_numeric(testdata, "bar")
-  nightowl::calc_summary_numeric(dplyr::group_by(testdata, foo), "bar")
+  nightowl::calc_summary_numeric(testdata, "bar") %>% nightowl::render_kable()
+  nightowl::calc_summary_numeric(dplyr::group_by(testdata, foo), "bar") %>% nightowl::render_kable()
+  nightowl::calc_summary_numeric(dplyr::group_by(testdata, foo), "bar") %>% nightowl::render_reactable()
+
+  nightowl::calc_summary_numeric(
+    data = dplyr::group_by(testdata, foo),
+    column = "bar",
+    calculations = list(
+      `N.` = length,
+      Median = function(x) median(x, na.rm = T),
+      Mean = nightowl::formated_mean,
+      Violin = nightowl::add_violin
+    ),
+    parameters = rlang::expr(list(
+      Violin = list(
+        theme = picasso::theme_void,
+        height = 1.5,
+        ylim = range(data[[column]], na.rm = T)
+      )
+    ))
+  ) %>% nightowl::render_kable()
+
 
   nightowl::calc_summary_numeric(dplyr::group_by(mtcars, cyl), "mpg")
 
@@ -66,5 +120,20 @@ test_that("summary works", {
   ) %>%
     nightowl::render_kable()
 
+  nightowl::frequencies(sample(letters, 100, T))
+
+
+  nightowl::calc_summary(testdata, "qux")
+  nightowl::calc_summary(testdata %>% dplyr::group_by(s1), "qux")
   nightowl::calc_summary_categorical(testdata, "qux")
+  nightowl::calc_summary_categorical(testdata, "qux") %>% nightowl::render_kable()
+  nightowl::calc_summary_categorical(dplyr::group_by(testdata, foo), "qux") %>% nightowl::render_reactable()
+
+  nightowl::calc_summary(testdata,
+    "bar",
+    calculations = list(Test = function(x, param) {
+      param
+    }),
+    parameters = list(Test = list(param = "test"))
+  )
 })

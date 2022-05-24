@@ -4,7 +4,7 @@
 \alias{frequencies}
 \title{MISSING_TITLE}
 \usage{
-frequencies(x, output = "print")
+frequencies(x, output = "print", digits = 1, str_width = 20)
 }
 \value{
 

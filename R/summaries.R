@@ -6,23 +6,42 @@
 #' @param
 #' @return
 #' @export
-reactable_summary <- function(data, split, columns, group_by = NULL, ...) {
+reactable_summary <- function(data, split = NULL, columns, group_by = NULL, plan = "sequential", ...) {
+  future::plan(plan)
+  if (is.null(split)) {
+    data <- dplyr::mutate(data, split = "All")
+    split <- "split"
+  }
+  .ranges <- purrr::map(columns, ~ if (is.numeric(data[[.x]])) range(data[.x], na.rm = T) else NULL) %>%
+    purrr::set_names(columns)
   data %>%
     waRRior::named_group_split_at(split) %>%
-    purrr::imap(function(.x, .y) {
+    furrr::future_imap(function(.x, .y) {
       cli::cli_h1("{.y}")
       purrr::map(columns, function(.column) {
-        .html <- nightowl::summary(.x, .column, group_by, add_caption = FALSE, output = "html", ...)
+        res <- nightowl::summary(.x,
+          .column,
+          group_by,
+          add_caption = FALSE,
+          output = "html",
+          show_p = FALSE,
+          .range = .ranges[[.column]],
+          ...
+        )
         tibble::tibble(
           Split = .y,
-          Variable = .column,
-          Output = .html
+          Variable = attributes(res)$column,
+          Method = attributes(res)$method,
+          p = nightowl::format_p_value(attributes(res)$p.value),
+          Output = shiny::HTML(res)
         )
       }) %>%
         dplyr::bind_rows()
-    }) %>%
+    },
+    .options = furrr::furrr_options(seed = TRUE)
+    ) %>%
     dplyr::bind_rows() %>%
-    nightowl::render_reactable()
+    nightowl::render_reactable(defaultPageSize = length(columns), minWidth_html = 500, full_width = T)
 }
 # =================================================
 #' @title
@@ -36,34 +55,55 @@ summary <- function(data,
                     column,
                     group_by = NULL,
                     .mean = ggplot2::mean_cl_boot,
+                    calc_p = TRUE,
+                    show_p = TRUE,
                     add_caption = TRUE,
-                    add_forest = TRUE,
                     wrap_header = TRUE,
                     output = "raw",
+                    labels = NULL,
+                    .range = NULL,
                     ...) {
   cli::cli_h2("Calculating summary for {column}")
   .data <- data %>%
-    dplyr::select_at(c(column, group_by))
+    dplyr::select_at(c(column, group_by)) %>%
+    dplyr::mutate_if(is.character, factor) %>%
+    dplyr::mutate_if(is.factor, forcats::fct_explicit_na)
+
+  if (!is.null(labels)) {
+    names(.data) <- nightowl::get_labels(names(.data), labels)
+    column <- nightowl::get_labels(column, labels)
+    group_by <- nightowl::get_labels(group_by, labels)
+  }
+
   if (!is.null(group_by)) {
     .data <- dplyr::group_by_at(.data, group_by)
   }
 
   if (is.numeric(.data[[column]])) {
-    raw <- nightowl::calc_summary_numeric(data = .data, column = column, ...)
-    if (add_forest) raw <- nightowl::add_forestplot(raw, "Mean.y", "Mean.ymin", "Mean.ymax", xintercept = mean(raw$Mean.y))
-    res <- raw %>%
-      dplyr::mutate_if(is.numeric, ~ round(.x, 1)) %>%
-      dplyr::mutate(Mean = glue::glue("{Mean.y}({Mean.ymin}-{Mean.ymax})")) %>%
-      dplyr::select(-Mean.y, -Mean.ymin, -Mean.ymax)
-    if (add_forest) {
-      res <- res %>%
-        dplyr::select_at(c(waRRior::pop(names(res), "Forest"), "Forest"))
+    res <- nightowl::calc_summary_numeric(data = .data, column = column, ...)
+    if (calc_p) {
+      test <- .data %>%
+        dplyr::group_split() %>%
+        purrr::imap(~ .x[[column]]) %>%
+        kruskal.test()
+      test_method <- "Kruskal-Wallis"
+      test_p_value <- test$p.value
     }
   } else {
     res <- nightowl::calc_summary_categorical(data = .data, column = column, ...)
+    if (calc_p) {
+      test <- .data %>%
+        dplyr::select_at(c(column, group_by)) %>%
+        dplyr::ungroup() %>%
+        dplyr::mutate(group = paste(!!!rlang::syms(group_by))) %>%
+        waRRior::drop_columns(group_by) %>%
+        base::table() %>%
+        chisq.test(correct = F)
+      test_method <- "Chi-squared test"
+      test_p_value <- test$p.value
+    }
   }
-  attributes(res)$column <- column
-  attributes(res)$group_by <- group_by
+
   if (add_caption) {
     .caption <- glue::glue("Summary for {column}")
   } else {
@@ -73,16 +113,25 @@ summary <- function(data,
     names(res) <- stringr::str_wrap(names(res), width = 20)
   }
   if (output == "raw") {
-    # res$column <- column
-    # res <- dplyr::select(res, column, tidyselect::everything())
-    return(res)
-  }
-  if (output == "kable") {
-    return(nightowl::render_kable(res, caption = .caption, ...))
+    res$column <- column
+    res <- dplyr::select(res, column, tidyselect::everything())
+  } else {
+    res <- nightowl::render_kable(res, caption = .caption, ...)
+    if (show_p) {
+      res <- res %>%
+        kableExtra::add_footnote(glue::glue("{test_method}: {nightowl::format_p_value(test_p_value)}"))
+    }
   }
   if (output == "html") {
-    return(nightowl::render_kable(res, caption = .caption, ...) %>% shiny::HTML())
+    res <- res %>% shiny::HTML()
   }
+  attributes(res)$column <- column
+  attributes(res)$group_by <- group_by
+  if (calc_p) {
+    attributes(res)$method <- test_method
+    attributes(res)$p.value <- test_p_value
+  }
+  return(res)
 }
 # =================================================
 #' @title
@@ -92,8 +141,13 @@ summary <- function(data,
 #' @param
 #' @return
 #' @export
-calc_summary <- function(data, column, calculations = list(`N.` = nightowl::n), unnest = TRUE, names_sep = ".") {
-  .calculations <- purrr::imap(calculations, ~ list(column = .y, calculation = .x))
+calc_summary <- function(data,
+                         column,
+                         calculations = list(`N.` = length),
+                         parameters = list(),
+                         unnest = TRUE,
+                         names_sep = ".") {
+  .calculations <- purrr::imap(calculations, ~ list(column = .y, calculation = .x, params = parameters[[.y]]))
   .group <- attributes(data)$groups
   if (!is.null(.group)) {
     .group <- names(.group)[names(.group) %in% names(data)]
@@ -105,7 +159,7 @@ calc_summary <- function(data, column, calculations = list(`N.` = nightowl::n), 
       dplyr::group_split() %>%
       purrr::map(
         function(.thisgroup) {
-          dplyr::mutate(dplyr::ungroup(.thisgroup), !!rlang::sym(.y$column) := .y$calculation(!!rlang::sym(column)))
+          dplyr::mutate(.thisgroup, !!rlang::sym(.y$column) := do.call(.y$calculation, c(list(x = .thisgroup[[column]]), .y$params)))
         }
       )
     .x <- dplyr::bind_rows(.x) %>%
@@ -125,6 +179,7 @@ calc_summary <- function(data, column, calculations = list(`N.` = nightowl::n), 
     dplyr::select_at(c(.group, .new_columns)) %>%
     dplyr::distinct()
 
+
   return(res)
 }
 # =================================================
@@ -138,11 +193,27 @@ calc_summary <- function(data, column, calculations = list(`N.` = nightowl::n), 
 calc_summary_numeric <- function(data,
                                  column,
                                  calculations = list(
-                                   `N.` = nightowl::n,
+                                   `N.` = length,
+                                   `Missing` = function(x) {
+                                     return(sum(is.na(x)))
+                                   },
                                    Median = function(x) median(x, na.rm = T),
-                                   Mean = ggplot2::mean_cl_boot
+                                   Mean = nightowl::formated_mean,
+                                   Forestplot = nightowl::add_forestplot
+                                 ),
+                                 parameters = list(
+                                   Forestplot = list(
+                                     xintercept = mean(data[[column]], na.rm = T),
+                                     xlim = c(
+                                       mean(data[[column]], na.rm = T) - IQR(data[[column]], na.rm = T),
+                                       mean(data[[column]], na.rm = T) + IQR(data[[column]], na.rm = T)
+                                     )
+                                   )
                                  ),
                                  unnest = TRUE) {
+  if (rlang::is_expression(parameters)) {
+    parameters <- eval(parameters)
+  }
   do.call(nightowl::calc_summary, as.list(environment()))
 }
 # =================================================
@@ -153,11 +224,14 @@ calc_summary_numeric <- function(data,
 #' @param
 #' @return
 #' @export
-calc_summary_categorical <- function(data, column, calculations = list(`N.` = nightowl::n, Freq = nightowl::frequencies, Bar = function(x) {
-                                       nightowl::frequencies(x,
-                                         output = "barplot"
-                                       )
-                                     }), unnest = TRUE, names_sep = NULL) {
+calc_summary_categorical <- function(data,
+                                     column,
+                                     calculations = list(
+                                       `N.` = length,
+                                       Freq = nightowl::frequencies,
+                                       Barplot = nightowl::add_barplot
+                                     ),
+                                     unnest = TRUE, names_sep = NULL) {
   do.call(nightowl::calc_summary, as.list(environment()))
 }
 # =================================================
@@ -168,36 +242,43 @@ calc_summary_categorical <- function(data, column, calculations = list(`N.` = ni
 #' @param
 #' @return
 #' @export
-frequencies <- function(x, output = "print") {
+frequencies <- function(x, output = "print", digits = 1, str_width = 20) {
+  counts <- base::table(x)
+  if (output == "counts") {
+    counts %>%
+      as.list() %>%
+      tibble::as_tibble() %>%
+      return()
+  }
   N <- length(x)
-  raw <- tibble::tibble(x = x) %>%
-    dplyr::mutate(x = factor(x)) %>%
-    dplyr::mutate(x = forcats::fct_explicit_na(x)) %>%
-    dplyr::group_by(x) %>%
-    dplyr::summarise(count = dplyr::n(), percent = dplyr::n() / N * 100)
-  stopifnot(round(sum(raw$percent)) == 100)
-  if (output == "raw") res <- raw
-  if (output == "count") {
-    res <- raw %>%
-      dplyr::select_at(c("x", "count")) %>%
-      tidyr::pivot_wider(names_from = "x", values_from = "count", names_repair = "minimal")
-  }
+  percent <- counts / N * 100
+  percent <- round(percent, digits)
   if (output == "percent") {
-    res <- raw %>%
-      dplyr::select_at(c("x", "percent")) %>%
-      tidyr::pivot_wider(names_from = "x", values_from = "percent", names_repair = "minimal")
+    percent %>%
+      as.list() %>%
+      tibble::as_tibble() %>%
+      return()
   }
-  if (output == "barplot") res <- nightowl::add_barplot(raw)
   if (output == "print") {
-    res <- raw %>%
-      dplyr::mutate_if(is.numeric, ~ round(.x, 1)) %>%
-      dplyr::mutate(value = glue::glue("{percent}% ({count})")) %>%
-      dplyr::select_at(c("x", "value")) %>%
-      tidyr::pivot_wider(names_from = "x", values_from = "value", names_repair = "minimal")
+    print <- as.character(glue::glue("{percent}%({counts})"))
+    names(print) <- stringr::str_wrap(names(counts), str_width) %>%
+      stringr::str_replace_all("\n", "<br>")
+    cols <- viridis::viridis_pal()(length(counts)) %>%
+      rev()
+    print <- purrr::map2(print, cols, ~ nightowl::style_cell(.x,
+      border_color = .y,
+      border_style = "solid",
+      border_width = "3px",
+      text_align = "center",
+      padding = "0px",
+      margin = "0 0 0 0 px"
+    ) %>% unlist())
+    print %>%
+      as.list() %>%
+      tibble::as_tibble() %>%
+      return()
   }
-  return(res)
 }
-# =================================================
 # =================================================
 #' @title
 #' MISSING_TITLE
@@ -217,20 +298,107 @@ n <- function(...) {
 #' @param
 #' @return
 #' @export
-add_barplot <- function(raw) {
-  raw <- raw %>%
-    dplyr::mutate(x = forcats::fct_inorder(x)) %>%
-    dplyr::mutate(x = forcats::fct_rev(x))
-  .p <- raw %>%
-    ggplot2::ggplot(ggplot2::aes(x = 1, y = percent, fill = x, tooltip = x, data_id = x)) +
-    ggiraph::geom_col_interactive() +
+add_barplot <- function(x) {
+  counts <- base::table(x) / length(x) * 100
+  .p <- tibble::tibble(fill = names(counts), y = counts) %>%
+    dplyr::mutate(fill = forcats::fct_inorder(fill)) %>%
+    dplyr::mutate(fill = forcats::fct_rev(fill)) %>%
+    ggplot2::ggplot(ggplot2::aes(x = 1, y = y, fill = fill)) +
+    ggplot2::geom_col() +
     ggplot2::theme_void() +
     ggplot2::coord_flip() +
-    ggplot2:::scale_fill_viridis_d() +
+    ggplot2:::scale_fill_viridis_d(drop = FALSE) +
     ggplot2:::scale_x_discrete(expand = ggplot2::expansion(0)) +
     ggplot2:::scale_y_continuous(expand = ggplot2::expansion(0)) +
     picasso::theme_void()
   nightowl::render_svg(.p, height = 0.8, add_download_button = FALSE) %>%
     shiny::HTML()
+}
+# =================================================
+#' @title
+#' MISSING_TITLE
+#' @description
+#' @detail
+#' @param
+#' @return
+#' @export
+add_forestplot <- function(x,
+                           fun_data = ggplot2::mean_cl_boot,
+                           xintercept = NULL,
+                           xlim = NULL) {
+  vals <- fun_data(x)
+  nightowl::forestplot(
+    x = vals[[1]],
+    xmin = vals[[2]],
+    xmax = vals[[3]],
+    xintercept = xintercept,
+    xlim = xlim
+  )
+}
+# =================================================
+#' @title
+#' MISSING_TITLE
+#' @description
+#' @detail
+#' @param
+#' @return
+#' @export
+add_violin <- function(x,
+                       ylim = NULL,
+                       height = 0.8,
+                       theme = ggplot2::theme_void) {
+  .data <- tibble::tibble(x = x)
+  .p <- ggplot2::ggplot(.data,
+    mapping = ggplot2::aes(y = x, x = 0)
+  ) +
+    ggplot2::geom_violin(fill = picasso::roche_colors("lightblue")) +
+    ggplot2::stat_summary(size = 2) +
+    ggplot2::coord_flip() +
+    ggplot2:::scale_x_discrete(expand = ggplot2::expansion(0)) +
+    ggplot2:::scale_y_continuous(expand = ggplot2::expansion(0))
+
+  if (!is.null(ylim)) {
+    .p <- .p + ggplot2::ylim(ylim)
+  }
+
+  .p <- .p + theme()
+
+  nightowl::render_svg(.p, height = height, add_download_button = FALSE) %>%
+    shiny::HTML()
+}
+# =================================================
+#' @title
+#' MISSING_TITLE
+#' @description
+#' @detail
+#' @param
+#' @return
+#' @export
+add_histogram <- function(x,
+                          xlim = NULL) {
+  .data <- tibble::tibble(x = x)
+  .p <- ggplot2::ggplot(.data,
+    mapping = ggplot2::aes(x = x)
+  ) +
+    ggplot2::geom_histogram(fill = picasso::roche_colors("lightblue")) +
+    ggplot2::theme_void() +
+    ggplot2:::scale_x_discrete(expand = ggplot2::expansion(0)) +
+    ggplot2:::scale_y_continuous(expand = ggplot2::expansion(0))
+  nightowl::render_svg(.p, height = 0.8, add_download_button = FALSE) %>%
+    shiny::HTML()
+}
+# =================================================
+# =================================================
+#' @title
+#' MISSING_TITLE
+#' @description
+#' @detail
+#' @param
+#' @return
+#' @export
+formated_mean <- function(x, fun = Hmisc::smean.cl.boot, digits = 1) {
+  val <- fun(x)
+  val <- round(val)
+  glue::glue("{val[1]}({val[2]}-{val[3]})")
 }
 # =================================================

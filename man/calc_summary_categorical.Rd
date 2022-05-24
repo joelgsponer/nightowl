@@ -7,8 +7,8 @@
 calc_summary_categorical(
   data,
   column,
-  calculations = list(N. = nightowl::n, Freq = nightowl::frequencies, Bar = function(x)
-    {     nightowl::frequencies(x, output = "barplot") }),
+  calculations = list(N. = length, Freq = nightowl::frequencies, Barplot =
+    nightowl::add_barplot),
   unnest = TRUE,
   names_sep = NULL
 )

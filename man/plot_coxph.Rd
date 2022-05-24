@@ -10,8 +10,8 @@ plot_coxph(
   event,
   treatment,
   covariates = NULL,
-  show_only_treatment = FALSE,
   strata = NULL,
+  show_only_treatment = FALSE,
   engine = "kable",
   kable_style = kableExtra::kable_paper,
   split = NULL,
@@ -19,6 +19,8 @@ plot_coxph(
   label_left = "Comparison better",
   label_right = "Reference better",
   title = "",
+  labels = NULL,
+  plan = "sequential",
   ...
 )
 }

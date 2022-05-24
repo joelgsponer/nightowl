@@ -4,7 +4,15 @@
 \alias{render_reactable}
 \title{MISSING_TITLE}
 \usage{
-render_reactable(tibble, html_columns = NULL, theme = "table")
+render_reactable(
+  tibble,
+  html_columns = NULL,
+  theme = "table",
+  defaultPageSize = 10,
+  minWidth_html = 300,
+  fullWidth = FALSE,
+  ...
+)
 }
 \value{
 

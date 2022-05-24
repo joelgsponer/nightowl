@@ -4,7 +4,16 @@
 \alias{fit_coxph}
 \title{MISSING_TITLE}
 \usage{
-fit_coxph(data, time, event, treatment, covariates, strata, ...)
+fit_coxph(
+  data,
+  time,
+  event,
+  treatment,
+  covariates,
+  strata,
+  exponentiate = FALSE,
+  ...
+)
 }
 \value{
 

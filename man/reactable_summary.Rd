@@ -4,7 +4,14 @@
 \alias{reactable_summary}
 \title{MISSING_TITLE}
 \usage{
-reactable_summary(data, split, columns, group_by = NULL, ...)
+reactable_summary(
+  data,
+  split = NULL,
+  columns,
+  group_by = NULL,
+  plan = "sequential",
+  ...
+)
 }
 \value{
 

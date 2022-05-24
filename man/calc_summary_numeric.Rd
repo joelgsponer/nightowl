@@ -7,8 +7,12 @@
 calc_summary_numeric(
   data,
   column,
-  calculations = list(N. = nightowl::n, Median = function(x) median(x, na.rm = T), Mean
-    = ggplot2::mean_cl_boot),
+  calculations = list(N. = length, Missing = function(x) {     return(sum(is.na(x))) },
+    Median = function(x) median(x, na.rm = T), Mean = nightowl::formated_mean, Forestplot
+    = nightowl::add_forestplot),
+  parameters = list(Forestplot = list(xintercept = mean(data[[column]], na.rm = T),
+    xlim = c(mean(data[[column]], na.rm = T) - IQR(data[[column]], na.rm = T),
+    mean(data[[column]], na.rm = T) + IQR(data[[column]], na.rm = T)))),
   unnest = TRUE
 )
 }
