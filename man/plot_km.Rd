@@ -23,7 +23,7 @@ plot_km(
   legend_position = "top",
   width = "66\%",
   colors = unname(unlist(picasso::roche_colors())),
-  lowrider_theme = "bulma",
+  lowrider_theme = "print",
   as_ggplot = FALSE,
   note = NULL,
   break_width = 10

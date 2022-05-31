@@ -12,6 +12,7 @@ plot_grouped_km_compact(
   covariates = NULL,
   split,
   width = "300px",
+  add_table = FALSE,
   add_p = TRUE,
   ...
 )

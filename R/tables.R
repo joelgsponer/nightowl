@@ -180,7 +180,7 @@ render_kable <- function(.tbl, caption = NULL, full_width = FALSE, column_width 
 #' @export
 render_reactable <- function(tibble,
                              html_columns = NULL,
-                             theme = "table",
+                             theme = function() reactablefmtr::nytimes(centered = TRUE),
                              defaultPageSize = 10,
                              minWidth_html = 300,
                              fullWidth = FALSE,
@@ -206,12 +206,13 @@ render_reactable <- function(tibble,
   }, .init = col_def)
   .tbl <- tibble %>%
     reactable::reactable(
+      theme = theme(),
       defaultColDef = reactable::colDef(
         header = function(value) gsub(".", " ", value, fixed = TRUE),
         cell = function(value) format(value, nsmall = 1),
         align = "center",
         minWidth = 100,
-        headerStyle = list(background = "#f7f7f8"),
+        # headerStyle = list(background = "#f7f7f8"),
         html = TRUE
       ),
       columns = col_def,
@@ -224,11 +225,7 @@ render_reactable <- function(tibble,
       pageSizeOptions = c(1, 5, 10, 100),
       fullWidth = fullWidth
     )
-  shiny::div(
-    if (!is.null(theme)) lowRider::includeCSS(theme = theme),
-    .tbl
-  ) %>%
-    htmltools::browsable()
+  return(.tbl)
 }
 # =================================================
 #' @title

@@ -56,6 +56,9 @@ format_p_value <- function(p) {
     digits = 4, eps = 0.0001, nsmall = 4,
     scientific = FALSE
   )
+  if (is.na(p) || is.null(p) || length(p) == 0) {
+    return("Failed")
+  }
   if (p < 0.001) {
     return(paste(pval, "(***)"))
   } else if (p < 0.01) {

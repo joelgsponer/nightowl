@@ -7,7 +7,7 @@
 render_reactable(
   tibble,
   html_columns = NULL,
-  theme = "table",
+  theme = function() reactablefmtr::nytimes(centered = TRUE),
   defaultPageSize = 10,
   minWidth_html = 300,
   fullWidth = FALSE,

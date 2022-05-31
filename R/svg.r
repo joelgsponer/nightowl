@@ -27,6 +27,7 @@ render_svg <- function(g, height = 8, width = 8, scaling = 1, add_download_butto
       if (add_download_button) {
         svg <- nightowl::add_download_button(svg)
       }
+      class(svg) <- c("nightowl_svg", class(svg))
       return(svg)
     },
     error = function(e) {
@@ -64,5 +65,32 @@ add_download_button <- function(x) {
     x
   ) %>%
     htmltools::browsable()
+}
+# =================================================
+#' @title
+#' MISSING_TITLE
+#' @description
+#' @detail
+#' @param
+#' @return
+#' @export
+new_svg <- function(x) {
+  vctrs::new_vctr(x, class = "nightowl_svg")
+}
+# =================================================
+#' @title
+#' MISSING_TITLE
+#' @description
+#' @detail
+#' @param
+#' @return
+#' @export
+is_nightowl_svg <- function(x) {
+  inherits(x, "nightowl_svg")
+}
+# =================================================
+#' @export
+vec_ptype2.nightowl_svg.nightowl_svg <- function(x, y, ...) {
+  x
 }
 # =================================================

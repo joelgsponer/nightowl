@@ -4,7 +4,18 @@
 \alias{forestplot}
 \title{MISSING_TITLE}
 \usage{
-forestplot(x, xmin, xmax, xlim = NULL, xintercept = NULL)
+forestplot(
+  x,
+  xmin,
+  xmax,
+  xlim = NULL,
+  xintercept = NULL,
+  height = 0.5,
+  xlab = NULL,
+  ylab = NULL,
+  hide_y_axis = TRUE,
+  theme = ggplot2::theme_void
+)
 }
 \value{
 

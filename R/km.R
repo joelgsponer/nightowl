@@ -84,7 +84,7 @@ plot_km <- function(data,
                     legend_position = "top",
                     width = "66%",
                     colors = unname(unlist(picasso::roche_colors())),
-                    lowrider_theme = "bulma",
+                    lowrider_theme = "print",
                     as_ggplot = FALSE,
                     note = NULL,
                     break_width = 10) {
@@ -230,7 +230,7 @@ km_pvalue <- function(.formula, data, html = TRUE) {
     } %>%
     round(4)
   p <- if (html) {
-    shiny::tag("pre", paste0("p-value: ", p))
+    shiny::tag("pre", paste0("Logrank Test p-Value: ", p))
   } else {
     p
   }
@@ -359,6 +359,7 @@ plot_grouped_km_compact <- function(data,
                                     covariates = NULL,
                                     split,
                                     width = "300px",
+                                    add_table = FALSE,
                                     add_p = TRUE,
                                     ...) {
   nightowl::plot_grouped_km(
@@ -372,7 +373,7 @@ plot_grouped_km_compact <- function(data,
     legend_position = "none",
     flex_direction = "row",
     add_p = add_p,
-    add_table = FALSE,
+    add_table = add_table,
     add_summary = FALSE,
     add_median = FALSE,
     ...

@@ -24,4 +24,16 @@ test_that("svg works", {
   nightowl::render_svg(.p, height = 4, width = 4, scaling = 0.5)
   nightowl::render_svg(.p, height = 4, width = 8, scaling = 0.5)
   nightowl::render_svg(.p, height = 3, width = 8, scaling = 0.5, add_download_button = F)
+
+  test_svg <- nightowl::new_svg("test")
+  test_svg
+  showme(test_svg)
+
+  a <- 1
+  class(a) <- "test_class"
+  print.nightowl_svg <- function(x) {
+    print(paste("test_class: ", class(x)))
+  }
+  showme(test_svg)
+  print(test_svg)
 })

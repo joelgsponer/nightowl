@@ -79,18 +79,35 @@ test_that("summary works", {
     ))
   ) %>% nightowl::render_kable()
 
+  nightowl::calc_summary_numeric(
+    data = dplyr::group_by(testdata, foo),
+    column = "bar",
+    calculations = list(
+      `N.` = length,
+      Median = function(x) median(x, na.rm = T),
+      Mean = nightowl::formated_mean,
+      Density = nightowl::add_density
+    ),
+    parameters = rlang::expr(list(
+      Density = list(
+        theme = ggplot2::theme_void,
+        height = 1.5,
+        ylim = range(data[[column]], na.rm = T)
+      )
+    ))
+  ) %>% nightowl::render_kable()
 
-  nightowl::calc_summary_numeric(dplyr::group_by(mtcars, cyl), "mpg")
+  nightowl::calc_summary_numeric(dplyr::group_by(mtcars, cyl), "mpg") %>%
+    nightowl::add_scale("Forestplot")
 
   nightowl::calc_summary(dplyr::group_by(testdata, foo), "bar")
 
   nightowl::calc_summary(dplyr::group_by(testdata, foo), "bar", calculations = list(Min = min))
 
-  testdata %>%
-    dplyr::summarise(mean = ggplot2::mean_cl_boot(bar)) %>%
-    tidyr::unnest(mean) %>%
-    nightowl::add_forestplot("y", "ymin", "ymax") %>%
-    nightowl::render_kable()
+  nightowl::calc_summary_numeric(dplyr::group_by(mtcars, cyl), "mpg") %>%
+    nightowl::add_scale()
+
+
 
   nightowl::frequencies(testdata$qux)
   nightowl::frequencies(testdata$qux, "count")

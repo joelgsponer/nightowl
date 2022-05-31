@@ -81,7 +81,7 @@ summary <- function(data,
 
   if (is.numeric(.data[[column]])) {
     res <- nightowl::calc_summary_numeric(data = .data, column = column, ...)
-    if (calc_p) {
+    if (calc_p && !is.null(group_by)) {
       test <- .data %>%
         dplyr::group_split() %>%
         purrr::imap(~ .x[[column]]) %>%
@@ -91,16 +91,22 @@ summary <- function(data,
     }
   } else {
     res <- nightowl::calc_summary_categorical(data = .data, column = column, ...)
-    if (calc_p) {
-      test <- .data %>%
+    if (calc_p && !is.null(group_by)) {
+      cont_table <- .data %>%
         dplyr::select_at(c(column, group_by)) %>%
         dplyr::ungroup() %>%
         dplyr::mutate(group = paste(!!!rlang::syms(group_by))) %>%
         waRRior::drop_columns(group_by) %>%
-        base::table() %>%
-        chisq.test(correct = F)
-      test_method <- "Chi-squared test"
-      test_p_value <- test$p.value
+        droplevels() %>%
+        base::table()
+      if (min(dim(cont_table)) > 1) {
+        test <- chisq.test(cont_table, correct = F)
+        test_method <- "Chi-squared test"
+        test_p_value <- test$p.value
+      } else {
+        test_method <- "None"
+        test_p_value <- NA
+      }
     }
   }
 
@@ -127,7 +133,7 @@ summary <- function(data,
   }
   attributes(res)$column <- column
   attributes(res)$group_by <- group_by
-  if (calc_p) {
+  if (calc_p && !is.null(group_by)) {
     attributes(res)$method <- test_method
     attributes(res)$p.value <- test_p_value
   }
@@ -214,7 +220,9 @@ calc_summary_numeric <- function(data,
   if (rlang::is_expression(parameters)) {
     parameters <- eval(parameters)
   }
-  do.call(nightowl::calc_summary, as.list(environment()))
+  res <- do.call(nightowl::calc_summary, as.list(environment()))
+  attributes(res)$parameters <- parameters
+  return(res)
 }
 # =================================================
 #' @title
@@ -298,107 +306,9 @@ n <- function(...) {
 #' @param
 #' @return
 #' @export
-add_barplot <- function(x) {
-  counts <- base::table(x) / length(x) * 100
-  .p <- tibble::tibble(fill = names(counts), y = counts) %>%
-    dplyr::mutate(fill = forcats::fct_inorder(fill)) %>%
-    dplyr::mutate(fill = forcats::fct_rev(fill)) %>%
-    ggplot2::ggplot(ggplot2::aes(x = 1, y = y, fill = fill)) +
-    ggplot2::geom_col() +
-    ggplot2::theme_void() +
-    ggplot2::coord_flip() +
-    ggplot2:::scale_fill_viridis_d(drop = FALSE) +
-    ggplot2:::scale_x_discrete(expand = ggplot2::expansion(0)) +
-    ggplot2:::scale_y_continuous(expand = ggplot2::expansion(0)) +
-    picasso::theme_void()
-  nightowl::render_svg(.p, height = 0.8, add_download_button = FALSE) %>%
-    shiny::HTML()
-}
-# =================================================
-#' @title
-#' MISSING_TITLE
-#' @description
-#' @detail
-#' @param
-#' @return
-#' @export
-add_forestplot <- function(x,
-                           fun_data = ggplot2::mean_cl_boot,
-                           xintercept = NULL,
-                           xlim = NULL) {
-  vals <- fun_data(x)
-  nightowl::forestplot(
-    x = vals[[1]],
-    xmin = vals[[2]],
-    xmax = vals[[3]],
-    xintercept = xintercept,
-    xlim = xlim
-  )
-}
-# =================================================
-#' @title
-#' MISSING_TITLE
-#' @description
-#' @detail
-#' @param
-#' @return
-#' @export
-add_violin <- function(x,
-                       ylim = NULL,
-                       height = 0.8,
-                       theme = ggplot2::theme_void) {
-  .data <- tibble::tibble(x = x)
-  .p <- ggplot2::ggplot(.data,
-    mapping = ggplot2::aes(y = x, x = 0)
-  ) +
-    ggplot2::geom_violin(fill = picasso::roche_colors("lightblue")) +
-    ggplot2::stat_summary(size = 2) +
-    ggplot2::coord_flip() +
-    ggplot2:::scale_x_discrete(expand = ggplot2::expansion(0)) +
-    ggplot2:::scale_y_continuous(expand = ggplot2::expansion(0))
-
-  if (!is.null(ylim)) {
-    .p <- .p + ggplot2::ylim(ylim)
-  }
-
-  .p <- .p + theme()
-
-  nightowl::render_svg(.p, height = height, add_download_button = FALSE) %>%
-    shiny::HTML()
-}
-# =================================================
-#' @title
-#' MISSING_TITLE
-#' @description
-#' @detail
-#' @param
-#' @return
-#' @export
-add_histogram <- function(x,
-                          xlim = NULL) {
-  .data <- tibble::tibble(x = x)
-  .p <- ggplot2::ggplot(.data,
-    mapping = ggplot2::aes(x = x)
-  ) +
-    ggplot2::geom_histogram(fill = picasso::roche_colors("lightblue")) +
-    ggplot2::theme_void() +
-    ggplot2:::scale_x_discrete(expand = ggplot2::expansion(0)) +
-    ggplot2:::scale_y_continuous(expand = ggplot2::expansion(0))
-  nightowl::render_svg(.p, height = 0.8, add_download_button = FALSE) %>%
-    shiny::HTML()
-}
-# =================================================
-# =================================================
-#' @title
-#' MISSING_TITLE
-#' @description
-#' @detail
-#' @param
-#' @return
-#' @export
 formated_mean <- function(x, fun = Hmisc::smean.cl.boot, digits = 1) {
   val <- fun(x)
-  val <- round(val)
+  val <- round(val, digits)
   glue::glue("{val[1]}({val[2]}-{val[3]})")
 }
 # =================================================

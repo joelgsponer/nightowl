@@ -26,6 +26,7 @@ Imports:
     picasso,
     purrr,
     reactable,
+    reactablefmtr,
     rtables,
     stringr,
     testthat,
