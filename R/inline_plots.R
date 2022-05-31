@@ -19,8 +19,7 @@ add_barplot <- function(x) {
     ggplot2:::scale_x_discrete(expand = ggplot2::expansion(0)) +
     ggplot2:::scale_y_continuous(expand = ggplot2::expansion(0)) +
     picasso::theme_void()
-  nightowl::render_svg(.p, height = 0.8, add_download_button = FALSE) %>%
-    shiny::HTML()
+  nightowl::render_svg(.p, height = 0.8, add_download_button = FALSE)
 }
 # =================================================
 #' @title
@@ -68,8 +67,7 @@ add_violin <- function(x,
     .p <- .p + ggplot2::ylim(ylim)
   }
   .p <- .p + theme()
-  nightowl::render_svg(.p, height = height, add_download_button = FALSE) %>%
-    shiny::HTML()
+  nightowl::render_svg(.p, height = height, add_download_button = FALSE)
 }
 # ===============================================================================
 #' @title
@@ -93,8 +91,7 @@ add_density <- function(x,
     .p <- .p + ggplot2::ylim(ylim)
   }
   .p <- .p + theme()
-  nightowl::render_svg(.p, height = height, add_download_button = FALSE) %>%
-    shiny::HTML()
+  nightowl::render_svg(.p, height = height, add_download_button = FALSE)
 }
 # =================================================
 #' @title
@@ -116,8 +113,7 @@ add_histogram <- function(x,
     ggplot2::theme_void() +
     ggplot2:::scale_x_discrete(expand = ggplot2::expansion(0)) +
     ggplot2:::scale_y_continuous(expand = ggplot2::expansion(0))
-  nightowl::render_svg(.p, height = height, add_download_button = FALSE) %>%
-    shiny::HTML()
+  nightowl::render_svg(.p, height = height, add_download_button = FALSE)
 }
 # =================================================
 add_scale <- function(obj,

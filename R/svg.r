@@ -17,8 +17,11 @@ render_svg <- function(g,
     new_str <- stringr::str_replace_all(str, pattern, replace)
     return(htmltools::HTML(new_str))
   }
+
+  n_dev <- length(dev.list())
   tryCatch(
     {
+      cli::cli_progress_step("Opening SVG device")
       svg <- svglite::svgstring(
         height = height, width = width, scaling = scaling,
         web_fonts = "https://fonts.googleapis.com/css2?family=Lato:wght@100;300;400;700;900&display=swap",
@@ -29,16 +32,22 @@ render_svg <- function(g,
       svg <- waRRior::regex_replace_element_parameter(svg(), "width", "100%") %>%
         waRRior::regex_replace_element_parameter("height", "100%") %>%
         fix_font()
-      try(dev.off())
       if (add_download_button) {
         svg <- nightowl::add_download_button(svg)
       }
-      class(svg) <- c("nightowl_svg", class(svg))
+      # class(svg) <- c("nightowl_svg", class(svg))
+      svg <- vctrs::new_vctr(svg, class = "nightowl_svg")
+      attributes(svg)$g <- g
       return(svg)
     },
     error = function(e) {
-      try(dev.off())
       stop(e)
+    },
+    finally = {
+      while (length(dev.list()) > n_dev) {
+        cli::cli_progress_step("Closing device")
+        dev.off()
+      }
     }
   )
 }
@@ -90,9 +99,9 @@ new_svg <- function(x) {
 #' @return
 #' @export
 is_nightowl_svg <- function(x) {
-  inherits(x, "nightowl_svg")
+  inherits(x, "nightowl_svg") || inherits(x, "nghtwl_s")
 }
-#=================================================
+# =================================================
 #' @title
 #' MISSING_TITLE
 #' @description
@@ -100,13 +109,90 @@ is_nightowl_svg <- function(x) {
 #' @param
 #' @return
 #' @export
-print.nightowl_svg <- function(x, ...) {
-  x <- htmltools::browsable(x)
-  NextMethod(...)
+html <- function(x) {
+  UseMethod("html")
 }
-#=================================================
+# =================================================
+#' @title
+#' MISSING_TITLE
+#' @description
+#' @detail
+#' @param
+#' @return
 #' @export
-vec_ptype2.nightowl_svg.nightowl_svg <- function(x, y, ...) {
-  x
+html.nightowl_svg <- function(x) {
+  vctrs::vec_data(x) %>%
+    htmltools::HTML()
+}
+# =================================================
+#' @title
+#' MISSING_TITLE
+#' @description
+#' @detail
+#' @param
+#' @return
+#' @export
+ggplot <- function(x) {
+  UseMethod("ggplot")
+}
+# =================================================
+#' @title
+#' MISSING_TITLE
+#' @description
+#' @detail
+#' @param
+#' @return
+#' @export
+ggplot.nightowl_svg <- function(x) {
+  attributes(x)$g
+}
+# =================================================
+#' @title
+#' MISSING_TITLE
+#' @description
+#' @detail
+#' @param
+#' @return
+#' @export
+print.nightowl_svg <- function(x, browser = T) {
+  if (browser) {
+    print(htmltools::browsable(nightowl::html(x)))
+  } else {
+    print(nightowl::html(x))
+  }
+}
+# =================================================
+#' @title
+#' MISSING_TITLE
+#' @description
+#' @detail
+#' @param
+#' @return
+#' @export
+format.nightowl_svg <- function(x) {
+  rep("<nigthowl_svg>", length(vctrs::vec_data(x)))
+}
+# =================================================
+#' @title
+#' MISSING_TITLE
+#' @description
+#' @detail
+#' @param
+#' @return
+#' @export
+vec_ptype_abbr.nightowl_svg <- function(x) {
+  "prcnt"
+}
+# =================================================
+#' @title
+#' MISSING_TITLE
+#' @description
+#' @detail
+#' @param
+#' @return
+#' @export
+as.character.nightowl_svg <- function(x) {
+  nightowl::html(x) %>%
+    as.character()
 }
 # =================================================

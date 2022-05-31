@@ -158,14 +158,14 @@ summarise <- function(data,
                       names_sep = ".") {
   stopifnot(is.list(calculations))
   if (rlang::is_expression(parameters)) {
-    cli::cli_progress_step('Evaluating parameters')
+    cli::cli_progress_step("Evaluating parameters")
     parameters <- eval(parameters)
   }
 
   .calculations <- purrr::imap(calculations, ~ list(
-     column = .y, 
-     calculation = .x, 
-     params = tryCatch(parameters[[.y]], error = function(e) NULL)
+    column = .y,
+    calculation = .x,
+    params = tryCatch(parameters[[.y]], error = function(e) NULL)
   ))
 
   .group <- waRRior::get_groups(data)
@@ -208,13 +208,13 @@ summarise <- function(data,
 #' @return
 #' @export
 summarise_categorical_barplot <- function(data,
-                                     column,
-                                     calculations = list(
-                                       `N.` = length,
-                                       Freq = nightowl::frequencies,
-                                       Barplot = nightowl::add_barplot
-                                     ),
-                                     unnest = TRUE, names_sep = NULL) {
+                                          column,
+                                          calculations = list(
+                                            `N.` = length,
+                                            Freq = nightowl::frequencies,
+                                            Barplot = nightowl::add_barplot
+                                          ),
+                                          unnest = TRUE, names_sep = NULL) {
   do.call(nightowl::summarise, as.list(environment()))
 }
 # =================================================
@@ -226,29 +226,29 @@ summarise_categorical_barplot <- function(data,
 #' @return
 #' @export
 summarise_numeric_forestplot <- function(data,
-                                 column,
-                                 calculations = list(
-                                   `N.` = length,
-                                   `Missing` = function(x) {
-                                     return(sum(is.na(x)))
-                                   },
-                                   Median = function(x) median(x, na.rm = T),
-                                   Mean = nightowl::formated_mean,
-                                   Forestplot = nightowl::add_forestplot
-                                 ),
-                                 parameters = list(
-                                   Forestplot = list(
-                                     xintercept = mean(data[[column]], na.rm = T),
-                                     xlim = c(
-                                       mean(data[[column]], na.rm = T) - IQR(data[[column]], na.rm = T),
-                                       mean(data[[column]], na.rm = T) + IQR(data[[column]], na.rm = T)
-                                     )
-                                   )
-                                 ),
-                                 unnest = TRUE) {
+                                         column,
+                                         calculations = list(
+                                           `N.` = length,
+                                           `Missing` = function(x) {
+                                             return(sum(is.na(x)))
+                                           },
+                                           Median = function(x) median(x, na.rm = T),
+                                           Mean = nightowl::formated_mean,
+                                           Forestplot = nightowl::add_forestplot
+                                         ),
+                                         parameters = list(
+                                           Forestplot = list(
+                                             xintercept = mean(data[[column]], na.rm = T),
+                                             xlim = c(
+                                               mean(data[[column]], na.rm = T) - IQR(data[[column]], na.rm = T),
+                                               mean(data[[column]], na.rm = T) + IQR(data[[column]], na.rm = T)
+                                             )
+                                           )
+                                         ),
+                                         unnest = TRUE) {
   do.call(nightowl::summarise, as.list(environment()))
 }
-#=================================================
+# =================================================
 #' @title
 #' MISSING_TITLE
 #' @description
@@ -256,23 +256,22 @@ summarise_numeric_forestplot <- function(data,
 #' @param
 #' @return
 #' @export
-summarise_numeric_violin <- function(
-    data,
-    column,
-    calculations = list(
-      `N.` = length,
-      Median = function(x) median(x, na.rm = T),
-      Mean = nightowl::formated_mean,
-      Violin = nightowl::add_violin
-    ),
-    parameters = list(
-      Violin = list(
-        theme = picasso::theme_void,
-        height = 1.5,
-        ylim = range(data[[column]], na.rm = T)
-      )
-    ),
-    unnest = TRUE) {
+summarise_numeric_violin <- function(data,
+                                     column,
+                                     calculations = list(
+                                       `N.` = length,
+                                       Median = function(x) median(x, na.rm = T),
+                                       Mean = nightowl::formated_mean,
+                                       Violin = nightowl::add_violin
+                                     ),
+                                     parameters = list(
+                                       Violin = list(
+                                         theme = picasso::theme_void,
+                                         height = 1.5,
+                                         ylim = range(data[[column]], na.rm = T)
+                                       )
+                                     ),
+                                     unnest = TRUE) {
   if (rlang::is_expression(parameters)) {
     parameters <- eval(parameters)
   }
