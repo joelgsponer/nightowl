@@ -24,6 +24,7 @@ Imports:
     palmerpenguins,
     peacock,
     picasso,
+    pillar,
     purrr,
     reactable,
     reactablefmtr,
@@ -31,4 +32,5 @@ Imports:
     stringr,
     testthat,
     tibble,
+    vctrs,
     waRRior

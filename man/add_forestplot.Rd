@@ -10,21 +10,10 @@ add_forestplot(
   xintercept = NULL,
   xlim = NULL
 )
-
-add_forestplot(
-  x,
-  fun_data = ggplot2::mean_cl_boot,
-  xintercept = NULL,
-  xlim = NULL
-)
 }
 \value{
 
-
-
 }
 \description{
-MISSING_TITLE
-
 MISSING_TITLE
 }

@@ -1,4 +1,5 @@
 test_that("summary works", {
+
   testdata <- tibble::tibble(
     "foo" = c(rep("A", 50), rep("B", 50), rep("C", 50), rep("D", 50)),
     "bar" = c(rnorm(50, 0, 1), rnorm(50, 1, 2), rnorm(50, 2, 3), rnorm(50, 3, 4)),
@@ -17,10 +18,24 @@ test_that("summary works", {
     ))
   testdata
 
-  nightowl::summary(testdata, "bar", "foo", output = "count", labels = c(bar = "Bar", foo = "Foo"))
-  nightowl::summary(testdata, "bar", "foo", output = "kable")
-  nightowl::summary(testdata, "qux", "foo", output = "kable")
+  nightowl::summary(testdata, "bar", "foo", output = "kable", labels = c(bar = "Bar", foo = "Foo"))
   nightowl::summary(testdata, "qux", "foo", output = "raw")
+
+  nightowl::summarise(testdata, "qux")
+  nightowl::summarise_categorical_barplot(testdata, "qux") %>% nightowl::render_kable()
+  nightowl::summarise_numeric_forestplot(testdata, "bar")
+
+  testdata %>%
+   dplyr::group_by(foo) %>%
+    purrr::map_df(c("bar", "baz"), function(col, .data) {
+      nightowl::summarise_numeric_violin(.data, col)
+    }, .data = .) %>%
+    nightowl::render_kable()
+
+  testdata %>%
+   dplyr::group_by("foo") %>%
+    nightowl::summarise_numeric_violin("bar") %>%
+    nightowl::render_kable()
 
   nightowl::summary(testdata, "qux", c("foo", "s1"), output = "kable")
   nightowl::render_reactable()

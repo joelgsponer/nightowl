@@ -51,27 +51,6 @@ add_forestplot <- function(x,
 #' @param
 #' @return
 #' @export
-add_forestplot <- function(x,
-                           fun_data = ggplot2::mean_cl_boot,
-                           xintercept = NULL,
-                           xlim = NULL) {
-  vals <- fun_data(x)
-  nightowl::forestplot(
-    x = vals[[1]],
-    xmin = vals[[2]],
-    xmax = vals[[3]],
-    xintercept = xintercept,
-    xlim = xlim
-  )
-}
-# =================================================
-#' @title
-#' MISSING_TITLE
-#' @description
-#' @detail
-#' @param
-#' @return
-#' @export
 add_violin <- function(x,
                        ylim = NULL,
                        height = 0.8,
@@ -85,13 +64,10 @@ add_violin <- function(x,
     ggplot2::coord_flip() +
     ggplot2:::scale_x_discrete(expand = ggplot2::expansion(0)) +
     ggplot2:::scale_y_continuous(expand = ggplot2::expansion(0))
-
   if (!is.null(ylim)) {
     .p <- .p + ggplot2::ylim(ylim)
   }
-
   .p <- .p + theme()
-
   nightowl::render_svg(.p, height = height, add_download_button = FALSE) %>%
     shiny::HTML()
 }
@@ -116,9 +92,7 @@ add_density <- function(x,
   if (!is.null(ylim)) {
     .p <- .p + ggplot2::ylim(ylim)
   }
-
   .p <- .p + theme()
-
   nightowl::render_svg(.p, height = height, add_download_button = FALSE) %>%
     shiny::HTML()
 }
@@ -163,12 +137,7 @@ add_scale <- function(obj,
       axis.ticks.y = ggplot2::element_blank(),
       axis.line.y = ggplot2::element_blank()
     )
-
-
-
   new_scale <- list()
   new_scale[[column]] <- nightowl::render_svg(scale, height = height, add_download_button = F)
-
-
   dplyr::bind_rows(obj, new_scale)
 }

@@ -55,6 +55,8 @@ summary <- function(data,
                     column,
                     group_by = NULL,
                     .mean = ggplot2::mean_cl_boot,
+                    .summarise_numeric = nightowl::summarise_numeric_forestplot,
+                    .summarise_categorical = nightowl::summarise_categorical_barplot,
                     calc_p = TRUE,
                     show_p = TRUE,
                     add_caption = TRUE,
@@ -80,7 +82,7 @@ summary <- function(data,
   }
 
   if (is.numeric(.data[[column]])) {
-    res <- nightowl::calc_summary_numeric(data = .data, column = column, ...)
+    res <- .summarise_numeric(data = .data, column = column, ...)
     if (calc_p && !is.null(group_by)) {
       test <- .data %>%
         dplyr::group_split() %>%
@@ -90,7 +92,7 @@ summary <- function(data,
       test_p_value <- test$p.value
     }
   } else {
-    res <- nightowl::calc_summary_categorical(data = .data, column = column, ...)
+    res <- .summarise_categorical(data = .data, column = column, ...)
     if (calc_p && !is.null(group_by)) {
       cont_table <- .data %>%
         dplyr::select_at(c(column, group_by)) %>%
@@ -147,18 +149,27 @@ summary <- function(data,
 #' @param
 #' @return
 #' @export
-calc_summary <- function(data,
-                         column,
-                         calculations = list(`N.` = length),
-                         parameters = list(),
-                         unnest = TRUE,
-                         names_sep = ".") {
-  .calculations <- purrr::imap(calculations, ~ list(column = .y, calculation = .x, params = parameters[[.y]]))
-  .group <- attributes(data)$groups
-  if (!is.null(.group)) {
-    .group <- names(.group)[names(.group) %in% names(data)]
-    cli::cli_progress_step("Data is grouped: {.group}")
+summarise <- function(data,
+                      column,
+                      calculations = list(`N.` = length),
+                      parameters = list(),
+                      unnest = TRUE,
+                      name_for_column = "Variable",
+                      names_sep = ".") {
+  stopifnot(is.list(calculations))
+  if (rlang::is_expression(parameters)) {
+    cli::cli_progress_step('Evaluating parameters')
+    parameters <- eval(parameters)
   }
+
+  .calculations <- purrr::imap(calculations, ~ list(
+     column = .y, 
+     calculation = .x, 
+     params = tryCatch(parameters[[.y]], error = function(e) NULL)
+  ))
+
+  .group <- waRRior::get_groups(data)
+
   res <- purrr::reduce(.calculations, function(.x, .y) {
     cli::cli_progress_step("Calculating {.y$column}")
     .x <- .x %>%
@@ -182,10 +193,10 @@ calc_summary <- function(data,
   .new_columns <- names(res)[!names(res) %in% names(data)]
 
   res <- res %>%
-    dplyr::select_at(c(.group, .new_columns)) %>%
+    dplyr::mutate(!!rlang::sym(name_for_column) := column) %>%
+    dplyr::select_at(c(.group, name_for_column, .new_columns)) %>%
     dplyr::distinct()
-
-
+  attributes(res)$parameters <- parameters
   return(res)
 }
 # =================================================
@@ -196,7 +207,25 @@ calc_summary <- function(data,
 #' @param
 #' @return
 #' @export
-calc_summary_numeric <- function(data,
+summarise_categorical_barplot <- function(data,
+                                     column,
+                                     calculations = list(
+                                       `N.` = length,
+                                       Freq = nightowl::frequencies,
+                                       Barplot = nightowl::add_barplot
+                                     ),
+                                     unnest = TRUE, names_sep = NULL) {
+  do.call(nightowl::summarise, as.list(environment()))
+}
+# =================================================
+#' @title
+#' MISSING_TITLE
+#' @description
+#' @detail
+#' @param
+#' @return
+#' @export
+summarise_numeric_forestplot <- function(data,
                                  column,
                                  calculations = list(
                                    `N.` = length,
@@ -217,14 +246,9 @@ calc_summary_numeric <- function(data,
                                    )
                                  ),
                                  unnest = TRUE) {
-  if (rlang::is_expression(parameters)) {
-    parameters <- eval(parameters)
-  }
-  res <- do.call(nightowl::calc_summary, as.list(environment()))
-  attributes(res)$parameters <- parameters
-  return(res)
+  do.call(nightowl::summarise, as.list(environment()))
 }
-# =================================================
+#=================================================
 #' @title
 #' MISSING_TITLE
 #' @description
@@ -232,15 +256,27 @@ calc_summary_numeric <- function(data,
 #' @param
 #' @return
 #' @export
-calc_summary_categorical <- function(data,
-                                     column,
-                                     calculations = list(
-                                       `N.` = length,
-                                       Freq = nightowl::frequencies,
-                                       Barplot = nightowl::add_barplot
-                                     ),
-                                     unnest = TRUE, names_sep = NULL) {
-  do.call(nightowl::calc_summary, as.list(environment()))
+summarise_numeric_violin <- function(
+    data,
+    column,
+    calculations = list(
+      `N.` = length,
+      Median = function(x) median(x, na.rm = T),
+      Mean = nightowl::formated_mean,
+      Violin = nightowl::add_violin
+    ),
+    parameters = list(
+      Violin = list(
+        theme = picasso::theme_void,
+        height = 1.5,
+        ylim = range(data[[column]], na.rm = T)
+      )
+    ),
+    unnest = TRUE) {
+  if (rlang::is_expression(parameters)) {
+    parameters <- eval(parameters)
+  }
+  do.call(nightowl::summarise, as.list(environment()))
 }
 # =================================================
 #' @title

@@ -81,9 +81,7 @@ forestplot <- function(x,
       )
     }
   }
-  res <- nightowl::render_svg(.p, height = height, add_download_button = FALSE) %>%
-    shiny::HTML()
-  class(res) <- c("nightowl_svg", class(res))
+  res <- nightowl::render_svg(.p, height = height, add_download_button = FALSE)
   return(res)
 }
 # =================================================

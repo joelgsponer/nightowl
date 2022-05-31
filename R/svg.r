@@ -2,13 +2,20 @@
 #' Create SVG string
 #' @param g ggplot object
 #' @export
-render_svg <- function(g, height = 8, width = 8, scaling = 1, add_download_button = T, standalone = F, ...) {
-  fix_font <- function(html, param = "font-family", value = "Lato", old_value = "[^;]*") {
+render_svg <- function(g,
+                       height = 8,
+                       width = 8,
+                       scaling = 1,
+                       add_download_button = T,
+                       standalone = F,
+                       font_family = "Lato sans-serif",
+                       ...) {
+  fix_font <- function(html, param = "font-family", value = font_family, old_value = "[^;]*") {
     str <- as.character(html)
     pattern <- glue::glue("{param}: {old_value}")
     replace <- glue::glue("{param}: {value}")
     new_str <- stringr::str_replace_all(str, pattern, replace)
-    return(shiny::HTML(new_str))
+    return(htmltools::HTML(new_str))
   }
   tryCatch(
     {
@@ -21,8 +28,7 @@ render_svg <- function(g, height = 8, width = 8, scaling = 1, add_download_butto
       print(g)
       svg <- waRRior::regex_replace_element_parameter(svg(), "width", "100%") %>%
         waRRior::regex_replace_element_parameter("height", "100%") %>%
-        fix_font() %>%
-        htmltools::browsable()
+        fix_font()
       try(dev.off())
       if (add_download_button) {
         svg <- nightowl::add_download_button(svg)
@@ -44,7 +50,6 @@ peek <- function(g, ...) {
     htmltools::browsable()
 }
 # =================================================
-# =================================================
 #' @title
 #' MISSING_TITLE
 #' @description
@@ -53,9 +58,9 @@ peek <- function(g, ...) {
 #' @return
 #' @export
 add_download_button <- function(x) {
-  shiny::div(
+  htmltools::div(
     AceOfSpades::useAceOfSpadesJS(),
-    shiny::HTML("
+    htmltools::HTML("
       <div
        class = 'nightowl-svg-download-button'
        onclick='AOS_download_svg(this)'
@@ -63,8 +68,7 @@ add_download_button <- function(x) {
       >&#10515; Save Plot</div>
     "),
     x
-  ) %>%
-    htmltools::browsable()
+  )
 }
 # =================================================
 #' @title
@@ -88,7 +92,19 @@ new_svg <- function(x) {
 is_nightowl_svg <- function(x) {
   inherits(x, "nightowl_svg")
 }
-# =================================================
+#=================================================
+#' @title
+#' MISSING_TITLE
+#' @description
+#' @detail
+#' @param
+#' @return
+#' @export
+print.nightowl_svg <- function(x, ...) {
+  x <- htmltools::browsable(x)
+  NextMethod(...)
+}
+#=================================================
 #' @export
 vec_ptype2.nightowl_svg.nightowl_svg <- function(x, y, ...) {
   x
