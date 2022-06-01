@@ -86,6 +86,7 @@ summary <- function(g,
                     dodge = 1,
                     shape = 21,
                     ...) {
+  cli::cli_progress_step("summary.gg")
   if (!is.null(fun.data) && !is.null(fun)) {
     rlang::abort("Error in summary: Please specify either fun or fun.data, not both")
   }

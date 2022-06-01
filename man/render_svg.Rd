@@ -11,7 +11,7 @@ render_svg(
   scaling = 1,
   add_download_button = T,
   standalone = F,
-  font_family = "Lato sans-serif",
+  font_family = "Lato, sans-serif",
   ...
 )
 }

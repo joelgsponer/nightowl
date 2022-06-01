@@ -51,20 +51,20 @@ reactable_summary <- function(data, split = NULL, columns, group_by = NULL, plan
 #' @param
 #' @return
 #' @export
-summary <- function(data,
-                    column,
-                    group_by = NULL,
-                    .mean = ggplot2::mean_cl_boot,
-                    .summarise_numeric = nightowl::summarise_numeric_forestplot,
-                    .summarise_categorical = nightowl::summarise_categorical_barplot,
-                    calc_p = TRUE,
-                    show_p = TRUE,
-                    add_caption = TRUE,
-                    wrap_header = TRUE,
-                    output = "raw",
-                    labels = NULL,
-                    .range = NULL,
-                    ...) {
+data_summary <- function(data,
+                         column,
+                         group_by = NULL,
+                         .mean = ggplot2::mean_cl_boot,
+                         .summarise_numeric = nightowl::summarise_numeric_forestplot,
+                         .summarise_categorical = nightowl::summarise_categorical_barplot,
+                         calc_p = TRUE,
+                         show_p = TRUE,
+                         add_caption = TRUE,
+                         wrap_header = TRUE,
+                         output = "raw",
+                         labels = NULL,
+                         .range = NULL,
+                         ...) {
   cli::cli_h2("Calculating summary for {column}")
   .data <- data %>%
     dplyr::select_at(c(column, group_by)) %>%
@@ -233,6 +233,8 @@ summarise_numeric_forestplot <- function(data,
                                              return(sum(is.na(x)))
                                            },
                                            Median = function(x) median(x, na.rm = T),
+                                           Min = function(x) min(x, na.rm = T),
+                                           Max = function(x) max(x, na.rm = T),
                                            Mean = nightowl::formated_mean,
                                            Forestplot = nightowl::add_forestplot
                                          ),
@@ -286,6 +288,9 @@ summarise_numeric_violin <- function(data,
 #' @return
 #' @export
 frequencies <- function(x, output = "print", digits = 1, str_width = 20) {
+  x <- factor(x) %>%
+    forcats::fct_explicit_na()
+
   counts <- base::table(x)
   if (output == "counts") {
     counts %>%

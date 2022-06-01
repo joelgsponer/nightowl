@@ -1,5 +1,5 @@
 # ===============================================================================
-#' Boxplot
+#' Plot
 #' @importFrom ggplot2 aes mean_cl_boot mean_cl_normal mean_se mean_sdl label_both
 #' @export
 plot <- function(DATA,
@@ -72,9 +72,12 @@ plot <- function(DATA,
   # Add layers
   g <- purrr::reduce(layers, function(.x, .y) {
     .y$g <- .x
+    .y <- rev(.y)
     if (is.null(.y$dodge)) .y$dodge <- dodge
-    thiscall <- glue::glue("do.call(nightowl::{.y$type}, .y)")
+    type <- .y$type
     .y$type <- NULL
+    .y <- purrr::compact(.y)
+    thiscall <- glue::glue("do.call(nightowl::{type}, .y)")
     eval(parse(text = thiscall))
   }, .init = g)
   #*******************************************************************************

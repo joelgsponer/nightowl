@@ -4,7 +4,7 @@
 \alias{vec_ptype_abbr.nightowl_svg}
 \title{MISSING_TITLE}
 \usage{
-vec_ptype_abbr.nightowl_svg(x)
+\method{vec_ptype_abbr}{nightowl_svg}(x)
 }
 \value{
 

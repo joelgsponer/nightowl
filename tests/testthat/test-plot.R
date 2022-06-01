@@ -4,6 +4,11 @@ test_that("multiplication works", {
     dplyr::filter(Time < 10)
 
 
+  g <- ggplot2::ggplot(testdata, ggplot2::aes(x = Time, y = weight)) +
+    ggplot2::geom_point()
+
+
+
   nightowl::plot(testdata,
     transform = list(x = "waRRior::fct_lexicographic"),
     mapping = list(

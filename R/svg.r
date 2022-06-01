@@ -36,7 +36,7 @@ render_svg <- function(g,
       }
       # class(svg) <- c("nightowl_svg", class(svg))
       svg <- as.character(svg) %>%
-       htmltools::HTML()
+        htmltools::HTML()
       svg <- vctrs::new_vctr(svg, class = "nightowl_svg")
       attributes(svg)$g <- g
       return(svg)
@@ -174,7 +174,7 @@ print.nightowl_svg <- function(x, browser = T) {
 format.nightowl_svg <- function(x, ...) {
   x
 }
-#=================================================
+# =================================================
 #' @title
 #' MISSING_TITLE
 #' @description
@@ -197,7 +197,7 @@ as.character.nightowl_svg <- function(x) {
   nightowl::as_html(x) %>%
     as.character()
 }
-#=================================================
+# =================================================
 #' @title
 #' MISSING_TITLE
 #' @description
@@ -208,7 +208,7 @@ as.character.nightowl_svg <- function(x) {
 vec_ptype2.nightowl_svg.nightowl_svg <- function(x, y, ...) {
   x
 }
-#=================================================
+# =================================================
 #' @title
 #' MISSING_TITLE
 #' @description

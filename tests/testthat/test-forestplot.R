@@ -1,16 +1,16 @@
 test_that("multiplication works", {
   a <- nightowl::forestplot(0, -1, 1)
   print(a)
-  print(a, .browser = F)
+  print(a, browser = F)
   html(a) %>% class()
   ggplot(a)
   as.character(a)
 
 
-
   data.frame(a)
   tibble::tibble(Plot = a)
-  vctrs::vec_ptype_abbr
+  vec_ptype_abbr(a)
+  vec_ptype_abbr(a)
 
   format(a)
   str(a)

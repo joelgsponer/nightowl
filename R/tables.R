@@ -158,10 +158,13 @@ reactable_default <- function(x,
 #' @param
 #' @return
 #' @export
-render_kable <- function(.tbl, caption = NULL, full_width = FALSE, column_width = "20em", ...) {
+render_kable <- function(.tbl, caption = NULL, full_width = FALSE, digits = 2, add_scale = T, column_width = "20em", ...) {
+  if (add_scale) .tbl <- nightowl::add_scale(.tbl)
+  .tbl <- dplyr::mutate_if(.tbl, is.numeric, function(x) round(x, digits))
+  .tbl <- dplyr::mutate_if(.tbl, is.numeric, as.character)
+  .tbl <- dplyr::mutate_all(.tbl, function(x) tidyr::replace_na(x, ""))
   .kable <- .tbl %>%
     knitr::kable("html", escape = FALSE, caption = caption)
-
   # .kable <- purrr::reduce( 1:length(names(.tbl)), function(.x, i){
   #   .x %>%
   #     kableExtra::column_spec(i, width = column_width)

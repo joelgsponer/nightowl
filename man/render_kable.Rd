@@ -8,6 +8,8 @@ render_kable(
   .tbl,
   caption = NULL,
   full_width = FALSE,
+  digits = 2,
+  add_scale = T,
   column_width = "20em",
   ...
 )

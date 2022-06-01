@@ -23,10 +23,15 @@ test_that("summary works", {
   nightowl::summarise(testdata, "qux")
   nightowl::summarise_categorical_barplot(testdata, "qux") %>% nightowl::render_kable()
   nightowl::summarise_numeric_forestplot(testdata, "bar") %>% nightowl::render_kable()
-  a <- nightowl::summarise_numeric_forestplot(testdata, "bar")
 
+  a <- nightowl::summarise_numeric_forestplot(testdata, "bar")
   a %>%
-    dplyr::select_if(nightowl::is_nightowl_svg)
+    nightowl::add_scale(height = 0.8, scaling = 3) %>%
+    nightowl::render_kable()
+
+  nightowl::summarise_categorical_barplot(testdata, "qux") %>%
+    nightowl::add_scale() %>%
+    nightowl::render_kable()
 
   testdata %>%
     dplyr::group_by(foo) %>%

@@ -7,18 +7,22 @@
 #' @return
 #' @export
 add_barplot <- function(x) {
+  x <- factor(x) %>%
+    forcats::fct_explicit_na()
   counts <- base::table(x) / length(x) * 100
   .p <- tibble::tibble(fill = names(counts), y = counts) %>%
     dplyr::mutate(fill = forcats::fct_inorder(fill)) %>%
     dplyr::mutate(fill = forcats::fct_rev(fill)) %>%
-    ggplot2::ggplot(ggplot2::aes(x = 1, y = y, fill = fill)) +
-    ggplot2::geom_col() +
-    ggplot2::theme_void() +
-    ggplot2::coord_flip() +
+    ggplot2::ggplot(ggplot2::aes(y = 1, x = y, fill = fill)) +
+    ggplot2::geom_col(orientation = "y") +
     ggplot2:::scale_fill_viridis_d(drop = FALSE) +
-    ggplot2:::scale_x_discrete(expand = ggplot2::expansion(0)) +
-    ggplot2:::scale_y_continuous(expand = ggplot2::expansion(0)) +
-    picasso::theme_void()
+    ggplot2:::scale_y_discrete(expand = ggplot2::expansion(0)) +
+    ggplot2::scale_x_continuous(limits = c(0, 100)) +
+    ggplot2::theme_void() +
+    ggplot2::theme(
+      legend.position = "none",
+      plot.margin = ggplot2::margin(0, 0, 0, 0, "cm")
+    )
   nightowl::render_svg(.p, height = 0.8, add_download_button = FALSE)
 }
 # =================================================
@@ -61,7 +65,6 @@ add_violin <- function(x,
     ggplot2::geom_violin(fill = picasso::roche_colors("lightblue")) +
     ggplot2::stat_summary(size = 2) +
     ggplot2::coord_flip() +
-    ggplot2:::scale_x_discrete(expand = ggplot2::expansion(0)) +
     ggplot2:::scale_y_continuous(expand = ggplot2::expansion(0))
   if (!is.null(ylim)) {
     .p <- .p + ggplot2::ylim(ylim)
@@ -111,29 +114,37 @@ add_histogram <- function(x,
   ) +
     ggplot2::geom_histogram(fill = picasso::roche_colors("lightblue"), binwidth = binwidth, color = "black") +
     ggplot2::theme_void() +
-    ggplot2:::scale_x_discrete(expand = ggplot2::expansion(0)) +
     ggplot2:::scale_y_continuous(expand = ggplot2::expansion(0))
   nightowl::render_svg(.p, height = height, add_download_button = FALSE)
 }
 # =================================================
 add_scale <- function(obj,
-                      column,
-                      height = 0.5,
-                      theme = ggplot2::theme_classic) {
-  browser()
-  stopifnot(inherits(obj[[column]], "nightowl_svg"))
-  .attr <- attributes(obj)$parameters[[column]]
-  stopifnot(!is.null(.attr$xlim))
+                      height = 1,
+                      scaling = 3.5,
+                      legend_position = "none") {
+  columns <- purrr::imap(obj, ~ if (nightowl::is_nightowl_svg(.x)) .y else NULL) %>%
+    purrr::compact()
 
-  scale <- ggplot2::ggplot() +
-    ggplot2::scale_x_continuous(limits = .attr$xlim) +
-    theme() +
-    ggplot2::theme(
-      axis.text.y = ggplot2::element_blank(),
-      axis.ticks.y = ggplot2::element_blank(),
-      axis.line.y = ggplot2::element_blank()
-    )
-  new_scale <- list()
-  new_scale[[column]] <- nightowl::render_svg(scale, height = height, add_download_button = F)
-  dplyr::bind_rows(obj, new_scale)
+
+  ggs <- purrr::map(columns, function(.column) {
+    .gg <- nightowl::as_ggplot(obj[[.column]])
+    .gg$layers <- NULL
+    .gg +
+      ggplot2::theme_classic() +
+      ggplot2::theme(
+        legend.position = legend_position,
+        axis.line.x = ggplot2::element_line(colour = "black", size = ggplot2::rel(1)),
+        axis.line.y = ggplot2::element_blank(),
+        axis.text.y = ggplot2::element_blank(),
+        axis.text.x = ggplot2::element_text(size = ggplot2::rel(1)),
+        axis.ticks.y = ggplot2::element_blank(),
+        plot.margin = ggplot2::margin(0, 0, 0, 0, "cm"),
+        axis.title.y = ggplot2::element_blank(),
+        axis.title.x = ggplot2::element_blank()
+      )
+  }) %>%
+    purrr::set_names(columns)
+
+  .scales <- purrr::map(ggs, ~ nightowl::render_svg(.x, height = height, scaling = scaling, add_download_button = FALSE))
+  dplyr::bind_rows(obj, .scales)
 }
