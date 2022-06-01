@@ -8,7 +8,7 @@ render_svg <- function(g,
                        scaling = 1,
                        add_download_button = T,
                        standalone = F,
-                       font_family = "Lato sans-serif",
+                       font_family = "Lato, sans-serif",
                        ...) {
   fix_font <- function(html, param = "font-family", value = font_family, old_value = "[^;]*") {
     str <- as.character(html)
@@ -17,7 +17,6 @@ render_svg <- function(g,
     new_str <- stringr::str_replace_all(str, pattern, replace)
     return(htmltools::HTML(new_str))
   }
-
   n_dev <- length(dev.list())
   tryCatch(
     {
@@ -36,6 +35,8 @@ render_svg <- function(g,
         svg <- nightowl::add_download_button(svg)
       }
       # class(svg) <- c("nightowl_svg", class(svg))
+      svg <- as.character(svg) %>%
+       htmltools::HTML()
       svg <- vctrs::new_vctr(svg, class = "nightowl_svg")
       attributes(svg)$g <- g
       return(svg)
@@ -67,7 +68,7 @@ peek <- function(g, ...) {
 #' @return
 #' @export
 add_download_button <- function(x) {
-  htmltools::div(
+  shiny::div(
     AceOfSpades::useAceOfSpadesJS(),
     htmltools::HTML("
       <div
@@ -109,8 +110,8 @@ is_nightowl_svg <- function(x) {
 #' @param
 #' @return
 #' @export
-html <- function(x) {
-  UseMethod("html")
+as_html <- function(x) {
+  UseMethod("as_html")
 }
 # =================================================
 #' @title
@@ -120,8 +121,9 @@ html <- function(x) {
 #' @param
 #' @return
 #' @export
-html.nightowl_svg <- function(x) {
+as_html.nightowl_svg <- function(x) {
   vctrs::vec_data(x) %>%
+    as.character() %>%
     htmltools::HTML()
 }
 # =================================================
@@ -132,8 +134,8 @@ html.nightowl_svg <- function(x) {
 #' @param
 #' @return
 #' @export
-ggplot <- function(x) {
-  UseMethod("ggplot")
+as_ggplot <- function(x) {
+  UseMethod("as_ggplot")
 }
 # =================================================
 #' @title
@@ -143,7 +145,7 @@ ggplot <- function(x) {
 #' @param
 #' @return
 #' @export
-ggplot.nightowl_svg <- function(x) {
+as_ggplot.nightowl_svg <- function(x) {
   attributes(x)$g
 }
 # =================================================
@@ -156,9 +158,9 @@ ggplot.nightowl_svg <- function(x) {
 #' @export
 print.nightowl_svg <- function(x, browser = T) {
   if (browser) {
-    print(htmltools::browsable(nightowl::html(x)))
+    print(htmltools::browsable(nightowl::as_html(x)))
   } else {
-    print(nightowl::html(x))
+    print(nightowl::as_html(x))
   }
 }
 # =================================================
@@ -169,10 +171,10 @@ print.nightowl_svg <- function(x, browser = T) {
 #' @param
 #' @return
 #' @export
-format.nightowl_svg <- function(x) {
-  rep("<nigthowl_svg>", length(vctrs::vec_data(x)))
+format.nightowl_svg <- function(x, ...) {
+  x
 }
-# =================================================
+#=================================================
 #' @title
 #' MISSING_TITLE
 #' @description
@@ -181,7 +183,7 @@ format.nightowl_svg <- function(x) {
 #' @return
 #' @export
 vec_ptype_abbr.nightowl_svg <- function(x) {
-  "prcnt"
+  "nghtwl_svg"
 }
 # =================================================
 #' @title
@@ -192,7 +194,28 @@ vec_ptype_abbr.nightowl_svg <- function(x) {
 #' @return
 #' @export
 as.character.nightowl_svg <- function(x) {
-  nightowl::html(x) %>%
+  nightowl::as_html(x) %>%
     as.character()
 }
-# =================================================
+#=================================================
+#' @title
+#' MISSING_TITLE
+#' @description
+#' @detail
+#' @param
+#' @return
+#' @export
+vec_ptype2.nightowl_svg.nightowl_svg <- function(x, y, ...) {
+  x
+}
+#=================================================
+#' @title
+#' MISSING_TITLE
+#' @description
+#' @detail
+#' @param
+#' @return
+#' @export
+vec_cast.nightowl_svg.nightowl_svg <- function(x, to, ...) {
+  x
+}
