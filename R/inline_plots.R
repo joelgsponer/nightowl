@@ -15,7 +15,7 @@ add_barplot <- function(x) {
     dplyr::mutate(fill = forcats::fct_rev(fill)) %>%
     ggplot2::ggplot(ggplot2::aes(y = 1, x = y, fill = fill)) +
     ggplot2::geom_col(orientation = "y") +
-    ggplot2:::scale_fill_viridis_d(drop = FALSE) +
+    MetBrewer::scale_fill_met_d("Demuth", drop = F) +
     ggplot2:::scale_y_discrete(expand = ggplot2::expansion(0)) +
     ggplot2::scale_x_continuous(limits = c(0, 100)) +
     ggplot2::theme_void() +
@@ -122,6 +122,7 @@ add_scale <- function(obj,
                       height = 1,
                       scaling = 3.5,
                       legend_position = "none") {
+  obj <- dplyr::ungroup(obj)
   columns <- purrr::imap(obj, ~ if (nightowl::is_nightowl_svg(.x)) .y else NULL) %>%
     purrr::compact()
 
@@ -146,5 +147,7 @@ add_scale <- function(obj,
     purrr::set_names(columns)
 
   .scales <- purrr::map(ggs, ~ nightowl::render_svg(.x, height = height, scaling = scaling, add_download_button = FALSE))
-  dplyr::bind_rows(obj, .scales)
+  dplyr::bind_rows(obj, .scales) %>%
+  dplyr::mutate_if(is.factor, as.character) %>%
+  dplyr::mutate_if(is.character, function(x) tidyr::replace_na(x, ""))
 }
