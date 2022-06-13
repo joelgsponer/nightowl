@@ -44,6 +44,22 @@ reactable_summary <- function(data, split = NULL, columns, group_by = NULL, plan
     nightowl::render_reactable(defaultPageSize = length(columns), minWidth_html = 500, full_width = T)
 }
 # =================================================
+#=================================================
+#' @title
+#' MISSING_TITLE
+#' @description
+#' @detail
+#' @param
+#' @return
+#' @export
+data_summary_with_plot <- function(...) {
+  nightowl::data_summary(
+    .summarise_numeric = nightowl::summarise_numeric_forestplot,
+    .summarise_categorical = nightowl::summarise_categorical_barplot,
+    ...
+  )
+}
+#=================================================
 #' @title
 #' MISSING_TITLE
 #' @description
@@ -55,8 +71,8 @@ data_summary <- function(data,
                          column,
                          group_by = NULL,
                          .mean = ggplot2::mean_cl_boot,
-                         .summarise_numeric = nightowl::summarise_numeric_forestplot,
-                         .summarise_categorical = nightowl::summarise_categorical_barplot,
+                         .summarise_numeric = nightowl::summarise_numeric,
+                         .summarise_categorical = nightowl::summarise_categorical,
                          calc_p = TRUE,
                          show_p = TRUE,
                          add_caption = TRUE,
@@ -64,6 +80,7 @@ data_summary <- function(data,
                          output = "raw",
                          labels = NULL,
                          .range = NULL,
+                         arrange_by = NULL,
                          ...) {
   cli::cli_h2("Calculating summary for {column}")
   .data <- data %>%
@@ -90,6 +107,9 @@ data_summary <- function(data,
         kruskal.test()
       test_method <- "Kruskal-Wallis"
       test_p_value <- test$p.value
+    } else {
+      test_method <- "None"
+      test_p_value <- NA
     }
   } else {
     res <- .summarise_categorical(data = .data, column = column, ...)
@@ -120,6 +140,7 @@ data_summary <- function(data,
   if (wrap_header) {
     names(res) <- stringr::str_wrap(names(res), width = 20)
   }
+  if (!is.null(arrange_by)) res <- dplyr::arrange(res, !!rlang::sym(arrange_by))
   if (output == "raw") {
     res$column <- column
     res <- dplyr::select(res, column, tidyselect::everything())
@@ -176,7 +197,8 @@ summarise <- function(data,
       dplyr::group_split() %>%
       purrr::map(
         function(.thisgroup) {
-          dplyr::mutate(.thisgroup, !!rlang::sym(.y$column) := do.call(.y$calculation, c(list(x = .thisgroup[[column]]), .y$params)))
+          res <- dplyr::mutate(.thisgroup, !!rlang::sym(.y$column) := do.call(.y$calculation, c(list(x = .thisgroup[[column]]), .y$params)))
+          res
         }
       )
     .x <- dplyr::bind_rows(.x) %>%
@@ -207,6 +229,27 @@ summarise <- function(data,
 #' @param
 #' @return
 #' @export
+summarise_categorical <- function(data,
+                                  column,
+                                  calculations = list(
+                                    `N.` = length,
+                                    Freq = nightowl::frequencies
+                                  ),
+                                  parameters = list(
+                                    Freq = list(
+                                      add_colors = FALSE)
+                                  ),
+                                  unnest = TRUE, names_sep = NULL) {
+  do.call(nightowl::summarise, as.list(environment()))
+}
+# =================================================
+#' @title
+#' MISSING_TITLE
+#' @description
+#' @detail
+#' @param
+#' @return
+#' @export
 summarise_categorical_barplot <- function(data,
                                           column,
                                           calculations = list(
@@ -225,6 +268,30 @@ summarise_categorical_barplot <- function(data,
 #' @param
 #' @return
 #' @export
+summarise_numeric <- function(data,
+                              column,
+                              calculations = list(
+                                `N.` = length,
+                                `Missing` = function(x) {
+                                  return(sum(is.na(x)))
+                                },
+                                `Outliers` = nightowl::count_outliers,
+                                Median = function(x) median(x, na.rm = T),
+                                Min = function(x) min(x, na.rm = T),
+                                Max = function(x) max(x, na.rm = T),
+                                Mean = nightowl::formated_mean
+                              ),
+                              parameters = list(),
+                              unnest = TRUE) {
+  do.call(nightowl::summarise, as.list(environment()))
+}
+#' @title
+#' MISSING_TITLE
+#' @description
+#' @detail
+#' @param
+#' @return
+#' @export
 summarise_numeric_forestplot <- function(data,
                                          column,
                                          calculations = list(
@@ -232,6 +299,7 @@ summarise_numeric_forestplot <- function(data,
                                            `Missing` = function(x) {
                                              return(sum(is.na(x)))
                                            },
+                                           `Outliers` = nightowl::count_outliers,
                                            Median = function(x) median(x, na.rm = T),
                                            Min = function(x) min(x, na.rm = T),
                                            Max = function(x) max(x, na.rm = T),
@@ -279,6 +347,30 @@ summarise_numeric_violin <- function(data,
   }
   do.call(nightowl::summarise, as.list(environment()))
 }
+# ===============================================================================
+#' @title
+#' MISSING_TITLE
+#' @description
+#' @detail
+#' @param
+#' @return
+#' @export
+summarise_numeric_histogram <- function(data,
+                                        column,
+                                        calculations = list(
+                                          `N.` = length,
+                                          Median = function(x) median(x, na.rm = T),
+                                          Mean = nightowl::formated_mean,
+                                          Histogram = nightowl::add_histogram
+                                        ),
+                                        parameters = list(),
+                                        unnest = TRUE) {
+  if (rlang::is_expression(parameters)) {
+    parameters <- eval(parameters)
+  }
+  do.call(nightowl::summarise, as.list(environment()))
+}
+
 # =================================================
 #' @title
 #' MISSING_TITLE
@@ -287,10 +379,8 @@ summarise_numeric_violin <- function(data,
 #' @param
 #' @return
 #' @export
-frequencies <- function(x, output = "print", digits = 1, str_width = 20) {
-  x <- factor(x) %>%
-    forcats::fct_explicit_na()
-
+frequencies <- function(x, output = "print", digits = 1, str_width = 20, add_colors = T) {
+  x <- forcats::fct_explicit_na(x)
   counts <- base::table(x)
   if (output == "counts") {
     counts %>%
@@ -311,9 +401,13 @@ frequencies <- function(x, output = "print", digits = 1, str_width = 20) {
     print <- as.character(glue::glue("{percent}%({counts})"))
     names(print) <- stringr::str_wrap(names(counts), str_width) %>%
       stringr::str_replace_all("\n", "<br>")
-    cols <- viridis::viridis_pal()(length(counts)) %>%
-      rev()
-    print <- purrr::map2(print, cols, ~ nightowl::style_cell(.x,
+    if(add_colors){
+      colors <- MetBrewer::met.brewer("Demuth", length(counts)) %>%
+        rev()
+    } else {
+      colors <- rep("white", length(counts))
+    }
+    print <- purrr::map2(print, colors, ~ nightowl::style_cell(.x,
       border_color = .y,
       border_style = "solid",
       border_width = "3px",
