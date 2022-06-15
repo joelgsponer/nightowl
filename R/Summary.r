@@ -1,8 +1,8 @@
 # #=================================================
-# #' R6 Class
-# #' @description
-# #' @detail
-# #' @export
+#' R6 Class
+#' @description
+#' @detail
+#' @export
 Summary <- R6::R6Class("Summary",
   public = list(
     column = NULL,
