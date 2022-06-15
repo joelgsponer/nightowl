@@ -7,14 +7,12 @@ Summary <- R6::R6Class("Summary",
   public = list(
     column = NULL,
     group_by = NULL,
-    .mean = ggplot2::mean_cl_boot,
     wrap_header = TRUE,
     .range = NULL,
     options_summarise = list(),
     options_reactables = list(defaultPageSize = 30),
     options_kable = list(),
     options_test = list(),
-    # Initalize
     initialize = function(.data, column, group_by = NULL, summarise = NULL, labels = NULL, ...) {
       self$column <- column
       self$group_by <- group_by
@@ -22,17 +20,14 @@ Summary <- R6::R6Class("Summary",
       self$set_labels(labels)
       self$set_type()
       self$set_method(summarise)
-      # Arguments
       purrr::imap(list(...), function(.x, .y) {
         if (.y %in% names(self)) {
           self[[.y]] <- .x
         }
       })
       self$set_hash()
-      # Return
       invisible(self)
     },
-    # Is dirty
     hash = NULL,
     hash_fields = c("data", "columm", "group_by", "summarise", "labels"),
     is_dirty = function(fields = self$hash_fields) {
@@ -45,10 +40,8 @@ Summary <- R6::R6Class("Summary",
       self$hash <- purrr::map(fields, ~ digest::digest(self[[.x]])) %>%
         purrr::set_names(fields)
     },
-    # Data
     data = NULL,
     set_data = function(.data) {
-      # Grouping
       if (!is.null(self$group_by)) {
         .data <- dplyr::ungroup(.data) %>%
           dplyr::group_by_at(self$group_by)
@@ -60,7 +53,6 @@ Summary <- R6::R6Class("Summary",
         dplyr::mutate_if(is.factor, forcats::fct_explicit_na)
       self$data <- .data
     },
-    # Labels
     labels = NULL,
     set_labels = function(labels) {
       if (!is.null(labels)) {
@@ -72,12 +64,10 @@ Summary <- R6::R6Class("Summary",
       }
       self$labels <- labels
     },
-    # Type
     type = NULL,
     set_type = function(.data) {
       self$type <- class(self$data[[self$column]])
     },
-    # Method
     method = NULL,
     set_method = function(summarise) {
       if (is.null(summarise)) {
@@ -88,7 +78,6 @@ Summary <- R6::R6Class("Summary",
         }
       }
     },
-    # Utils
     keep_y = TRUE,
     drop_variable = function(x) {
       if (!self$keep_y) {
@@ -97,7 +86,6 @@ Summary <- R6::R6Class("Summary",
         x
       }
     },
-    # Annotation
     add_caption = TRUE,
     caption = function() {
       if (self$add_caption) {
@@ -114,7 +102,6 @@ Summary <- R6::R6Class("Summary",
         NULL
       }
     },
-    # Test
     test = NULL,
     add_test = TRUE,
     calc_test = function() {
@@ -125,7 +112,6 @@ Summary <- R6::R6Class("Summary",
       }
       invisible(self)
     },
-    # Arrange
     arrange_by = NULL,
     arrange = function(x) {
       if (!is.null(self$arrange_by)) {
@@ -134,7 +120,6 @@ Summary <- R6::R6Class("Summary",
         x
       }
     },
-    # Outputs
     raw = function() {
       .data <- self$data
       res <- self$method(self$data, self$column)

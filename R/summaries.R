@@ -437,4 +437,3 @@ formated_mean <- function(x, fun = Hmisc::smean.cl.boot, digits = 1) {
   val <- round(val, digits)
   glue::glue("{val[1]}({val[2]}-{val[3]})")
 }
-# =================================================
