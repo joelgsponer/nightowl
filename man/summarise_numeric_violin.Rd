@@ -14,9 +14,6 @@ summarise_numeric_violin(
   unnest = TRUE
 )
 }
-\value{
-
-}
 \description{
 MISSING_TITLE
 }

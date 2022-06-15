@@ -1,0 +1,10 @@
+name: Inline Violin
+description: Pointestimates = Mean +/- SE
+layers:
+- type: generic
+  geom: ggplot2::geom_violin
+  fill: "#e0a000"
+- type: summary
+  geom: "pointrange"
+  orientation: "y"
+

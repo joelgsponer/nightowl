@@ -6,9 +6,6 @@
 \usage{
 km_summary(.formula, data)
 }
-\value{
-
-}
 \description{
 MISSING_TITLE
 }

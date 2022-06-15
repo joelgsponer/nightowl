@@ -4,10 +4,19 @@
 \alias{add_density}
 \title{MISSING_TITLE}
 \usage{
-add_density(x, ylim = NULL, height = 0.8, theme = ggplot2::theme_void)
-}
-\value{
-
+add_density(
+  x,
+  ylim = NULL,
+  height = 0.8,
+  width = 8,
+  scaling = 1,
+  theme = ggplot2::theme_void,
+  hide_x_axis = T,
+  hide_y_axis = T,
+  fill = picasso_colors("lightblue"),
+  expansion_y = 0,
+  add_download_button = FALSE
+)
 }
 \description{
 MISSING_TITLE

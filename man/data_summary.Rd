@@ -9,20 +9,20 @@ data_summary(
   column,
   group_by = NULL,
   .mean = ggplot2::mean_cl_boot,
-  .summarise_numeric = nightowl::summarise_numeric_forestplot,
-  .summarise_categorical = nightowl::summarise_categorical_barplot,
+  .summarise_numeric = nightowl::summarise_numeric,
+  .summarise_categorical = nightowl::summarise_categorical,
   calc_p = TRUE,
   show_p = TRUE,
   add_caption = TRUE,
   wrap_header = TRUE,
   output = "raw",
   labels = NULL,
+  keep_y = FALSE,
   .range = NULL,
+  arrange_by = NULL,
+  options_reactables = list(defaultPageSize = 30),
   ...
 )
-}
-\value{
-
 }
 \description{
 MISSING_TITLE

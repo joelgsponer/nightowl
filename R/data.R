@@ -15,3 +15,18 @@ detect_outliers <- function(x, fold = 15) {
   return(to_keep)
 }
 # =================================================
+#' @title
+#' MISSING_TITLE
+#' @description
+#' @detail
+#' @param
+#' @return
+#' @export
+count_outliers <- function(x, fold = 15) {
+  tmp <- graphics::boxplot(x, plot = FALSE)
+  to_keep <- dplyr::if_else(x > fold * tmp$stats[5] | x < (1 / fold) * tmp$stats[1],
+    TRUE, FALSE
+  )
+  sum(to_keep, na.rm = T)
+}
+# =================================================

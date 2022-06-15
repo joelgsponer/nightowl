@@ -4,10 +4,7 @@
 \alias{add_histogram}
 \title{MISSING_TITLE}
 \usage{
-add_histogram(x, height = 0.8, binwidth = NULL, xlim = NULL)
-}
-\value{
-
+add_histogram(x, height = 0.8, binwidth = NULL, xlim = NULL, add_scale = F)
 }
 \description{
 MISSING_TITLE

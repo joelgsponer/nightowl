@@ -105,6 +105,7 @@ plot_coxph <- function(data,
                        kable_style = kableExtra::kable_paper,
                        split = NULL,
                        conf_range = NULL,
+                       add_scale = T,
                        label_left = "Comparison better",
                        label_right = "Reference better",
                        title = "",
@@ -128,6 +129,7 @@ plot_coxph <- function(data,
   if (is.null(conf_range)) {
     conf_range <- range.default(.result$conf.low, .result$conf.high, na.rm = TRUE, finite = TRUE)
   }
+
   .result <- .result %>%
     dplyr::group_by_all() %>%
     dplyr::group_split() %>%
@@ -139,20 +141,14 @@ plot_coxph <- function(data,
         xlim = conf_range,
         xintercept = 1
       )
-
       .x$Visualization <- .p
       .x
     }) %>%
     dplyr::bind_rows()
-
-
   .result <- .result %>%
     dplyr::mutate_if(is.numeric, ~ round(.x, 3)) %>%
     dplyr::mutate(HR = glue::glue("{estimate} ({conf.low}-{conf.high})"))
-
-
   forest_label <- glue::glue("← {label_left} | {label_right} →")
-
   if (!is.null(split)) {
     .result <- .result %>%
       dplyr::select(
@@ -180,17 +176,18 @@ plot_coxph <- function(data,
       )
     collapse_this <- 1
   }
-
   .result$`p Value` <- purrr::map_chr(.result$`p Value`, ~ nightowl::format_p_value(.x))
-
-  .result <- .result[, purrr::map_lgl(.result, ~ !all(.x == ""))]
-
+  .result <- .result[, purrr::map_lgl(.result, ~ !all(identical(.x, "")))]
   if (!is.null(labels)) {
     .result$Variable <- purrr::reduce(names(labels), function(.x, .y) {
       stringr::str_replace_all(.x, .y, labels[.y])
     }, .init = .result$Variable)
   }
 
+  # Add Scale
+  if (add_scale) {
+    .result <- nightowl::add_scale(.result, scaling = 2.9, height = 0.6)
+  }
 
   if (is.null(covariates) && is.null(strata)) {
     .footnote <- "Univariate Analysis"
@@ -212,6 +209,7 @@ plot_coxph <- function(data,
   }
 
   if (engine == "kable") {
+    options(knitr.kable.NA = "")
     .result %>%
       knitr::kable("html", escape = F, caption = glue::glue("Cox's Proportional Hazard Model {title}")) %>%
       kableExtra::column_spec(1, bold = T) %>%

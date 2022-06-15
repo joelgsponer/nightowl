@@ -30,9 +30,6 @@ plot_stacked_percentages(
   explicit_na = T
 )
 }
-\value{
-
-}
 \description{
 Plot stacked percentage barplot
 }

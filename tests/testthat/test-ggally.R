@@ -1,7 +1,7 @@
 test_that("ggally works", {
   library(magrittr)
   testdata <- mtcars[, c(1, 3, 4, 5, 6, 7, 8)]
-  nightowl::ggpairs(testdata,
+  a <- nightowl::ggpairs(testdata,
     mapping = list(
       key = names(testdata),
       color = "vs",
@@ -24,6 +24,7 @@ test_that("ggally works", {
       value = "weight",
       id = "Chick",
       color = "Diet"
-    )
+    ),
+    svg = list()
   )
 })

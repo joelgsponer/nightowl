@@ -6,9 +6,6 @@
 \usage{
 fit_km(data, time, event, treatment, covariates = NULL, landmark = NULL, ...)
 }
-\value{
-
-}
 \description{
 MISSING_TITLE
 }

@@ -6,9 +6,6 @@
 \usage{
 n(...)
 }
-\value{
-
-}
 \description{
 MISSING_TITLE
 }

@@ -11,9 +11,6 @@ add_forestplot(
   xlim = NULL
 )
 }
-\value{
-
-}
 \description{
 MISSING_TITLE
 }

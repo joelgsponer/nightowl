@@ -6,9 +6,6 @@
 \usage{
 get_labels(x, labels)
 }
-\value{
-
-}
 \description{
 MISSING_TITLE
 }

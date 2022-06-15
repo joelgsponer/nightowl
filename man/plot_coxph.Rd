@@ -16,6 +16,7 @@ plot_coxph(
   kable_style = kableExtra::kable_paper,
   split = NULL,
   conf_range = NULL,
+  add_scale = T,
   label_left = "Comparison better",
   label_right = "Reference better",
   title = "",

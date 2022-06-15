@@ -5,17 +5,19 @@
 \title{MISSING_TITLE}
 \usage{
 render_reactable(
-  tibble,
+  .tbl,
   html_columns = NULL,
   theme = function() reactablefmtr::nytimes(centered = TRUE),
+  digits = 2,
   defaultPageSize = 10,
+  filterable = T,
+  minWidth_default = 100,
+  maxWidth_default = NULL,
   minWidth_html = 300,
+  maxWidth_html = NULL,
   fullWidth = FALSE,
   ...
 )
-}
-\value{
-
 }
 \description{
 MISSING_TITLE

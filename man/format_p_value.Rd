@@ -6,9 +6,6 @@
 \usage{
 format_p_value(p)
 }
-\value{
-
-}
 \description{
 MISSING_TITLE
 }

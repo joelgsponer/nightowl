@@ -6,9 +6,6 @@
 \usage{
 \method{print}{nightowl_svg}(x, browser = T)
 }
-\value{
-
-}
 \description{
 MISSING_TITLE
 }

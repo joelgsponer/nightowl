@@ -1,0 +1,31 @@
+name: Traces - with mean
+description: Trace (spaghetti) plot of indivdual subject with mean trendline (needs an <id> mapping). Please adjust filters to look at other parameters. Grouping can be changed through the <fill> <color> and <group> mappings.
+transform:
+  fill: factor
+  color: factor
+  group: factor
+layers:
+- type: traces
+  mapping:
+    lty: ~
+  geom: line
+  alpha: 0.1
+- type: summary
+  mapping:
+    id: ~
+    color: ~
+  geom: line
+  size: 1
+  dodge: 0
+- type: summary
+  mapping:
+    id: ~
+  geom: pointrange
+  size: 0.8
+  dodge: 0
+  color: black
+svg:
+  height: 8
+  width: 8
+  scaling: 1
+

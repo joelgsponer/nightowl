@@ -4,10 +4,7 @@
 \alias{frequencies}
 \title{MISSING_TITLE}
 \usage{
-frequencies(x, output = "print", digits = 1, str_width = 20)
-}
-\value{
-
+frequencies(x, output = "print", digits = 1, str_width = 20, add_colors = T)
 }
 \description{
 MISSING_TITLE

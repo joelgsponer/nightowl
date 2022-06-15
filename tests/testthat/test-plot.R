@@ -173,4 +173,37 @@ test_that("multiplication works", {
     ),
     dodge = 0.5
   )
+
+  # Inline plot ================================================================
+  nightowl::add_inline_plot(runif(1000),
+    layers = list(
+      list(type = "generic", geom = "ggplot2::geom_jitter", alpha = 0.3, width = 0.1)
+    ),
+    xlim = c(-5, 1),
+    coord_flip = F
+  )
+
+  nightowl::add_inline_plot(rnorm(1000, 0, 1),
+    style = "Inline-Halfeye"
+  )
+
+  nightowl::add_inline_plot(rnorm(1000, 0, 1),
+    style = "Inline-Violin",
+    height = 0.5,
+    coord_flip = FALSE
+  )
+
+  nightowl::add_inline_plot(rnorm(1000, 0, 1),
+    style = "Inline-Points"
+  )
+
+  nightowl::add_inline_plot(rnorm(1000, 0, 1),
+    mapping = list(x = "x", y = NULL),
+    style = "Inline-Density"
+  )
+
+  nightowl::add_inline_plot(rnorm(1000, 0, 1),
+    mapping = list(x = "x", y = NULL),
+    style = "Inline-Halfeye"
+  )
 })

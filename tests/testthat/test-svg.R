@@ -21,7 +21,11 @@ test_that("svg works", {
   )
   # ggplot2::guides(colour = ggplot2::guide_legend(nrow = 2))
 
+  .p <- .p + MetBrewer::scale_color_met_d("Demuth")
+
+
   a <- nightowl::render_svg(.p, height = 4, width = 4, scaling = 0.5)
+
   nightowl::render_svg(.p, height = 4, width = 8, scaling = 0.5)
   nightowl::render_svg(.p, height = 3, width = 8, scaling = 0.5, add_download_button = F)
 

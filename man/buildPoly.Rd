@@ -9,9 +9,6 @@ buildPoly(slope, intercept, above, xr, yr)
 \arguments{
 \item{yr}{}
 }
-\value{
-
-}
 \description{
 Title
 }

@@ -6,9 +6,6 @@
 \usage{
 \method{vec_cast}{nightowl_svg.nightowl_svg}(x, to, ...)
 }
-\value{
-
-}
 \description{
 MISSING_TITLE
 }

@@ -6,9 +6,6 @@
 \usage{
 \method{as_ggplot}{nightowl_svg}(x)
 }
-\value{
-
-}
 \description{
 MISSING_TITLE
 }

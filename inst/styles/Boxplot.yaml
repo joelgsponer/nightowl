@@ -1,0 +1,19 @@
+name: Boxplot - simple
+description: Simple Boxplot
+transform:
+  x: factor
+  fill: factor
+  color: factor
+  group: factor
+layers:
+- type: boxplot
+  mapping:
+    group: ~
+    color: ~
+    id: ~
+  dodge: ~
+svg:
+  height: 8
+  width: 8
+  scaling: 1
+

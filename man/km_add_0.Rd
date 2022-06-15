@@ -6,9 +6,6 @@
 \usage{
 km_add_0(fit)
 }
-\value{
-
-}
 \description{
 MISSING_TITLE
 }

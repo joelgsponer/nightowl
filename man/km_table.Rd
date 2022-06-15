@@ -6,9 +6,6 @@
 \usage{
 km_table(fit, what = "n.risk", break_width = 10)
 }
-\value{
-
-}
 \description{
 MISSING_TITLE
 }

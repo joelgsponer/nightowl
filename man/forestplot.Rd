@@ -14,11 +14,10 @@ forestplot(
   xlab = NULL,
   ylab = NULL,
   hide_y_axis = TRUE,
+  hide_x_axis = TRUE,
+  hide_legend = TRUE,
   theme = ggplot2::theme_void
 )
-}
-\value{
-
 }
 \description{
 MISSING_TITLE

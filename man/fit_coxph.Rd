@@ -15,9 +15,6 @@ fit_coxph(
   ...
 )
 }
-\value{
-
-}
 \description{
 MISSING_TITLE
 }

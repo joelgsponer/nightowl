@@ -6,9 +6,6 @@
 \usage{
 grouped_chisq(df, split_by, x, y, ...)
 }
-\value{
-
-}
 \description{
 MISSING_TITLE
 }

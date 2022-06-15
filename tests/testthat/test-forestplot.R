@@ -2,8 +2,8 @@ test_that("multiplication works", {
   a <- nightowl::forestplot(0, -1, 1)
   print(a)
   print(a, browser = F)
-  html(a) %>% class()
-  ggplot(a)
+  nightowl::as_html(a) %>% class()
+  nightowl::as_ggplot(a)
   as.character(a)
 
 

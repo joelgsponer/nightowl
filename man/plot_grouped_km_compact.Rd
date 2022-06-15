@@ -17,9 +17,6 @@ plot_grouped_km_compact(
   ...
 )
 }
-\value{
-
-}
 \description{
 MISSING_TITLE
 }

@@ -1,0 +1,6 @@
+name: Inline Density
+description: Pointestimates = Mean +/- SE
+layers:
+- type: generic
+  geom: ggplot2::geom_density
+  fill: "#e0a000"

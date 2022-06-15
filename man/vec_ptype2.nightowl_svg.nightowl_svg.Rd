@@ -6,9 +6,6 @@
 \usage{
 \method{vec_ptype2}{nightowl_svg.nightowl_svg}(x, y, ...)
 }
-\value{
-
-}
 \description{
 MISSING_TITLE
 }

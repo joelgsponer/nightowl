@@ -6,9 +6,6 @@
 \usage{
 ggplot_to_girafe(ggobj, width = 10, height = 20)
 }
-\value{
-
-}
 \description{
-
+Convert to girafe object
 }

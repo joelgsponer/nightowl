@@ -32,8 +32,10 @@ plot <- function(DATA,
     purrr::map(layers, ~ unlist(unname(.x$mapping))) %>% unlist()
   ) %>%
     unique()
+  if (inherits(DATA, "data.frame")) {
+    DATA <- tibble::as_tibble(DATA)
+  }
   DATA <- DATA %>%
-    tibble::as_tibble() %>%
     dplyr::select_at(cols)
   if (any(dim(DATA) == 0)) rlang::abort("No data, check mapping")
   #*******************************************************************************

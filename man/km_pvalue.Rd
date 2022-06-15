@@ -6,9 +6,6 @@
 \usage{
 km_pvalue(.formula, data, html = TRUE)
 }
-\value{
-
-}
 \description{
 MISSING_TITLE
 }

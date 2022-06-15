@@ -17,9 +17,6 @@ reactable_default(
   ...
 )
 }
-\value{
-
-}
 \description{
 MISSING_TITLE
 }

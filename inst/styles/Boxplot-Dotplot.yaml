@@ -1,0 +1,27 @@
+name: Boxplot & Dotplot
+description: Dotplot with ab Boxplot overlaid. Please adjust filters to look at other parameters.
+  Grouping can be changed through the <fill> <color> and <group> mappings.
+transform:
+  x: factor
+  fill: factor
+  color: factor
+  group: factor
+layers:
+- type: boxplot
+  notch: yes
+  width: 0.25
+  na.rm: yes
+  outlier.shape: 0
+  outlier.size: 0
+  alpha: 0.5
+  mapping:
+    color: ~
+    id: ~
+- type: generic
+  geom: geom_jitter
+  width: 0.2
+  alpha: 0.8
+svg:
+  height: 8
+  width: 8
+  scaling: 1

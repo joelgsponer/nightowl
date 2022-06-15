@@ -1,0 +1,28 @@
+name: Boxplot - with mean
+description: Simple boxplot with a mean trendline. Adjust <fill> and <group> mapping to change grouping.
+transform:
+  x: factor
+  fill: factor
+  color: factor
+  group: factor
+layers:
+- type: boxplot
+  mapping:
+    group: ~
+    color: ~
+    id: ~
+  dodge: ~
+- type: summary
+  fun.data: mean_se
+  geom: line
+  dodge: ~
+- type: summary
+  fun.data: mean_se
+  geom: pointrange
+  color: black
+  dodge: ~
+svg:
+  height: 8
+  width: 8
+  scaling: 1
+

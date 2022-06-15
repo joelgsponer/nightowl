@@ -18,9 +18,6 @@ geom_section(
 \arguments{
 \item{show.legend}{}
 }
-\value{
-
-}
 \description{
 Title
 }

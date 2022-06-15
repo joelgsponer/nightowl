@@ -6,9 +6,6 @@
 \usage{
 is_nightowl_svg(x)
 }
-\value{
-
-}
 \description{
 MISSING_TITLE
 }

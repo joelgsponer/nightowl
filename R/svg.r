@@ -172,7 +172,8 @@ print.nightowl_svg <- function(x, browser = T) {
 #' @return
 #' @export
 format.nightowl_svg <- function(x, ...) {
-  nightowl::as_html(x)
+  # nightowl::as_html(x)
+  x
 }
 # =================================================
 #' @title

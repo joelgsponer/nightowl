@@ -1,0 +1,15 @@
+name: Traces - simple
+description: Simple trace (spaghetti) plot of indivdual subject (needs an <id> mapping). Please adjust filters to look at other parameters.
+transform:
+  fill: factor
+  color: factor
+  group: factor
+layers:
+- type: traces
+  geom: line
+  alpha: 0.1
+svg:
+  height: 8
+  width: 8
+  scaling: 1
+

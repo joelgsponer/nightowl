@@ -6,9 +6,6 @@
 \usage{
 style_cell(x, ...)
 }
-\value{
-
-}
 \description{
 Function arguments are translated into CSS adn applied to the cell content
 }

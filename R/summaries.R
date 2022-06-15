@@ -44,7 +44,6 @@ reactable_summary <- function(data, split = NULL, columns, group_by = NULL, plan
     nightowl::render_reactable(defaultPageSize = length(columns), minWidth_html = 500, full_width = T)
 }
 # =================================================
-#=================================================
 #' @title
 #' MISSING_TITLE
 #' @description
@@ -59,7 +58,7 @@ data_summary_with_plot <- function(...) {
     ...
   )
 }
-#=================================================
+# =================================================
 #' @title
 #' MISSING_TITLE
 #' @description
@@ -79,8 +78,10 @@ data_summary <- function(data,
                          wrap_header = TRUE,
                          output = "raw",
                          labels = NULL,
+                         keep_y = FALSE,
                          .range = NULL,
                          arrange_by = NULL,
+                         options_reactables = list(defaultPageSize = 30),
                          ...) {
   cli::cli_h2("Calculating summary for {column}")
   .data <- data %>%
@@ -100,50 +101,41 @@ data_summary <- function(data,
 
   if (is.numeric(.data[[column]])) {
     res <- .summarise_numeric(data = .data, column = column, ...)
-    if (calc_p && !is.null(group_by)) {
-      test <- .data %>%
-        dplyr::group_split() %>%
-        purrr::imap(~ .x[[column]]) %>%
-        kruskal.test()
-      test_method <- "Kruskal-Wallis"
-      test_p_value <- test$p.value
-    } else {
-      test_method <- "None"
-      test_p_value <- NA
-    }
   } else {
     res <- .summarise_categorical(data = .data, column = column, ...)
-    if (calc_p && !is.null(group_by)) {
-      cont_table <- .data %>%
-        dplyr::select_at(c(column, group_by)) %>%
-        dplyr::ungroup() %>%
-        dplyr::mutate(group = paste(!!!rlang::syms(group_by))) %>%
-        waRRior::drop_columns(group_by) %>%
-        droplevels() %>%
-        base::table()
-      if (min(dim(cont_table)) > 1) {
-        test <- chisq.test(cont_table, correct = F)
-        test_method <- "Chi-squared test"
-        test_p_value <- test$p.value
-      } else {
-        test_method <- "None"
-        test_p_value <- NA
-      }
-    }
   }
+
+  if (calc_p) {
+    test <- nightowl::Test$new(.data, column)
+  }
+  if (!keep_y) res <- res %>% dplyr::select(-Variable)
 
   if (add_caption) {
     .caption <- glue::glue("Summary for {column}")
   } else {
     .caption <- NULL
   }
-  if (wrap_header) {
-    names(res) <- stringr::str_wrap(names(res), width = 20)
-  }
   if (!is.null(arrange_by)) res <- dplyr::arrange(res, !!rlang::sym(arrange_by))
   if (output == "raw") {
     res$column <- column
     res <- dplyr::select(res, column, tidyselect::everything())
+  } else if (output == "reactable") {
+    res <- do.call(nightowl::render_reactable, c(list(.tbl = res), options_reactables))
+
+    res <- shiny::div(
+      style = "
+        display: flex;
+        flex-direction: column;
+        align-content: flex-start;
+        align-items: center;
+      ",
+      res,
+      shiny::div(
+        style = "font-family: monospace;",
+        glue::glue("{test_method}: {nightowl::format_p_value(test_p_value)}")
+      )
+    ) %>%
+      htmltools::browsable()
   } else {
     res <- nightowl::render_kable(res, caption = .caption, ...)
     if (show_p) {
@@ -179,7 +171,6 @@ summarise <- function(data,
                       names_sep = ".") {
   stopifnot(is.list(calculations))
   if (rlang::is_expression(parameters)) {
-    cli::cli_progress_step("Evaluating parameters")
     parameters <- eval(parameters)
   }
 
@@ -192,7 +183,6 @@ summarise <- function(data,
   .group <- waRRior::get_groups(data)
 
   res <- purrr::reduce(.calculations, function(.x, .y) {
-    cli::cli_progress_step("Calculating {.y$column}")
     .x <- .x %>%
       dplyr::group_split() %>%
       purrr::map(
@@ -205,7 +195,6 @@ summarise <- function(data,
       dplyr::group_by_at(.group)
     if (unnest) {
       if (any(class(.x[[.y$column]]) %in% c("tibble", "data.frame", "list"))) {
-        cli::cli_progress_step("Unesting {.y$column}")
         .x <- tidyr::unnest(.x, !!rlang::sym(.y$column), names_sep = names_sep, names_repair = "minimal")
       }
     }
@@ -237,7 +226,8 @@ summarise_categorical <- function(data,
                                   ),
                                   parameters = list(
                                     Freq = list(
-                                      add_colors = FALSE)
+                                      add_colors = FALSE
+                                    )
                                   ),
                                   unnest = TRUE, names_sep = NULL) {
   do.call(nightowl::summarise, as.list(environment()))
@@ -275,7 +265,7 @@ summarise_numeric <- function(data,
                                 `Missing` = function(x) {
                                   return(sum(is.na(x)))
                                 },
-                                `Outliers` = nightowl::count_outliers,
+                                `Extreme Values` = nightowl::count_outliers,
                                 Median = function(x) median(x, na.rm = T),
                                 Min = function(x) min(x, na.rm = T),
                                 Max = function(x) max(x, na.rm = T),
@@ -285,6 +275,7 @@ summarise_numeric <- function(data,
                               unnest = TRUE) {
   do.call(nightowl::summarise, as.list(environment()))
 }
+# ===============================================================================
 #' @title
 #' MISSING_TITLE
 #' @description
@@ -299,7 +290,7 @@ summarise_numeric_forestplot <- function(data,
                                            `Missing` = function(x) {
                                              return(sum(is.na(x)))
                                            },
-                                           `Outliers` = nightowl::count_outliers,
+                                           `Extreme Values` = nightowl::count_outliers,
                                            Median = function(x) median(x, na.rm = T),
                                            Min = function(x) min(x, na.rm = T),
                                            Max = function(x) max(x, na.rm = T),
@@ -401,18 +392,19 @@ frequencies <- function(x, output = "print", digits = 1, str_width = 20, add_col
     print <- as.character(glue::glue("{percent}%({counts})"))
     names(print) <- stringr::str_wrap(names(counts), str_width) %>%
       stringr::str_replace_all("\n", "<br>")
-    if(add_colors){
-      colors <- MetBrewer::met.brewer("Demuth", length(counts)) %>%
-        rev()
-    } else {
-      colors <- rep("white", length(counts))
-    }
+    colors <- MetBrewer::met.brewer("Demuth", length(counts)) %>%
+      rev()
     print <- purrr::map2(print, colors, ~ nightowl::style_cell(.x,
-      border_color = .y,
-      border_style = "solid",
-      border_width = "3px",
+      background_color = ifelse(add_colors, .y, "white"),
+      color = ifelse(picasso::is_dark(.y) && add_colors, "white", "black"),
+      # border_style = "solid",
+      # border_width = "3px",
+      font_weight = ifelse(add_colors, "bold", "normal"),
       text_align = "center",
-      padding = "0px",
+      padding_top = "0px",
+      padding_bottom = "0px",
+      padding_left = ifelse(add_colors, "3px", "0px"),
+      padding_right = ifelse(add_colors, "3px", "0px"),
       margin = "0 0 0 0 px"
     ) %>% unlist())
     print %>%

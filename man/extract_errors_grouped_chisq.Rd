@@ -6,9 +6,6 @@
 \usage{
 extract_errors_grouped_chisq(x)
 }
-\value{
-
-}
 \description{
 missing_title
 }

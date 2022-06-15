@@ -6,9 +6,6 @@
 \usage{
 detect_outliers(x, fold = 15)
 }
-\value{
-
-}
 \description{
 MISSING_TITLE
 }

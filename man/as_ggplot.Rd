@@ -6,9 +6,6 @@
 \usage{
 as_ggplot(x)
 }
-\value{
-
-}
 \description{
 MISSING_TITLE
 }

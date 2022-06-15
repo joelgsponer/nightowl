@@ -158,18 +158,28 @@ reactable_default <- function(x,
 #' @param
 #' @return
 #' @export
-render_kable <- function(.tbl, caption = NULL, full_width = FALSE, digits = 2, add_scale = T, column_width = "20em", ...) {
+render_kable <- function(.tbl,
+                         caption = NULL,
+                         full_width = FALSE,
+                         digits = 2,
+                         add_scale = T,
+                         column_width = "20em",
+                         width_header = 20,
+                         footnote = NULL,
+                         ...) {
+  if (!is.null(width_header)) {
+    names(.tbl) <- stringr::str_wrap(names(.tbl), width = width_header)
+  }
   if (add_scale) .tbl <- nightowl::add_scale(.tbl)
   .tbl <- dplyr::mutate_if(.tbl, is.numeric, function(x) round(x, digits))
   .tbl <- dplyr::mutate_if(.tbl, is.numeric, as.character)
   .tbl <- dplyr::mutate_all(.tbl, function(x) tidyr::replace_na(x, ""))
   .kable <- .tbl %>%
     knitr::kable("html", escape = FALSE, caption = caption)
-  # .kable <- purrr::reduce( 1:length(names(.tbl)), function(.x, i){
-  #   .x %>%
-  #     kableExtra::column_spec(i, width = column_width)
-  # }, .init  = .kable)
   .kable <- kableExtra::kable_styling(.kable, full_width = full_width, ...)
+  if (!is.null(footnote)) {
+    .kable <- kableExtra::add_footnote(.kable, footnote)
+  }
   return(.kable)
 }
 # s-------------------------------------------------------------------------------
@@ -181,54 +191,72 @@ render_kable <- function(.tbl, caption = NULL, full_width = FALSE, digits = 2, a
 #' @param
 #' @return
 #' @export
-render_reactable <- function(tibble,
+render_reactable <- function(.tbl,
                              html_columns = NULL,
                              theme = function() reactablefmtr::nytimes(centered = TRUE),
+                             digits = 2,
                              defaultPageSize = 10,
+                             filterable = T,
+                             minWidth_default = 100,
+                             maxWidth_default = NULL,
                              minWidth_html = 300,
+                             maxWidth_html = NULL,
                              fullWidth = FALSE,
                              ...) {
+  .groups <- waRRior::get_groups(.tbl)
+  .tbl <- dplyr::select_at(.tbl, c(.groups, waRRior::pop(names(.tbl), .groups)))
+  .tbl <- dplyr::ungroup(.tbl)
+  .tbl <- dplyr::mutate_if(.tbl, is.numeric, function(x) round(x, digits))
+  .tbl <- dplyr::mutate_if(.tbl, is.numeric, as.character)
   if (is.null(html_columns)) {
-    html_columns <- purrr::imap(tibble, ~ if (inherits(.x, "html")) .y) %>%
+    column_types <- purrr::map(.tbl, ~ class(.x))
+    html_columns <- purrr::map(column_types, ~ if ("nightowl_svg" %in% .x) TRUE else NULL) %>%
       purrr::compact() %>%
-      unlist()
+      names()
   }
   col_def <- list()
   if (!is.null(html_columns)) {
     col_def <- purrr::reduce(html_columns, function(.old, .new) {
-      .old[[.new]] <- reactable::colDef(minWidth = minWidth_html, html = TRUE, class = "nightowl-html-column")
+      .old[[.new]] <- reactable::colDef(minWidth = minWidth_html, maxWidth = maxWidth_html, html = TRUE, class = "nightowl-html-column")
       .old
     }, .init = col_def)
   }
-  non_html_columns <- purrr::imap(tibble, ~ if (!inherits(.x, "html")) .y) %>%
+  non_html_columns <- purrr::map(column_types, ~ if (!"nightowl_svg" %in% .x) TRUE else NULL) %>%
     purrr::compact() %>%
-    unlist()
+    names()
   col_def <- purrr::reduce(non_html_columns, function(.old, .new) {
-    .old[[.new]] <- reactable::colDef(minWidth = 100, maxWidth = 100)
+    .old[[.new]] <- reactable::colDef(minWidth = minWidth_default, maxWidth = maxWidth_default)
     .old
   }, .init = col_def)
-  .tbl <- tibble %>%
+  # Make groups sticky
+  col_def <- purrr::reduce(.groups, function(.old, .new) {
+    .old[[.new]] <- reactable::colDef(minWidth = minWidth_default, maxWidth = maxWidth_default, sticky = "left")
+    .old
+  }, .init = col_def)
+  res <-
     reactable::reactable(
+      .tbl,
       theme = theme(),
       defaultColDef = reactable::colDef(
         header = function(value) gsub(".", " ", value, fixed = TRUE),
         cell = function(value) format(value, nsmall = 1),
         align = "center",
-        minWidth = 100,
+        minWidth = minWidth_default,
         # headerStyle = list(background = "#f7f7f8"),
         html = TRUE
       ),
       columns = col_def,
-      filterable = T,
+      filterable = filterable,
       defaultPageSize = defaultPageSize,
-      style = list(fontFamily = "Work Sans, sans-serif", fontSize = "14px", padding = "10px"),
+      style = list(fontFamily = "Work Sans, sans-serif", fontSize = "11px", padding = "5px"),
       searchable = FALSE,
       bordered = FALSE,
       showPageSizeOptions = TRUE,
       pageSizeOptions = c(1, 5, 10, 100),
-      fullWidth = fullWidth
+      fullWidth = fullWidth,
+      ...
     )
-  return(.tbl)
+  return(res)
 }
 # =================================================
 #' @title

@@ -6,9 +6,6 @@
 \usage{
 new_svg(x)
 }
-\value{
-
-}
 \description{
 MISSING_TITLE
 }

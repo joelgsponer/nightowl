@@ -19,9 +19,6 @@ plot_grouped_chisq(
   ...
 )
 }
-\value{
-
-}
 \description{
 MISSING_TITLE
 }

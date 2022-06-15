@@ -15,6 +15,8 @@ forestplot <- function(x,
                        xlab = NULL,
                        ylab = NULL,
                        hide_y_axis = TRUE,
+                       hide_x_axis = TRUE,
+                       hide_legend = TRUE,
                        theme = ggplot2::theme_void) {
   .data <- tibble::tibble(x = x, xmin = xmin, xmax = xmax)
   .p <- ggplot2::ggplot(NULL, ggplot2::aes(
@@ -27,17 +29,18 @@ forestplot <- function(x,
     ggplot2::geom_errorbarh() +
     ggplot2::geom_point(cex = 8, shape = 18, color = picasso::roche_colors("blue")) +
     theme() +
-    ggplot2::theme(
-      legend.position = "none"
-    ) +
     ggplot2::xlab(xlab) +
     ggplot2::ylab(ylab)
 
+
+  if (hide_legend) {
+    .p <- .p + picasso::hide_legend()
+  }
+  if (hide_x_axis) {
+    .p <- .p + picasso::hide_x_axis()
+  }
   if (hide_y_axis) {
-    .p <- .p + ggplot2::theme(
-      axis.text.y = ggplot2::element_blank(),
-      axis.ticks.y = ggplot2::element_blank()
-    )
+    .p <- .p + picasso::hide_y_axis()
   }
 
 

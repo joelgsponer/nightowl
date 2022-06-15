@@ -17,13 +17,25 @@ test_that("summary works", {
     ))
   testdata
 
-  nightowl::summary(testdata, "bar", "foo", output = "kable", labels = c(bar = "Bar", foo = "Foo"))
-  nightowl::summary(testdata, "qux", "foo", output = "raw")
+  # Data summary
+  nightowl::data_summary(testdata, "bar", "foo", output = "kable", labels = c(bar = "Bar", foo = "Foo"), keep_y = TRUE)
+  nightowl::data_summary(testdata, "bar", "foo", output = "reactable", labels = c(bar = "Bar", foo = "Foo"))
+  nightowl::data_summary(testdata, "qux", "foo", output = "kable")
+  nightowl::data_summary(testdata, "qux", "foo", output = "reactable")
+  nightowl::data_summary_with_plot(testdata, "bar", "foo", output = "kable", labels = c(bar = "Bar", foo = "Foo"))
+  nightowl::data_summary_with_plot(testdata, "bar", "foo", output = "reactable", labels = c(bar = "Bar", foo = "Foo"))
+  nightowl::data_summary_with_plot(testdata, "qux", "foo", output = "kable")
 
+  # Summarise categorical
   nightowl::summarise(testdata, "qux")
+  nightowl::summarise_categorical(testdata, "qux") %>% nightowl::render_kable()
   nightowl::summarise_categorical_barplot(testdata, "qux") %>% nightowl::render_kable()
+
+  # Summarise numeric
+  nightowl::summarise_numeric(testdata, "bar") %>% nightowl::render_kable()
   nightowl::summarise_numeric_forestplot(testdata, "bar") %>% nightowl::render_kable()
 
+  # Adding scales
   a <- nightowl::summarise_numeric_forestplot(testdata, "bar")
   a %>%
     nightowl::add_scale(height = 0.8, scaling = 3) %>%
@@ -33,6 +45,7 @@ test_that("summary works", {
     nightowl::add_scale() %>%
     nightowl::render_kable()
 
+  # Groupings
   testdata %>%
     dplyr::group_by(foo) %>%
     purrr::map_df(c("bar", "baz"), function(col, .data) {
@@ -45,6 +58,7 @@ test_that("summary works", {
     nightowl::summarise_numeric_violin("bar") %>%
     nightowl::render_kable()
 
+  # Some reactables
   nightowl::summary(testdata, "qux", c("foo", "s1"), output = "kable")
   nightowl::render_reactable()
 
@@ -84,7 +98,7 @@ test_that("summary works", {
   nightowl::calc_summary_numeric(dplyr::group_by(testdata, foo), "bar") %>% nightowl::render_kable()
   nightowl::calc_summary_numeric(dplyr::group_by(testdata, foo), "bar") %>% nightowl::render_reactable()
 
-  nightowl::calc_summary_numeric(
+  nightowl::summarise(
     data = dplyr::group_by(testdata, foo),
     column = "bar",
     calculations = list(
@@ -92,6 +106,24 @@ test_that("summary works", {
       Median = function(x) median(x, na.rm = T),
       Mean = nightowl::formated_mean,
       Violin = nightowl::add_violin
+    ),
+    parameters = rlang::expr(list(
+      Violin = list(
+        theme = picasso::theme_void,
+        height = 1.5,
+        ylim = range(data[[column]], na.rm = T)
+      )
+    ))
+  ) %>% nightowl::render_kable()
+
+  nightowl::summarise(
+    data = dplyr::group_by(testdata, foo),
+    column = "bar",
+    calculations = list(
+      `N.` = length,
+      Median = function(x) median(x, na.rm = T),
+      Mean = nightowl::formated_mean,
+      Violin = function(x) nightowl::styled_plot(x, )
     ),
     parameters = rlang::expr(list(
       Violin = list(
@@ -176,4 +208,33 @@ test_that("summary works", {
     }),
     parameters = list(Test = list(param = "test"))
   )
+
+
+  s <- nightowl::Summary$new(testdata %>% dplyr::group_by(s1), "qux")
+  s
+  s$raw()
+  s$keep_y <- FALSE
+  s$raw()
+  s$reactable()
+
+  s$options_test$correct <- TRUE
+  s$calc_test()$test$footnote
+
+  s <- nightowl::Summary$new(testdata, "bar", "foo", labels = c(bar = "Bar", foo = "Foo"), keep_y = TRUE)
+  s
+  s$kable()
+  s$html()
+  s$reactable()
+
+  s <- nightowl::Summary$new(testdata, "bar", "foo", method = nightowl::summarise_numeric_forestplot, labels = c(bar = "Bar", foo = "Foo"), keep_y = TRUE)
+
+
+  s$reactable(fullWidth = TRUE)
+
+  s$kable()
+
+  s$hash
+  s$is_dirty()
+  s$data <- mtcars
+  s$is_dirty()
 })

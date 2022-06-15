@@ -6,9 +6,6 @@
 \usage{
 formated_mean(x, fun = Hmisc::smean.cl.boot, digits = 1)
 }
-\value{
-
-}
 \description{
 MISSING_TITLE
 }

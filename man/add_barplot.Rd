@@ -6,9 +6,6 @@
 \usage{
 add_barplot(x)
 }
-\value{
-
-}
 \description{
 MISSING_TITLE
 }

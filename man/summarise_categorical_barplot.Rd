@@ -13,9 +13,6 @@ summarise_categorical_barplot(
   names_sep = NULL
 )
 }
-\value{
-
-}
 \description{
 MISSING_TITLE
 }

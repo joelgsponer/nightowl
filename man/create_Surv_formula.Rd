@@ -14,9 +14,6 @@ create_Surv_formula(
   random_effects = NULL
 )
 }
-\value{
-
-}
 \description{
 MISSING_TITLE
 }

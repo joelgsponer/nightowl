@@ -11,11 +11,10 @@ render_kable(
   digits = 2,
   add_scale = T,
   column_width = "20em",
+  width_header = 20,
+  footnote = NULL,
   ...
 )
-}
-\value{
-
 }
 \description{
 MISSING_TITLE

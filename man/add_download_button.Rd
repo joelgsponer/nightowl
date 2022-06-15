@@ -6,9 +6,6 @@
 \usage{
 add_download_button(x)
 }
-\value{
-
-}
 \description{
 MISSING_TITLE
 }

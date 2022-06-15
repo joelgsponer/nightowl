@@ -6,9 +6,6 @@
 \usage{
 as_html(x)
 }
-\value{
-
-}
 \description{
 MISSING_TITLE
 }

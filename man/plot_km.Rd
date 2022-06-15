@@ -29,9 +29,6 @@ plot_km(
   break_width = 10
 )
 }
-\value{
-
-}
 \description{
 MISSING_TITLE
 }

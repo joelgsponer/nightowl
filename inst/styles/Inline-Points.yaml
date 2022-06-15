@@ -1,0 +1,7 @@
+name: Inline Points
+description: Simple points
+layers:
+- type: generic
+  geom: ggplot2::geom_jitter
+  fill: "#e0a000"
+

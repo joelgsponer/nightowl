@@ -13,9 +13,6 @@ reactable_summary(
   ...
 )
 }
-\value{
-
-}
 \description{
 MISSING_TITLE
 }
