@@ -14,6 +14,7 @@ ggpairs(
   facets = NULL,
   label_width = 10,
   svg = NULL,
+  diagFn = nightowl::diagFn,
   ...
 )
 }

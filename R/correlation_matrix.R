@@ -113,6 +113,7 @@ ggpairs <- function(DATA,
                     facets = NULL,
                     label_width = 10,
                     svg = NULL,
+                    diagFn = nightowl::diagFn,
                     ...) {
   #*******************************************************************************
   # Parameters
@@ -165,7 +166,7 @@ ggpairs <- function(DATA,
     data = DATA,
     columns = which(!names(DATA) %in% c(mapping$id, mapping$fill, mapping$color, mapping$group)),
     lower = list(continuous = GGally::wrap(nightowl::lowerFn, method = "lm")),
-    diag = list(continuous = GGally::wrap(nightowl::diagFn)),
+    diag = list(continuous = GGally::wrap(diagFn)),
     upper = list(continuous = GGally::wrap(nightowl::upperFn)),
     legend = legend
   )
@@ -180,3 +181,20 @@ ggpairs <- function(DATA,
   return(g)
 }
 # ===============================================================================
+# =================================================
+#' @title
+#' MISSING_TITLE
+#' @description
+#' @detail
+#' @param
+#' @return
+#' @export
+this_f <- function(data, mapping, method = "lm", ...) {
+  .mapping <- purrr::map(mapping, function(.x) {
+    stringr::str_replace_all(as.character(.x)[2], "`", "")
+  })
+
+  p <- do.call(nightowl::styled_plot, c(list(DATA = data, style = "Histogram-simple", y = NULL), .mapping))
+  as_ggplot(p)
+}
+# =================================================

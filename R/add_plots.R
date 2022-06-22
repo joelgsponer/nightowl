@@ -252,6 +252,7 @@ annotation <- function(g,
                        axis_text_x_vjust = 1,
                        legend_position = "bottom",
                        test = NULL,
+                       test_args = NULL,
                        wrap_title = 60,
                        wrap_x = 30,
                        wrap_y = 30,
@@ -298,40 +299,28 @@ annotation <- function(g,
     g <- g + ggplot2::ggtitle(auto_title)
   }
   if (!is.null(attributes(g)$caption)) {
-    if (!is.null(test)) {
-      .formula.txt <- glue::glue("`{y}` ~ `{x}`")
-      .formula <- as.formula(.formula.txt)
-      .model <- waRRior::getfun(test)
-      res <- .model(.formula, g$data)
-      if (!test %in% c("kruskal.test", "wilcox.test")) {
-        res <- base::summary(res)
-      }
-      txt <- shiny::renderPrint(res) %>%
-        .() %>%
-        stringr::str_replace(stringr::fixed(".formula"), .formula.txt)
-      g <- g + ggplot2::geom_text(
-        mapping = ggplot2::aes(
-          label = txt,
-          y = max(as.numeric(.data[[y]])),
-          x = min(as.numeric(.data[[x]])),
-          id = NULL,
-          lty = NULL,
-          group = NULL,
-          color = NULL,
-          fill = NULL
-        ),
-        vjust = 1,
-        hjust = 0,
-        alpha = 0.8,
-        color = ggplot2::alpha("#5b5b5b", ),
-        size = 2
-      )
-    }
     g <- g + ggplot2::labs(
       caption = paste(unique(attributes(g)$caption), collapse = "\n")
     )
   }
+  if (!is.null(test)) {
+    .formula.txt <- glue::glue("`{y}` ~ `{x}`")
+    .formula <- as.formula(.formula.txt)
+    # .model <- waRRior::getfun(test)
+    res <- do.call(test, c(list(formula = .formula, data = g$data), test_args)) %>%
+      broom::tidy() %>%
+      dplyr::mutate(p.value = nightowl::format_p_value(p.value)) %>%
+      dplyr::mutate_if(is.numeric, function(x) round(x, 2))
+    xmin <- min(as.numeric(g$data[[as.character(g$mapping$x)[2]]]), na.rm = T)
+    ymax <- max(as.numeric(g$data[[as.character(g$mapping$y)[2]]]), na.rm = T)
 
+    g <- g + ggplot2::annotate(
+      geom = "table",
+      y = ymax,
+      x = xmin,
+      label = list(res)
+    )
+  }
   return(g)
 }
 # =================================================

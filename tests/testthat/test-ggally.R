@@ -15,7 +15,18 @@ test_that("ggally works", {
       value = "weight",
       id = "Chick"
     )
-  )
+  ) %>%
+    nightowl::render_svg()
+
+  nightowl::ggpairs(ChickWeight,
+    mapping = list(
+      key = "Time",
+      value = "weight",
+      id = "Chick"
+    ),
+    diagFn = nightowl::this_f
+  ) %>%
+    nightowl::render_svg()
 
   nightowl::ggpairs(ChickWeight,
     transform = list(color = factor),
@@ -25,6 +36,6 @@ test_that("ggally works", {
       id = "Chick",
       color = "Diet"
     ),
-    svg = list()
+    svg = list(scaling = 0.2)
   )
 })

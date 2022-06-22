@@ -19,4 +19,9 @@ test_that("loading styles works", {
     nightowl::as_html() %>%
     shiny::div(style = "width: 50%; height: 50%;") %>%
     htmltools::browsable()
+
+
+  ggplot(mpg, ggplot2::aes(cyl, hwy)) +
+    geom_point() +
+    stat_chull(fill = NA, colour = "black")
 })

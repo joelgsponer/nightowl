@@ -16,6 +16,7 @@ annotation(
   axis_text_x_vjust = 1,
   legend_position = "bottom",
   test = NULL,
+  test_args = NULL,
   wrap_title = 60,
   wrap_x = 30,
   wrap_y = 30,

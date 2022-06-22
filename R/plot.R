@@ -32,6 +32,7 @@ plot <- function(DATA,
     purrr::map(layers, ~ unlist(unname(.x$mapping))) %>% unlist()
   ) %>%
     unique()
+
   if (inherits(DATA, "data.frame")) {
     DATA <- tibble::as_tibble(DATA)
   }
@@ -41,6 +42,8 @@ plot <- function(DATA,
   #*******************************************************************************
   # Transformations
   if (!is.null(transform)) {
+    transform_data <- transform$data
+    transform <- transform[waRRior::pop(names(transform), "data")]
     purrr::iwalk(transform, function(.f, .var) {
       if (is.character(.f)) .f <- waRRior::getfun(.f)
       .var <- mapping[[.var]]
@@ -49,6 +52,12 @@ plot <- function(DATA,
           dplyr::mutate(!!rlang::sym(.var) := .f(!!rlang::sym(.var)))
       }
     })
+    if (!is.null(transform_data)) {
+      if (is.character(transform_data)) .f <- waRRior::getfun(transform_data)
+      res_tranform_data <- .f(DATA, mapping)
+      DATA <- res_tranform_data$data
+      mapping <- res_tranform_data$mapping
+    }
   }
   #*******************************************************************************
   # Prepare facets (if any)
@@ -105,3 +114,126 @@ plot <- function(DATA,
   return(g)
 }
 # ===============================================================================
+#' R6 Class
+#'
+#' @description
+#'
+#' @detail
+#'
+Plot <- R6::R6Class("Plot",
+  public = list(
+    data = NULL,
+    mapping = list(
+      x = NULL,
+      y = NULL,
+      group = NULL,
+      fill = NULL,
+      color = NULL,
+      size = NULL,
+      shape = NULL,
+      lty = NULL,
+      id = NULL
+    ),
+    processing = NULL,
+    transform = NULL,
+    layers = list(),
+    scales = list(),
+    annotation = NULL,
+    axis = NULL,
+    colors = NULL,
+    theming = NULL,
+    facets = NULL,
+    svg = NULL,
+    initialize = function(...) {
+      args <- list(...)
+      purrr::imap(list(...), function(.x, .y) {
+        if (.y %in% names(self)) {
+          self[[.y]] <- .x
+        }
+      })
+      self$select_data()
+      self$transform_data()
+      self$prepare_facets()
+      return(self)
+    },
+    # select data
+    select_data = function() {
+      cols <- c(
+        unlist(unname(self$mapping)),
+        purrr::map(self$layers, ~ unlist(unname(.x$mapping))) %>% unlist()
+      ) %>%
+        unique()
+      if (inherits(self$data, "data.frame")) {
+        .data <- tibble::as_tibble(self$data)
+      }
+      self$data <- .data %>%
+        dplyr::select_at(cols)
+      if (any(dim(self$data) == 0)) rlang::abort("No data, check mapping")
+    },
+    # tranform data (this also potentionally updates the mapping if for example frequencies are calculated)
+    transform_data = function() {
+      transform <- self$transform
+      mapping <- self$mapping
+      .data <- self$data
+      if (!is.null(transform)) {
+        transform_data <- transform$data
+        transform <- transform[waRRior::pop(names(transform), "data")]
+        purrr::iwalk(transform, function(.f, .var) {
+          if (is.character(.f)) .f <- waRRior::getfun(.f)
+          .var <- mapping[[.var]]
+          if (!is.null(.var)) {
+            .data <<- .data %>%
+              dplyr::mutate(!!rlang::sym(.var) := .f(!!rlang::sym(.var)))
+          }
+        })
+        if (!is.null(transform_data)) {
+          if (is.character(transform_data)) .f <- waRRior::getfun(transform_data)
+          res_tranform_data <- .f(.data, mapping)
+          self$data <- res_tranform_data$data
+          self$mapping <- res_tranform_data$mapping
+        }
+      }
+    },
+    # prepare facets
+    prepare_facets = function() {
+      facets <- self$facets
+      mapping <- self$mapping
+      # Prepare facets (if any)
+      if (is.null(facets) &&
+        (!is.null(mapping$facet_row) ||
+          !is.null(mapping$facet_col))
+      ) {
+        facets <- list()
+      }
+      if (!is.null(mapping$facet_col)) facets$column <- mapping$facet_col
+      if (!is.null(mapping$facet_row)) facets$row <- mapping$facet_row
+      self$mapping <- mapping[waRRior::pop(names(mapping), c("facet_row", "facet_col"))]
+      self$facets <- facets
+    },
+    # print
+    print = function() {
+      cli::cli_h3("Data:")
+      cli::cli_li("{self$data}")
+      cli::cli_h3("Mapping:")
+      cli::cli_li("{self$mapping}")
+      cli::cli_h3("Facets:")
+      cli::cli_li("{self$facets}")
+    }
+  )
+)
+# ===============================================================================
+# =================================================
+#' @title
+#' MISSING_TITLE
+#' @description
+#' @detail
+#' @param
+#' @return
+#' @export
+is_Plot <- function(x) {
+  all(
+    inherits(x, "Plot"),
+    inherits(x, "R6")
+  )
+}
+# =================================================

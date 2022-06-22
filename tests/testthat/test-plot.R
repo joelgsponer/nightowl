@@ -28,6 +28,23 @@ test_that("multiplication works", {
     svg = list()
   )
 
+  nightowl::plot(testdata,
+    transform = list(x = "waRRior::fct_lexicographic"),
+    mapping = list(
+      x = "Time",
+      y = "weight",
+      color = "Diet",
+      group = "Diet",
+      id = "Chick",
+      lty = "Diet"
+    ),
+    layers = list(
+      list(type = "generic", geom = "ggplot2::geom_jitter", alpha = 0.3, width = 0.1)
+    ),
+    annotation = list(test = "kruskal.test"),
+    svg = list()
+  )
+
   .p <- nightowl::plot(testdata,
     transform = list(x = "waRRior::fct_lexicographic"),
     mapping = list(
@@ -40,6 +57,7 @@ test_that("multiplication works", {
       list(type = "generic", geom = "ggplot2::geom_tile", color = "black")
     )
   )
+
   .p
   plotly::ggplotly(.p)
 
@@ -206,4 +224,38 @@ test_that("multiplication works", {
     mapping = list(x = "x", y = NULL),
     style = "Inline-Halfeye"
   )
+
+
+  nightowl::plot(palmerpenguins::penguins,
+    transform = list(data = "nightowl::percentage", x = "waRRior::fct_lexicographic"),
+    mapping = list(
+      x = "island",
+      fill = "species",
+      facet_rows = "sex"
+    ),
+    layers = list(
+      list(type = "generic", geom = "geom_col")
+    ),
+    svg = list()
+  )
+
+  ggplot2::ggplot(palmerpenguins::penguins,
+    mapping = ggplot2::aes(x = island, fill = species)
+  ) +
+    ggplot2::geom_bar(mapping = ggplot2::aes(y = ggplot2::after_stat(count / sum(count))))
+
+  p <- nightowl::Plot$new(
+    data = palmerpenguins::penguins,
+    transform = list(
+      data = "nightowl::percentage",
+      x = "waRRior::fct_lexicographic"
+    ),
+    mapping = list(x = "island", fill = "species", facet_row = "sex")
+  )
+  p
+  p$data
+
+
+  t <- tibble::tibble(p = list(p))
+  all(nightowl::is_Plot(t$p))
 })

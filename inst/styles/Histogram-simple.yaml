@@ -1,0 +1,15 @@
+name: Dotplot - with mean
+description: Dotplot with mean trendline. Please adjust filters to look at other parameters. Grouping can
+  be changed through the <fill> <color> and <group> mappings.
+transform:
+  x: as.numeric
+  fill: factor
+layers:
+- type: generic
+  geom: geom_histogram
+  alpha: 0.8
+svg:
+  height: 8
+  width: 8
+  scaling: 1
+
