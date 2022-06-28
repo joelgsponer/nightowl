@@ -34,11 +34,9 @@ render_svg <- function(g,
       if (add_download_button) {
         svg <- nightowl::add_download_button(svg)
       }
-      # class(svg) <- c("nightowl_svg", class(svg))
       svg <- as.character(svg) %>%
         htmltools::HTML()
-      svg <- vctrs::new_vctr(svg, class = "nightowl_svg")
-      attributes(svg)$g <- g
+      svg <- htmltools::browsable(svg)
       return(svg)
     },
     error = function(e) {
@@ -88,8 +86,9 @@ add_download_button <- function(x) {
 #' @param
 #' @return
 #' @export
-new_svg <- function(x) {
-  vctrs::new_vctr(x, class = "nightowl_svg")
+new_NightowlPlots <- function(...) {
+  x <- list(...)
+  vctrs::new_vctr(x, class = "NightowlPlots")
 }
 # =================================================
 #' @title
@@ -99,8 +98,8 @@ new_svg <- function(x) {
 #' @param
 #' @return
 #' @export
-is_nightowl_svg <- function(x) {
-  inherits(x, "nightowl_svg") || inherits(x, "nghtwl_s")
+is_NightowlPlots <- function(x) {
+  inherits(x, "NightowlPlots") || inherits(x, "NghtwlPl")
 }
 # =================================================
 #' @title
@@ -110,8 +109,8 @@ is_nightowl_svg <- function(x) {
 #' @param
 #' @return
 #' @export
-as_html <- function(x) {
-  UseMethod("as_html")
+format.NightowlPlots <- function(x) {
+  purrr::map(x, ~ .x$format())
 }
 # =================================================
 #' @title
@@ -121,10 +120,8 @@ as_html <- function(x) {
 #' @param
 #' @return
 #' @export
-as_html.nightowl_svg <- function(x) {
-  vctrs::vec_data(x) %>%
-    as.character() %>%
-    htmltools::HTML()
+as_html.NightowlPlots <- function(x) {
+  purrr::map(x, ~ .x$html())
 }
 # =================================================
 #' @title
@@ -145,8 +142,8 @@ as_ggplot <- function(x) {
 #' @param
 #' @return
 #' @export
-as_ggplot.nightowl_svg <- function(x) {
-  attributes(x)$g
+as_ggplot.NightowlPlots <- function(x) {
+  purrr::map(x, ~ .x$ggplot())
 }
 # =================================================
 #' @title
@@ -156,12 +153,8 @@ as_ggplot.nightowl_svg <- function(x) {
 #' @param
 #' @return
 #' @export
-print.nightowl_svg <- function(x, browser = T) {
-  if (browser) {
-    print(htmltools::browsable(nightowl::as_html(x)))
-  } else {
-    print(nightowl::as_html(x))
-  }
+print.NightowlPlots <- function(x, browser = T) {
+  purrr::map(x, ~ .x$print())
 }
 # =================================================
 #' @title
@@ -171,8 +164,29 @@ print.nightowl_svg <- function(x, browser = T) {
 #' @param
 #' @return
 #' @export
-format.nightowl_svg <- function(x, ...) {
-  # nightowl::as_html(x)
+vec_ptype_abbr.NightowlPlots <- function(x) {
+  "NghtwlPl"
+}
+# =================================================
+#' @title
+#' MISSING_TITLE
+#' @description
+#' @detail
+#' @param
+#' @return
+#' @export
+as.character.NightowlPlots <- function(x) {
+  purrr::map_chr(x, ~ .x$as.character())
+}
+# =================================================
+#' @title
+#' MISSING_TITLE
+#' @description
+#' @detail
+#' @param
+#' @return
+#' @export
+vec_ptype2.NightowlPlots.NightowlPlots <- function(x, y, ...) {
   x
 }
 # =================================================
@@ -183,30 +197,7 @@ format.nightowl_svg <- function(x, ...) {
 #' @param
 #' @return
 #' @export
-vec_ptype_abbr.nightowl_svg <- function(x) {
-  "nghtwl_svg"
-}
-# =================================================
-#' @title
-#' MISSING_TITLE
-#' @description
-#' @detail
-#' @param
-#' @return
-#' @export
-as.character.nightowl_svg <- function(x) {
-  nightowl::as_html(x) %>%
-    as.character()
-}
-# =================================================
-#' @title
-#' MISSING_TITLE
-#' @description
-#' @detail
-#' @param
-#' @return
-#' @export
-vec_ptype2.nightowl_svg.nightowl_svg <- function(x, y, ...) {
+vec_cast.NightowlPlots.NightowlPlots <- function(x, to, ...) {
   x
 }
 # =================================================
@@ -217,6 +208,64 @@ vec_ptype2.nightowl_svg.nightowl_svg <- function(x, y, ...) {
 #' @param
 #' @return
 #' @export
-vec_cast.nightowl_svg.nightowl_svg <- function(x, to, ...) {
-  x
+as_R6 <- function(x) {
+  UseMethod("as_R6")
 }
+# =================================================
+#' @title
+#' MISSING_TITLE
+#' @description
+#' @detail
+#' @param
+#' @return
+#' @export
+as_R6.NightowlPlots <- function(x) {
+  purrr::map(x, ~.x)
+}
+# =================================================
+#' @title
+#' MISSING_TITLE
+#' @description
+#' @detail
+#' @param
+#' @return
+#' @export
+width <- function(x) {
+  UseMethod("width")
+}
+# =================================================
+#' @title
+#' MISSING_TITLE
+#' @description
+#' @detail
+#' @param
+#' @return
+#' @export
+width.NightowlPlots <- function(x) {
+  purrr::map_dbl(x, ~ .x$get_width()) %>%
+    max(na.rm = T)
+}
+# =================================================
+#' @title
+#' MISSING_TITLE
+#' @description
+#' @detail
+#' @param
+#' @return
+#' @export
+height <- function(x) {
+  UseMethod("height")
+}
+# =================================================
+#' @title
+#' MISSING_TITLE
+#' @description
+#' @detail
+#' @param
+#' @return
+#' @export
+height.NightowlPlots <- function(x) {
+  purrr::map_dbl(x, ~ .x$get_height()) %>%
+    max(na.rm = T)
+}
+# =================================================

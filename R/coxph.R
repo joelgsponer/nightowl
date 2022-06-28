@@ -1,3 +1,184 @@
+#' R6 Class
+#' @description
+#' @detail
+#' @importFrom survival strata
+#' @export
+Coxph <- R6::R6Class("Coxph",
+  public = list(
+    initialize = function(...) {
+      purrr::imap(list(...), function(.x, .y) {
+        if (.y %in% names(self)) {
+          self[[.y]] <- .x
+        }
+      })
+      # Set data
+      self$set_data()
+      self$set_reference()
+      self$set_formula()
+      self$fit()
+    },
+    # Print
+    print = function() {
+      cli::cli_h1("Coxph Object")
+      cli::cli_h3("Data")
+      print(self$data)
+      cli::cli_h3("Formula")
+      print(self$formula)
+      cli::cli_h3("Variables")
+      purrr::iwalk(self$get_variables(), ~ cli::cli_li("{.y}: {.x}"))
+      cli::cli_h2("Reference")
+      purrr::iwalk(self$get_reference(), ~ cli::cli_li("{.y}: {.x}"))
+      cli::cli_h2("Results")
+      purrr::iwalk(self$results, function(.x, .y) {
+        cli::cli_h3(.y)
+        print(.x)
+      })
+    },
+    # Variables
+    time = NULL,
+    check_time = function() {
+      if (is.null(self$time)) {
+        rlang::abort("`time` is not set")
+      }
+    },
+    event = NULL,
+    check_event = function() {
+      if (is.null(self$event)) {
+        rlang::abort("`event` is not set")
+      }
+    },
+    treatment = NULL,
+    check_treatment = function() {
+      if (is.null(self$treatment)) {
+        rlang::abort("`treatment` is not set")
+      }
+    },
+    covariates = NULL,
+    strata = NULL,
+    random_effects = NULL,
+    get_variables = function() {
+      list(
+        time = self$time,
+        event = self$event,
+        treatment = self$treatment,
+        covariates = self$covariates,
+        strata = self$strata,
+        random_effects = self$random_effects,
+        group_by = self$group_by
+      )
+    },
+    # Checks
+    check_variables = function() {
+      vars <- unlist(unname(self$get_variables()))
+      if (!all(vars %in% names(self$data))) {
+        missing <- vars[!vars %in% names(self$data)]
+        msg <- glue::glue("`{missing}` not present in data")
+        rlang::abort(msg)
+      }
+    },
+    # Data
+    data = NULL,
+    group_by = NULL,
+    set_data = function(data = self$data) {
+      if (!is.null(data)) {
+        self$data <- data
+      } else {
+        data <- self$data
+      }
+      if (is.null(self$data)) rlang::abort("No data provided - use `set_data` method to update")
+      self$check_variables()
+      if (is.null(self$group_by)) self$group_by <- waRRior::get_groups(data)
+      data <- data %>%
+        dplyr::ungroup() %>%
+        dplyr::select_at(c(unname(unlist(self$get_variables())))) %>%
+        dplyr::mutate_if(is.character, factor) %>%
+        dplyr::group_by_at(self$group_by)
+      self$data <- data
+      invisible(self)
+    },
+    check_data = function() {
+      if (is.null(self$data)) rlang::abort("No data provided - use `set_data` method to update")
+    },
+    # Reference ------------------------------------------------
+    reference = NULL,
+    set_reference = function(data = self$data) {
+      if (!is.null(data)) {
+        .reference <- data %>%
+          dplyr::select_at(unique(c(self$treatment, self$covariates, self$strata, self$random_effects))) %>%
+          dplyr::select_if(is.factor) %>%
+          droplevels() %>%
+          purrr::map(~ levels(.x)[1])
+        .numeric <- data %>%
+          dplyr::select_if(is.numeric) %>%
+          purrr::map(~"")
+        self$reference <- c(.reference, .numeric)
+      }
+      invisible(self)
+    },
+    get_reference = function() self$reference,
+    # Formula ------------------------------------------------------------------
+    formula = NULL,
+    set_formula = function() {
+      self$formula <- nightowl::create_Surv_formula(
+        data = self$data,
+        time = self$time,
+        event = self$event,
+        treatment = self$treatment,
+        covariates = self$covariates,
+        strata = self$strata,
+        random_effects = self$random_effects
+      )
+    },
+    check_formula = function() {
+      if (is.null(self$formula)) {
+        rlang::abort("No formula provided - use `set_formula` method to update")
+      }
+    },
+    # Model --------------------------------------------------------------------
+    models = NULL,
+    results = NULL,
+    args_model = NULL,
+    fit = function() {
+      self$check_data()
+      self$check_time()
+      self$check_event()
+      self$check_treatment()
+      self$check_variables()
+      self$check_formula()
+      if (!dplyr::is_grouped_df(self$data)) {
+        data_list <- list(ALL = self$data)
+      } else {
+        data_list <- waRRior::named_group_split_at(self$data, self$group_by, keep = T)
+      }
+      self$models <- purrr::map(data_list, purrr::safely(function(.data) {
+        do.call(
+          survival::coxph,
+          c(
+            list(
+              data = .data,
+              formula = self$formula
+            ),
+            self$args_model
+          )
+        )
+      }))
+      self$results <- purrr::map(self$models, "result") %>%
+        purrr::map(~ broom::tidy(.x))
+      invisible(self)
+    }
+    # labels = NULL
+    # set_labels = function(labels) {
+    #   if (!is.null(labels)) {
+    #     .data <- self$data
+    #     names(.data) <- nightowl::get_labels(names(.data), labels)
+    #     self$data <- .data
+    #     self$column <- nightowl::get_labels(self$column, labels)
+    #     self$group_by <- nightowl::get_labels(self$group_by, labels)
+    #   }
+    #   self$labels <- labels
+    # }
+  )
+)
 # =================================================
 #' @title
 #' MISSING_TITLE

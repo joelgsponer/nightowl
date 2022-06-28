@@ -11,10 +11,9 @@ render_reactable(
   digits = 2,
   defaultPageSize = 10,
   filterable = T,
-  minWidth_default = 100,
-  maxWidth_default = NULL,
-  minWidth_html = 300,
-  maxWidth_html = NULL,
+  add_scale = T,
+  defaultColDef = list(header = function(value) gsub(".", " ", value, fixed = TRUE),
+    align = "center", html = TRUE),
   fullWidth = FALSE,
   ...
 )

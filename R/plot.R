@@ -134,6 +134,7 @@ Plot <- R6::R6Class("Plot",
       lty = NULL,
       id = NULL
     ),
+    dodge = 1,
     processing = NULL,
     transform = NULL,
     layers = list(),
@@ -143,7 +144,7 @@ Plot <- R6::R6Class("Plot",
     colors = NULL,
     theming = NULL,
     facets = NULL,
-    svg = NULL,
+    # Intitalize ---------------------------------------------------------------
     initialize = function(...) {
       args <- list(...)
       purrr::imap(list(...), function(.x, .y) {
@@ -154,6 +155,8 @@ Plot <- R6::R6Class("Plot",
       self$select_data()
       self$transform_data()
       self$prepare_facets()
+      self$set_ggplot()
+      self$set_render_svg()
       return(self)
     },
     # select data
@@ -210,8 +213,83 @@ Plot <- R6::R6Class("Plot",
       self$mapping <- mapping[waRRior::pop(names(mapping), c("facet_row", "facet_col"))]
       self$facets <- facets
     },
-    # print
+    # ggplot ---
+    ggplot = NULL,
+    set_ggplot = function() {
+      self$ggplot <- memoise::memoise(function() {
+        # Setup Plot
+        .aes <- nightowl:::aes(self$mapping)
+        g <- ggplot2::ggplot(self$data, .aes)
+        # Add layers
+        g <- purrr::reduce(self$layers, function(.x, .y) {
+          .y$g <- .x
+          .y <- rev(.y)
+          if (is.null(.y$dodge)) .y$dodge <- self$dodge
+          type <- .y$type
+          .y$type <- NULL
+          .y <- purrr::compact(.y)
+          thiscall <- glue::glue("do.call(nightowl::{type}, .y)")
+          eval(parse(text = thiscall))
+        }, .init = g)
+        #*******************************************************************************
+        # Facets
+        g <- do.call(nightowl::facets, c(list(g = g), self$facets))
+        #*******************************************************************************
+        # Axis
+        g <- do.call(nightowl::axis, c(list(g = g), self$axis))
+        # #*******************************************************************************
+        # Colors and theming
+        g <- do.call(nightowl::colors, c(list(g = g, DATA = self$data, mapping = self$mapping), self$colors))
+        # # Add Theme
+        g <- do.call(nightowl::theme, c(list(g = g), self$theming))
+        # #*******************************************************************************
+        # # Annotation
+        g <- do.call(nightowl::annotation, c(list(g = g), self$mapping, self$annotation, self$axis))
+        #*******************************************************************************
+        # Finishing up
+        return(g)
+      })
+    },
+    # SVG/HTML ---------------------------------------------------------------------------
+    set_options_svg = function(x) {
+      self$options_svg <- x
+    },
+    html = function(...) {
+      g <- self$ggplot()
+      do.call(self$render_svg, c(list(g = g), list(...)))
+    },
+    set_render_svg = function() {
+      self$render_svg <- memoise::memoise(render_svg)
+    },
+    render_svg = NULL,
+    # print --------------------------------------------------------------------
     print = function() {
+      print(self$html())
+    },
+    format = function(...) {
+      return("<NightowlPlot>")
+      # return(self$html() %>% htmltools::browsable(FALSE))
+    },
+    as.character = function() {
+      return(as.character(self$html()))
+    },
+    get_width = function() {
+      viewBox <- self$as.character() %>%
+        stringr::str_extract("viewBox='([^']+)") %>%
+        stringr::str_replace("viewBox='", "") %>%
+        stringr::str_split(" ")
+      viewBox[[1]][3] %>%
+        as.numeric()
+    },
+    get_height = function() {
+      viewBox <- self$as.character() %>%
+        stringr::str_extract("viewBox='([^']+)") %>%
+        stringr::str_replace("viewBox='", "") %>%
+        stringr::str_split(" ")
+      viewBox[[1]][4] %>%
+        as.numeric()
+    },
+    inspect = function() {
       cli::cli_h3("Data:")
       cli::cli_li("{self$data}")
       cli::cli_h3("Mapping:")
@@ -221,7 +299,6 @@ Plot <- R6::R6Class("Plot",
     }
   )
 )
-# ===============================================================================
 # =================================================
 #' @title
 #' MISSING_TITLE

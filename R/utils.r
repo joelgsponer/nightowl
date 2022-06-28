@@ -70,3 +70,9 @@ format_p_value <- function(p) {
   }
 }
 # =================================================
+`[.R6` <- function(x, ...) x$`[`(...)
+`[<-.R6` <- function(x, ...) x$`[<-`(...)
+length.R6 <- function(x) x$length()
+format.R6 <- function(x) x$format()
+as.data.frame.R6 <- function(x, ...) x$as.data.frame()
+as.character.R6 <- function(x, ...) x$as.character()

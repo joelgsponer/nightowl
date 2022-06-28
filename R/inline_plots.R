@@ -253,17 +253,25 @@ add_histogram <- function(x,
   nightowl::render_svg(.p, height = height, add_download_button = FALSE)
 }
 # =================================================
+# =================================================
+#' @title
+#' MISSING_TITLE
+#' @description
+#' @detail
+#' @param
+#' @return
+#' @export
 add_scale <- function(obj,
                       height = 1,
                       scaling = 3.5,
                       legend_position = "none") {
   obj <- dplyr::ungroup(obj)
-  columns <- purrr::imap(obj, ~ if (nightowl::is_nightowl_svg(.x)) .y else NULL) %>%
+  columns <- purrr::imap(obj, ~ if (nightowl::is_NightowlPlots(.x)) .y else NULL) %>%
     purrr::compact()
 
 
   ggs <- purrr::map(columns, function(.column) {
-    .gg <- nightowl::as_ggplot(obj[[.column]])
+    .gg <- nightowl::as_ggplot(obj[[.column]])[[1]]
     .gg$layers <- NULL
     .gg +
       ggplot2::theme_classic() +
@@ -274,15 +282,76 @@ add_scale <- function(obj,
         axis.text.y = ggplot2::element_blank(),
         axis.text.x = ggplot2::element_text(size = ggplot2::rel(1)),
         axis.ticks.y = ggplot2::element_blank(),
-        plot.margin = ggplot2::margin(0, 0, 0, 0, "cm"),
+        # plot.margin = ggplot2::margin(0, 0, 0, 0, "cm"),
         axis.title.y = ggplot2::element_blank(),
         axis.title.x = ggplot2::element_blank()
       )
   }) %>%
-    purrr::set_names(columns)
-
-  .scales <- purrr::map(ggs, ~ nightowl::render_svg(.x, height = height, scaling = scaling, add_download_button = FALSE))
+    purrr::set_names(columns) %>%
+    purrr::map(~ nightowl::InlinePlot$new(
+      ggplot = .x,
+      type = "NightowlScale",
+      svg = list(height = height, scaling = scaling, add_download_button = FALSE)
+    ))
+  .scales <- purrr::map(ggs, ~ nightowl::new_NightowlPlots(.x))
   dplyr::bind_rows(obj, .scales) %>%
     dplyr::mutate_if(is.factor, as.character) %>%
     dplyr::mutate_if(is.character, function(x) tidyr::replace_na(x, ""))
 }
+#-------------------------------------------------------------------------------
+#' R6 Class
+#' @description
+#' @detail
+#' @export
+InlinePlot <- R6::R6Class("InlinePlot",
+  public = list(
+    initialize = function(...) {
+      args <- list(...)
+      purrr::imap(list(...), function(.x, .y) {
+        if (.y %in% names(self)) {
+          self[[.y]] <- .x
+        }
+      })
+      self$set_html()
+    },
+    ggplot = NULL,
+    # SVG/HTML ---------------------------------------------------------------------------
+    svg = NULL,
+    html = NULL,
+    set_html = function() {
+      self$html <- memoise::memoise(function() {
+        do.call(nightowl::render_svg, c(list(g = self$ggplot), self$svg))
+      })
+    },
+    # print --------------------------------------------------------------------
+    print = function() {
+      print(self$html())
+    },
+    # format ----
+    type = "NighowlInlinePlots",
+    format = function(...) {
+      return(glue::glue("<{self$type}>"))
+    },
+    as.character = function() {
+      return(as.character(self$html()))
+    },
+    get_width = function() {
+      viewBox <- self$as.character() %>%
+        stringr::str_extract("viewBox='([^']+)") %>%
+        stringr::str_replace("viewBox='", "") %>%
+        stringr::str_split(" ")
+      viewBox[[1]][3] %>%
+        as.numeric()
+    },
+    get_height = function() {
+      viewBox <- self$as.character() %>%
+        stringr::str_extract("viewBox='([^']+)") %>%
+        stringr::str_replace("viewBox='", "") %>%
+        stringr::str_split(" ")
+      viewBox[[1]][4] %>%
+        as.numeric()
+    }
+  ),
+  private = list()
+)
+#-------------------------------------------------------------------------------

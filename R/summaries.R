@@ -196,6 +196,7 @@ summarise <- function(data,
     if (unnest) {
       if (any(class(.x[[.y$column]]) %in% c("tibble", "data.frame", "list"))) {
         .x <- tidyr::unnest(.x, !!rlang::sym(.y$column), names_sep = names_sep, names_repair = "minimal")
+        names(.x) <- stringr::str_replace_all(names(.x), glue::glue("{.y$column}."), "")
       }
     }
     return(.x)
@@ -435,5 +436,5 @@ n <- function(...) {
 formated_mean <- function(x, fun = Hmisc::smean.cl.boot, digits = 1) {
   val <- fun(x)
   val <- round(val, digits)
-  glue::glue("{val[1]}({val[2]}-{val[3]})")
+  tibble::tibble(Mean = val[1], CL = glue::glue("({val[2]}-{val[3]})"))
 }

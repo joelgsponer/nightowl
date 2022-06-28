@@ -173,6 +173,7 @@ render_kable <- function(.tbl,
   if (add_scale) .tbl <- nightowl::add_scale(.tbl)
   .tbl <- dplyr::mutate_if(.tbl, is.numeric, function(x) round(x, digits))
   .tbl <- dplyr::mutate_if(.tbl, is.numeric, as.character)
+  .tbl <- dplyr::mutate_if(.tbl, nightowl::is_NightowlPlots, as.character)
   .tbl <- dplyr::mutate_all(.tbl, function(x) tidyr::replace_na(x, ""))
   .kable <- .tbl %>%
     knitr::kable("html", escape = FALSE, caption = caption)
@@ -197,54 +198,45 @@ render_reactable <- function(.tbl,
                              digits = 2,
                              defaultPageSize = 10,
                              filterable = T,
-                             minWidth_default = 100,
-                             maxWidth_default = NULL,
-                             minWidth_html = 300,
-                             maxWidth_html = NULL,
+                             add_scale = T,
+                             defaultColDef = list(
+                               header = function(value) gsub(".", " ", value, fixed = TRUE),
+                               align = "center",
+                               html = TRUE
+                             ),
                              fullWidth = FALSE,
                              ...) {
   .groups <- waRRior::get_groups(.tbl)
+  # Infer column types
+  col_NightowlPlots <- names(.tbl)[purrr::map_lgl(.tbl, ~ inherits(.x, "NightowlPlots"))]
+  col_HTML <- names(.tbl)[purrr::map_lgl(.tbl, ~ inherits(.x, "html"))]
+  # ColDef
+  col_def <- list()
+  col_def <- purrr::reduce(col_NightowlPlots, function(.old, .new) {
+    .old[[.new]] <- reactable::colDef(minWidth = width(.tbl[[.new]]), html = TRUE)
+    .old
+  }, .init = col_def)
+  col_def <- purrr::reduce(col_HTML, function(.old, .new) {
+    .old[[.new]] <- reactable::colDef(html = TRUE)
+    .old
+  }, .init = col_def)
+  col_def <- purrr::reduce(.groups, function(.old, .new) {
+    .old[[.new]] <- do.call(reactable::colDef, c(list(sticky = "left"), as.list(.old[[.new]])))
+    .old
+  }, .init = col_def)
+  # Prepare data
   .tbl <- dplyr::select_at(.tbl, c(.groups, waRRior::pop(names(.tbl), .groups)))
   .tbl <- dplyr::ungroup(.tbl)
-  .tbl <- dplyr::mutate_if(.tbl, is.numeric, function(x) round(x, digits))
-  .tbl <- dplyr::mutate_if(.tbl, is.numeric, as.character)
-  if (is.null(html_columns)) {
-    column_types <- purrr::map(.tbl, ~ class(.x))
-    html_columns <- purrr::map(column_types, ~ if ("nightowl_svg" %in% .x) TRUE else NULL) %>%
-      purrr::compact() %>%
-      names()
-  }
-  col_def <- list()
-  if (!is.null(html_columns)) {
-    col_def <- purrr::reduce(html_columns, function(.old, .new) {
-      .old[[.new]] <- reactable::colDef(minWidth = minWidth_html, maxWidth = maxWidth_html, html = TRUE, class = "nightowl-html-column")
-      .old
-    }, .init = col_def)
-  }
-  non_html_columns <- purrr::map(column_types, ~ if (!"nightowl_svg" %in% .x) TRUE else NULL) %>%
-    purrr::compact() %>%
-    names()
-  col_def <- purrr::reduce(non_html_columns, function(.old, .new) {
-    .old[[.new]] <- reactable::colDef(minWidth = minWidth_default, maxWidth = maxWidth_default)
-    .old
-  }, .init = col_def)
+  if (add_scale) .tbl <- nightowl::add_scale(.tbl)
+  .tbl <- dplyr::mutate_if(.tbl, is.numeric, function(x) format(round(x, digits), nsmall = 0))
+  .tbl <- dplyr::mutate_if(.tbl, nightowl::is_NightowlPlots, as.character)
+
   # Make groups sticky
-  col_def <- purrr::reduce(.groups, function(.old, .new) {
-    .old[[.new]] <- reactable::colDef(minWidth = minWidth_default, maxWidth = maxWidth_default, sticky = "left")
-    .old
-  }, .init = col_def)
   res <-
     reactable::reactable(
       .tbl,
       theme = theme(),
-      defaultColDef = reactable::colDef(
-        header = function(value) gsub(".", " ", value, fixed = TRUE),
-        cell = function(value) format(value, nsmall = 1),
-        align = "center",
-        minWidth = minWidth_default,
-        # headerStyle = list(background = "#f7f7f8"),
-        html = TRUE
-      ),
+      defaultColDef = do.call(reactable::colDef, defaultColDef),
       columns = col_def,
       filterable = filterable,
       defaultPageSize = defaultPageSize,
@@ -256,6 +248,7 @@ render_reactable <- function(.tbl,
       fullWidth = fullWidth,
       ...
     )
+
   return(res)
 }
 # =================================================

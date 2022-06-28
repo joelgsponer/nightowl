@@ -254,6 +254,47 @@ test_that("multiplication works", {
   )
   p
   p$data
+  p$ggplot()
+
+  p <- nightowl::Plot$new(
+    data = palmerpenguins::penguins,
+    mapping = list(x = "island", y = "bill_length_mm", fill = "species", facet_row = "sex"),
+    layers = list(
+      list(
+        type = "generic",
+        geom = "ggplot2::geom_jitter"
+      )
+    ),
+    options_svg = list(scaling = 0.1)
+  )
+
+  p
+  p$get_width()
+  p$set_options_svg(list(height = 1, scaling = 1))
+  p
+  p$get_width()
+
+  p$get_width()
+
+  p$format()
+  p$data
+  p$ggplot()
+  p$html()
+  p$html()
+  p$set_options_svg(list(width = 30, scaling = 0.5))
+  as.character(p)
+  p
+
+  tmp <- tibble::tibble(p = nightowl::new_NightowlPlots(p, p))
+  tmp
+  nightowl::width(tmp$p)
+  nightowl::height(tmp$p)
+  as.character(tmp$p)
+  tmp %>% nightowl::render_kable(add_scale = FALSE)
+  tmp %>% nightowl::render_kable(add_scale = TRUE)
+  tmp %>% nightowl::render_reactable()
+
+  nightowl::new_nightowls(p, p)
 
 
   t <- tibble::tibble(p = list(p))

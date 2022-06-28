@@ -14,8 +14,22 @@ test_that("summary works", {
     dplyr::mutate(bar = dplyr::case_when(
       foo == "A" & bar < 0 ~ NA_real_,
       TRUE ~ bar
-    ))
+    )) %>%
+    dplyr::mutate(qux = factor(qux))
   testdata
+
+  nightowl::Summary$new(testdata, "qux", "s1", debug = F)
+  nightowl::Summary$new(testdata, "qux", "s1")$raw()
+  nightowl::Summary$new(testdata, "qux", "s1")$reactable()
+
+  nightowl::Summary$new(testdata, "baz", "s1", method = nightowl::summarise_categorical_barplot)$data
+  nightowl::Summary$new(testdata, "baz", "s1", method = nightowl::summarise_numeric_violin)$raw()
+  nightowl::Summary$new(testdata, "baz", "s1", method = nightowl::summarise_numeric_violin)$reactable()
+
+  # Testing memoisation
+  flights <- nightowl::Summary$new(nycflights13::flights, "month", "day")
+  flights$raw()
+
 
   # Data summary
   nightowl::data_summary(testdata, "bar", "foo", output = "kable", labels = c(bar = "Bar", foo = "Foo"), keep_y = TRUE)

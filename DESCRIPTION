@@ -23,6 +23,7 @@ Imports:
     ggpubr,
     gtools,
     magrittr,
+    MetBrewer,
     palmerpenguins,
     peacock,
     picasso,

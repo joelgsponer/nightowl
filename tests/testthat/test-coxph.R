@@ -24,6 +24,7 @@ test_that("coxph works", {
     time = "time",
     event = "event",
     treatment = "treatment",
+    covariates = c("n1", "c1", "c2", "c3"),
     exponentiate = FALSE
   )
 

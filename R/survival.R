@@ -67,3 +67,40 @@ create_Surv_formula <- function(data, time, event, treatment, covariates = NULL,
   as.formula(base)
 }
 # ===============================================================================
+# .fits <- CHRONO %>%
+#   droplevels() %>%
+#   waRRior::named_group_split(STUDY) %>%
+#   purrr::map(function(.data) {
+#     nightowl::create_Surv_formula(
+#       data = .data,
+#       time = "AVAL_PFS",
+#       event = "EVENT_PFS",
+#       treatment = "hour",
+#       covariates = names(covariates)
+#     ) %>%
+#       survival::coxph(data = .data)
+#   })
+# .beta <- .fits %>%
+#   purrr::map(function(.fit) {
+#     .fit$coef[1]
+#   }) %>%
+#   unlist()
+# .se <- .fits %>%
+#   purrr::map(function(.fit) {
+#     sqrt(vcov(.fit)[1, 1])
+#   }) %>%
+#   unlist()
+# .studies <- tibble::tibble(STUDY = names(.fits))
+# .meta <- meta::metagen(
+#   .beta,
+#   .se,
+#   data = .studies,
+#   studlab = STUDY,
+#   fixed = FALSE,
+#   random = TRUE,
+#   method.tau = "SJ",
+#   hakn = TRUE,
+#   prediction = TRUE,
+#   sm = "HR"
+# )
+# meta::forest(.meta)

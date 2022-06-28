@@ -12,6 +12,50 @@ test_that("survival functions work", {
     split = sample(LETTERS[1:10], size = 100, replace = TRUE)
   )
 
+  nightowl::Coxph$new(
+    data = testdata,
+    time = "time",
+    event = "event",
+    treatment = "treatment",
+    group_by = "s2",
+    covariates = c("c1", "c2", "c3"),
+    strata = c("s1", "s2"),
+    random_effect = c("split", "Second")
+  )
+
+  nightowl::Coxph$new(
+    data = testdata,
+    time = "missing",
+    event = "event",
+    treatment = "treatment",
+    group_by = "s2",
+    covariates = c("c1", "c2", "c3"),
+    strata = c("s1", "s2"),
+    random_effect = c("split", "Second")
+  )
+
+  nightowl::Coxph$new(
+    data = dplyr::group_by(testdata, s2),
+    time = "time",
+    event = "event",
+    treatment = "treatment",
+    covariates = c("c1", "c2", "c3"),
+    strata = c("s1", "s2"),
+    random_effect = c("split", "Second")
+  )
+
+  no_data <- nightowl::Coxph$new(
+    time = "time",
+    event = "event",
+    treatment = "treatment",
+    covariates = c("c1", "c2", "c3"),
+    strata = c("s1", "s2"),
+    random_effect = c("split", "Second")
+  )
+  no_data$set_data(testdata)
+  no_data
+
+
   nightowl::create_Surv_formula(testdata,
     time = "time",
     event = "event",
@@ -19,6 +63,13 @@ test_that("survival functions work", {
     covariates = c("c1", "c2", "c3"),
     strata = c("s1", "s2"),
     random_effect = c("split", "Second")
+  )
+
+  nightowl::create_Surv_formula(testdata,
+    time = "time",
+    event = "event",
+    treatment = "treatment",
+    covariates = c("TRT")
   )
 
   nightowl::create_Surv_formula(testdata,
