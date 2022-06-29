@@ -122,7 +122,7 @@ Plot <- R6::R6Class("Plot",
 #' @description
 #'
 #' @detail
-#'
+#' @export
 DeclarativePlot <- R6::R6Class("DeclarativePlot",
   inherit = nightowl::Plot,
   public = list(
