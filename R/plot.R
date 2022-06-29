@@ -18,7 +18,7 @@ is_Plot <- function(x) {
 #' @description
 #'
 #' @detail
-#'
+#' @export
 Plot <- R6::R6Class("Plot",
   public = list(
     type = NULL,
