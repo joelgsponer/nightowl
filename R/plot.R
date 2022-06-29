@@ -1,117 +1,16 @@
-# ===============================================================================
-#' Plot
-#' @importFrom ggplot2 aes mean_cl_boot mean_cl_normal mean_se mean_sdl label_both
+# =================================================
+#' @title
+#' MISSING_TITLE
+#' @description
+#' @detail
+#' @param
+#' @return
 #' @export
-plot <- function(DATA,
-                 mapping = list(
-                   x = NULL,
-                   y = NULL,
-                   group = NULL,
-                   fill = NULL,
-                   color = NULL,
-                   size = NULL,
-                   shape = NULL,
-                   lty = NULL,
-                   id = NULL
-                 ),
-                 processing = NULL,
-                 transform = NULL,
-                 layers = list(),
-                 annotation = NULL,
-                 axis = NULL,
-                 colors = NULL,
-                 theming = NULL,
-                 facets = NULL,
-                 svg = NULL,
-                 dodge = 1,
-                 ...) {
-  #*******************************************************************************
-  # Drop columns that are not needed
-  cols <- c(
-    unlist(unname(mapping)),
-    purrr::map(layers, ~ unlist(unname(.x$mapping))) %>% unlist()
-  ) %>%
-    unique()
-
-  if (inherits(DATA, "data.frame")) {
-    DATA <- tibble::as_tibble(DATA)
-  }
-  DATA <- DATA %>%
-    dplyr::select_at(cols)
-  if (any(dim(DATA) == 0)) rlang::abort("No data, check mapping")
-  #*******************************************************************************
-  # Transformations
-  if (!is.null(transform)) {
-    transform_data <- transform$data
-    transform <- transform[waRRior::pop(names(transform), "data")]
-    purrr::iwalk(transform, function(.f, .var) {
-      if (is.character(.f)) .f <- waRRior::getfun(.f)
-      .var <- mapping[[.var]]
-      if (!is.null(.var)) {
-        DATA <<- DATA %>%
-          dplyr::mutate(!!rlang::sym(.var) := .f(!!rlang::sym(.var)))
-      }
-    })
-    if (!is.null(transform_data)) {
-      if (is.character(transform_data)) .f <- waRRior::getfun(transform_data)
-      res_tranform_data <- .f(DATA, mapping)
-      DATA <- res_tranform_data$data
-      mapping <- res_tranform_data$mapping
-    }
-  }
-  #*******************************************************************************
-  # Prepare facets (if any)
-  if (is.null(facets) &&
-    (!is.null(mapping$facet_row) ||
-      !is.null(mapping$facet_col))
-  ) {
-    facets <- list()
-  }
-  if (!is.null(mapping$facet_col)) facets$column <- mapping$facet_col
-  if (!is.null(mapping$facet_row)) facets$row <- mapping$facet_row
-  mapping <- mapping[waRRior::pop(names(mapping), c("facet_row", "facet_col"))]
-  #*******************************************************************************
-  # Setup Plot
-  .aes <- nightowl:::aes(mapping)
-  g <- ggplot2::ggplot(DATA, .aes)
-  #*******************************************************************************
-  # Add type to layers
-  # layers <- purrr::imap(layers, function(.x, .y) {
-  #   c(list(type = .y), .x)
-  # })
-  #*******************************************************************************
-  # Add layers
-  g <- purrr::reduce(layers, function(.x, .y) {
-    .y$g <- .x
-    .y <- rev(.y)
-    if (is.null(.y$dodge)) .y$dodge <- dodge
-    type <- .y$type
-    .y$type <- NULL
-    .y <- purrr::compact(.y)
-    thiscall <- glue::glue("do.call(nightowl::{type}, .y)")
-    eval(parse(text = thiscall))
-  }, .init = g)
-  #*******************************************************************************
-  # Facets
-  g <- do.call(nightowl::facets, c(list(g = g), facets))
-  #*******************************************************************************
-  # Axis
-  g <- do.call(nightowl::axis, c(list(g = g), axis))
-  # #*******************************************************************************
-  # Colors and theming
-  g <- do.call(nightowl::colors, c(list(g = g, DATA = DATA, mapping = mapping), colors))
-  # # Add Theme
-  g <- do.call(nightowl::theme, c(list(g = g), theming))
-  # #*******************************************************************************
-  # # Annotation
-  g <- do.call(nightowl::annotation, c(list(g = g), mapping, annotation, axis))
-  #*******************************************************************************
-  # Create SVG
-  if (!is.null(svg)) {
-    g <- do.call(nightowl::render_svg, c(list(g = g), svg))
-  }
-  # Finishing up
-  return(g)
+is_Plot <- function(x) {
+  all(
+    inherits(x, "Plot"),
+    inherits(x, "R6")
+  )
 }
 # ===============================================================================
 #' R6 Class
@@ -121,6 +20,111 @@ plot <- function(DATA,
 #' @detail
 #'
 Plot <- R6::R6Class("Plot",
+  public = list(
+    type = NULL,
+    initialize = function(plot = NULL,
+                          options_svg = NULL,
+                          type = "NightowlPlot",
+                          resize = TRUE,
+                          css = NULL) {
+      self$options_svg <- options_svg
+      self$type <- type
+      self$css <- css
+      self$resize <- resize
+      private$set_plot(plot)
+      private$set_render_svg()
+      return(self)
+    },
+    #' @field ggplot object, potentially other plot types possible (base does not work)
+    plot = NULL,
+    # SVG/HTML ---------------------------------------------------------------------------
+    options_svg = NULL,
+    svg = function(...) {
+      args <- list(...)
+      args <- c(self$options_svg[!names(self$options_svg) %in% names(args)], args)
+      do.call(private$render_svg, c(list(g = self$plot), args))
+    },
+    # HTML --------------------------------------------------------------------
+    css = list(
+      class = "NightowlPlot",
+      style = NULL
+    ),
+    parse_style = function(style = self$css$style) {
+      purrr::imap(style, ~ glue::glue("{stringr::str_replace(.y, '_', '-')}:{.x};"))
+    },
+    resize = NULL,
+    html = function(resize = self$resize) {
+      if (!resize) {
+        style <- self$parse_style(
+          c(
+            self$css$style,
+            list(
+              width = paste0(self$get_width(), "px"),
+              height = paste0(self$get_height(), "px")
+            )
+          )
+        )
+      } else {
+        style <- self$parse_style(self$css$style)
+      }
+      shiny::div(
+        class = paste(self$css$class),
+        style = style,
+        self$svg()
+      )
+    },
+    # print --------------------------------------------------------------------
+    print = function(browser = TRUE) {
+      if (browser) {
+        self$html() %>%
+          htmltools::browsable() %>%
+          print()
+      }
+    },
+    format = function(...) {
+      return(self$type)
+    },
+    as.character = function() {
+      return(as.character(self$html()))
+    },
+    get_width = function() {
+      viewBox <- self$svg() %>%
+        as.character() %>%
+        stringr::str_extract("viewBox='([^']+)") %>%
+        stringr::str_replace("viewBox='", "") %>%
+        stringr::str_split(" ")
+      viewBox[[1]][3] %>%
+        as.numeric()
+    },
+    get_height = function() {
+      viewBox <- self$svg() %>%
+        as.character() %>%
+        stringr::str_extract("viewBox='([^']+)") %>%
+        stringr::str_replace("viewBox='", "") %>%
+        stringr::str_split(" ")
+      viewBox[[1]][4] %>%
+        as.numeric()
+    }
+  ),
+  private = list(
+    set_render_svg = function() {
+      private$render_svg <- memoise::memoise(render_svg)
+    },
+    render_svg = NULL,
+    set_plot = function(plot) {
+      self$plot <- plot
+    }
+  )
+)
+# ===============================================================================
+#' R6 Class
+#'
+#' @description
+#'
+#' @detail
+#'
+DeclarativePlot <- R6::R6Class("DeclarativePlot",
+  inherit = nightowl::Plot,
   public = list(
     data = NULL,
     mapping = list(
@@ -146,6 +150,7 @@ Plot <- R6::R6Class("Plot",
     facets = NULL,
     # Intitalize ---------------------------------------------------------------
     initialize = function(...) {
+      super$initialize()
       args <- list(...)
       purrr::imap(list(...), function(.x, .y) {
         if (.y %in% names(self)) {
@@ -155,8 +160,7 @@ Plot <- R6::R6Class("Plot",
       self$select_data()
       self$transform_data()
       self$prepare_facets()
-      self$set_ggplot()
-      self$set_render_svg()
+      self$set_plot()
       return(self)
     },
     # select data
@@ -214,9 +218,9 @@ Plot <- R6::R6Class("Plot",
       self$facets <- facets
     },
     # ggplot ---
-    ggplot = NULL,
-    set_ggplot = function() {
-      self$ggplot <- memoise::memoise(function() {
+    plot = NULL,
+    set_plot = function() {
+      self$plot <- memoise::memoise(function() {
         # Setup Plot
         .aes <- nightowl:::aes(self$mapping)
         g <- ggplot2::ggplot(self$data, .aes)
@@ -248,69 +252,13 @@ Plot <- R6::R6Class("Plot",
         #*******************************************************************************
         # Finishing up
         return(g)
-      })
+      })()
     },
-    # SVG/HTML ---------------------------------------------------------------------------
-    set_options_svg = function(x) {
-      self$options_svg <- x
-    },
-    html = function(...) {
-      g <- self$ggplot()
-      do.call(self$render_svg, c(list(g = g), list(...)))
-    },
-    set_render_svg = function() {
-      self$render_svg <- memoise::memoise(render_svg)
-    },
-    render_svg = NULL,
-    # print --------------------------------------------------------------------
-    print = function() {
-      print(self$html())
-    },
+    # Format ---
+    type = "<NightowlDeclarativePlot>",
     format = function(...) {
-      return("<NightowlPlot>")
-      # return(self$html() %>% htmltools::browsable(FALSE))
-    },
-    as.character = function() {
-      return(as.character(self$html()))
-    },
-    get_width = function() {
-      viewBox <- self$as.character() %>%
-        stringr::str_extract("viewBox='([^']+)") %>%
-        stringr::str_replace("viewBox='", "") %>%
-        stringr::str_split(" ")
-      viewBox[[1]][3] %>%
-        as.numeric()
-    },
-    get_height = function() {
-      viewBox <- self$as.character() %>%
-        stringr::str_extract("viewBox='([^']+)") %>%
-        stringr::str_replace("viewBox='", "") %>%
-        stringr::str_split(" ")
-      viewBox[[1]][4] %>%
-        as.numeric()
-    },
-    inspect = function() {
-      cli::cli_h3("Data:")
-      cli::cli_li("{self$data}")
-      cli::cli_h3("Mapping:")
-      cli::cli_li("{self$mapping}")
-      cli::cli_h3("Facets:")
-      cli::cli_li("{self$facets}")
+      return(self$type)
     }
   )
 )
-# =================================================
-#' @title
-#' MISSING_TITLE
-#' @description
-#' @detail
-#' @param
-#' @return
-#' @export
-is_Plot <- function(x) {
-  all(
-    inherits(x, "Plot"),
-    inherits(x, "R6")
-  )
-}
-# =================================================
+# ===============================================================================

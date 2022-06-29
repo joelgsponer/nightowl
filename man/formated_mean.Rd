@@ -4,7 +4,7 @@
 \alias{formated_mean}
 \title{MISSING_TITLE}
 \usage{
-formated_mean(x, fun = Hmisc::smean.cl.boot, digits = 1)
+formated_mean(x, fun = Hmisc::smean.cl.boot, digits = 2)
 }
 \description{
 MISSING_TITLE

@@ -4,12 +4,18 @@ test_that("multiplication works", {
     dplyr::filter(Time < 10)
 
 
-  g <- ggplot2::ggplot(testdata, ggplot2::aes(x = Time, y = weight)) +
+  p <- rlang::expr(graphics::plot(runif(100)))
+  a <- nightowl::Plot$new(plot = p)
+  a
+
+  p <- ggplot2::ggplot(testdata, ggplot2::aes(x = Time, y = weight)) +
     ggplot2::geom_point()
+  rlang::eval_tidy(p)
+  a <- nightowl::Plot$new(plot = p, options_svg = list(height = 1))
+  a
 
-
-
-  nightowl::plot(testdata,
+  a <- nightowl::plot(
+    data = testdata,
     transform = list(x = "waRRior::fct_lexicographic"),
     mapping = list(
       x = "Time",
@@ -23,12 +29,12 @@ test_that("multiplication works", {
       list(type = "generic", geom = "ggplot2::geom_jitter", alpha = 0.3, width = 0.1),
       list(type = "traces", geom = "line", alpha = 0.3),
       list(type = "summary", mapping = list(color = NULL), geom = "line", dodge = 0, size = 1.5)
-    ),
-    annotation = list(test = "lm"),
-    svg = list()
+    )
   )
+  a$svg(height = 3)
 
-  nightowl::plot(testdata,
+  nightowl::plot(
+    data = testdata,
     transform = list(x = "waRRior::fct_lexicographic"),
     mapping = list(
       x = "Time",
@@ -45,7 +51,8 @@ test_that("multiplication works", {
     svg = list()
   )
 
-  .p <- nightowl::plot(testdata,
+  .p <- nightowl::plot(
+    data = testdata,
     transform = list(x = "waRRior::fct_lexicographic"),
     mapping = list(
       x = "Time",

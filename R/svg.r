@@ -27,7 +27,11 @@ render_svg <- function(g,
         standalone = F,
         ...
       )
-      print(g)
+      if (inherits(g, "call")) {
+        rlang::eval_tidy(g)
+      } else {
+        print(g)
+      }
       svg <- waRRior::regex_replace_element_parameter(svg(), "width", "100%") %>%
         waRRior::regex_replace_element_parameter("height", "100%") %>%
         fix_font()
@@ -50,13 +54,6 @@ render_svg <- function(g,
     }
   )
 }
-# ===============================================================================
-#' peek
-#' @export
-peek <- function(g, ...) {
-  nightowl::render_svg(g, ...) %>%
-    htmltools::browsable()
-}
 # =================================================
 #' @title
 #' MISSING_TITLE
@@ -68,10 +65,31 @@ peek <- function(g, ...) {
 add_download_button <- function(x) {
   shiny::div(
     AceOfSpades::useAceOfSpadesJS(),
+    htmltools::HTML('
+      <script>
+        function nightowl_download_svg(e) {
+          var svg = e.parentElement.querySelector("svg");
+
+          var svgXml = (new XMLSerializer).serializeToString(svg);
+          var blob = new Blob([svgXml], {type: "image/svg+xml"});
+          var url = URL.createObjectURL(blob);
+
+          var link = document.createElement("a");
+          link.href = url;
+          link.download = "image.svg";
+          link.style.display = "none";
+          document.body.appendChild(link);
+
+          // your code goes here
+          link.click();
+          document.body.removeChild(link);
+        };
+      </script>
+    '),
     htmltools::HTML("
       <div
        class = 'nightowl-svg-download-button'
-       onclick='AOS_download_svg(this)'
+       onclick='nightowl_download_svg(this)'
        style = 'text-align:right; font-weight:900; font-family:sans-serif;cursor:pointer;'
       >&#10515; Save Plot</div>
     "),
@@ -88,6 +106,7 @@ add_download_button <- function(x) {
 #' @export
 new_NightowlPlots <- function(...) {
   x <- list(...)
+  x <- unclass(x)
   vctrs::new_vctr(x, class = "NightowlPlots")
 }
 # =================================================
@@ -143,7 +162,7 @@ as_ggplot <- function(x) {
 #' @return
 #' @export
 as_ggplot.NightowlPlots <- function(x) {
-  purrr::map(x, ~ .x$ggplot())
+  purrr::map(x, ~ .x$plot)
 }
 # =================================================
 #' @title

@@ -4,7 +4,7 @@
 \alias{add_scale}
 \title{MISSING_TITLE}
 \usage{
-add_scale(obj, height = 1, scaling = 3.5, legend_position = "none")
+add_scale(obj, text_size = 1.5, line_size = 1, legend_position = "none")
 }
 \description{
 MISSING_TITLE

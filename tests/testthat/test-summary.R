@@ -24,7 +24,15 @@ test_that("summary works", {
 
   nightowl::Summary$new(testdata, "baz", "s1", method = nightowl::summarise_categorical_barplot)$data
   nightowl::Summary$new(testdata, "baz", "s1", method = nightowl::summarise_numeric_violin)$raw()
+  nightowl::Summary$new(testdata, "baz", "s1", method = nightowl::summarise_numeric_violin)$kable()
   nightowl::Summary$new(testdata, "baz", "s1", method = nightowl::summarise_numeric_violin)$reactable()
+
+
+  nightowl::Summary$new(testdata,
+    "baz",
+    "s1",
+    method = nightowl::summarise_numeric_violin
+  )$reactable()
 
   # Testing memoisation
   flights <- nightowl::Summary$new(nycflights13::flights, "month", "day")

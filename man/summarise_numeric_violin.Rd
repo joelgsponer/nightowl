@@ -9,7 +9,7 @@ summarise_numeric_violin(
   column,
   calculations = list(N. = length, Median = function(x) median(x, na.rm = T), Mean =
     nightowl::formated_mean, Violin = nightowl::add_violin),
-  parameters = list(Violin = list(theme = picasso::theme_void, height = 1.5, ylim =
+  parameters = list(Violin = list(theme = picasso::theme_void, height = 0.7, ylim =
     range(data[[column]], na.rm = T))),
   unnest = TRUE
 )

@@ -8,23 +8,32 @@ R6 Class
 
 R6 Class
 }
+\section{Public fields}{
+\if{html}{\out{<div class="r6-fields">}}
+\describe{
+\item{\code{ggplot}}{object, potentially other plot types possible (base does not work)}
+}
+\if{html}{\out{</div>}}
+}
+\section{Active bindings}{
+\if{html}{\out{<div class="r6-active-bindings">}}
+\describe{
+\item{\code{ggplot}}{object, potentially other plot types possible (base does not work)}
+}
+\if{html}{\out{</div>}}
+}
 \section{Methods}{
 \subsection{Public methods}{
 \itemize{
 \item \href{#method-Plot-new}{\code{Plot$new()}}
-\item \href{#method-Plot-select_data}{\code{Plot$select_data()}}
-\item \href{#method-Plot-transform_data}{\code{Plot$transform_data()}}
-\item \href{#method-Plot-prepare_facets}{\code{Plot$prepare_facets()}}
-\item \href{#method-Plot-set_ggplot}{\code{Plot$set_ggplot()}}
-\item \href{#method-Plot-set_options_svg}{\code{Plot$set_options_svg()}}
+\item \href{#method-Plot-svg}{\code{Plot$svg()}}
+\item \href{#method-Plot-parse_style}{\code{Plot$parse_style()}}
 \item \href{#method-Plot-html}{\code{Plot$html()}}
-\item \href{#method-Plot-set_render_svg}{\code{Plot$set_render_svg()}}
 \item \href{#method-Plot-print}{\code{Plot$print()}}
 \item \href{#method-Plot-format}{\code{Plot$format()}}
 \item \href{#method-Plot-as.character}{\code{Plot$as.character()}}
 \item \href{#method-Plot-get_width}{\code{Plot$get_width()}}
 \item \href{#method-Plot-get_height}{\code{Plot$get_height()}}
-\item \href{#method-Plot-inspect}{\code{Plot$inspect()}}
 \item \href{#method-Plot-clone}{\code{Plot$clone()}}
 }
 }
@@ -33,52 +42,31 @@ R6 Class
 \if{latex}{\out{\hypertarget{method-Plot-new}{}}}
 \subsection{Method \code{new()}}{
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Plot$new(...)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{Plot$new(
+  plot = NULL,
+  options_svg = NULL,
+  type = "NightowlPlot",
+  resize = TRUE,
+  css = NULL
+)}\if{html}{\out{</div>}}
 }
 
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-Plot-select_data"></a>}}
-\if{latex}{\out{\hypertarget{method-Plot-select_data}{}}}
-\subsection{Method \code{select_data()}}{
+\if{html}{\out{<a id="method-Plot-svg"></a>}}
+\if{latex}{\out{\hypertarget{method-Plot-svg}{}}}
+\subsection{Method \code{svg()}}{
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Plot$select_data()}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{Plot$svg(...)}\if{html}{\out{</div>}}
 }
 
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-Plot-transform_data"></a>}}
-\if{latex}{\out{\hypertarget{method-Plot-transform_data}{}}}
-\subsection{Method \code{transform_data()}}{
+\if{html}{\out{<a id="method-Plot-parse_style"></a>}}
+\if{latex}{\out{\hypertarget{method-Plot-parse_style}{}}}
+\subsection{Method \code{parse_style()}}{
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Plot$transform_data()}\if{html}{\out{</div>}}
-}
-
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-Plot-prepare_facets"></a>}}
-\if{latex}{\out{\hypertarget{method-Plot-prepare_facets}{}}}
-\subsection{Method \code{prepare_facets()}}{
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Plot$prepare_facets()}\if{html}{\out{</div>}}
-}
-
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-Plot-set_ggplot"></a>}}
-\if{latex}{\out{\hypertarget{method-Plot-set_ggplot}{}}}
-\subsection{Method \code{set_ggplot()}}{
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Plot$set_ggplot()}\if{html}{\out{</div>}}
-}
-
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-Plot-set_options_svg"></a>}}
-\if{latex}{\out{\hypertarget{method-Plot-set_options_svg}{}}}
-\subsection{Method \code{set_options_svg()}}{
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Plot$set_options_svg(x)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{Plot$parse_style(style = self$css$style)}\if{html}{\out{</div>}}
 }
 
 }
@@ -87,16 +75,7 @@ R6 Class
 \if{latex}{\out{\hypertarget{method-Plot-html}{}}}
 \subsection{Method \code{html()}}{
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Plot$html(...)}\if{html}{\out{</div>}}
-}
-
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-Plot-set_render_svg"></a>}}
-\if{latex}{\out{\hypertarget{method-Plot-set_render_svg}{}}}
-\subsection{Method \code{set_render_svg()}}{
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Plot$set_render_svg()}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{Plot$html(resize = self$resize)}\if{html}{\out{</div>}}
 }
 
 }
@@ -105,7 +84,7 @@ R6 Class
 \if{latex}{\out{\hypertarget{method-Plot-print}{}}}
 \subsection{Method \code{print()}}{
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Plot$print()}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{Plot$print(browser = TRUE)}\if{html}{\out{</div>}}
 }
 
 }
@@ -142,15 +121,6 @@ R6 Class
 \subsection{Method \code{get_height()}}{
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Plot$get_height()}\if{html}{\out{</div>}}
-}
-
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-Plot-inspect"></a>}}
-\if{latex}{\out{\hypertarget{method-Plot-inspect}{}}}
-\subsection{Method \code{inspect()}}{
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Plot$inspect()}\if{html}{\out{</div>}}
 }
 
 }

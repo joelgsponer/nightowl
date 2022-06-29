@@ -16,6 +16,7 @@ RoxygenNote: 7.2.0
 Imports: 
     distributional,
     dplyr,
+    furrr,
     GGally,
     ggdist,
     ggplot2,

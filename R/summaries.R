@@ -38,7 +38,8 @@ summarise <- function(data,
     .x <- dplyr::bind_rows(.x) %>%
       dplyr::group_by_at(.group)
     if (unnest) {
-      if (any(class(.x[[.y$column]]) %in% c("tibble", "data.frame", "list"))) {
+      if (any(class(.x[[.y$column]]) %in% c("tibble", "data.frame", "list")) &&
+        !inherits(.x[[.y$column]], "NightowlPlots")) {
         .x <- tidyr::unnest(.x, !!rlang::sym(.y$column), names_sep = names_sep, names_repair = "minimal")
         names(.x) <- stringr::str_replace_all(names(.x), glue::glue("{.y$column}."), "")
       }
@@ -173,7 +174,7 @@ summarise_numeric_violin <- function(data,
                                      parameters = list(
                                        Violin = list(
                                          theme = picasso::theme_void,
-                                         height = 1.5,
+                                         height = 0.7,
                                          ylim = range(data[[column]], na.rm = T)
                                        )
                                      ),
@@ -277,7 +278,7 @@ n <- function(...) {
 #' @param
 #' @return
 #' @export
-formated_mean <- function(x, fun = Hmisc::smean.cl.boot, digits = 1) {
+formated_mean <- function(x, fun = Hmisc::smean.cl.boot, digits = 2) {
   val <- fun(x)
   val <- round(val, digits)
   tibble::tibble(Mean = val[1], CL = glue::glue("({val[2]}-{val[3]})"))
