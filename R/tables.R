@@ -79,10 +79,26 @@ render_reactable <- function(.tbl,
                              defaultColDef = list(
                                header = function(value) gsub(".", " ", value, fixed = TRUE),
                                align = "center",
+                               na = "-",
                                html = TRUE
                              ),
                              fullWidth = FALSE,
                              ...) {
+  css <- "
+      .nightowl-scale {
+      background: red;
+      overflow: visible;
+    }
+    .nightowl-scale .rt-td-inner {
+      background: red;
+      overflow: visible;
+    }
+    .nightowl-scale .rt-text-content {
+      background: red;
+      overflow: visible !important
+      ;
+    }
+  "
   .groups <- waRRior::get_groups(.tbl)
   # Infer column types
   col_NightowlPlots <- names(.tbl)[purrr::map_lgl(.tbl, ~ inherits(.x, "NightowlPlots"))]
@@ -90,7 +106,12 @@ render_reactable <- function(.tbl,
   # ColDef
   col_def <- list()
   col_def <- purrr::reduce(col_NightowlPlots, function(.old, .new) {
-    .old[[.new]] <- reactable::colDef(minWidth = width(.tbl[[.new]]), html = TRUE)
+    .old[[.new]] <- reactable::colDef(
+      minWidth = width(.tbl[[.new]]),
+      footer = as.character(nightowl::make_scale(.tbl[[.new]])),
+      footerClass = "nightowl-scale",
+      html = TRUE
+    )
     .old
   }, .init = col_def)
   col_def <- purrr::reduce(col_HTML, function(.old, .new) {
@@ -104,11 +125,9 @@ render_reactable <- function(.tbl,
   # Prepare data
   .tbl <- dplyr::select_at(.tbl, c(.groups, waRRior::pop(names(.tbl), .groups)))
   .tbl <- dplyr::ungroup(.tbl)
-  if (add_scale) .tbl <- nightowl::add_scale(.tbl)
+  # if (add_scale) .tbl <- nightowl::add_scale(.tbl)
   .tbl <- dplyr::mutate_if(.tbl, is.numeric, function(x) format(round(x, digits), nsmall = 0))
   .tbl <- dplyr::mutate_if(.tbl, nightowl::is_NightowlPlots, as.character)
-
-  # Make groups sticky
   res <-
     reactable::reactable(
       .tbl,
@@ -125,7 +144,6 @@ render_reactable <- function(.tbl,
       fullWidth = fullWidth,
       ...
     )
-
   return(res)
 }
 # =================================================

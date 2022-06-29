@@ -303,3 +303,35 @@ add_scale <- function(obj,
     dplyr::mutate_if(is.factor, as.character) %>%
     dplyr::mutate_if(is.character, function(x) tidyr::replace_na(x, ""))
 }
+# =================================================
+#' @export
+make_scale <- function(obj,
+                       height = 0.3,
+                       text_size = 1.5,
+                       line_size = 1,
+                       legend_position = "none") {
+  obj <- obj[[1]]
+  .options_svg <- obj$options_svg
+  .options_svg$height <- height
+  .gg <- obj$plot
+  .gg$layers <- NULL
+  p <- .gg +
+    ggplot2::theme_classic() +
+    ggplot2::theme(
+      legend.position = legend_position,
+      axis.line.x = ggplot2::element_line(colour = "black", size = ggplot2::rel(line_size)),
+      axis.line.y = ggplot2::element_blank(),
+      axis.text.y = ggplot2::element_blank(),
+      axis.text.x = ggplot2::element_text(size = ggplot2::rel(text_size)),
+      axis.ticks.y = ggplot2::element_blank(),
+      plot.margin = ggplot2::margin(0, 0, 0, 0, "cm"),
+      axis.title.y = ggplot2::element_blank(),
+      axis.title.x = ggplot2::element_blank()
+    )
+  nightowl::Plot$new(
+    plot = p,
+    type = "NightowlScale",
+    resize = FALSE,
+    options_svg = options_svg
+  )
+}

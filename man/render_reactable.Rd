@@ -13,7 +13,7 @@ render_reactable(
   filterable = T,
   add_scale = T,
   defaultColDef = list(header = function(value) gsub(".", " ", value, fixed = TRUE),
-    align = "center", html = TRUE),
+    align = "center", na = "-", html = TRUE),
   fullWidth = FALSE,
   ...
 )
