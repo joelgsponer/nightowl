@@ -213,7 +213,7 @@ Coxph <- R6::R6Class("Coxph",
               dplyr::select_at(c(.var, "n", variables$event)) %>%
               dplyr::rename(comparison = .var) %>%
               dplyr::mutate(term = .var) %>%
-              # dplyr::rename(`N Events` = n) %>%
+              # dplyr::rename(`Events/N` = n) %>%
               dplyr::mutate(comparison = as.character(comparison))
           } else {
             dplyr::select_at(data, c(.var, event)) %>%
@@ -222,7 +222,7 @@ Coxph <- R6::R6Class("Coxph",
               dplyr::select_at(c(.var, "n", variables$event)) %>%
               dplyr::select_at(c("n")) %>%
               dplyr::mutate(term = .var) %>%
-              # dplyr::rename(`N Events` = n) %>%
+              # dplyr::rename(`Events/N` = n) %>%
               dplyr::mutate(comparison = "")
           }
         }) %>%
@@ -231,7 +231,7 @@ Coxph <- R6::R6Class("Coxph",
          dplyr::group_by_at(c("comparison", "term")) %>%
          dplyr::summarise(N = sum(n, na.rm = T), event = !!rlang::sym(variables$event)) %>%
          dplyr::inner_join(res) %>%
-         dplyr::mutate(`N Events` = paste(n, N, sep = "/")) %>%
+         dplyr::mutate(`Events/N` = paste(n, N, sep = "/")) %>%
          dplyr::filter(!!rlang::sym(variables$event) == "1") %>%
          waRRior::drop_columns(c("n", "N", variables$event)) %>%
          dplyr::mutate(Subgroup = .subgroup)
@@ -362,9 +362,9 @@ Coxph <- R6::R6Class("Coxph",
           Comparison = comparison,
           Reference = reference,
           !!rlang::sym(forest_label) := Visualization,
-          HR,
+          `Hazard Ratio` = HR,
           `p Value` = p.value,
-          `N Events` = `N Events`,
+          `Events/N` = `Events/N`,
         )
         res$`p Value` <- purrr::map_chr(res$`p Value`, ~ nightowl::format_p_value(.x))
         if (!is.null(drop)) {
@@ -478,7 +478,7 @@ fit_coxph <- function(data, time, event, treatment, covariates, strata, exponent
         dplyr::select_at(c(.var, "n")) %>%
         dplyr::rename(group = .var) %>%
         dplyr::mutate(variable = .var) %>%
-        dplyr::rename(`N Events` = n) %>%
+        dplyr::rename(`Events/N` = n) %>%
         dplyr::mutate(group = as.character(group))
     } else {
       dplyr::select_at(data, c(.var, event)) %>%
@@ -486,7 +486,7 @@ fit_coxph <- function(data, time, event, treatment, covariates, strata, exponent
         dplyr::filter(!!rlang::sym(event) == 1) %>%
         dplyr::select_at(c("n")) %>%
         dplyr::mutate(variable = .var) %>%
-        dplyr::rename(`N Events` = n) %>%
+        dplyr::rename(`Events/N` = n) %>%
         dplyr::mutate(group = "")
     }
   }) %>%
@@ -576,7 +576,7 @@ plot_coxph <- function(data,
         Variable = variable,
         Comparison = group,
         Reference = reference,
-        `N Events`,
+        `Events/N`,
         `Hazard Ratio` = HR,
         `p Value` = p.value,
         !!rlang::sym(forest_label) := Visualization,
@@ -590,7 +590,7 @@ plot_coxph <- function(data,
         Variable = variable,
         Comparison = group,
         Reference = reference,
-        `N Events`,
+        `Events/N`,
         `Hazard Ratio` = HR,
         `p Value` = p.value,
         !!rlang::sym(forest_label) := Visualization,
