@@ -44,9 +44,11 @@ test_that("summary works", {
     .x$options_svg[["width"]] <- 3
     .x$plot <- .x$plot + ggplot2::xlim(c(0.25, 0.75))
   })
-  purrr::walk2(c("red","blue", "green"), a$Pointrange, function(.x){
-    .x$
+
+  purrr::walk2(c("red","blue", "green"), a$Pointrange, function(.x,.y){
+    .y$plot <- .y$plot + ggplot2::scale_color_manual(values = .x)
   })
+
   nightowl::render_kable(a)
 
   nightowl::Summary$new(testdata,
