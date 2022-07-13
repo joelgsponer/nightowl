@@ -46,7 +46,8 @@ render_kable <- function(.tbl,
                          footnote = NULL,
                          ...) {
   if (!is.null(width_header)) {
-    names(.tbl) <- stringr::str_wrap(names(.tbl), width = width_header)
+    html_headers <- stringr::str_detect(names(.tbl), "<div")
+    names(.tbl)[!html_headers] <- stringr::str_wrap(names(.tbl)[!html_headers], width = width_header)
   }
   if (add_scale) .tbl <- nightowl::add_scale(.tbl)
   .tbl <- dplyr::mutate_if(.tbl, is.numeric, function(x) round(x, digits))
@@ -58,7 +59,7 @@ render_kable <- function(.tbl,
   if (!is.null(header_above)) .kable <- kableExtra::add_header_above(.kable, header_above)
   .kable <- kableExtra::kable_styling(.kable, full_width = full_width, ...)
   if (!is.null(footnote)) {
-    .kable <- kableExtra::add_footnote(.kable, footnote)
+    .kable <- kableExtra::add_footnote(.kable, footnote, notation = "none")
   }
   return(.kable)
 }
