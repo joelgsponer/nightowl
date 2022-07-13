@@ -1,3 +1,4 @@
- assign("NightowlOptions", 
-   nightowl:::.NightowlOptions$new()
-   , env = globalenv())
+assign("NightowlOptions",
+  nightowl:::.NightowlOptions$new(),
+  env = globalenv()
+)

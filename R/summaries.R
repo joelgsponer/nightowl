@@ -178,7 +178,7 @@ summarise_numeric_pointrange <- function(data,
                                          ),
                                          parameters = list(
                                            Pointrange = list(
-                                             fun_data  = ggplot2::mean_cl_boot,
+                                             fun_data = ggplot2::mean_cl_boot,
                                              xintercept = mean(data[[column]], na.rm = T),
                                              xlim = c(
                                                min(data[[column]], na.rm = T),
@@ -283,11 +283,11 @@ frequencies <- function(x,
       )
     })
     print <- purrr::map2(print, colors, ~ nightowl::style_cell(.x,
-      #background_color = ifelse(add_colors, .y, "white"),
-      #color = ifelse(picasso::is_dark(.y) && add_colors, "white", "black"),
+      # background_color = ifelse(add_colors, .y, "white"),
+      # color = ifelse(picasso::is_dark(.y) && add_colors, "white", "black"),
       # border_style = "solid",
       # border_width = "3px",
-      #font_weight = ifelse(add_colors, "bold", "normal"),
+      # font_weight = ifelse(add_colors, "bold", "normal"),
       text_align = "center",
       padding_top = "0px",
       padding_bottom = "0px",
@@ -308,9 +308,9 @@ frequencies <- function(x,
         x,
         shiny::HTML(y)
       ) %>%
-      as.character()
+        as.character()
     }) %>%
-    purrr::set_names(names(print))
+      purrr::set_names(names(print))
 
     print %>%
       as.list() %>%

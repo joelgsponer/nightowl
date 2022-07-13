@@ -6,12 +6,11 @@
 #' @param
 #' @return
 #' @export
-add_barplot <- function(x, 
+add_barplot <- function(x,
                         height = 0.3,
-                        width = 2.5, 
+                        width = 2.5,
                         scaling = 1,
-                        colors = NightowlOptions$get_colors
-                        ) {
+                        colors = NightowlOptions$get_colors) {
   if (!is.factor(x)) {
     x <- factor(x) %>%
       forcats::fct_explicit_na()
