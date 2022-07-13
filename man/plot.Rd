@@ -44,7 +44,7 @@ R6 Class
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Plot$new(
   plot = NULL,
-  options_svg = NULL,
+  options_svg = list(width = 8, height = 8, scaling = 1),
   type = "NightowlPlot",
   resize = TRUE,
   css = NULL

@@ -1,4 +1,5 @@
 test_that("summary works", {
+
   testdata <- tibble::tibble(
     "foo" = c(rep("A", 50), rep("B", 50), rep("C", 50), rep("D", 50)),
     "bar" = c(rnorm(50, 0, 1), rnorm(50, 1, 2), rnorm(50, 2, 3), rnorm(50, 3, 4)),
@@ -22,17 +23,37 @@ test_that("summary works", {
   nightowl::Summary$new(testdata, "qux", "s1")$raw()
   nightowl::Summary$new(testdata, "qux", "s1")$reactable()
 
-  nightowl::Summary$new(testdata, "baz", "s1", method = nightowl::summarise_categorical_barplot)$data
+  nightowl::Summary$new(testdata, "qux", "foo", method = nightowl::summarise_categorical_barplot)$data
+  nightowl::Summary$new(testdata, "qux", "foo", method = nightowl::summarise_categorical_barplot)$kable()
   nightowl::Summary$new(testdata, "baz", "s1", method = nightowl::summarise_numeric_violin)$raw()
   nightowl::Summary$new(testdata, "baz", "s1", method = nightowl::summarise_numeric_violin)$kable()
+  nightowl::Summary$new(testdata, "baz", "s1", method = nightowl::summarise_numeric_histogram)$kable()
   nightowl::Summary$new(testdata, "baz", "s1", method = nightowl::summarise_numeric_violin)$reactable()
+  nightowl::Summary$new(testdata, "baz", "s1", method = nightowl::summarise_numeric_pointrange)$reactable()
 
+  a <- nightowl::Summary$new(testdata, "baz", "s1", method = nightowl::summarise_numeric_pointrange)$raw()
+
+  purrr::walk(a$Pointrange, function(.x){
+    .x$options_svg[["width"]] <- 3
+    .x$plot <- .x$plot + ggplot2::xlim(c(0.25, 0.75))
+  })
+  purrr::walk2(c("red","blue", "green"), a$Pointrange, function(.x){
+    .x$
+  })
+  nightowl::render_kable(a)
 
   nightowl::Summary$new(testdata,
     "baz",
     "s1",
     method = nightowl::summarise_numeric_violin
   )$reactable()
+
+  # Pointrange
+  palmerpenguins::penguins %>%
+    dplyr::group_by(species) %>%
+    dplyr::summarise(mean = ggplot2::mean_cl_boot(bill_length_mm),
+    ) %>%
+  render_kable()
 
   # Testing memoisation
   flights <- nightowl::Summary$new(nycflights13::flights, "month", "day")

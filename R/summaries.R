@@ -93,6 +93,11 @@ summarise_categorical_barplot <- function(data,
                                             Freq = nightowl::frequencies,
                                             Barplot = nightowl::add_barplot
                                           ),
+                                          parameters = list(
+                                            Freq = list(
+                                              add_colors = TRUE
+                                            )
+                                          ),
                                           unnest = TRUE, names_sep = NULL) {
   do.call(nightowl::summarise, as.list(environment()))
 }
@@ -155,6 +160,35 @@ summarise_numeric_forestplot <- function(data,
                                          unnest = TRUE) {
   do.call(nightowl::summarise, as.list(environment()))
 }
+# ===============================================================================
+#' @title
+#' MISSING_TITLE
+#' @description
+#' @detail
+#' @param
+#' @return
+#' @export
+summarise_numeric_pointrange <- function(data,
+                                         column,
+                                         calculations = list(
+                                           `N.` = length,
+                                           Median = function(x) median(x, na.rm = T),
+                                           Mean = nightowl::formated_mean,
+                                           Pointrange = nightowl::add_inline_pointrange
+                                         ),
+                                         parameters = list(
+                                           Pointrange = list(
+                                             fun_data  = ggplot2::mean_cl_boot,
+                                             xintercept = mean(data[[column]], na.rm = T),
+                                             xlim = c(
+                                               min(data[[column]], na.rm = T),
+                                               max(data[[column]], na.rm = T)
+                                             )
+                                           )
+                                         ),
+                                         unnest = TRUE) {
+  do.call(nightowl::summarise, as.list(environment()))
+}
 # =================================================
 #' @title
 #' MISSING_TITLE
@@ -174,7 +208,6 @@ summarise_numeric_violin <- function(data,
                                      parameters = list(
                                        Violin = list(
                                          theme = picasso::theme_void,
-                                         height = 0.7,
                                          ylim = range(data[[column]], na.rm = T)
                                        )
                                      ),
@@ -184,6 +217,7 @@ summarise_numeric_violin <- function(data,
   }
   do.call(nightowl::summarise, as.list(environment()))
 }
+
 # ===============================================================================
 #' @title
 #' MISSING_TITLE
@@ -198,7 +232,7 @@ summarise_numeric_histogram <- function(data,
                                           `N.` = length,
                                           Median = function(x) median(x, na.rm = T),
                                           Mean = nightowl::formated_mean,
-                                          Histogram = nightowl::add_histogram
+                                          Histogram = nightowl::add_inline_histogram
                                         ),
                                         parameters = list(),
                                         unnest = TRUE) {
@@ -207,7 +241,6 @@ summarise_numeric_histogram <- function(data,
   }
   do.call(nightowl::summarise, as.list(environment()))
 }
-
 # =================================================
 #' @title
 #' MISSING_TITLE
@@ -238,7 +271,7 @@ frequencies <- function(x, output = "print", digits = 1, str_width = 20, add_col
     print <- as.character(glue::glue("{percent}%({counts})"))
     names(print) <- stringr::str_wrap(names(counts), str_width) %>%
       stringr::str_replace_all("\n", "<br>")
-    colors <- MetBrewer::met.brewer("Demuth", length(counts)) %>%
+    colors <- MetBrewer::met.brewer("Monet", length(counts)) %>%
       rev()
     print <- purrr::map2(print, colors, ~ nightowl::style_cell(.x,
       background_color = ifelse(add_colors, .y, "white"),
@@ -251,6 +284,7 @@ frequencies <- function(x, output = "print", digits = 1, str_width = 20, add_col
       padding_bottom = "0px",
       padding_left = ifelse(add_colors, "3px", "0px"),
       padding_right = ifelse(add_colors, "3px", "0px"),
+      border_radius = "5px",
       margin = "0 0 0 0 px"
     ) %>% unlist())
     print %>%

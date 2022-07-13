@@ -6,24 +6,34 @@
 #' @param
 #' @return
 #' @export
-add_barplot <- function(x) {
-  x <- factor(x) %>%
+add_barplot <- function(x,                        height = 0.3,
+                       width = 2.5, scaling = 1
+) {
+  if(!is.factor(x)) {
+     x <- factor(x) %>%
     forcats::fct_explicit_na()
+  }
   counts <- base::table(x) / length(x) * 100
   .p <- tibble::tibble(fill = names(counts), y = counts) %>%
     dplyr::mutate(fill = forcats::fct_inorder(fill)) %>%
     dplyr::mutate(fill = forcats::fct_rev(fill)) %>%
     ggplot2::ggplot(ggplot2::aes(y = 1, x = y, fill = fill)) +
     ggplot2::geom_col(orientation = "y") +
-    MetBrewer::scale_fill_met_d("Demuth", drop = F) +
+    MetBrewer::scale_fill_met_d("Monet", drop = F) +
     ggplot2:::scale_y_discrete(expand = ggplot2::expansion(0)) +
-    ggplot2::scale_x_continuous(limits = c(0, 100)) +
+    ggplot2::scale_x_continuous(limits = c(0, 100.1)) +
     ggplot2::theme_void() +
     ggplot2::theme(
       legend.position = "none",
-      plot.margin = ggplot2::margin(0, 0, 0, 0, "cm")
+      plot.margin = ggplot2::margin(t = 0, r = 15, b = 0, l = 15, unit = "pt")
     )
-  nightowl::render_svg(.p, height = 0.8, add_download_button = FALSE)
+  nightowl::Plot$new(
+    plot = .p,
+    type = "Barplot",
+    resize = FALSE,
+    options_svg = list(height = height, width = width, scaling = scaling, add_download_button = FALSE)
+  ) %>%
+    nightowl::new_NightowlPlots()
 }
 # =================================================
 #' @title
@@ -55,7 +65,7 @@ add_forestplot <- function(x,
 #' @return
 #' @export
 add_inline_plot <- function(x,
-                            y = rep(0, length(x)),
+                            y = NULL,
                             mapping = list(x = "x", y = "y"),
                             style = NULL,
                             xlim = NULL,
@@ -72,14 +82,16 @@ add_inline_plot <- function(x,
                             fill = picasso::roche_colors("lightblue"),
                             expansion_y = 0,
                             add_download_button = FALSE,
-                            fun.data = ggplot2::mean_cl_boot,
                             ...) {
   # Prepare paramters
   ## DATA
   if (!inherits(x, "data.frame")) {
+    if(is.null(y)) y = rep(0, length(x))
     DATA <- tibble::tibble(x = x, y = y)
   } else {
     DATA <- x
+    if(is.null(mapping$y)) DATA$padding = rep(0, nrow(x))
+    mapping$y <- "padding"
   }
   ## Paramters added via ...
   if (!is.null(style)) {
@@ -94,11 +106,11 @@ add_inline_plot <- function(x,
   }
   ## Putting them together
   .args <- c(
-    list(DATA = DATA),
+    list(data = DATA),
     list(mapping = mapping),
     .style
   )
-  .p <- do.call(nightowl::plot, .args)
+  .p <- do.call(nightowl::plot, .args)$plot
 
   # Coord flip
   if (coord_flip) {
@@ -128,12 +140,52 @@ add_inline_plot <- function(x,
     .p <- .p + picasso::hide_y_axis()
   }
 
-  # Create SVG
-  nightowl::render_svg(.p,
-    height = height,
-    width = width,
-    scaling = scaling,
-    add_download_button = add_download_button
+  .p <- .p + ggplot2::theme(plot.margin = ggplot2::margin(t = 0, r = 15, b = 0, l = 15, unit = "pt"))
+
+  nightowl::Plot$new(
+    plot = .p,
+    type = style,
+    resize = FALSE,
+    options_svg = list(height = height, width = width, scaling = scaling, add_download_button = FALSE)
+  ) %>%
+    nightowl::new_NightowlPlots()
+}
+#=================================================
+#' @title
+#' MISSING_TITLE
+#' @description
+#' @detail
+#' @param
+#' @return
+#' @export
+add_inline_histogram <- function(x, 
+                                 mapping = list(x = "x", y = NULL),
+                                 ...) {
+  nightowl::add_inline_plot(x,
+    mapping = mapping,
+    style = "Inline-Histogram",
+    ...
+  )
+}
+#=================================================
+#' @title
+#' MISSING_TITLE
+#' @description
+#' @detail
+#' @param
+#' @return
+#' @export
+add_inline_pointrange <- function(x, 
+                                  fun_data = NULL,
+                                  mapping = list(x = "y", xmin = "ymin", xmax = "ymax", y = NULL)
+                                  , ...) {
+  if(!is.null(fun_data)) {
+    x <- fun_data(x)
+  }
+  nightowl::add_inline_plot(x,
+    mapping = mapping,
+    style = "Inline-Pointrange",
+    ...
   )
 }
 # =================================================
@@ -146,15 +198,15 @@ add_inline_plot <- function(x,
 #' @export
 add_violin <- function(x,
                        ylim = NULL,
-                       height = 0.7,
-                       width = 3.5,
+                       height = 0.3,
+                       width = 2.5,
                        scaling = 1,
                        theme = ggplot2::theme_void,
                        hide_legend = T,
                        hide_x_axis = T,
                        hide_y_axis = T,
-                       fill = picasso::roche_colors("lightblue"),
-                       expansion_y = 0,
+                       fill = "#B9B9B8", #picasso::roche_colors("lightblue"),
+                       expansion_y = 10,
                        add_download_button = FALSE,
                        fun.data = ggplot2::mean_cl_boot) {
   .data <- tibble::tibble(x = x)
@@ -162,7 +214,7 @@ add_violin <- function(x,
     mapping = ggplot2::aes(y = x, x = 0)
   ) +
     ggplot2::geom_violin(fill = fill) +
-    ggplot2::stat_summary(fun.data = fun.data, size = 2) +
+    ggplot2::stat_summary(fun.data = fun.data, size = 1) +
     ggplot2::coord_flip() +
     ggplot2:::scale_y_continuous(expand = ggplot2::expansion(expansion_y))
   if (!is.null(ylim)) {
@@ -171,6 +223,7 @@ add_violin <- function(x,
   .p <- .p + theme()
   if (hide_legend) {
     .p <- .p + picasso::hide_legend()
+    .p <- .p + ggplot2::theme(plot.margin = ggplot2::margin(t = 0, r = 15, b = 0, l = 15, unit = "pt"))
   }
   if (hide_x_axis) {
     .p <- .p + picasso::hide_x_axis()
@@ -286,11 +339,13 @@ add_scale <- function(obj,
         axis.text.y = ggplot2::element_blank(),
         axis.text.x = ggplot2::element_text(size = ggplot2::rel(text_size)),
         axis.ticks.y = ggplot2::element_blank(),
-        plot.margin = ggplot2::margin(0, 0, 0, 0, "cm"),
+        plot.margin = ggplot2::margin(t = 0, r = 15, b = 0, l = 15, unit = "pt"),
+        plot.title = ggplot2::element_blank(),
         axis.title.y = ggplot2::element_blank(),
         axis.title.x = ggplot2::element_blank()
       )
-  }) %>%
+  })
+  ggs <- ggs %>%
     purrr::set_names(columns) %>%
     purrr::map(~ nightowl::Plot$new(
       plot = .x,
@@ -324,7 +379,8 @@ make_scale <- function(obj,
       axis.text.y = ggplot2::element_blank(),
       axis.text.x = ggplot2::element_text(size = ggplot2::rel(text_size)),
       axis.ticks.y = ggplot2::element_blank(),
-      plot.margin = ggplot2::margin(0, 0, 0, 0, "cm"),
+      plot.margin = ggplot2::margin(t = 0, r = 15, b = 0, l = 15, unit = "pt"),
+      plot.title = ggplot2::element_blank(),
       axis.title.y = ggplot2::element_blank(),
       axis.title.x = ggplot2::element_blank()
     )
@@ -332,6 +388,6 @@ make_scale <- function(obj,
     plot = p,
     type = "NightowlScale",
     resize = FALSE,
-    options_svg = options_svg
+    options_svg = .options_svg
   )
 }

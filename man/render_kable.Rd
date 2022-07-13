@@ -12,6 +12,7 @@ render_kable(
   add_scale = T,
   column_width = "20em",
   width_header = 20,
+  header_above = NULL,
   footnote = NULL,
   ...
 )

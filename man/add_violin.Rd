@@ -7,15 +7,15 @@
 add_violin(
   x,
   ylim = NULL,
-  height = 0.7,
+  height = 0.3,
   width = 3.5,
   scaling = 1,
   theme = ggplot2::theme_void,
   hide_legend = T,
   hide_x_axis = T,
   hide_y_axis = T,
-  fill = picasso::roche_colors("lightblue"),
-  expansion_y = 0,
+  fill = "#B9B9B8",
+  expansion_y = 10,
   add_download_button = FALSE,
   fun.data = ggplot2::mean_cl_boot
 )

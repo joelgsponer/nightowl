@@ -1,0 +1,8 @@
+name: Inline Histogram
+description: Histogram
+layers:
+- type: generic
+  geom: ggplot2::geom_histogram
+  fill: "#e0a000"
+  color: "#000000"
+

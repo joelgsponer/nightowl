@@ -23,7 +23,7 @@ Plot <- R6::R6Class("Plot",
   public = list(
     type = NULL,
     initialize = function(plot = NULL,
-                          options_svg = NULL,
+                          options_svg = list(width = 8, height = 8, scaling = 1),
                           type = "NightowlPlot",
                           resize = TRUE,
                           css = NULL) {
@@ -38,7 +38,7 @@ Plot <- R6::R6Class("Plot",
     #' @field ggplot object, potentially other plot types possible (base does not work)
     plot = NULL,
     # SVG/HTML ---------------------------------------------------------------------------
-    options_svg = NULL,
+    options_svg = NULL, 
     svg = function(...) {
       args <- list(...)
       args <- c(self$options_svg[!names(self$options_svg) %in% names(args)], args)

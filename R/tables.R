@@ -42,6 +42,7 @@ render_kable <- function(.tbl,
                          add_scale = T,
                          column_width = "20em",
                          width_header = 20,
+                         header_above = NULL,
                          footnote = NULL,
                          ...) {
   if (!is.null(width_header)) {
@@ -54,6 +55,7 @@ render_kable <- function(.tbl,
   .tbl <- dplyr::mutate_all(.tbl, function(x) tidyr::replace_na(x, ""))
   .kable <- .tbl %>%
     knitr::kable("html", escape = FALSE, caption = caption)
+  if(!is.null(header_above)) .kable <- kableExtra::add_header_above(.kable, header_above)
   .kable <- kableExtra::kable_styling(.kable, full_width = full_width, ...)
   if (!is.null(footnote)) {
     .kable <- kableExtra::add_footnote(.kable, footnote)

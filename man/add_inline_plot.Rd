@@ -6,7 +6,7 @@
 \usage{
 add_inline_plot(
   x,
-  y = rep(0, length(x)),
+  y = NULL,
   mapping = list(x = "x", y = "y"),
   style = NULL,
   xlim = NULL,
@@ -23,7 +23,6 @@ add_inline_plot(
   fill = picasso::roche_colors("lightblue"),
   expansion_y = 0,
   add_download_button = FALSE,
-  fun.data = ggplot2::mean_cl_boot,
   ...
 )
 }
