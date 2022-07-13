@@ -249,7 +249,11 @@ summarise_numeric_histogram <- function(data,
 #' @param
 #' @return
 #' @export
-frequencies <- function(x, output = "print", digits = 1, str_width = 20, add_colors = T, colors = MetBrewer::MetPalettes$Greek[[1]]) {
+frequencies <- function(x,
+                        output = "print",
+                        digits = 1,
+                        str_width = NightowlOptions$get_header_width(),
+                        add_colors = T, colors = NightowlOptions$get_colors) {
   x <- forcats::fct_explicit_na(x)
   counts <- base::table(x)
   if (output == "counts") {
@@ -271,8 +275,7 @@ frequencies <- function(x, output = "print", digits = 1, str_width = 20, add_col
     print <- as.character(glue::glue("{percent}%({counts})"))
     names(print) <- stringr::str_wrap(names(counts), str_width) %>%
       stringr::str_replace_all("\n", "<br>")
-    colors <- colors[1:length(counts)] %>%
-      rev()
+    colors <- colors(n = length(counts), missing = "(Missing)" %in% names(counts))
     legend <- purrr::map(colors, function(x) {
       shiny::div(
         "",

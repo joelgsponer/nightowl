@@ -8,7 +8,7 @@ add_violin(
   x,
   ylim = NULL,
   height = 0.3,
-  width = 3.5,
+  width = 2.5,
   scaling = 1,
   theme = ggplot2::theme_void,
   hide_legend = T,

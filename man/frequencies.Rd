@@ -4,7 +4,14 @@
 \alias{frequencies}
 \title{MISSING_TITLE}
 \usage{
-frequencies(x, output = "print", digits = 1, str_width = 20, add_colors = T)
+frequencies(
+  x,
+  output = "print",
+  digits = 1,
+  str_width = NightowlOptions$get_header_width(),
+  add_colors = T,
+  colors = NightowlOptions$get_colors
+)
 }
 \description{
 MISSING_TITLE

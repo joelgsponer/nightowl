@@ -10,7 +10,7 @@ add_barplot <- function(x,
                         height = 0.3,
                         width = 2.5, 
                         scaling = 1,
-                        colors = nightowl::nightowl_colors
+                        colors = NightowlOptions$get_colors
                         ) {
   if (!is.factor(x)) {
     x <- factor(x) %>%

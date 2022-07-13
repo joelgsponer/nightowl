@@ -4,7 +4,13 @@
 \alias{add_barplot}
 \title{MISSING_TITLE}
 \usage{
-add_barplot(x, height = 0.3, width = 3.5, scaling = 1)
+add_barplot(
+  x,
+  height = 0.3,
+  width = 2.5,
+  scaling = 1,
+  colors = NightowlOptions$get_colors
+)
 }
 \description{
 MISSING_TITLE
