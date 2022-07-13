@@ -249,7 +249,7 @@ summarise_numeric_histogram <- function(data,
 #' @param
 #' @return
 #' @export
-frequencies <- function(x, output = "print", digits = 1, str_width = 20, add_colors = T) {
+frequencies <- function(x, output = "print", digits = 1, str_width = 20, add_colors = T, colors = MetBrewer::MetPalettes$Greek[[1]]) {
   x <- forcats::fct_explicit_na(x)
   counts <- base::table(x)
   if (output == "counts") {
@@ -271,14 +271,20 @@ frequencies <- function(x, output = "print", digits = 1, str_width = 20, add_col
     print <- as.character(glue::glue("{percent}%({counts})"))
     names(print) <- stringr::str_wrap(names(counts), str_width) %>%
       stringr::str_replace_all("\n", "<br>")
-    colors <- MetBrewer::met.brewer("Monet", length(counts)) %>%
+    colors <- colors[1:length(counts)] %>%
       rev()
+    legend <- purrr::map(colors, function(x) {
+      shiny::div(
+        "",
+        style = glue::glue("background-color:{x}; width:10px; height:10px; border-radius:50%;")
+      )
+    })
     print <- purrr::map2(print, colors, ~ nightowl::style_cell(.x,
-      background_color = ifelse(add_colors, .y, "white"),
-      color = ifelse(picasso::is_dark(.y) && add_colors, "white", "black"),
+      #background_color = ifelse(add_colors, .y, "white"),
+      #color = ifelse(picasso::is_dark(.y) && add_colors, "white", "black"),
       # border_style = "solid",
       # border_width = "3px",
-      font_weight = ifelse(add_colors, "bold", "normal"),
+      #font_weight = ifelse(add_colors, "bold", "normal"),
       text_align = "center",
       padding_top = "0px",
       padding_bottom = "0px",
@@ -287,6 +293,22 @@ frequencies <- function(x, output = "print", digits = 1, str_width = 20, add_col
       border_radius = "5px",
       margin = "0 0 0 0 px"
     ) %>% unlist())
+    print <- purrr::map2(legend, print, function(x, y) {
+      shiny::div(
+        style = glue::glue("
+          display: flex;
+          flex-direction: row;
+          justify-content: flex-start;
+          align-content: center;
+          align-items: center;
+          "),
+        x,
+        shiny::HTML(y)
+      ) %>%
+      as.character()
+    }) %>%
+    purrr::set_names(names(print))
+
     print %>%
       as.list() %>%
       tibble::as_tibble() %>%
