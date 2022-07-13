@@ -17,6 +17,7 @@ forestplot <- function(x,
                        hide_y_axis = TRUE,
                        hide_x_axis = TRUE,
                        hide_legend = TRUE,
+                       shape = 15,
                        theme = ggplot2::theme_void) {
   .data <- tibble::tibble(x = x, xmin = xmin, xmax = xmax)
   .p <- ggplot2::ggplot(NULL, ggplot2::aes(
@@ -27,7 +28,7 @@ forestplot <- function(x,
   )) +
     ggplot2::geom_vline(xintercept = xintercept, color = picasso::roche_colors("red"), linetype = "solid", size = 1) +
     ggplot2::geom_errorbarh() +
-    ggplot2::geom_point(cex = 8, shape = 18, color = picasso::roche_colors("blue")) +
+    ggplot2::geom_point(cex = 8, shape = shape, color = picasso::roche_colors("blue")) +
     theme() +
     ggplot2::xlab(xlab) +
     ggplot2::ylab(ylab)

@@ -1,4 +1,5 @@
 test_that("coxph works", {
+
   testdata <- tibble::tibble(
     time = sample(1:100, size = 100, replace = TRUE),
     event = sample(c(0, 1), size = 100, replace = TRUE),
@@ -20,13 +21,15 @@ test_that("coxph works", {
     exponentiate = FALSE
   )
 
-  nightowl::plot_coxph(testdata,
+  tmp <- nightowl::plot_coxph(testdata,
     time = "time",
     event = "event",
     treatment = "treatment",
     covariates = c("n1", "c1", "c2", "c3"),
     exponentiate = FALSE
   )
+  nightowl::render_kable(tmp)
+
 
   nightowl::plot_coxph(testdata,
     time = "time",

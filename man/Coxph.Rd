@@ -25,6 +25,17 @@ R6 Class
 \item \href{#method-Coxph-set_formula}{\code{Coxph$set_formula()}}
 \item \href{#method-Coxph-check_formula}{\code{Coxph$check_formula()}}
 \item \href{#method-Coxph-fit}{\code{Coxph$fit()}}
+\item \href{#method-Coxph-results}{\code{Coxph$results()}}
+\item \href{#method-Coxph-errors}{\code{Coxph$errors()}}
+\item \href{#method-Coxph-N}{\code{Coxph$N()}}
+\item \href{#method-Coxph-caption}{\code{Coxph$caption()}}
+\item \href{#method-Coxph-footnote}{\code{Coxph$footnote()}}
+\item \href{#method-Coxph-set_labels}{\code{Coxph$set_labels()}}
+\item \href{#method-Coxph-arrange}{\code{Coxph$arrange()}}
+\item \href{#method-Coxph-raw}{\code{Coxph$raw()}}
+\item \href{#method-Coxph-kable}{\code{Coxph$kable()}}
+\item \href{#method-Coxph-html}{\code{Coxph$html()}}
+\item \href{#method-Coxph-reactable}{\code{Coxph$reactable()}}
 \item \href{#method-Coxph-clone}{\code{Coxph$clone()}}
 }
 }
@@ -33,7 +44,7 @@ R6 Class
 \if{latex}{\out{\hypertarget{method-Coxph-new}{}}}
 \subsection{Method \code{new()}}{
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Coxph$new(...)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{Coxph$new(..., labels = NULL)}\if{html}{\out{</div>}}
 }
 
 }
@@ -151,6 +162,105 @@ R6 Class
 \subsection{Method \code{fit()}}{
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Coxph$fit()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-Coxph-results"></a>}}
+\if{latex}{\out{\hypertarget{method-Coxph-results}{}}}
+\subsection{Method \code{results()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Coxph$results()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-Coxph-errors"></a>}}
+\if{latex}{\out{\hypertarget{method-Coxph-errors}{}}}
+\subsection{Method \code{errors()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Coxph$errors()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-Coxph-N"></a>}}
+\if{latex}{\out{\hypertarget{method-Coxph-N}{}}}
+\subsection{Method \code{N()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Coxph$N()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-Coxph-caption"></a>}}
+\if{latex}{\out{\hypertarget{method-Coxph-caption}{}}}
+\subsection{Method \code{caption()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Coxph$caption()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-Coxph-footnote"></a>}}
+\if{latex}{\out{\hypertarget{method-Coxph-footnote}{}}}
+\subsection{Method \code{footnote()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Coxph$footnote()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-Coxph-set_labels"></a>}}
+\if{latex}{\out{\hypertarget{method-Coxph-set_labels}{}}}
+\subsection{Method \code{set_labels()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Coxph$set_labels(labels)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-Coxph-arrange"></a>}}
+\if{latex}{\out{\hypertarget{method-Coxph-arrange}{}}}
+\subsection{Method \code{arrange()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Coxph$arrange(x)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-Coxph-raw"></a>}}
+\if{latex}{\out{\hypertarget{method-Coxph-raw}{}}}
+\subsection{Method \code{raw()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Coxph$raw(drop = NULL, keep_only_treatment = TRUE)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-Coxph-kable"></a>}}
+\if{latex}{\out{\hypertarget{method-Coxph-kable}{}}}
+\subsection{Method \code{kable()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Coxph$kable(drop = NULL, keep_only_treatment = TRUE)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-Coxph-html"></a>}}
+\if{latex}{\out{\hypertarget{method-Coxph-html}{}}}
+\subsection{Method \code{html()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Coxph$html(drop = NULL)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-Coxph-reactable"></a>}}
+\if{latex}{\out{\hypertarget{method-Coxph-reactable}{}}}
+\subsection{Method \code{reactable()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Coxph$reactable(drop = NULL, keep_only_treatment = FALSE, ...)}\if{html}{\out{</div>}}
 }
 
 }

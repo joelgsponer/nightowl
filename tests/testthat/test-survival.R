@@ -1,4 +1,5 @@
 test_that("survival functions work", {
+
   testdata <- tibble::tibble(
     time = sample(1:100, size = 100, replace = TRUE),
     event = sample(c(0, 1), size = 100, replace = TRUE),
@@ -22,6 +23,22 @@ test_that("survival functions work", {
     strata = c("s1", "s2"),
     random_effect = c("split", "Second")
   )
+
+  tmp <- nightowl::Coxph$new(
+    data = testdata,
+    time = "time",
+    event = "event",
+    treatment = "treatment",
+    group_by = c("s1", "s2"),
+    covariates = c("c1", "c2", "c3"),
+    random_effect = c("split", "Second"),
+    labels = c(c1 = "hello")
+    #conf_range = c(-2, 2)
+  )
+  tmp$kable()
+
+  tmp$reactable()
+
 
   nightowl::Coxph$new(
     data = testdata,
@@ -185,4 +202,5 @@ test_that("survival functions work", {
     width = "300px",
     as_ggplot = TRUE
   )
+
 })

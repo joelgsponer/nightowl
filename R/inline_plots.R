@@ -6,6 +6,109 @@
 #' @param
 #' @return
 #' @export
+add_inline_forestplot <- function(x,
+                       xmin,
+                       xmax,
+                       xlim = NULL,
+                       xintercept = NULL,
+                       xlab = NULL,
+                       ylab = NULL,
+                       hide_y_axis = TRUE,
+                       hide_x_axis = TRUE,
+                       hide_legend = TRUE,
+                       height = 0.3,
+                       width = 3,
+                       scaling = 0.8,
+                       shape = 15,
+                       size = 4, 
+                       alpha = 0.8,
+                       breaks = seq(-10, 10, 2),
+                       theme = ggplot2::theme_void) {
+  .data <- tibble::tibble(x = x, xmin = xmin, xmax = xmax)
+  .p <- ggplot2::ggplot(NULL, ggplot2::aes(
+    y = 0,
+    x = x,
+    xmin = xmin,
+    xmax = xmax
+  )) +
+    ggplot2::geom_vline(xintercept = xintercept, color = picasso::roche_colors("red"), linetype = "solid", size = 1) +
+    ggplot2::geom_errorbarh() +
+    ggplot2::geom_point(size = size, shape = shape, color = picasso::roche_colors("blue", alpha = alpha)) +
+    theme() +
+    ggplot2::xlab(xlab) +
+    ggplot2::ylab(ylab)
+
+  .p <- .p + ggplot2::theme(plot.margin = ggplot2::margin(t = 0, r = 15, b = 0, l = 15, unit = "pt"))
+
+
+  if (hide_legend) {
+    .p <- .p + picasso::hide_legend()
+  }
+  if (hide_x_axis) {
+    .p <- .p + picasso::hide_x_axis()
+  }
+  if (hide_y_axis) {
+    .p <- .p + picasso::hide_y_axis()
+  }
+
+
+  if (!is.null(xlim)) {
+    .p <- .p + ggplot2:::scale_x_continuous(limits = c(xlim[1], xlim[2]), breaks = breaks)
+
+    if (xmin < xlim[1]) {
+      .p <- .p + ggplot2::geom_text(
+        mapping = ggplot2::aes(x = xlim[1], label = "<<<"),
+        color = picasso::roche_colors("black"),
+        hjust = 0.3,
+        size = 9
+      ) +
+        ggplot2::geom_point(mapping = ggplot2::aes(x = xmax), cex = 8, shape = 108, color = picasso::roche_colors("black"))
+    }
+
+    if (xmax > xlim[2]) {
+      .p <- .p + ggplot2::geom_text(
+        mapping = ggplot2::aes(x = xlim[2], label = ">>>"),
+        color = picasso::roche_colors("black"),
+        size = 9
+      ) +
+        ggplot2::geom_point(mapping = ggplot2::aes(x = xmin), cex = 8, shape = 108, color = picasso::roche_colors("black"))
+    }
+
+    if (x < xlim[1]) {
+      .p <- .p + ggplot2::geom_text(
+        mapping = ggplot2::aes(x = xlim[1], label = "<<<"),
+        color = picasso::roche_colors("blue"),
+        hjust = 0.3,
+        size = 9
+      )
+    }
+    if (x > xlim[2]) {
+      .p <- .p + ggplot2::geom_text(
+        mapping = ggplot2::aes(x = xlim[2], label = ">>>"),
+        color = picasso::roche_colors("blue"),
+        size = 9
+      )
+    }
+  } else {
+          .p <- .p + ggplot2:::scale_x_continuous(breaks)
+  }
+
+  nightowl::Plot$new(
+    plot = .p,
+    type = "ForestPlot",
+    resize = FALSE,
+    options_svg = list(height = height, width = width, scaling = scaling, add_download_button = FALSE)
+  ) %>%
+    nightowl::new_NightowlPlots()
+}
+# =================================================
+#' @title
+#' MISSING_TITLE
+#' @description
+#' @detail
+#' @param
+#' @return
+#' @export
 add_barplot <- function(x,
                         height = 0.3,
                         width = 2.5,
