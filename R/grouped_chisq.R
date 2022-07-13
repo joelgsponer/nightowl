@@ -168,7 +168,6 @@ reactable_grouped_chisq <- function(df, split_by, x, y, test = NULL, order_by = 
   cli::cli_h1("Reactable Grouped Chisq")
 
   .l <- list(data = df_split, info = test, name = names(df_split))
-  browser()
   purrr::pmap(.l, function(data, info, name) {
     cli::cli_progress_step("{name}")
     info <- info %>%
