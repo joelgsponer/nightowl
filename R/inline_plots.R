@@ -6,20 +6,25 @@
 #' @param
 #' @return
 #' @export
-add_barplot <- function(x,                        height = 0.3,
-                       width = 2.5, scaling = 1
-) {
-  if(!is.factor(x)) {
-     x <- factor(x) %>%
-    forcats::fct_explicit_na()
+add_barplot <- function(x, 
+                        height = 0.3,
+                        width = 2.5, 
+                        scaling = 1,
+                        colors = nightowl::nightowl_colors
+                        ) {
+  if (!is.factor(x)) {
+    x <- factor(x) %>%
+      forcats::fct_explicit_na()
   }
   counts <- base::table(x) / length(x) * 100
+  colors <- colors(length(counts), missing = "(Missing)" %in% names(counts)) %>%
+    rev()
   .p <- tibble::tibble(fill = names(counts), y = counts) %>%
     dplyr::mutate(fill = forcats::fct_inorder(fill)) %>%
     dplyr::mutate(fill = forcats::fct_rev(fill)) %>%
     ggplot2::ggplot(ggplot2::aes(y = 1, x = y, fill = fill)) +
     ggplot2::geom_col(orientation = "y") +
-    MetBrewer::scale_fill_met_d("Monet", drop = F) +
+    ggplot2::scale_fill_manual(values = colors, drop = F) +
     ggplot2:::scale_y_discrete(expand = ggplot2::expansion(0)) +
     ggplot2::scale_x_continuous(limits = c(0, 100.1)) +
     ggplot2::theme_void() +
@@ -86,11 +91,11 @@ add_inline_plot <- function(x,
   # Prepare paramters
   ## DATA
   if (!inherits(x, "data.frame")) {
-    if(is.null(y)) y = rep(0, length(x))
+    if (is.null(y)) y <- rep(0, length(x))
     DATA <- tibble::tibble(x = x, y = y)
   } else {
     DATA <- x
-    if(is.null(mapping$y)) DATA$padding = rep(0, nrow(x))
+    if (is.null(mapping$y)) DATA$padding <- rep(0, nrow(x))
     mapping$y <- "padding"
   }
   ## Paramters added via ...
@@ -150,7 +155,7 @@ add_inline_plot <- function(x,
   ) %>%
     nightowl::new_NightowlPlots()
 }
-#=================================================
+# =================================================
 #' @title
 #' MISSING_TITLE
 #' @description
@@ -158,7 +163,7 @@ add_inline_plot <- function(x,
 #' @param
 #' @return
 #' @export
-add_inline_histogram <- function(x, 
+add_inline_histogram <- function(x,
                                  mapping = list(x = "x", y = NULL),
                                  ...) {
   nightowl::add_inline_plot(x,
@@ -167,7 +172,7 @@ add_inline_histogram <- function(x,
     ...
   )
 }
-#=================================================
+# =================================================
 #' @title
 #' MISSING_TITLE
 #' @description
@@ -175,11 +180,11 @@ add_inline_histogram <- function(x,
 #' @param
 #' @return
 #' @export
-add_inline_pointrange <- function(x, 
+add_inline_pointrange <- function(x,
                                   fun_data = NULL,
-                                  mapping = list(x = "y", xmin = "ymin", xmax = "ymax", y = NULL)
-                                  , ...) {
-  if(!is.null(fun_data)) {
+                                  mapping = list(x = "y", xmin = "ymin", xmax = "ymax", y = NULL),
+                                  ...) {
+  if (!is.null(fun_data)) {
     x <- fun_data(x)
   }
   nightowl::add_inline_plot(x,
@@ -205,7 +210,7 @@ add_violin <- function(x,
                        hide_legend = T,
                        hide_x_axis = T,
                        hide_y_axis = T,
-                       fill = "#B9B9B8", #picasso::roche_colors("lightblue"),
+                       fill = "#B9B9B8", # picasso::roche_colors("lightblue"),
                        expansion_y = 10,
                        add_download_button = FALSE,
                        fun.data = ggplot2::mean_cl_boot) {
