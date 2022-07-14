@@ -1,5 +1,4 @@
 test_that("summary works", {
-
   testdata <- tibble::tibble(
     "foo" = c(rep("A", 50), rep("B", 50), rep("C", 50), rep("D", 50)),
     "bar" = c(rnorm(50, 0, 1), rnorm(50, 1, 2), rnorm(50, 2, 3), rnorm(50, 3, 4)),
@@ -40,12 +39,12 @@ test_that("summary works", {
 
   a <- nightowl::Summary$new(testdata, "baz", "s1", method = nightowl::summarise_numeric_pointrange)$raw()
 
-  purrr::walk(a$Pointrange, function(.x){
+  purrr::walk(a$Pointrange, function(.x) {
     .x$options_svg[["width"]] <- 3
     .x$plot <- .x$plot + ggplot2::xlim(c(0.25, 0.75))
   })
 
-  purrr::walk2(c("red","blue", "green"), a$Pointrange, function(.x,.y){
+  purrr::walk2(c("red", "blue", "green"), a$Pointrange, function(.x, .y) {
     .y$plot <- .y$plot + ggplot2::scale_color_manual(values = .x)
   })
 
@@ -60,9 +59,8 @@ test_that("summary works", {
   # Pointrange
   palmerpenguins::penguins %>%
     dplyr::group_by(species) %>%
-    dplyr::summarise(mean = ggplot2::mean_cl_boot(bill_length_mm),
-    ) %>%
-  render_kable()
+    dplyr::summarise(mean = ggplot2::mean_cl_boot(bill_length_mm), ) %>%
+    render_kable()
 
   # Testing memoisation
   flights <- nightowl::Summary$new(nycflights13::flights, "month", "day")

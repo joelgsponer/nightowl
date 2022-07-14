@@ -169,42 +169,41 @@ Coxph <- R6::R6Class("Coxph",
     results = function() {
       variables <- self$get_variables()
       purrr::map(self$models, "result") %>%
-      purrr::imap(function(.result, .group){
-      .result %>%
-        broom::tidy(exponentiate = self$exponentiate, conf.int = TRUE) %>%
-        dplyr::mutate(Subgroup = .group) %>%
-        purrr::reduce(c(variables$treatment, variables$covariates), function(.in, .cov) {
-          .in$term <- stringr::str_replace(.in$term, .cov, paste0(.cov, "splithere"))
-          .in
-        }, .init = .) %>%
-        {
-          x <- .
-          x$comparison <- stringr::str_split(x$term, stringr::fixed("splithere")) %>%
-            purrr::map(~ .x[[2]]) %>%
-            unlist()
-          x$term <- stringr::str_split(x$term, stringr::fixed("splithere")) %>%
-            purrr::map(~ .x[[1]]) %>%
-            unlist()
-          x
-        } %>%
-        dplyr::mutate_if(is.numeric, ~ round(.x, 4)) %>%
-        dplyr::arrange(estimate) %>%
-        dplyr::mutate(term = factor(term, c(variables$treatment, unique(waRRior::pop(.$term, variables$treatment))))) %>%
-        dplyr::arrange(term) %>%
-        dplyr::mutate(reference = purrr::map_chr(as.character(term), ~ self$get_reference()[[.x]])) %>%
-        dplyr::select(Subgroup, term, reference, comparison, estimate, tidyselect::everything())
-     })
-
+        purrr::imap(function(.result, .group) {
+          .result %>%
+            broom::tidy(exponentiate = self$exponentiate, conf.int = TRUE) %>%
+            dplyr::mutate(Subgroup = .group) %>%
+            purrr::reduce(c(variables$treatment, variables$covariates), function(.in, .cov) {
+              .in$term <- stringr::str_replace(.in$term, .cov, paste0(.cov, "splithere"))
+              .in
+            }, .init = .) %>%
+            {
+              x <- .
+              x$comparison <- stringr::str_split(x$term, stringr::fixed("splithere")) %>%
+                purrr::map(~ .x[[2]]) %>%
+                unlist()
+              x$term <- stringr::str_split(x$term, stringr::fixed("splithere")) %>%
+                purrr::map(~ .x[[1]]) %>%
+                unlist()
+              x
+            } %>%
+            dplyr::mutate_if(is.numeric, ~ round(.x, 4)) %>%
+            dplyr::arrange(estimate) %>%
+            dplyr::mutate(term = factor(term, c(variables$treatment, unique(waRRior::pop(.$term, variables$treatment))))) %>%
+            dplyr::arrange(term) %>%
+            dplyr::mutate(reference = purrr::map_chr(as.character(term), ~ self$get_reference()[[.x]])) %>%
+            dplyr::select(Subgroup, term, reference, comparison, estimate, tidyselect::everything())
+        })
     },
     # Errors -------------------------------------------------------------------
-    errors = function(){
+    errors = function() {
       purrr::map(self$models, "error")
     },
     # N ------------------------------------------------------------------
-    N = function(){
+    N = function() {
       variables <- self$get_variables()
       data_list <- waRRior::named_group_split_at(self$data, self$group_by, keep = T, verbose = T)
-      purrr::imap(data_list, function(.data, .subgroup){
+      purrr::imap(data_list, function(.data, .subgroup) {
         res <- purrr::map(c(variables$treatment, self$covariates, self$strata), function(.var) {
           if (!is.numeric(.data[[.var]])) {
             dplyr::select_at(.data, c(.var, variables$event)) %>%
@@ -228,15 +227,15 @@ Coxph <- R6::R6Class("Coxph",
         }) %>%
           dplyr::bind_rows()
         res %>%
-         dplyr::group_by_at(c("comparison", "term")) %>%
-         dplyr::summarise(N = sum(n, na.rm = T), event = !!rlang::sym(variables$event)) %>%
-         dplyr::inner_join(res) %>%
-         dplyr::mutate(`Events/N` = paste(n, N, sep = "/")) %>%
-         dplyr::filter(!!rlang::sym(variables$event) == "1") %>%
-         waRRior::drop_columns(c("n", "N", variables$event)) %>%
-         dplyr::mutate(Subgroup = .subgroup)
+          dplyr::group_by_at(c("comparison", "term")) %>%
+          dplyr::summarise(N = sum(n, na.rm = T), event = !!rlang::sym(variables$event)) %>%
+          dplyr::inner_join(res) %>%
+          dplyr::mutate(`Events/N` = paste(n, N, sep = "/")) %>%
+          dplyr::filter(!!rlang::sym(variables$event) == "1") %>%
+          waRRior::drop_columns(c("n", "N", variables$event)) %>%
+          dplyr::mutate(Subgroup = .subgroup)
       }) %>%
-      dplyr::bind_rows()
+        dplyr::bind_rows()
     },
     # Annotation ----------------------------------------------------------------
     add_caption = TRUE,
@@ -261,11 +260,11 @@ Coxph <- R6::R6Class("Coxph",
           .footnote <- "Univariate Analysis"
         } else {
           comb <- c(variables$covariates, variables$strata)
-          if (is.null(self$labels)){
+          if (is.null(self$labels)) {
             labels <- comb %>% purrr::set_names(comb)
-          } else{
+          } else {
             labels <- self$labels
-          } 
+          }
           .labeled_covariates <- labels[variables$covariates]
           .labeled_covariates[is.na(.labeled_covariates)] <- variables$covariates[is.na(.labeled_covariates)]
           .labeled_strata <- labels[variables$strata]
@@ -292,8 +291,8 @@ Coxph <- R6::R6Class("Coxph",
         names(.data) <- nightowl::get_labels(names(.data), labels)
         self$data <- .data
         self$get_variables() %>%
-          purrr::iwalk(function(.x, .y){
-           self[[.y]] <- nightowl::get_labels(.x, labels)
+          purrr::iwalk(function(.x, .y) {
+            self[[.y]] <- nightowl::get_labels(.x, labels)
           })
       }
       self$labels <- labels
@@ -311,14 +310,13 @@ Coxph <- R6::R6Class("Coxph",
     conf_range = NULL,
     label_left = "Comparison better",
     label_right = "Reference better",
-    raw = function(drop = NULL, keep_only_treatment = TRUE){
-
+    raw = function(drop = NULL, keep_only_treatment = TRUE) {
       results <- dplyr::inner_join(
         self$N(),
         dplyr::bind_rows(self$results())
       )
 
-      if(is.null(self$conf_range)){
+      if (is.null(self$conf_range)) {
         self$conf_range <- c(
           min(results$conf.low[results$conf.low != -Inf], na.rm = T),
           max(results$conf.high[results$conf.high != Inf], na.rm = T)
@@ -339,12 +337,12 @@ Coxph <- R6::R6Class("Coxph",
           .x
         }) %>%
         dplyr::bind_rows()
-      if(keep_only_treatment){
+      if (keep_only_treatment) {
         res <- res %>%
           dplyr::filter(term == self$get_variables()$treatment)
       }
       forest_label <- glue::glue("
-        <div 
+        <div
         style= 'font-size: smaller;display:flex; flex-direction:column;align-items:center;'>
         <div>log(HR)</div>
         <div>← {self$label_left} | {self$label_right} →</div>
@@ -366,22 +364,22 @@ Coxph <- R6::R6Class("Coxph",
           `p Value` = p.value,
           `Events/N` = `Events/N`,
         )
-        res$`p Value` <- purrr::map_chr(res$`p Value`, ~ nightowl::format_p_value(.x))
-        if (!is.null(drop)) {
-          res <- waRRior::drop_columns(res, drop)
-        }
-        subgroups <- stringr::str_split(res$Subgroup, " / ") %>%
-        purrr::map(~stringr::str_split(.x, "==")) %>%
-        purrr::map(function(.x){
-          purrr::map(.x, function(.y){
+      res$`p Value` <- purrr::map_chr(res$`p Value`, ~ nightowl::format_p_value(.x))
+      if (!is.null(drop)) {
+        res <- waRRior::drop_columns(res, drop)
+      }
+      subgroups <- stringr::str_split(res$Subgroup, " / ") %>%
+        purrr::map(~ stringr::str_split(.x, "==")) %>%
+        purrr::map(function(.x) {
+          purrr::map(.x, function(.y) {
             .res <- list()
             .res[[.y[[1]]]] <- .y[[2]]
             tibble::as_tibble(.res)
           }) %>%
-          dplyr::bind_cols()
-       }) %>%
-       dplyr::bind_rows()
-       
+            dplyr::bind_cols()
+        }) %>%
+        dplyr::bind_rows()
+
       dplyr::bind_cols(subgroups, res) %>%
         dplyr::select(-Subgroup)
     },

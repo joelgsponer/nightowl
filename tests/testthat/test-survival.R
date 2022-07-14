@@ -1,5 +1,4 @@
 test_that("survival functions work", {
-
   testdata <- tibble::tibble(
     time = sample(1:100, size = 100, replace = TRUE),
     event = sample(c(0, 1), size = 100, replace = TRUE),
@@ -33,7 +32,7 @@ test_that("survival functions work", {
     covariates = c("c1", "c2", "c3"),
     random_effect = c("split", "Second"),
     labels = c(c1 = "hello")
-    #conf_range = c(-2, 2)
+    # conf_range = c(-2, 2)
   )
   tmp$kable()
 
@@ -202,5 +201,4 @@ test_that("survival functions work", {
     width = "300px",
     as_ggplot = TRUE
   )
-
 })

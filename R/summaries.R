@@ -299,6 +299,7 @@ frequencies <- function(x,
     print <- purrr::map2(legend, print, function(x, y) {
       shiny::div(
         style = glue::glue("
+          width:max-content;
           display: flex;
           flex-direction: row;
           justify-content: flex-start;

@@ -40,7 +40,6 @@ render_kable <- function(.tbl,
                          full_width = FALSE,
                          digits = 2,
                          add_scale = T,
-                         column_width = "20em",
                          width_header = 20,
                          header_above = NULL,
                          footnote = NULL,
@@ -54,6 +53,8 @@ render_kable <- function(.tbl,
   .tbl <- dplyr::mutate_if(.tbl, is.numeric, as.character)
   .tbl <- dplyr::mutate_if(.tbl, nightowl::is_NightowlPlots, as.character)
   .tbl <- dplyr::mutate_all(.tbl, function(x) tidyr::replace_na(x, ""))
+  .tbl <- purrr::map(.tbl, function(.x) nightowl::style_cell(.x, width = "max-content") %>% as.character()) %>%
+    tibble::as_tibble()
   .kable <- .tbl %>%
     knitr::kable("html", escape = FALSE, caption = caption)
   if (!is.null(header_above)) .kable <- kableExtra::add_header_above(.kable, header_above)

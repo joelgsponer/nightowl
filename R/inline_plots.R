@@ -7,23 +7,23 @@
 #' @return
 #' @export
 add_inline_forestplot <- function(x,
-                       xmin,
-                       xmax,
-                       xlim = NULL,
-                       xintercept = NULL,
-                       xlab = NULL,
-                       ylab = NULL,
-                       hide_y_axis = TRUE,
-                       hide_x_axis = TRUE,
-                       hide_legend = TRUE,
-                       height = 0.3,
-                       width = 3,
-                       scaling = 0.8,
-                       shape = 15,
-                       size = 4, 
-                       alpha = 0.8,
-                       breaks = seq(-10, 10, 2),
-                       theme = ggplot2::theme_void) {
+                                  xmin,
+                                  xmax,
+                                  xlim = NULL,
+                                  xintercept = NULL,
+                                  xlab = NULL,
+                                  ylab = NULL,
+                                  hide_y_axis = TRUE,
+                                  hide_x_axis = TRUE,
+                                  hide_legend = TRUE,
+                                  height = 0.3,
+                                  width = 3,
+                                  scaling = 0.8,
+                                  shape = 15,
+                                  size = 4,
+                                  alpha = 0.8,
+                                  breaks = seq(-10, 10, 2),
+                                  theme = ggplot2::theme_void) {
   .data <- tibble::tibble(x = x, xmin = xmin, xmax = xmax)
   .p <- ggplot2::ggplot(NULL, ggplot2::aes(
     y = 0,
@@ -90,7 +90,7 @@ add_inline_forestplot <- function(x,
       )
     }
   } else {
-          .p <- .p + ggplot2:::scale_x_continuous(breaks)
+    .p <- .p + ggplot2:::scale_x_continuous(breaks)
   }
 
   nightowl::Plot$new(
