@@ -68,7 +68,7 @@ summarise_categorical <- function(data,
                                   column,
                                   calculations = list(
                                     `N.` = length,
-                                    Freq = nightowl::frequencies
+                                    Freq = nightowl::format_frequencies
                                   ),
                                   parameters = list(
                                     Freq = list(
@@ -90,7 +90,7 @@ summarise_categorical_barplot <- function(data,
                                           column,
                                           calculations = list(
                                             `N.` = length,
-                                            Freq = nightowl::frequencies,
+                                            Freq = nightowl::format_frequencies,
                                             Barplot = nightowl::add_barplot
                                           ),
                                           parameters = list(
@@ -241,6 +241,21 @@ summarise_numeric_histogram <- function(data,
   }
   do.call(nightowl::summarise, as.list(environment()))
 }
+#=================================================
+#' @title
+#' MISSING_TITLE
+#' @description
+#' @detail
+#' @param
+#' @return
+#' @export
+calc_percentage <- function(x, N = length(x), digits = 1) {
+  x <- forcats::fct_explicit_na(x)
+  counts <- base::table(x)
+  percent <- counts / N * 100
+  percent <- round(percent, digits)
+  return(percent)
+}
 # =================================================
 #' @title
 #' MISSING_TITLE
@@ -249,7 +264,8 @@ summarise_numeric_histogram <- function(data,
 #' @param
 #' @return
 #' @export
-frequencies <- function(x,
+format_frequencies <- function(x,
+                        N = length(x),
                         output = "print",
                         digits = 1,
                         str_width = NightowlOptions$get_header_width(),
@@ -262,7 +278,6 @@ frequencies <- function(x,
       tibble::as_tibble() %>%
       return()
   }
-  N <- length(x)
   percent <- counts / N * 100
   percent <- round(percent, digits)
   if (output == "percent") {

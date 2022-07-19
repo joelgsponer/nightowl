@@ -7,7 +7,7 @@
 summarise_categorical(
   data,
   column,
-  calculations = list(N. = length, Freq = nightowl::frequencies),
+  calculations = list(N. = length, Freq = nightowl::format_frequencies),
   parameters = list(Freq = list(add_colors = FALSE)),
   unnest = TRUE,
   names_sep = NULL
