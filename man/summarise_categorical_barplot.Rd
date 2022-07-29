@@ -5,8 +5,6 @@
 \title{MISSING_TITLE}
 \usage{
 summarise_categorical_barplot(
-  data,
-  column,
   calculations = list(N. = length, Freq = nightowl::format_frequencies, Barplot =
     nightowl::add_barplot),
   parameters = list(Freq = list(add_colors = TRUE)),

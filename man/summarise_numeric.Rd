@@ -9,10 +9,10 @@ summarise_numeric(
   column,
   calculations = list(N. = length, Missing = function(x) {
      return(sum(is.na(x)))
-
-    }, `Extreme Values` = nightowl::count_outliers, Median = function(x) median(x, na.rm
-    = T), Min = function(x) min(x, na.rm = T), Max = function(x) max(x, na.rm = T), Mean
-    = nightowl::formated_mean),
+ },
+    `Extreme Values` = nightowl::count_outliers, Median = function(x) median(x, na.rm =
+    T), Min = function(x) min(x, na.rm = T), Max = function(x) max(x, na.rm = T), Mean =
+    nightowl::formated_mean),
   parameters = list(),
   unnest = TRUE
 )

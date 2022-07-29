@@ -1,5 +1,6 @@
 test_that("summary works", {
   
+
   testdata <- tibble::tibble(
     "foo" = c(rep("A", 50), rep("B", 50), rep("C", 50), rep("D", 50)),
     "bar" = c(rnorm(50, 0, 1), rnorm(50, 1, 2), rnorm(50, 2, 3), rnorm(50, 3, 4)),
@@ -19,7 +20,12 @@ test_that("summary works", {
     dplyr::mutate(qux = factor(qux))
   testdata
 
-  nightowl::Summary$new(testdata, "qux", "s1", debug = F)
+  s1 <- nightowl::Summary$new(testdata, "qux", "s1", debug = F)
+  s1
+  s1$calculations
+  s1$add_calculation(list(Missing = function(x)sum(is.na(x))))
+  s1$raw()
+
   nightowl::Summary$new(testdata, "qux", "s1")$raw()
   nightowl::Summary$new(testdata, "qux", "s1")$reactable()
 

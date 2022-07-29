@@ -7,8 +7,7 @@
 reactable_default(
   x,
   filterable = T,
-  style = list(fontFamily = "Work Sans, sans-serif", fontSize = "14px", padding =
-    "10px"),
+  style = list(fontFamily = "Work Sans, sans-serif", fontSize = "14px", padding = "10px"),
   searchable = TRUE,
   selection = "multiple",
   onClick = "select",

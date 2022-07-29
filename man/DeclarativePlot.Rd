@@ -26,13 +26,13 @@ R6 Class
 \if{html}{\out{
 <details><summary>Inherited methods</summary>
 <ul>
-<li><span class="pkg-link" data-pkg="nightowl" data-topic="Plot" data-id="as.character"><a href='../../nightowl/html/Plot.html#method-Plot-as.character'><code>nightowl::Plot$as.character()</code></a></li>
-<li><span class="pkg-link" data-pkg="nightowl" data-topic="Plot" data-id="get_height"><a href='../../nightowl/html/Plot.html#method-Plot-get_height'><code>nightowl::Plot$get_height()</code></a></li>
-<li><span class="pkg-link" data-pkg="nightowl" data-topic="Plot" data-id="get_width"><a href='../../nightowl/html/Plot.html#method-Plot-get_width'><code>nightowl::Plot$get_width()</code></a></li>
-<li><span class="pkg-link" data-pkg="nightowl" data-topic="Plot" data-id="html"><a href='../../nightowl/html/Plot.html#method-Plot-html'><code>nightowl::Plot$html()</code></a></li>
-<li><span class="pkg-link" data-pkg="nightowl" data-topic="Plot" data-id="parse_style"><a href='../../nightowl/html/Plot.html#method-Plot-parse_style'><code>nightowl::Plot$parse_style()</code></a></li>
-<li><span class="pkg-link" data-pkg="nightowl" data-topic="Plot" data-id="print"><a href='../../nightowl/html/Plot.html#method-Plot-print'><code>nightowl::Plot$print()</code></a></li>
-<li><span class="pkg-link" data-pkg="nightowl" data-topic="Plot" data-id="svg"><a href='../../nightowl/html/Plot.html#method-Plot-svg'><code>nightowl::Plot$svg()</code></a></li>
+<li><span class="pkg-link" data-pkg="nightowl" data-topic="Plot" data-id="as.character"><a href='../../nightowl/html/Plot.html#method-Plot-as.character'><code>nightowl::Plot$as.character()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="nightowl" data-topic="Plot" data-id="get_height"><a href='../../nightowl/html/Plot.html#method-Plot-get_height'><code>nightowl::Plot$get_height()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="nightowl" data-topic="Plot" data-id="get_width"><a href='../../nightowl/html/Plot.html#method-Plot-get_width'><code>nightowl::Plot$get_width()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="nightowl" data-topic="Plot" data-id="html"><a href='../../nightowl/html/Plot.html#method-Plot-html'><code>nightowl::Plot$html()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="nightowl" data-topic="Plot" data-id="parse_style"><a href='../../nightowl/html/Plot.html#method-Plot-parse_style'><code>nightowl::Plot$parse_style()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="nightowl" data-topic="Plot" data-id="print"><a href='../../nightowl/html/Plot.html#method-Plot-print'><code>nightowl::Plot$print()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="nightowl" data-topic="Plot" data-id="svg"><a href='../../nightowl/html/Plot.html#method-Plot-svg'><code>nightowl::Plot$svg()</code></a></span></li>
 </ul>
 </details>
 }}

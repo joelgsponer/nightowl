@@ -5,11 +5,12 @@
 \title{MISSING_TITLE}
 \usage{
 summarise_numeric_histogram(
+  self,
   data,
   column,
   calculations = list(N. = length, Median = function(x) median(x, na.rm = T), Mean =
     nightowl::formated_mean, Histogram = nightowl::add_inline_histogram),
-  parameters = list(),
+  parameters = list(Histogram = list(xlim = range(self$data[[self$column]], na.rm = T))),
   unnest = TRUE
 )
 }

@@ -1,4 +1,5 @@
 # nightowl
+# nightowl <img src="man/figures/logo.png" align="right" height="104" />
 #### Stats and graphs
 ## Installation
 ```

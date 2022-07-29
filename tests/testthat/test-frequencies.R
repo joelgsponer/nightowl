@@ -6,6 +6,8 @@ test_that("frequencies work", {
     rep(NA, 25)
   )
 
+  nightowl::calc_percentage(x)
+
   nightowl::frequencies(x) %>% nightowl::render_kable()
 
 

@@ -5,13 +5,11 @@
 \title{MISSING_TITLE}
 \usage{
 summarise_numeric_violin(
-  data,
-  column,
+  self,
   calculations = list(N. = length, Median = function(x) median(x, na.rm = T), Mean =
     nightowl::formated_mean, Violin = nightowl::add_violin),
   parameters = list(Violin = list(theme = picasso::theme_void, ylim =
-    range(data[[column]], na.rm = T))),
-  unnest = TRUE
+    range(self$data[[self$column]], na.rm = T)))
 )
 }
 \description{

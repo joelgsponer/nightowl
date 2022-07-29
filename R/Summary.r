@@ -13,19 +13,23 @@ Summary <- R6::R6Class("Summary",
     options_reactables = list(defaultPageSize = 30),
     options_kable = list(),
     options_test = list(),
-    initialize = function(.data, column, group_by = NULL, summarise = NULL, labels = NULL, debug = F, ...) {
+    initialize = function(.data, column, group_by = NULL, method = NULL, labels = NULL, debug = F, ...) {
       if (debug) browser()
-      self$column <- column
-      self$group_by <- group_by
-      self$set_data(.data)
-      self$set_labels(labels)
-      self$set_type()
-      self$set_method(summarise)
       purrr::imap(list(...), function(.x, .y) {
         if (.y %in% names(self)) {
           self[[.y]] <- .x
         }
       })
+      self$column <- column
+      self$group_by <- group_by
+      self$set_data(.data)
+      self$set_labels(labels)
+      self$set_type()
+      self$set_method(method)
+      if(!is.null(self$method)){
+        self$set_calculations(self$method(self)$calculations)
+        self$set_parameters(self$method(self)$parameters)
+      }
       invisible(self)
     },
     # Variables --------------------------------------------------
@@ -84,9 +88,24 @@ Summary <- R6::R6Class("Summary",
       self$type <- class(self$data[[self$column]])
     },
     # Method -------------------------------------------------------------------
+    calculations = NULL,
+    set_calculations = function(calculations) {
+      self$calculations <- calculations
+    },
+    add_calculation = function(calculation, parameters = NULL) {
+      self$calculations <- append(self$calculations, calculation)
+      self$parameters <- append(self$parameters, parameters)
+    },
+    parameters = NULL,
+    set_parameters = function(parameters) {
+      if (rlang::is_expression(parameters)) {
+        parameters <- eval(parameters)
+      }
+      self$parameters <- parameters
+    },
     method = NULL,
     set_method = function(summarise) {
-      if (is.null(summarise)) {
+      if (is.null(summarise) && is.null(self$calculations)) {
         if (is.numeric(self$data[[self$column]])) {
           self$method <- memoise::memoise(nightowl::summarise_numeric)
         } else {
@@ -145,9 +164,19 @@ Summary <- R6::R6Class("Summary",
       invisible(self)
     },
     # Raw ----------------------------------------------------------------------
+    unnest = TRUE,
+    name_for_column = "Variable",
+    names_sep = ".",
     raw = function(drop = NULL) {
       .data <- self$data
-      res <- self$method(self$data, self$column)
+      res <- nightowl::summarise(
+        data = self$data,
+        column = self$column,
+        calculations = self$calculations,
+        parameters = self$parameters,
+        unnest = self$unnest,
+        name_for_column = self$name_for_column,
+        names_sep =  self$names_sep)
       res <- dplyr::select(res, Variable, tidyselect::everything())
       res <- self$drop_variable(res)
       res <- self$arrange(res)

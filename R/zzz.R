@@ -1,4 +1,6 @@
-assign("NightowlOptions",
-  nightowl:::.NightowlOptions$new(),
-  env = globalenv()
-)
+.onLoad <- function(libname, pkgname) {
+  assign("NightowlOptions",
+    nightowl:::.NightowlOptions$new(),
+    env = globalenv()
+  )
+}

@@ -64,9 +64,7 @@ summarise <- function(data,
 #' @param
 #' @return
 #' @export
-summarise_categorical <- function(data,
-                                  column,
-                                  calculations = list(
+summarise_categorical <- function(calculations = list(
                                     `N.` = length,
                                     Freq = nightowl::format_frequencies
                                   ),
@@ -74,9 +72,8 @@ summarise_categorical <- function(data,
                                     Freq = list(
                                       add_colors = FALSE
                                     )
-                                  ),
-                                  unnest = TRUE, names_sep = NULL) {
-  do.call(nightowl::summarise, as.list(environment()))
+                                  )){
+  return(list(calculations = calculations, parameters = parameters))
 }
 # =================================================
 #' @title
@@ -86,9 +83,7 @@ summarise_categorical <- function(data,
 #' @param
 #' @return
 #' @export
-summarise_categorical_barplot <- function(data,
-                                          column,
-                                          calculations = list(
+summarise_categorical_barplot <- function( calculations = list(
                                             `N.` = length,
                                             Freq = nightowl::format_frequencies,
                                             Barplot = nightowl::add_barplot
@@ -99,7 +94,7 @@ summarise_categorical_barplot <- function(data,
                                             )
                                           ),
                                           unnest = TRUE, names_sep = NULL) {
-  do.call(nightowl::summarise, as.list(environment()))
+  return(list(calculations = calculations, parameters = parameters))
 }
 # =================================================
 #' @title
@@ -124,7 +119,7 @@ summarise_numeric <- function(data,
                               ),
                               parameters = list(),
                               unnest = TRUE) {
-  do.call(nightowl::summarise, as.list(environment()))
+  return(list(calculations = calculations, parameters = parameters))
 }
 # ===============================================================================
 #' @title
@@ -158,7 +153,7 @@ summarise_numeric_forestplot <- function(data,
                                            )
                                          ),
                                          unnest = TRUE) {
-  do.call(nightowl::summarise, as.list(environment()))
+  return(list(calculations = calculations, parameters = parameters))
 }
 # ===============================================================================
 #' @title
@@ -187,7 +182,7 @@ summarise_numeric_pointrange <- function(data,
                                            )
                                          ),
                                          unnest = TRUE) {
-  do.call(nightowl::summarise, as.list(environment()))
+  return(list(calculations = calculations, parameters = parameters))
 }
 # =================================================
 #' @title
@@ -197,8 +192,7 @@ summarise_numeric_pointrange <- function(data,
 #' @param
 #' @return
 #' @export
-summarise_numeric_violin <- function(data,
-                                     column,
+summarise_numeric_violin <- function(self,
                                      calculations = list(
                                        `N.` = length,
                                        Median = function(x) median(x, na.rm = T),
@@ -208,14 +202,10 @@ summarise_numeric_violin <- function(data,
                                      parameters = list(
                                        Violin = list(
                                          theme = picasso::theme_void,
-                                         ylim = range(data[[column]], na.rm = T)
+                                         ylim = range(self$data[[self$column]], na.rm = T)
                                        )
-                                     ),
-                                     unnest = TRUE) {
-  if (rlang::is_expression(parameters)) {
-    parameters <- eval(parameters)
-  }
-  do.call(nightowl::summarise, as.list(environment()))
+                                     )){
+  return(list(calculations = calculations, parameters = parameters))
 }
 
 # ===============================================================================
@@ -226,7 +216,8 @@ summarise_numeric_violin <- function(data,
 #' @param
 #' @return
 #' @export
-summarise_numeric_histogram <- function(data,
+summarise_numeric_histogram <- function(self,
+                                        data,
                                         column,
                                         calculations = list(
                                           `N.` = length,
@@ -234,12 +225,13 @@ summarise_numeric_histogram <- function(data,
                                           Mean = nightowl::formated_mean,
                                           Histogram = nightowl::add_inline_histogram
                                         ),
-                                        parameters = list(),
+                                        parameters = list(
+                                          Histogram = list(
+                                            xlim = range(self$data[[self$column]], na.rm = T)
+                                          )
+                                        ),
                                         unnest = TRUE) {
-  if (rlang::is_expression(parameters)) {
-    parameters <- eval(parameters)
-  }
-  do.call(nightowl::summarise, as.list(environment()))
+  return(list(calculations = calculations, parameters = parameters))
 }
 #=================================================
 #' @title

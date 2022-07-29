@@ -223,7 +223,6 @@ add_inline_plot <- function(x,
   if (coord_flip) {
     .p <- .p + ggplot2::coord_flip()
   }
-
   # Axis limits
   if (!is.null(xlim) && is.numeric(.p$data[[mapping$x]])) {
     .p <- .p + ggplot2::scale_x_continuous(limits = xlim)

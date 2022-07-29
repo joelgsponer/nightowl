@@ -130,7 +130,7 @@ render_reactable <- function(.tbl,
   .tbl <- dplyr::select_at(.tbl, c(.groups, waRRior::pop(names(.tbl), .groups)))
   .tbl <- dplyr::ungroup(.tbl)
   # if (add_scale) .tbl <- nightowl::add_scale(.tbl)
-  .tbl <- dplyr::mutate_if(.tbl, is.numeric, function(x) format(round(x, digits), nsmall = 0))
+  .tbl <- dplyr::mutate_if(.tbl, is.numeric, function(x) round(x, digits))
   .tbl <- dplyr::mutate_if(.tbl, nightowl::is_NightowlPlots, as.character)
   res <-
     reactable::reactable(
