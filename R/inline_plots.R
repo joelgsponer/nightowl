@@ -225,7 +225,9 @@ add_inline_plot <- function(x,
   }
   # Axis limits
   if (!is.null(xlim) && is.numeric(.p$data[[mapping$x]])) {
-    .p <- .p + ggplot2::scale_x_continuous(limits = xlim)
+    .p <- .p + ggplot2::scale_x_continuous(limits = xlim, expand = ggplot2::expansion(0.1))
+  } else {
+    .p <- .p + ggplot2::scale_x_continuous(expand = ggplot2::expansion(0.1))
   }
   if (!is.null(ylim) && is.numeric(.p$data[[mapping$y]])) {
     .p <- .p + ggplot2::scale_y_continuous(limits = ylim)
@@ -406,13 +408,13 @@ add_histogram <- function(x,
   ) +
     ggplot2::geom_histogram(fill = picasso::roche_colors("lightblue"), binwidth = binwidth, color = "black") +
     ggplot2::theme_void() +
-    ggplot2:::scale_y_continuous(expand = ggplot2::expansion(0))
+    ggplot2:::scale_x_continuous(expand = ggplot2::expansion(0.1)) +
+    ggplot2:::scale_y_continuous(expand = ggplot2::expansion(0.1))
   if (add_scale) {
     .p <- .p + picasso::add_x_axis()
   }
   nightowl::render_svg(.p, height = height, add_download_button = FALSE)
 }
-# =================================================
 # =================================================
 #' @title
 #' MISSING_TITLE

@@ -1,4 +1,4 @@
-#=================================================
+# =================================================
 #' @title
 #' MISSING_TITLE
 #' @description
@@ -18,24 +18,25 @@ arrange_summaries <- function(tbls) {
       flex-direction:row;
     ",
     kableExtra:::html_dependency_lightable(),
-    purrr::imap(tbls, function(.x, .y){
+    purrr::imap(tbls, function(.x, .y) {
       .title <- shiny::h3(.y)
       shiny::div(
-      style = "
+        style = "
         border-style: solid;
         border-color: black;
         border-width: medium;
-        margin: 5px; 
+        margin: 5px;
       ",
-       shiny::HTML("<style>
+        shiny::HTML("<style>
           th:first-child {
             border-bottom: none !important;
           }
         </style>"),
-        shiny::div(style = "display: flex; flex-direction: column; align-items: center; align-content: flex-start;", 
-          .title, 
+        shiny::div(
+          style = "display: flex; flex-direction: column; align-items: center; align-content: flex-start;",
+          .title,
           shiny::div(
-              style ="
+            style = "
                 display: flex;
                 flex-direction: row;
                 align-items: center;
@@ -48,6 +49,6 @@ arrange_summaries <- function(tbls) {
       )
     })
   ) %>%
-  htmltools::browsable()
+    htmltools::browsable()
 }
-#=================================================
+# =================================================

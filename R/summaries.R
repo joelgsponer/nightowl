@@ -72,7 +72,7 @@ summarise_categorical <- function(calculations = list(
                                     Freq = list(
                                       add_colors = FALSE
                                     )
-                                  )){
+                                  )) {
   return(list(calculations = calculations, parameters = parameters))
 }
 # =================================================
@@ -83,7 +83,7 @@ summarise_categorical <- function(calculations = list(
 #' @param
 #' @return
 #' @export
-summarise_categorical_barplot <- function( calculations = list(
+summarise_categorical_barplot <- function(calculations = list(
                                             `N.` = length,
                                             Freq = nightowl::format_frequencies,
                                             Barplot = nightowl::add_barplot
@@ -204,7 +204,7 @@ summarise_numeric_violin <- function(self,
                                          theme = picasso::theme_void,
                                          ylim = range(self$data[[self$column]], na.rm = T)
                                        )
-                                     )){
+                                     )) {
   return(list(calculations = calculations, parameters = parameters))
 }
 
@@ -220,7 +220,7 @@ summarise_numeric_histogram <- function(self,
                                         data,
                                         column,
                                         calculations = list(
-                                          `N.` = length,
+                                          `N.` = function(x) sum(!is.na(x)),
                                           Median = function(x) median(x, na.rm = T),
                                           Mean = nightowl::formated_mean,
                                           Histogram = nightowl::add_inline_histogram
@@ -233,7 +233,7 @@ summarise_numeric_histogram <- function(self,
                                         unnest = TRUE) {
   return(list(calculations = calculations, parameters = parameters))
 }
-#=================================================
+# =================================================
 #' @title
 #' MISSING_TITLE
 #' @description
@@ -257,11 +257,11 @@ calc_percentage <- function(x, N = length(x), digits = 1) {
 #' @return
 #' @export
 format_frequencies <- function(x,
-                        N = length(x),
-                        output = "print",
-                        digits = 1,
-                        str_width = NightowlOptions$get_header_width(),
-                        add_colors = T, colors = NightowlOptions$get_colors) {
+                               N = length(x),
+                               output = "print",
+                               digits = 1,
+                               str_width = NightowlOptions$get_header_width(),
+                               add_colors = T, colors = NightowlOptions$get_colors) {
   x <- forcats::fct_explicit_na(x)
   counts <- base::table(x)
   if (output == "counts") {
@@ -348,5 +348,5 @@ n <- function(...) {
 formated_mean <- function(x, fun = Hmisc::smean.cl.boot, digits = 2) {
   val <- fun(x)
   val <- round(val, digits)
-  tibble::tibble(Mean = val[1], CL = glue::glue("({val[2]}-{val[3]})"))
+  tibble::tibble(Mean = val[1], CL = glue::glue("[{val[2]}, {val[3]}]"))
 }

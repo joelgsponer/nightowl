@@ -24,7 +24,7 @@ render_svg <- function(g,
       svg <- svglite::svgstring(
         height = height, width = width, scaling = scaling,
         web_fonts = "https://fonts.googleapis.com/css2?family=Lato:wght@100;300;400;700;900&display=swap",
-        standalone = F,
+        standalone = standalone,
         ...
       )
       if (inherits(g, "call")) {
@@ -139,8 +139,30 @@ format.NightowlPlots <- function(x) {
 #' @param
 #' @return
 #' @export
+as_html <- function(x) {
+  UseMethod("as_html")
+}
+# =================================================
+#' @title
+#' MISSING_TITLE
+#' @description
+#' @detail
+#' @param
+#' @return
+#' @export
 as_html.NightowlPlots <- function(x) {
   purrr::map(x, ~ .x$html())
+}
+# =================================================
+#' @title
+#' MISSING_TITLE
+#' @description
+#' @detail
+#' @param
+#' @return
+#' @export
+asJSON.NightowlPlots <- function(x) {
+  purrr::map(x, ~ jsonlite:::asJSON(.x$html()))
 }
 # =================================================
 #' @title
@@ -286,5 +308,10 @@ height <- function(x) {
 height.NightowlPlots <- function(x) {
   purrr::map_dbl(x, ~ .x$get_height()) %>%
     max(na.rm = T)
+}
+# =================================================
+as.character.NightowlPlots <- function(x) {
+  res <- nightowl::as_html(x)[[1]] %>%
+    as.character()
 }
 # =================================================

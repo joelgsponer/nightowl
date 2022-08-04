@@ -26,7 +26,7 @@ Summary <- R6::R6Class("Summary",
       self$set_labels(labels)
       self$set_type()
       self$set_method(method)
-      if(!is.null(self$method)){
+      if (!is.null(self$method)) {
         self$set_calculations(self$method(self)$calculations)
         self$set_parameters(self$method(self)$parameters)
       }
@@ -176,7 +176,8 @@ Summary <- R6::R6Class("Summary",
         parameters = self$parameters,
         unnest = self$unnest,
         name_for_column = self$name_for_column,
-        names_sep =  self$names_sep)
+        names_sep = self$names_sep
+      )
       res <- dplyr::select(res, Variable, tidyselect::everything())
       res <- self$drop_variable(res)
       res <- self$arrange(res)

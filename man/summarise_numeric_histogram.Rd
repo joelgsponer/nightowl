@@ -8,8 +8,9 @@ summarise_numeric_histogram(
   self,
   data,
   column,
-  calculations = list(N. = length, Median = function(x) median(x, na.rm = T), Mean =
-    nightowl::formated_mean, Histogram = nightowl::add_inline_histogram),
+  calculations = list(N. = function(x) sum(!is.na(x)), Median = function(x) median(x,
+    na.rm = T), Mean = nightowl::formated_mean, Histogram =
+    nightowl::add_inline_histogram),
   parameters = list(Histogram = list(xlim = range(self$data[[self$column]], na.rm = T))),
   unnest = TRUE
 )

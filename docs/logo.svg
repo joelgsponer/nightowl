@@ -25,12 +25,12 @@
      inkscape:document-units="mm"
      showgrid="false"
      inkscape:zoom="0.64052329"
-     inkscape:cx="-209.98456"
+     inkscape:cx="-224.03557"
      inkscape:cy="935.95348"
-     inkscape:window-width="1731"
-     inkscape:window-height="969"
-     inkscape:window-x="710"
-     inkscape:window-y="152"
+     inkscape:window-width="1440"
+     inkscape:window-height="855"
+     inkscape:window-x="0"
+     inkscape:window-y="203"
      inkscape:window-maximized="0"
      inkscape:current-layer="layer1" />
   <defs
@@ -30746,7 +30746,10 @@ AElFTkSuQmCC
        id="image832"
        x="-245.34427"
        y="130.3071"
-       clip-path="url(#clipPath6360)" />
+       clip-path="url(#clipPath6360)"
+       inkscape:export-filename="/Users/federerj/R/pkg/nightowl/docs/logo.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
     <path
        sodipodi:type="star"
        style="fill:none;stroke:#262845;stroke-width:18.14173251;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
@@ -30764,14 +30767,20 @@ AElFTkSuQmCC
        d="m -184.78115,486.49893 238.310447,412.76576 -238.310407,412.76581 -476.62085,0 L -899.7124,899.26473 -661.402,486.49896 Z"
        transform="scale(0.26458333)"
        inkscape:transform-center-x="-1.4103052e-06"
-       inkscape:transform-center-y="-2.997549e-06" />
+       inkscape:transform-center-y="-2.997549e-06"
+       inkscape:export-filename="/Users/federerj/R/pkg/nightowl/docs/logo.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
     <text
        xml:space="preserve"
        style="font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;fill:#fefdb3;fill-opacity:1;stroke:none;stroke-width:0.264583"
        x="-313.67737"
        y="102.05847"
        id="text11017"
-       transform="rotate(-58.485336)"><tspan
+       transform="rotate(-58.485336)"
+       inkscape:export-filename="/Users/federerj/R/pkg/nightowl/docs/logo.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96"><tspan
          sodipodi:role="line"
          id="tspan11015"
          style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:25.4px;font-family:Zapfino;-inkscape-font-specification:'Zapfino, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;stroke-width:0.264583;fill:#fefdb3;fill-opacity:1"
