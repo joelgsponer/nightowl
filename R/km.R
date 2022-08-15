@@ -82,7 +82,8 @@ plot_km <- function(data,
                     add_median = TRUE,
                     wrap = NULL,
                     legend_position = "top",
-                    width = "66%",
+                    height = 600,
+                    width = "100%",
                     colors = unname(unlist(picasso::roche_colors())),
                     lowrider_theme = "print",
                     as_ggplot = FALSE,
@@ -159,12 +160,12 @@ plot_km <- function(data,
   } else {
     "v"
   }
-
   if (as_ggplot) {
     .p <- .p + ggplot2::ggtitle(title) +
       ggplot2::labs(subtitle = subtitle)
     return(.p)
   }
+  # Create plotly
   .img <- plotly::ggplotly(.p) %>%
     plotly::layout(legend = list(
       orientation = legend_orientation,
@@ -172,31 +173,64 @@ plot_km <- function(data,
       y = 1.2,
       x = 0.5
     ))
+   # Fix Legend title 
+  .img$x$data <- purrr::map(.img$x$data, function(.old, .new){
+     purrr::imap(.old, function(.x, .y){
+      if(.y == "name"){
+        stringr::str_replace(.x, ",1,NA", "")
+      } else{
+        .x
+      }
+    })
+  })
+  if(add_table){
+    risk.table <- nightowl::km_table(fit, kable = F)
+    risk.table.plot <- plotly::plot_ly(x = risk.table$breakpoint, 
+                    height = height,
+                    y = risk.table$Group,
+                    text = risk.table$n,
+                    type = 'scatter',
+                    mode = 'text',
+           showlegend = FALSE
+     ) %>% 
+    plotly::layout(plot_bgcolor='#ffffff', 
+           font = list(family="Lato, sans-serif"),
+           xaxis = list( 
+             zerolinecolor = '#ffff', 
+             zerolinewidth = 2, 
+             color = "#ffff",
+             gridcolor = 'ffff'), 
+           yaxis = list( 
+            ticklabelposition = "outside left",
+            range = c(-1,length(unique(risk.table$Group)) + 1),
+             zerolinecolor = '#ffff', 
+             zerolinewidth = 2, 
+             gridcolor = 'ffff'))
+    .img <- plotly::subplot(.img, risk.table.plot, nrows = 2, heights = c(0.8, 0.2))
+  }
   shiny::div(
     style = "
     display:flex;
     flex-direction:column;
-    align-items:flex-start;
+    align-items:center;
+    font-family: 'Lato', sans-serif;
     ",
     shiny::div(
-      lowRider::includeCSS(lowrider_theme),
+      #lowRider::includeCSS(lowrider_theme),
       class = "lowrider-card",
       style = glue::glue("width:{width};"),
       shiny::div(
         class = "lowrider-card-header",
-        shiny::h4(title),
+        shiny::h4(Hmisc::capitalize(title)),
       ),
       shiny::div(
         class = "lowrider-card-body",
         shiny::div(subtitle),
-        .img,
+        shiny::div(
+          .img
+        ),
         if (add_p) {
           nightowl::km_pvalue(.formula, data)
-        } else {
-          shiny::div()
-        },
-        if (add_table) {
-          nightowl::km_table(fit, break_width = break_width)
         } else {
           shiny::div()
         },
@@ -214,6 +248,7 @@ plot_km <- function(data,
     )
   ) %>%
     htmltools::browsable()
+
 }
 # =================================================
 #' @title
@@ -314,7 +349,7 @@ km_summary <- function(.formula, data) {
 #' @param
 #' @return
 #' @export
-km_table <- function(fit, what = "n.risk", break_width = 10) {
+km_table <- function(fit, what = "n.risk", break_width = 10, kable = T) {
   fit <- nightowl::km_add_0(fit)
   breakpoints <- seq(0, max(fit$time), break_width)
   risk.table <- waRRior::named_group_split(fit, strata) %>%
@@ -329,20 +364,24 @@ km_table <- function(fit, what = "n.risk", break_width = 10) {
         dplyr::bind_rows() %>%
         dplyr::mutate(Group = .group)
     }) %>%
-    dplyr::bind_rows() %>%
-    tidyr::pivot_wider(names_from = "breakpoint", values_from = "n") %>%
-    kableExtra::kable() %>%
-    kableExtra::kable_paper()
-  risk.table
-  title <- stringr::str_replace(what, stringr::fixed("."), " ") %>%
-    Hmisc::capitalize()
-  shiny::div(
-    style = "width:75%;",
-    kableExtra:::html_dependency_lightable(),
-    shiny::h4(title),
-    shiny::HTML(risk.table)
-  ) %>%
-    htmltools::browsable()
+    dplyr::bind_rows()
+  if(kable) {
+    risk.table <- risk.table %>%
+      tidyr::pivot_wider(names_from = "breakpoint", values_from = "n") %>%
+      kableExtra::kable() %>%
+      kableExtra::kable_paper()
+    title <- stringr::str_replace(what, stringr::fixed("."), " ") %>%
+      Hmisc::capitalize()
+    shiny::div(
+      style = "width:75%;",
+      kableExtra:::html_dependency_lightable(),
+      shiny::h4(title),
+      shiny::HTML(risk.table)
+    ) %>%
+      htmltools::browsable()
+  } else {
+    risk.table
+  }
 }
 # =================================================
 #' @title
