@@ -15,6 +15,7 @@ reactable_default <- function(x,
                               showPageSizeOptions = TRUE,
                               pageSizeOptions = c(10, 25, 50, 100),
                               ...) {
+  lifecycle::deprecate_stop("", "reactable_default()", "render_reactable()")
   reactable::reactable(
     x,
     filterable = filterable,
@@ -42,6 +43,7 @@ render_kable <- function(.tbl,
                          add_scale = T,
                          width_header = 20,
                          header_above = NULL,
+                         htmltable_class = "lightable-minimal",
                          footnote = NULL,
                          ...) {
   if (!is.null(width_header)) {
@@ -58,10 +60,13 @@ render_kable <- function(.tbl,
   .kable <- .tbl %>%
     knitr::kable("html", escape = FALSE, caption = caption)
   if (!is.null(header_above)) .kable <- kableExtra::add_header_above(.kable, header_above)
-  .kable <- kableExtra::kable_styling(.kable, full_width = full_width, ...)
+  .kable <- kableExtra::kable_styling(.kable, full_width = full_width, htmltable_class = htmltable_class, ...)
   if (!is.null(footnote)) {
     .kable <- kableExtra::add_footnote(.kable, footnote, notation = "none")
   }
+  .kable <- .kable %>%
+    stringr::str_replace_all(stringr::fixed("<![CDATA["), "") %>%
+    stringr::str_replace_all(stringr::fixed("]]>"), "")
   return(.kable)
 }
 # s-------------------------------------------------------------------------------

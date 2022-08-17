@@ -11,8 +11,9 @@ plot_grouped_km_compact(
   treatment,
   covariates = NULL,
   split,
-  width = "300px",
-  add_table = FALSE,
+  width = "400px",
+  add_table = TRUE,
+  break_width = (max(data[[time]], na.rm = T)/6),
   add_p = TRUE,
   ...
 )

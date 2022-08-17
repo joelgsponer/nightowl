@@ -8,6 +8,7 @@ render_svg <- function(g,
                        scaling = 1,
                        add_download_button = T,
                        standalone = F,
+                       bg = "transparent",
                        font_family = "Lato, sans-serif",
                        ...) {
   fix_font <- function(html, param = "font-family", value = font_family, old_value = "[^;]*") {
@@ -25,6 +26,7 @@ render_svg <- function(g,
         height = height, width = width, scaling = scaling,
         web_fonts = "https://fonts.googleapis.com/css2?family=Lato:wght@100;300;400;700;900&display=swap",
         standalone = standalone,
+        bg = bg,
         ...
       )
       if (inherits(g, "call")) {
@@ -311,7 +313,10 @@ height.NightowlPlots <- function(x) {
 }
 # =================================================
 as.character.NightowlPlots <- function(x) {
-  res <- nightowl::as_html(x)[[1]] %>%
-    as.character()
+  res <-purrr::map_chr(x, function(.x){
+    .x$html() %>%
+      as.character()
+  })
+  return(res)
 }
 # =================================================

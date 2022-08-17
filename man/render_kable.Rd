@@ -12,6 +12,7 @@ render_kable(
   add_scale = T,
   width_header = 20,
   header_above = NULL,
+  htmltable_class = "lightable-minimal",
   footnote = NULL,
   ...
 )

@@ -12,7 +12,7 @@ plot_grouped_km <- function(data,
                             treatment,
                             covariates = NULL,
                             split = NULL,
-                            width = "75vw",
+                            width = "95vw",
                             flex_direction = "column",
                             as_ggplot = FALSE,
                             title = function() {
@@ -20,6 +20,13 @@ plot_grouped_km <- function(data,
                             },
                             subtitle = function() NULL,
                             note = function() NULL,
+                            style = "
+                              border-style: solid;
+                              border-width: thin;
+                              padding: 5px;
+                              margin-bottom: 10px;
+                            ",
+                            break_width = (max(data[[time]], na.rm = T)/20),
                             ...) {
   .formula <- nightowl::create_Surv_formula(data = data, time = time, event = event, treatment = treatment, covariates = covariates)
   res <- data %>%
@@ -37,6 +44,7 @@ plot_grouped_km <- function(data,
         covariates = covariates,
         width = width,
         as_ggplot = as_ggplot,
+        break_width = break_width,
         ...
       )
     })
@@ -46,13 +54,17 @@ plot_grouped_km <- function(data,
     return(.p)
   }
 
+  res <- purrr::map(res, function(.x) {
+    shiny::div(style = style, .x)
+  })
+
   res %>%
     shiny::div(style = glue::glue("
                                   display:flex;
                                   flex-wrap:wrap;
                                   flex-direction:{flex_direction};
                                   align-content: stretch;
-                                  align-items: flex-start;
+                                  align-items: center;
                                   justify-content: space-evenly;
                                   ")) %>%
     htmltools::browsable()
@@ -88,7 +100,8 @@ plot_km <- function(data,
                     lowrider_theme = "print",
                     as_ggplot = FALSE,
                     note = NULL,
-                    break_width = 10) {
+                    break_width = (max(data[[time]], na.rm = T)/20)
+                    ) {
   .formula <- nightowl::create_Surv_formula(data = data, time = time, event = event, treatment = treatment, covariates = covariates)
   fit <- nightowl::fit_km(data, time, event, treatment, covariates)
   fit <- nightowl::km_add_0(fit)
@@ -130,6 +143,7 @@ plot_km <- function(data,
     .median <- base::summary(survival::survfit(.formula, data))$table %>%
       as.data.frame()
 
+
     .p <- .p + ggplot2::geom_vline(
       xintercept = .median$median,
       color = colors[1:nrow(.median)],
@@ -137,8 +151,8 @@ plot_km <- function(data,
     ) +
       ggplot2::geom_point(
         data = .median,
-        mapping = ggplot2::aes(x = median, y = 0.8, label = round(median, 2), nrisk = NULL, color = NULL),
-        size = 4,
+        mapping = ggplot2::aes(x = median, y = 0.8, nrisk = NULL, color = NULL),
+        size = 5,
         color = "white"
       ) +
       ggplot2::geom_text(
@@ -148,11 +162,13 @@ plot_km <- function(data,
         color = "black"
       ) +
       ggplot2::geom_text(
-        data = .median,
-        mapping = ggplot2::aes(x = mean(median), y = 0.95, label = "Median Survival Time", nrisk = NULL),
-        size = 2,
+        data = .median %>%
+          dplyr::summarise(mid = mean(median)),
+        mapping = ggplot2::aes(x = mid, y = 0.95, label = "Median Survival Time", nrisk = NULL),
+        size = 3,
         color = "black"
       )
+
   }
 
   legend_orientation <- if (legend_position == "top") {
@@ -183,8 +199,9 @@ plot_km <- function(data,
       }
     })
   })
+
   if(add_table){
-    risk.table <- nightowl::km_table(fit, kable = F)
+    risk.table <- nightowl::km_table(fit, kable = F, break_width = break_width)
     risk.table.plot <- plotly::plot_ly(x = risk.table$breakpoint, 
                     height = height,
                     y = risk.table$Group,
@@ -221,16 +238,29 @@ plot_km <- function(data,
       style = glue::glue("width:{width};"),
       shiny::div(
         class = "lowrider-card-header",
-        shiny::h4(Hmisc::capitalize(title)),
+        style = "
+          font-size:1.2em;
+          font-weight:bolder;
+        ",
+        Hmisc::capitalize(title)
       ),
       shiny::div(
         class = "lowrider-card-body",
-        shiny::div(subtitle),
+        shiny::div(
+          style = "
+          font-size:1em;
+          font-weight:bold;
+          color: #505050;
+          ",
+          subtitle),
         shiny::div(
           .img
         ),
         if (add_p) {
-          nightowl::km_pvalue(.formula, data)
+          shiny::div(
+            style = "text-align:right; margin-right: 10px;",
+            nightowl::km_pvalue(.formula, data)
+          )
         } else {
           shiny::div()
         },
@@ -248,7 +278,6 @@ plot_km <- function(data,
     )
   ) %>%
     htmltools::browsable()
-
 }
 # =================================================
 #' @title
@@ -397,8 +426,9 @@ plot_grouped_km_compact <- function(data,
                                     treatment,
                                     covariates = NULL,
                                     split,
-                                    width = "300px",
-                                    add_table = FALSE,
+                                    width = "400px",
+                                    add_table = TRUE,
+                                    break_width = (max(data[[time]], na.rm = T)/6),
                                     add_p = TRUE,
                                     ...) {
   nightowl::plot_grouped_km(
@@ -415,7 +445,178 @@ plot_grouped_km_compact <- function(data,
     add_table = add_table,
     add_summary = FALSE,
     add_median = FALSE,
+    break_width = break_width,
     ...
   )
 }
 # =================================================
+#' @title
+#' MISSING_TITLE
+#' @description
+#' @detail
+#' @param
+#' @return
+#' @export
+plot_km_covariates <- function(data,
+                    time,
+                    event,
+                    treatment,
+                    covariates = NULL,
+                    title = event,
+                    subtitle = NULL,
+                    landmark = NULL,
+                    ylab = "Survival",
+                    xlab = "Time (Days)",
+                    add_p = TRUE,
+                    add_table = TRUE,
+                    add_summary = FALSE,
+                    add_median = TRUE,
+                    wrap = NULL,
+                    legend_position = "top",
+                    height = 600,
+                    width = "100%",
+                    colors = unname(unlist(picasso::roche_colors())),
+                    lowrider_theme = "print",
+                    as_ggplot = FALSE,
+                    note = NULL,
+                    break_width = (max(data[[time]], na.rm = T)/20)
+                    ) {
+  .formula <- nightowl::create_Surv_formula(data = data, time = time, event = event, treatment = treatment)
+  fit <- nightowl::fit_km(data, time, event, treatment)
+  fit <- nightowl::km_add_0(fit)
+
+  .p <- ggplot2::ggplot(
+    fit,
+    ggplot2::aes(
+      x = time,
+      y = estimate,
+      color = strata,
+      nrisk = n.risk
+    )
+  ) +
+    ggplot2::geom_ribbon(data = dplyr::filter(fit, !is.na(conf.low) & !is.na(conf.high)), ggplot2::aes(fill = strata, ymin = conf.low, ymax = conf.high, color = NULL), alpha = 0.2) +
+    ggplot2::geom_step() +
+    ggplot2::geom_point(alpha = 0.1) +
+    ggplot2::geom_point(data = dplyr::filter(fit, n.censor > 0), shape = 3) +
+    ggplot2::scale_color_manual(values = colors) +
+    ggplot2::scale_fill_manual(values = colors) +
+    ggplot2::scale_size_manual(values = c(0, 2)) +
+    ggplot2::theme_bw() +
+    ggplot2::xlab(xlab) +
+    ggplot2::ylab(ylab) +
+    ggplot2::guides(
+      color = ggplot2::guide_legend(
+        title = glue::glue("{covariates}"),
+        override.aes = list(alpha = 1)
+      ),
+      fill = "none",
+      color = "none",
+      shape = "none",
+      size = "none"
+    ) +
+    ggplot2::theme(legend.position = legend_position)
+
+  .p$guides$colour$title <- ""
+
+  if (add_median) {
+    .median <- base::summary(survival::survfit(.formula, data))$table %>%
+      as.data.frame()
+
+
+    .p <- .p + ggplot2::geom_vline(
+      xintercept = .median$median,
+      color = colors[1:nrow(.median)],
+      linetype = "dashed"
+    ) +
+      ggplot2::geom_point(
+        data = .median,
+        mapping = ggplot2::aes(x = median, y = 0.8, nrisk = NULL, color = NULL),
+        size = 5,
+        color = "white"
+      ) +
+      ggplot2::geom_text(
+        data = .median,
+        mapping = ggplot2::aes(x = median, y = 0.8, label = round(median, 2), nrisk = NULL),
+        size = 4,
+        color = "black"
+      ) +
+      ggplot2::geom_text(
+        data = .median %>%
+          dplyr::summarise(mid = mean(median)),
+        mapping = ggplot2::aes(x = mid, y = 0.95, label = "Median Survival Time", nrisk = NULL),
+        size = 3,
+        color = "black"
+      )
+
+  }
+
+  legend_orientation <- if (legend_position == "top") {
+    "h"
+  } else {
+    "v"
+  }
+  if (as_ggplot) {
+    .p <- .p + ggplot2::ggtitle(title) +
+      ggplot2::labs(subtitle = subtitle)
+    return(.p)
+  }
+  # Create plotly
+  .img <- plotly::ggplotly(.p) %>%
+    plotly::layout(legend = list(
+      orientation = legend_orientation,
+      xanchor = "center",
+      y = 1.2,
+      x = 0.5
+    ))
+   # Fix Legend title 
+  .img$x$data <- purrr::map(.img$x$data, function(.old, .new){
+     purrr::imap(.old, function(.x, .y){
+      if(.y == "name"){
+        stringr::str_replace(.x, ",1,NA", "")
+      } else{
+        .x
+      }
+    })
+  })
+
+
+  cplots <- purrr::map(covariates, function(.covariate){
+    waRRior::named_group_split_at(data, c(treatment)) %>%
+      purrr::map(purrr::safely(function(.x){
+         times <- .x[[time]] %>% sort()
+         res <- purrr::map_df(times, function(.y){
+           .data <- .x %>% dplyr::filter(time >= .y)
+           dplyr::select_at(.data, .covariate) %>%
+           tidyr::pivot_longer(cols = names(.)) %>%
+           dplyr::group_by(name) %>%
+           dplyr::add_count() %>%
+           dplyr::group_by(name, value) %>%
+           dplyr::add_count() %>%
+           dplyr::mutate(freq = nn/n) %>%
+           dplyr::mutate(time = .y) %>% unique()
+         })
+
+     .res <- waRRior::named_group_split(res, value)
+     .p <- plotly::plot_ly()
+      .treatment <- unique(.x$treatment)
+      purrr::reduce(.res, function(.x, .y){
+        .x %>%
+          plotly::add_trace(
+            name = paste(.covariate, .treatment, unique(.y$value)),
+            x = .y$time,
+            y = .y$freq,
+            name = .y,
+            type = "scatter",
+            mode = "lines",
+            stackgroup = "one"
+          )
+      }, .init = .p)
+    })) %>%
+    purrr::map("result")
+  }) %>%
+  waRRior::collapse_top_level()
+  l <- length(cplots) + 1
+  h <- 0.7/l
+  hh <- c(0.3, rep(h, l-1))
+  do.call(plotly::subplot, c(list(.img),cplots, list(nrows = l, heights = hh)))
+}

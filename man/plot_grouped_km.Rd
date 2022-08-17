@@ -11,7 +11,7 @@ plot_grouped_km(
   treatment,
   covariates = NULL,
   split = NULL,
-  width = "75vw",
+  width = "95vw",
   flex_direction = "column",
   as_ggplot = FALSE,
   title = function() {
@@ -19,6 +19,9 @@ plot_grouped_km(
  },
   subtitle = function() NULL,
   note = function() NULL,
+  style =
+    "\\n                              border-style: solid;\\n                              border-width: thin;\\n                              padding: 5px;\\n                              margin-bottom: 10px;\\n                            ",
+  break_width = (max(data[[time]], na.rm = T)/20),
   ...
 )
 }
