@@ -313,7 +313,7 @@ height.NightowlPlots <- function(x) {
 }
 # =================================================
 as.character.NightowlPlots <- function(x) {
-  res <-purrr::map_chr(x, function(.x){
+  res <- purrr::map_chr(x, function(.x) {
     .x$html() %>%
       as.character()
   })

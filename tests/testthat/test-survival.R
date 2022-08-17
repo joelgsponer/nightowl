@@ -1,5 +1,4 @@
 test_that("survival functions work", {
-
   testdata <- tibble::tibble(
     time = sample(1:100, size = 100, replace = TRUE),
     event = sample(c(0, 1), size = 100, replace = TRUE),
@@ -224,7 +223,7 @@ test_that("survival functions work", {
     time = "time",
     event = "event",
     treatment = "treatment",
-    covariates=c("c1", "c2", "c3"),
+    covariates = c("c1", "c2", "c3"),
   )
 
   nightowl::plot_km_covariates(
@@ -232,7 +231,6 @@ test_that("survival functions work", {
     time = "time",
     event = "event",
     treatment = "treatment",
-     covariates=c("c1"),
+    covariates = c("c1"),
   )
-
 })

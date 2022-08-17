@@ -26,7 +26,7 @@ plot_grouped_km <- function(data,
                               padding: 5px;
                               margin-bottom: 10px;
                             ",
-                            break_width = (max(data[[time]], na.rm = T)/20),
+                            break_width = (max(data[[time]], na.rm = T) / 20),
                             ...) {
   .formula <- nightowl::create_Surv_formula(data = data, time = time, event = event, treatment = treatment, covariates = covariates)
   res <- data %>%
@@ -100,8 +100,7 @@ plot_km <- function(data,
                     lowrider_theme = "print",
                     as_ggplot = FALSE,
                     note = NULL,
-                    break_width = (max(data[[time]], na.rm = T)/20)
-                    ) {
+                    break_width = (max(data[[time]], na.rm = T) / 20)) {
   .formula <- nightowl::create_Surv_formula(data = data, time = time, event = event, treatment = treatment, covariates = covariates)
   fit <- nightowl::fit_km(data, time, event, treatment, covariates)
   fit <- nightowl::km_add_0(fit)
@@ -168,7 +167,6 @@ plot_km <- function(data,
         size = 3,
         color = "black"
       )
-
   }
 
   legend_orientation <- if (legend_position == "top") {
@@ -189,40 +187,45 @@ plot_km <- function(data,
       y = 1.2,
       x = 0.5
     ))
-   # Fix Legend title 
-  .img$x$data <- purrr::map(.img$x$data, function(.old, .new){
-     purrr::imap(.old, function(.x, .y){
-      if(.y == "name"){
+  # Fix Legend title
+  .img$x$data <- purrr::map(.img$x$data, function(.old, .new) {
+    purrr::imap(.old, function(.x, .y) {
+      if (.y == "name") {
         stringr::str_replace(.x, ",1,NA", "")
-      } else{
+      } else {
         .x
       }
     })
   })
 
-  if(add_table){
+  if (add_table) {
     risk.table <- nightowl::km_table(fit, kable = F, break_width = break_width)
-    risk.table.plot <- plotly::plot_ly(x = risk.table$breakpoint, 
-                    height = height,
-                    y = risk.table$Group,
-                    text = risk.table$n,
-                    type = 'scatter',
-                    mode = 'text',
-           showlegend = FALSE
-     ) %>% 
-    plotly::layout(plot_bgcolor='#ffffff', 
-           font = list(family="Lato, sans-serif"),
-           xaxis = list( 
-             zerolinecolor = '#ffff', 
-             zerolinewidth = 2, 
-             color = "#ffff",
-             gridcolor = 'ffff'), 
-           yaxis = list( 
-            ticklabelposition = "outside left",
-            range = c(-1,length(unique(risk.table$Group)) + 1),
-             zerolinecolor = '#ffff', 
-             zerolinewidth = 2, 
-             gridcolor = 'ffff'))
+    risk.table.plot <- plotly::plot_ly(
+      x = risk.table$breakpoint,
+      height = height,
+      y = risk.table$Group,
+      text = risk.table$n,
+      type = "scatter",
+      mode = "text",
+      showlegend = FALSE
+    ) %>%
+      plotly::layout(
+        plot_bgcolor = "#ffffff",
+        font = list(family = "Lato, sans-serif"),
+        xaxis = list(
+          zerolinecolor = "#ffff",
+          zerolinewidth = 2,
+          color = "#ffff",
+          gridcolor = "ffff"
+        ),
+        yaxis = list(
+          ticklabelposition = "outside left",
+          range = c(-1, length(unique(risk.table$Group)) + 1),
+          zerolinecolor = "#ffff",
+          zerolinewidth = 2,
+          gridcolor = "ffff"
+        )
+      )
     .img <- plotly::subplot(.img, risk.table.plot, nrows = 2, heights = c(0.8, 0.2))
   }
   shiny::div(
@@ -233,7 +236,7 @@ plot_km <- function(data,
     font-family: 'Lato', sans-serif;
     ",
     shiny::div(
-      #lowRider::includeCSS(lowrider_theme),
+      # lowRider::includeCSS(lowrider_theme),
       class = "lowrider-card",
       style = glue::glue("width:{width};"),
       shiny::div(
@@ -252,7 +255,8 @@ plot_km <- function(data,
           font-weight:bold;
           color: #505050;
           ",
-          subtitle),
+          subtitle
+        ),
         shiny::div(
           .img
         ),
@@ -394,7 +398,7 @@ km_table <- function(fit, what = "n.risk", break_width = 10, kable = T) {
         dplyr::mutate(Group = .group)
     }) %>%
     dplyr::bind_rows()
-  if(kable) {
+  if (kable) {
     risk.table <- risk.table %>%
       tidyr::pivot_wider(names_from = "breakpoint", values_from = "n") %>%
       kableExtra::kable() %>%
@@ -428,7 +432,7 @@ plot_grouped_km_compact <- function(data,
                                     split,
                                     width = "400px",
                                     add_table = TRUE,
-                                    break_width = (max(data[[time]], na.rm = T)/6),
+                                    break_width = (max(data[[time]], na.rm = T) / 6),
                                     add_p = TRUE,
                                     ...) {
   nightowl::plot_grouped_km(
@@ -458,29 +462,28 @@ plot_grouped_km_compact <- function(data,
 #' @return
 #' @export
 plot_km_covariates <- function(data,
-                    time,
-                    event,
-                    treatment,
-                    covariates = NULL,
-                    title = event,
-                    subtitle = NULL,
-                    landmark = NULL,
-                    ylab = "Survival",
-                    xlab = "Time (Days)",
-                    add_p = TRUE,
-                    add_table = TRUE,
-                    add_summary = FALSE,
-                    add_median = TRUE,
-                    wrap = NULL,
-                    legend_position = "top",
-                    height = 600,
-                    width = "100%",
-                    colors = unname(unlist(picasso::roche_colors())),
-                    lowrider_theme = "print",
-                    as_ggplot = FALSE,
-                    note = NULL,
-                    break_width = (max(data[[time]], na.rm = T)/20)
-                    ) {
+                               time,
+                               event,
+                               treatment,
+                               covariates = NULL,
+                               title = event,
+                               subtitle = NULL,
+                               landmark = NULL,
+                               ylab = "Survival",
+                               xlab = "Time (Days)",
+                               add_p = TRUE,
+                               add_table = TRUE,
+                               add_summary = FALSE,
+                               add_median = TRUE,
+                               wrap = NULL,
+                               legend_position = "top",
+                               height = 600,
+                               width = "100%",
+                               colors = unname(unlist(picasso::roche_colors())),
+                               lowrider_theme = "print",
+                               as_ggplot = FALSE,
+                               note = NULL,
+                               break_width = (max(data[[time]], na.rm = T) / 20)) {
   .formula <- nightowl::create_Surv_formula(data = data, time = time, event = event, treatment = treatment)
   fit <- nightowl::fit_km(data, time, event, treatment)
   fit <- nightowl::km_add_0(fit)
@@ -547,7 +550,6 @@ plot_km_covariates <- function(data,
         size = 3,
         color = "black"
       )
-
   }
 
   legend_orientation <- if (legend_position == "top") {
@@ -568,55 +570,56 @@ plot_km_covariates <- function(data,
       y = 1.2,
       x = 0.5
     ))
-   # Fix Legend title 
-  .img$x$data <- purrr::map(.img$x$data, function(.old, .new){
-     purrr::imap(.old, function(.x, .y){
-      if(.y == "name"){
+  # Fix Legend title
+  .img$x$data <- purrr::map(.img$x$data, function(.old, .new) {
+    purrr::imap(.old, function(.x, .y) {
+      if (.y == "name") {
         stringr::str_replace(.x, ",1,NA", "")
-      } else{
+      } else {
         .x
       }
     })
   })
 
 
-  cplots <- purrr::map(covariates, function(.covariate){
+  cplots <- purrr::map(covariates, function(.covariate) {
     waRRior::named_group_split_at(data, c(treatment)) %>%
-      purrr::map(purrr::safely(function(.x){
-         times <- .x[[time]] %>% sort()
-         res <- purrr::map_df(times, function(.y){
-           .data <- .x %>% dplyr::filter(time >= .y)
-           dplyr::select_at(.data, .covariate) %>%
-           tidyr::pivot_longer(cols = names(.)) %>%
-           dplyr::group_by(name) %>%
-           dplyr::add_count() %>%
-           dplyr::group_by(name, value) %>%
-           dplyr::add_count() %>%
-           dplyr::mutate(freq = nn/n) %>%
-           dplyr::mutate(time = .y) %>% unique()
-         })
+      purrr::map(purrr::safely(function(.x) {
+        times <- .x[[time]] %>% sort()
+        res <- purrr::map_df(times, function(.y) {
+          .data <- .x %>% dplyr::filter(time >= .y)
+          dplyr::select_at(.data, .covariate) %>%
+            tidyr::pivot_longer(cols = names(.)) %>%
+            dplyr::group_by(name) %>%
+            dplyr::add_count() %>%
+            dplyr::group_by(name, value) %>%
+            dplyr::add_count() %>%
+            dplyr::mutate(freq = nn / n) %>%
+            dplyr::mutate(time = .y) %>%
+            unique()
+        })
 
-     .res <- waRRior::named_group_split(res, value)
-     .p <- plotly::plot_ly()
-      .treatment <- unique(.x$treatment)
-      purrr::reduce(.res, function(.x, .y){
-        .x %>%
-          plotly::add_trace(
-            name = paste(.covariate, .treatment, unique(.y$value)),
-            x = .y$time,
-            y = .y$freq,
-            name = .y,
-            type = "scatter",
-            mode = "lines",
-            stackgroup = "one"
-          )
-      }, .init = .p)
-    })) %>%
-    purrr::map("result")
+        .res <- waRRior::named_group_split(res, value)
+        .p <- plotly::plot_ly()
+        .treatment <- unique(.x$treatment)
+        purrr::reduce(.res, function(.x, .y) {
+          .x %>%
+            plotly::add_trace(
+              name = paste(.covariate, .treatment, unique(.y$value)),
+              x = .y$time,
+              y = .y$freq,
+              name = .y,
+              type = "scatter",
+              mode = "lines",
+              stackgroup = "one"
+            )
+        }, .init = .p)
+      })) %>%
+      purrr::map("result")
   }) %>%
-  waRRior::collapse_top_level()
+    waRRior::collapse_top_level()
   l <- length(cplots) + 1
-  h <- 0.7/l
-  hh <- c(0.3, rep(h, l-1))
-  do.call(plotly::subplot, c(list(.img),cplots, list(nrows = l, heights = hh)))
+  h <- 0.7 / l
+  hh <- c(0.3, rep(h, l - 1))
+  do.call(plotly::subplot, c(list(.img), cplots, list(nrows = l, heights = hh)))
 }

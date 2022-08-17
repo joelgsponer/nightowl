@@ -227,7 +227,7 @@ summarise_numeric_histogram <- function(self,
                                         ),
                                         parameters = list(
                                           Histogram = list(
-                                            xlim = range(self$data[[self$column]], na.rm = T) + c(-0.1,0.1)
+                                            xlim = range(self$data[[self$column]], na.rm = T) + c(-0.1, 0.1)
                                           )
                                         ),
                                         unnest = TRUE) {
