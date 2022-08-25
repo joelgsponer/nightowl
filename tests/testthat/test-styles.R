@@ -1,4 +1,5 @@
 test_that("loading styles works", {
+
   nightowl::load_style("Boxplot")
 
   nightowl::styled_plot(mtcars, "Boxplot", x = "mpg", y = "wt")

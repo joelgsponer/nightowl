@@ -1,0 +1,38 @@
+name: Raincloud plot
+description: A raincloud plot is a combination of a density, box- and jitter plot.
+transform:
+  x: factor
+layers:
+# Half density layer
+- type: generic
+  geom: ggdist::stat_halfeye
+  adjust: 0.5
+  width: 0.6
+  .width: 0
+  ## transparent color to remove "slab" that is usually present in halfeye plots.
+  point_colour: "#00000000"
+  justification: -0.2
+# Boxplot layer
+- type: generic
+  geom: ggplot2::geom_boxplot
+  width: 0.15
+  ## transparent color to hide oulier points.
+  outlier.color: "#00000000"
+# Point/jitter layer
+- type: generic
+  geom: gghalves::geom_half_point
+  ## draw jitter on the left
+  side: "l"
+  ## control range of jitter
+  range_scale: 0.4
+  ## add some transparency
+  alpha: 0.3
+  ## adjust size of points
+  size: 0.5
+# SVG Options to adjust size of the plot
+svg:
+  height: 7
+  width: 8
+  ## Smaller values make text and lines smaller/thinner
+  scaling: 1
+

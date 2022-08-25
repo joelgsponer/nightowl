@@ -4,7 +4,7 @@
 \alias{styled_plot}
 \title{MISSING_TITLE}
 \usage{
-styled_plot(DATA, style, ...)
+styled_plot(data, style, ...)
 }
 \description{
 MISSING_TITLE

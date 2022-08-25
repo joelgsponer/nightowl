@@ -1,4 +1,5 @@
 test_that("multiplication works", {
+
   require(magrittr)
   testdata <- ChickWeight %>%
     dplyr::filter(Time < 10)
@@ -29,9 +30,12 @@ test_that("multiplication works", {
       list(type = "generic", geom = "ggplot2::geom_jitter", alpha = 0.3, width = 0.1),
       list(type = "traces", geom = "line", alpha = 0.3),
       list(type = "summary", mapping = list(color = NULL), geom = "line", dodge = 0, size = 1.5)
+    ),
+    scales = list(
+      list(scale = "ggplot2::coord_flip")
     )
   )
-  a$svg(height = 3)
+  a$svg(height = 5)
 
   nightowl::plot(
     data = testdata,

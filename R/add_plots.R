@@ -8,6 +8,14 @@ generic <- function(geom,
   .f <- waRRior::getfun(geom)
   g + .f(mapping = .aes, ...)
 }
+#' generic
+#' @export
+scales <- function(scale,
+                   g,
+                   ...) {
+  .f <- waRRior::getfun(scale)
+  g + do.call(.f, list(...))
+}
 # ===============================================================================
 #' Add generic
 #' @export

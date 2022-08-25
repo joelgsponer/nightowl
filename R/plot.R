@@ -154,6 +154,7 @@ DeclarativePlot <- R6::R6Class("DeclarativePlot",
       args <- list(...)
       purrr::imap(list(...), function(.x, .y) {
         if (.y %in% names(self)) {
+          if (.y == "svg") .y = "options_svg"
           self[[.y]] <- .x
         }
       })
@@ -233,6 +234,15 @@ DeclarativePlot <- R6::R6Class("DeclarativePlot",
           .y$type <- NULL
           .y <- purrr::compact(.y)
           thiscall <- glue::glue("do.call(nightowl::{type}, .y)")
+          eval(parse(text = thiscall))
+        }, .init = g)
+        # ************************************************************************
+        # Add scales
+        g <- purrr::reduce(self$scales, function(.x, .y) {
+          .y$g <- .x
+          .y <- rev(.y)
+          .y <- purrr::compact(.y)
+          thiscall <- glue::glue("do.call(nightowl::scales, .y)")
           eval(parse(text = thiscall))
         }, .init = g)
         #*******************************************************************************

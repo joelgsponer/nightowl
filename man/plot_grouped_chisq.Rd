@@ -16,6 +16,7 @@ plot_grouped_chisq(
   height = 3,
   flex_direction = "row",
   flex_wrap = "wrap",
+  show_info = TRUE,
   ...
 )
 }

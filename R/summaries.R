@@ -83,7 +83,9 @@ summarise_categorical <- function(calculations = list(
 #' @param
 #' @return
 #' @export
-summarise_categorical_barplot <- function(calculations = list(
+summarise_categorical_barplot <- function(
+self,
+calculations = list(
                                             `N.` = length,
                                             Freq = nightowl::format_frequencies,
                                             Barplot = nightowl::add_barplot
