@@ -154,7 +154,7 @@ DeclarativePlot <- R6::R6Class("DeclarativePlot",
       args <- list(...)
       purrr::imap(list(...), function(.x, .y) {
         if (.y %in% names(self)) {
-          if (.y == "svg") .y = "options_svg"
+          if (.y == "svg") .y <- "options_svg"
           self[[.y]] <- .x
         }
       })

@@ -119,7 +119,7 @@ plot_grouped_chisq <- function(df, split_by, x, y, test = NULL, order_by = "p.va
 
   purrr::pmap(.l, function(data, info, name) {
     cli::cli_progress_step("{name}")
-    if(show_info) {
+    if (show_info) {
       info <- info %>%
         dplyr::select(N, statistic, `p.value`) %>%
         dplyr::mutate_if(is.numeric, function(x) round(x, 5)) %>%

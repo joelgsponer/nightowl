@@ -22,7 +22,7 @@ load_style <- function(x) {
 #' @export
 styled_plot <- function(data, style, ...) {
   mapping <- list(...)
-  if(file.exists(style)) {
+  if (file.exists(style)) {
     style <- yaml::read_yaml(style)
   } else {
     style <- nightowl::load_style(style)
