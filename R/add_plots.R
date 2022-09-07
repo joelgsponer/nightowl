@@ -384,18 +384,25 @@ colors <- function(g, DATA, mapping, ...) {
 #' Apply theme
 #' @export
 theme <- function(g, theme = "ggplot2::theme_bw", ...) {
+  # Add Theme
   if (is.character(theme)) {
-    g <- g + eval(parse(text = paste0(theme, "()")))
+    .f <- waRRior::getfun(theme)
+    g <- g + .f()
   } else if (is.function(theme)) {
     g <- g + theme()
   } else {
-    rlang::abort("theme has to be either a function name as a string or a function iself")
+    rlang::abort("theme has to be either a function name or a function itself")
   }
-  # Adjust margins etc,
-  g <- g + ggplot2::theme(
-    legend.key.width = ggplot2::unit(2, "cm"),
-    plot.margin = ggplot2::margin(1, 1, 1, 1, "cm")
-  )
+  # Add other elements to theme
+  args <- list(...)
+  elements <- purrr::imap(args, function(.x, .y){
+    if(is.character(.x$element)){
+      .x$element <- waRRior::getfun(.x$element)
+    }
+    params <- .x[waRRior::pop(names(.x), "element")]
+    do.call(.x$element, params)
+  })
+  g <- g + do.call(ggplot2::theme, elements)
   return(g)
 }
 # ===============================================================================
