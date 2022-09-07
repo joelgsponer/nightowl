@@ -41,6 +41,7 @@ render_svg <- function(g,
         svg <- nightowl::add_download_button(svg)
       }
       svg <- as.character(svg) %>%
+        stringr::str_replace(stringr::fixed("/>"), "></rect>") %>%
         htmltools::HTML()
       svg <- htmltools::browsable(svg)
       return(svg)
