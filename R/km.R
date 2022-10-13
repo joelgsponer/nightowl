@@ -102,7 +102,7 @@ plot_km <- function(data,
                     note = NULL,
                     break_width = (max(data[[time]], na.rm = T) / 20)) {
   .formula <- nightowl::create_Surv_formula(data = data, time = time, event = event, treatment = treatment, covariates = covariates)
-  fit <- nightowl::fit_km(data, time, event, treatment, covariates)
+  fit <- nightowl::fit_km(data = data, time = time, event = event, treatment = treatment, covariates = covariates)
   fit <- nightowl::km_add_0(fit)
 
   .p <- ggplot2::ggplot(
@@ -140,8 +140,8 @@ plot_km <- function(data,
 
   if (add_median) {
     .median <- base::summary(survival::survfit(.formula, data))$table %>%
-      as.data.frame()
-
+      tibble::as_tibble() %>%
+      dplyr::arrange(median)
 
     .p <- .p + ggplot2::geom_vline(
       xintercept = .median$median,
@@ -150,13 +150,13 @@ plot_km <- function(data,
     ) +
       ggplot2::geom_point(
         data = .median,
-        mapping = ggplot2::aes(x = median, y = 0.8, nrisk = NULL, color = NULL),
+        mapping = ggplot2::aes(x = median, y = seq(0.8, 0.8 - 0.03 * (nrow(.median)-1), -0.03), nrisk = NULL, color = NULL),
         size = 5,
         color = "white"
       ) +
       ggplot2::geom_text(
         data = .median,
-        mapping = ggplot2::aes(x = median, y = 0.8, label = round(median, 2), nrisk = NULL),
+        mapping = ggplot2::aes(x = median, y = seq(0.8, 0.8 - 0.03 * (nrow(.median)-1), -0.03), label = round(median, 2), nrisk = NULL),
         size = 4,
         color = "black"
       ) +
@@ -321,7 +321,7 @@ fit_km <- function(data, time, event, treatment, covariates = NULL, landmark = N
       dplyr::filter(!!rlang::sym(time) > 0)
   }
   # Formula -------------------------------------------------------------------
-  .formula <- nightowl::create_Surv_formula(time = time, event = event, treatment = treatment, covariate = covariates)
+  .formula <- nightowl::create_Surv_formula(data = data, time = time, event = event, treatment = treatment, covariate = covariates)
   # Data ----------------------------------------------------------------------
   data <- droplevels(data)
   # Fit ------------------------------------------------------------------------
@@ -525,7 +525,7 @@ plot_km_covariates <- function(data,
     .median <- base::summary(survival::survfit(.formula, data))$table %>%
       as.data.frame()
 
-
+    browser()
     .p <- .p + ggplot2::geom_vline(
       xintercept = .median$median,
       color = colors[1:nrow(.median)],
@@ -533,13 +533,13 @@ plot_km_covariates <- function(data,
     ) +
       ggplot2::geom_point(
         data = .median,
-        mapping = ggplot2::aes(x = median, y = 0.8, nrisk = NULL, color = NULL),
+        mapping = ggplot2::aes(x = median, y = seq(0.8, 0.8 - 0.2 * nrow(.median), 0.2), nrisk = NULL, color = NULL),
         size = 5,
         color = "white"
       ) +
       ggplot2::geom_text(
         data = .median,
-        mapping = ggplot2::aes(x = median, y = 0.8, label = round(median, 2), nrisk = NULL),
+        mapping = ggplot2::aes(x = median, y = seq(0.8, 0.8 - 0.2 * nrow(.median), 0.2), label = round(median, 2), nrisk = NULL),
         size = 4,
         color = "black"
       ) +

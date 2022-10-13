@@ -62,7 +62,7 @@ render_kable <- function(.tbl,
   if (!is.null(header_above)) .kable <- kableExtra::add_header_above(.kable, header_above)
   .kable <- kableExtra::kable_styling(.kable, full_width = full_width, htmltable_class = htmltable_class, ...)
   if (!is.null(footnote)) {
-    .kable <- kableExtra::add_footnote(.kable, footnote, notation = "none")
+    .kable <- kableExtra::add_footnote(.kable, footnote, notation = "none", escape = FALSE)
   }
   .kable <- .kable %>%
     stringr::str_replace_all(stringr::fixed("<![CDATA["), "") %>%

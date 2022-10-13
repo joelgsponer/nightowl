@@ -20,7 +20,7 @@ add_inline_forestplot <- function(x,
                                   width = 3,
                                   scaling = 0.8,
                                   shape = 15,
-                                  size = 4,
+                                  size = 4.5,
                                   alpha = 0.8,
                                   breaks = seq(-10, 10, 2),
                                   theme = ggplot2::theme_void) {
@@ -34,6 +34,7 @@ add_inline_forestplot <- function(x,
     ggplot2::geom_vline(xintercept = xintercept, color = picasso::roche_colors("red"), linetype = "solid", size = 1) +
     ggplot2::geom_errorbarh() +
     ggplot2::geom_point(size = size, shape = shape, color = picasso::roche_colors("blue", alpha = alpha)) +
+    ggplot2::geom_point(size = 3, shape = 8, color = "black") +#picasso::roche_colors("black", alpha = alpha)) +
     theme() +
     ggplot2::xlab(xlab) +
     ggplot2::ylab(ylab)
@@ -54,7 +55,6 @@ add_inline_forestplot <- function(x,
 
   if (!is.null(xlim)) {
     .p <- .p + ggplot2:::scale_x_continuous(limits = c(xlim[1], xlim[2]), breaks = breaks)
-
     if (xmin < xlim[1]) {
       .p <- .p + ggplot2::geom_text(
         mapping = ggplot2::aes(x = xlim[1], label = "<<<"),
@@ -64,7 +64,6 @@ add_inline_forestplot <- function(x,
       ) +
         ggplot2::geom_point(mapping = ggplot2::aes(x = xmax), cex = 8, shape = 108, color = picasso::roche_colors("black"))
     }
-
     if (xmax > xlim[2]) {
       .p <- .p + ggplot2::geom_text(
         mapping = ggplot2::aes(x = xlim[2], label = ">>>"),

@@ -5,13 +5,14 @@
 render_svg <- function(g,
                        height = 8,
                        width = 8,
-                       element_width = "75vw",
-                       element_height = "75vh",
+                       element_width = "100%",
+                       element_height = "100%",
                        scaling = 1,
                        add_download_button = T,
                        standalone = F,
                        bg = "transparent",
                        font_family = "Lato, sans-serif",
+                       fix_rect = T,
                        ...) {
   fix_font <- function(html, param = "font-family", value = font_family, old_value = "[^;]*") {
     str <- as.character(html)
@@ -42,9 +43,9 @@ render_svg <- function(g,
       if (add_download_button) {
         svg <- nightowl::add_download_button(svg)
       }
-      svg <- as.character(svg) %>%
-        stringr::str_replace(stringr::fixed("/>"), "></rect>") %>%
-        htmltools::HTML()
+      svg <- as.character(svg)
+      if(fix_rect) svg <- stringr::str_replace(svg, stringr::fixed("/>"), "></rect>")
+      svg <- htmltools::HTML(svg)
       svg <- htmltools::browsable(svg)
       return(svg)
     },

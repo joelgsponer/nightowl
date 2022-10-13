@@ -7,7 +7,6 @@
 #' @return
 #' @export
 create_Surv_formula <- function(data, time, event, treatment, covariates = NULL, strata = NULL, random_effects = NULL) {
-  stopifnot(length(treatment) == 1)
   # Remove time and event if present in covariates or strata -------------------
   # Covariates and strata need to have at least two levels ---------------------
   if (!is.null(covariates)) {
@@ -16,11 +15,22 @@ create_Surv_formula <- function(data, time, event, treatment, covariates = NULL,
       if (waRRior::length_unique(data[[.covariate]]) > 1) {
         return(.covariate)
       } else {
-        cli::cli_alert("🦉⛔ Covariate `{.covariate}` has only one level. Skipping.")
+        #cli::cli_alert("🦉⛔ Covariate `{.covariate}` has only one level. Skipping.")
         return(NULL)
       }
     }) %>%
       purrr::compact()
+  }
+  if (!is.null(treatment)) {
+    if(length(treatment) == 1) {
+      str_treatment <- paste0("`", treatment, "`")
+    } else if (length(treatment) == 2) {
+      str_treatment <- paste0("`", treatment, "`", collapse = "*")
+    } else {
+      rlang::abort("`treatment` must be a single character string or a 2 element vector for interactions.")
+    }
+  } else {
+    rlang::abort("`treatment` must be a single character string or a 2 element vector for interactions.")
   }
   if (!is.null(strata)) {
     strata <- waRRior::pop(strata, c(time, event))
@@ -28,42 +38,30 @@ create_Surv_formula <- function(data, time, event, treatment, covariates = NULL,
       if (waRRior::length_unique(data[[.stratum]]) > 1) {
         return(.stratum)
       } else {
-        cli::cli_alert("🦉⛔ Stratum `{.stratum}` has only one level. Skipping.")
+        #cli::cli_alert("🦉⛔ Stratum `{.stratum}` has only one level. Skipping.")
         return(NULL)
       }
     }) %>%
       purrr::compact()
   }
-  # if (!is.null(random_effects)) {
-  #   random_effects <- waRRior::pop(effects, c(time, event))
-  #   random_effects <- purrr::map(random_effects, function(.random_effect) {
-  #     if (waRRior::length_unique(data[[.random_effect]]) > 1) {
-  #       return(.random_effect)
-  #     } else {
-  #       cli::cli_alert("🦉⛔ Random Effect `{.random_effect}` has only one level. Skipping.")
-  #       return(NULL)
-  #     }
-  #   }) %>%
-  #     purrr::compact()
-  # }
   # Put everything together ---------------------------------------------------
   str_covariates <- if (!is.null(covariates)) {
-    paste0(" + ", covariates, collapse = " ")
+    paste0(" + `", covariates, "`", collapse = " ")
   } else {
     NULL
   }
   str_strata <- if (!is.null(strata)) {
-    paste0(" + strata(", strata, ")", collapse = " ")
+    paste0(" + strata(`", strata, "`)", collapse = " ")
   } else {
     NULL
   }
   str_random_effects <- if (!is.null(random_effects)) {
-    paste0(" + (1|", random_effects, ")", collapse = "", sep = "")
+    paste0(" + (1|`", random_effects, "`)", collapse = "", sep = "")
   } else {
     NULL
   }
-  base <- glue::glue("survival::Surv({time}, {event}) ~ {paste(treatment, str_covariates, str_strata, str_random_effects, collapse = '', sep = '')}")
-  cli::cli_alert("🦉 Formula: `{base}`")
+  base <- glue::glue("survival::Surv({time}, {event}) ~ {paste(str_treatment, str_covariates, str_strata, str_random_effects, collapse = '', sep = '')}")
+  cli::cli_alert("🦉 Formula: {base}")
   as.formula(base)
 }
 # ===============================================================================

@@ -8,11 +8,14 @@ render_svg(
   g,
   height = 8,
   width = 8,
+  element_width = "100\%",
+  element_height = "100\%",
   scaling = 1,
   add_download_button = T,
   standalone = F,
   bg = "transparent",
   font_family = "Lato, sans-serif",
+  fix_rect = T,
   ...
 )
 }

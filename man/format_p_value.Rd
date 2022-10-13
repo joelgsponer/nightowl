@@ -4,7 +4,7 @@
 \alias{format_p_value}
 \title{MISSING_TITLE}
 \usage{
-format_p_value(p)
+format_p_value(p, htmlsafe = T)
 }
 \description{
 MISSING_TITLE

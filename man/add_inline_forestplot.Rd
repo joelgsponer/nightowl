@@ -19,7 +19,7 @@ add_inline_forestplot(
   width = 3,
   scaling = 0.8,
   shape = 15,
-  size = 4,
+  size = 4.5,
   alpha = 0.8,
   breaks = seq(-10, 10, 2),
   theme = ggplot2::theme_void
