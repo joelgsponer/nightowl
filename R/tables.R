@@ -45,6 +45,7 @@ render_kable <- function(.tbl,
                          header_above = NULL,
                          htmltable_class = "lightable-minimal",
                          footnote = NULL,
+                         align = "l",
                          ...) {
   if (!is.null(width_header)) {
     html_headers <- stringr::str_detect(names(.tbl), "<div")
@@ -58,7 +59,7 @@ render_kable <- function(.tbl,
   .tbl <- purrr::map(.tbl, function(.x) nightowl::style_cell(.x, width = "max-content") %>% as.character()) %>%
     tibble::as_tibble()
   .kable <- .tbl %>%
-    knitr::kable("html", escape = FALSE, caption = caption)
+    knitr::kable("html", escape = FALSE, caption = caption, align = align)
   if (!is.null(header_above)) .kable <- kableExtra::add_header_above(.kable, header_above)
   .kable <- kableExtra::kable_styling(.kable, full_width = full_width, htmltable_class = htmltable_class, ...)
   if (!is.null(footnote)) {
