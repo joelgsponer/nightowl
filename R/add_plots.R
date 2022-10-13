@@ -31,7 +31,6 @@ add_geom <- function(geom,
   nightowl:::expand_mapping(mapping)
   if (is.numeric(dplyr::pull(g$data, !!g$mapping$x))) {
     if (is.character(cut_f)) cut_f <- eval(parse(text = cut_f))
-    peacock::log("cutting")
     .group <- do.call(cut_f, c(
       list(x = g$data[[rlang::as_label(g$mapping$x)]]),
       cut_args

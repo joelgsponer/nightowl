@@ -33,8 +33,8 @@ upperFn <- function(data, mapping, method = "lm", ...) {
     vstep <- 1
   }
   if (is.na(res)) {
-    peacock::error("Computation failed.")
-    msg <- "Computation failed"
+    cli::cli_alert_danger("Computation failed for x: {mapping$x} and y: {mapping$y}")
+    msg <- "X"
     return(ggplot2::ggplot() +
       ggplot2::geom_text(ggplot2::aes(
         x = 1,

@@ -26,7 +26,6 @@ Imports:
     magrittr,
     MetBrewer,
     palmerpenguins,
-    peacock,
     picasso,
     pillar,
     purrr,
