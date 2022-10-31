@@ -56,7 +56,7 @@ format_p_value <- function(p, htmlsafe = T) {
     digits = 4, eps = 0.0001, nsmall = 4,
     scientific = FALSE
   )
-  if(htmlsafe) pval <- stringr::str_replace_all(pval, "<", "&#60;")
+  if (htmlsafe) pval <- stringr::str_replace_all(pval, "<", "&#60;")
   if (is.na(p) || is.null(p) || length(p) == 0) {
     return("Failed")
   }

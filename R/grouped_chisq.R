@@ -1,10 +1,6 @@
 # =================================================
 #' @title
 #' MISSING_TITLE
-#' @description
-#' @detail
-#' @param
-#' @return
 #' @export
 grouped_chisq <- function(df, split_by, x, y, ...) {
   cli::cli_h1("Calculating grouped chisq test")
@@ -31,10 +27,6 @@ grouped_chisq <- function(df, split_by, x, y, ...) {
 # =================================================
 #' @title
 #' missing_title
-#' @description
-#' @detail
-#' @param
-#' @return
 #' @export
 extract_results_grouped_chisq <- function(x) {
   purrr::map(x, "result") %>%
@@ -45,10 +37,6 @@ extract_results_grouped_chisq <- function(x) {
 # =================================================
 #' @title
 #' missing_title
-#' @description
-#' @detail
-#' @param
-#' @return
 #' @export
 extract_errors_grouped_chisq <- function(x) {
   purrr::map(x, "error") %>%
@@ -57,10 +45,6 @@ extract_errors_grouped_chisq <- function(x) {
 # =================================================
 #' @title
 #' MISSING_TITLE
-#' @description
-#' @detail
-#' @param
-#' @return
 #' @export
 report_results_grouped_chisq <- function(x) {
   extract_results_grouped_chisq(x) %>%
@@ -69,10 +53,6 @@ report_results_grouped_chisq <- function(x) {
 # =================================================
 #' @title
 #' MISSING_TITLE
-#' @description
-#' @detail
-#' @param
-#' @return
 #' @export
 report_errors_grouped_chisq <- function(x) {
   shiny::div(
@@ -90,10 +70,6 @@ report_errors_grouped_chisq <- function(x) {
 # =================================================
 #' @title
 #' MISSING_TITLE
-#' @description
-#' @detail
-#' @param
-#' @return
 #' @export
 plot_grouped_chisq <- function(df, split_by, x, y, test = NULL, order_by = "p.value",
                                pal = NULL,
@@ -150,10 +126,6 @@ plot_grouped_chisq <- function(df, split_by, x, y, test = NULL, order_by = "p.va
 # =================================================
 #' @title
 #' MISSING_TITLE
-#' @description
-#' @detail
-#' @param
-#' @return
 #' @export
 reactable_grouped_chisq <- function(df, split_by, x, y, test = NULL, order_by = "p.value",
                                     pal = NULL,

@@ -1,10 +1,6 @@
 # =================================================
 #' @title
 #' MISSING_TITLE
-#' @description
-#' @detail
-#' @param
-#' @return
 #' @export
 is_Plot <- function(x) {
   all(
@@ -15,9 +11,6 @@ is_Plot <- function(x) {
 # ===============================================================================
 #' R6 Class
 #'
-#' @description
-#'
-#' @detail
 #' @export
 Plot <- R6::R6Class("Plot",
   public = list(
@@ -118,10 +111,6 @@ Plot <- R6::R6Class("Plot",
 )
 # ===============================================================================
 #' R6 Class
-#'
-#' @description
-#'
-#' @detail
 #' @export
 DeclarativePlot <- R6::R6Class("DeclarativePlot",
   inherit = nightowl::Plot,

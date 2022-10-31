@@ -1,10 +1,6 @@
 # =================================================
 #' @title
 #' MISSING_TITLE
-#' @description
-#' @detail
-#' @param
-#' @return
 #' @export
 add_inline_forestplot <- function(x,
                                   xmin,
@@ -22,8 +18,9 @@ add_inline_forestplot <- function(x,
                                   shape = 15,
                                   size = 4.5,
                                   alpha = 0.8,
-                                  breaks = seq(-10, 10, 2),
+                                  breaks = seq(-10, 10, 0.5),
                                   theme = ggplot2::theme_void) {
+  browser()
   .data <- tibble::tibble(x = x, xmin = xmin, xmax = xmax)
   .p <- ggplot2::ggplot(NULL, ggplot2::aes(
     y = 0,
@@ -34,7 +31,7 @@ add_inline_forestplot <- function(x,
     ggplot2::geom_vline(xintercept = xintercept, color = picasso::roche_colors("red"), linetype = "solid", size = 1) +
     ggplot2::geom_errorbarh() +
     ggplot2::geom_point(size = size, shape = shape, color = picasso::roche_colors("blue", alpha = alpha)) +
-    ggplot2::geom_point(size = 3, shape = 8, color = "black") +#picasso::roche_colors("black", alpha = alpha)) +
+    ggplot2::geom_point(size = 3, shape = 8, color = "black") + # picasso::roche_colors("black", alpha = alpha)) +
     theme() +
     ggplot2::xlab(xlab) +
     ggplot2::ylab(ylab)
@@ -54,7 +51,7 @@ add_inline_forestplot <- function(x,
 
 
   if (!is.null(xlim)) {
-    .p <- .p + ggplot2:::scale_x_continuous(limits = c(xlim[1], xlim[2]), breaks = breaks)
+    .p <- .p + ggplot2:::scale_x_continuous(limits = c(xlim[1], xlim[2]))
     if (xmin < xlim[1]) {
       .p <- .p + ggplot2::geom_text(
         mapping = ggplot2::aes(x = xlim[1], label = "<<<"),
@@ -103,10 +100,6 @@ add_inline_forestplot <- function(x,
 # =================================================
 #' @title
 #' MISSING_TITLE
-#' @description
-#' @detail
-#' @param
-#' @return
 #' @export
 add_barplot <- function(x,
                         height = 0.3,
@@ -144,10 +137,6 @@ add_barplot <- function(x,
 # =================================================
 #' @title
 #' MISSING_TITLE
-#' @description
-#' @detail
-#' @param
-#' @return
 #' @export
 add_forestplot <- function(x,
                            fun_data = ggplot2::mean_cl_boot,
@@ -165,10 +154,6 @@ add_forestplot <- function(x,
 # =================================================
 #' @title
 #' MISSING_TITLE
-#' @description
-#' @detail
-#' @param
-#' @return
 #' @export
 add_inline_plot <- function(x,
                             y = NULL,
@@ -260,10 +245,6 @@ add_inline_plot <- function(x,
 # =================================================
 #' @title
 #' MISSING_TITLE
-#' @description
-#' @detail
-#' @param
-#' @return
 #' @export
 add_inline_histogram <- function(x,
                                  mapping = list(x = "x", y = NULL),
@@ -277,10 +258,6 @@ add_inline_histogram <- function(x,
 # =================================================
 #' @title
 #' MISSING_TITLE
-#' @description
-#' @detail
-#' @param
-#' @return
 #' @export
 add_inline_pointrange <- function(x,
                                   fun_data = NULL,
@@ -298,10 +275,6 @@ add_inline_pointrange <- function(x,
 # =================================================
 #' @title
 #' MISSING_TITLE
-#' @description
-#' @detail
-#' @param
-#' @return
 #' @export
 add_violin <- function(x,
                        ylim = NULL,
@@ -349,10 +322,6 @@ add_violin <- function(x,
 # ===============================================================================
 #' @title
 #' MISSING_TITLE
-#' @description
-#' @detail
-#' @param
-#' @return
 #' @export
 add_density <- function(x,
                         ylim = NULL,
@@ -391,10 +360,6 @@ add_density <- function(x,
 # =================================================
 #' @title
 #' MISSING_TITLE
-#' @description
-#' @detail
-#' @param
-#' @return
 #' @export
 add_histogram <- function(x,
                           height = 0.8,
@@ -417,10 +382,6 @@ add_histogram <- function(x,
 # =================================================
 #' @title
 #' MISSING_TITLE
-#' @description
-#' @detail
-#' @param
-#' @return
 #' @export
 add_scale <- function(obj,
                       text_size = 1.5,

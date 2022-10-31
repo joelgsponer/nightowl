@@ -44,7 +44,7 @@ render_svg <- function(g,
         svg <- nightowl::add_download_button(svg)
       }
       svg <- as.character(svg)
-      if(fix_rect) svg <- stringr::str_replace(svg, stringr::fixed("/>"), "></rect>")
+      if (fix_rect) svg <- stringr::str_replace(svg, stringr::fixed("/>"), "></rect>")
       svg <- htmltools::HTML(svg)
       svg <- htmltools::browsable(svg)
       return(svg)
@@ -63,10 +63,6 @@ render_svg <- function(g,
 # =================================================
 #' @title
 #' MISSING_TITLE
-#' @description
-#' @detail
-#' @param
-#' @return
 #' @export
 add_download_button <- function(x) {
   shiny::div(
@@ -105,10 +101,6 @@ add_download_button <- function(x) {
 # =================================================
 #' @title
 #' MISSING_TITLE
-#' @description
-#' @detail
-#' @param
-#' @return
 #' @export
 new_NightowlPlots <- function(...) {
   x <- list(...)

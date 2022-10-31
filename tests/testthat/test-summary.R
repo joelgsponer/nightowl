@@ -1,5 +1,4 @@
 test_that("summary works", {
-
   testdata <- tibble::tibble(
     "foo" = c(rep("A", 50), rep("B", 50), rep("C", 50), rep("D", 50)),
     "bar" = c(rnorm(50, 0, 1), rnorm(50, 1, 2), rnorm(50, 2, 3), rnorm(50, 3, 4)),
@@ -30,7 +29,9 @@ test_that("summary works", {
 
   nightowl::Summary$new(testdata, "qux", "foo", method = nightowl::summarise_categorical_barplot)$data
 
-  nightowl::Summary$new(testdata, "qux", "foo", method = nightowl::summarise_categorical_barplot)$kable() %>% shiny::HTML() %>% htmltools::browsable()
+  nightowl::Summary$new(testdata, "qux", "foo", method = nightowl::summarise_categorical_barplot)$kable() %>%
+    shiny::HTML() %>%
+    htmltools::browsable()
   nightowl::Summary$new(testdata %>% dplyr::filter(foo == "A"), "qux", "foo", method = nightowl::summarise_categorical_barplot)$kable()
 
   NightowlOptions$set_colors(picasso::roche_colors() %>% rev())
@@ -38,7 +39,9 @@ test_that("summary works", {
   nightowl::Summary$new(testdata, "qux", "foo", method = nightowl::summarise_categorical_barplot)$kable()
 
   nightowl::Summary$new(testdata, "baz", "s1", method = nightowl::summarise_numeric_violin)$raw()
-  nightowl::Summary$new(testdata, "baz", "s1", method = nightowl::summarise_numeric_violin)$kable() %>% shiny::HTML() %>% htmltools::browsable()
+  nightowl::Summary$new(testdata, "baz", "s1", method = nightowl::summarise_numeric_violin)$kable() %>%
+    shiny::HTML() %>%
+    htmltools::browsable()
   nightowl::Summary$new(testdata, "baz", "s1", method = nightowl::summarise_numeric_histogram)$kable()
   nightowl::Summary$new(testdata, "baz", "s1", method = nightowl::summarise_numeric_violin)$reactable()
   nightowl::Summary$new(testdata, "baz", "s1", method = nightowl::summarise_numeric_pointrange)$reactable()

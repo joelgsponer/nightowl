@@ -1,10 +1,6 @@
 # =================================================
 #' @title
 #' MISSING_TITLE
-#' @description
-#' @detail
-#' @param
-#' @return
 #' @export
 load_style <- function(x) {
   paste0(x, ".yaml") %>%
@@ -15,10 +11,6 @@ load_style <- function(x) {
 # =================================================
 #' @title
 #' MISSING_TITLE
-#' @description
-#' @detail
-#' @param
-#' @return
 #' @export
 styled_plot <- function(data, style, ...) {
   mapping <- list(...)

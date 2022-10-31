@@ -70,6 +70,19 @@ render_kable <- function(.tbl,
     stringr::str_replace_all(stringr::fixed("]]>"), "")
   return(.kable)
 }
+# =================================================
+#' @title
+#' MISSING_TITLE
+#' @description
+#' @detail
+#' @param
+#' @return
+#' @export
+render_html <- function(.tbl, ...) {
+  nightowl::render_kable(.tbl, ...) %>%
+    shiny::HTML() %>%
+    htmltools::browsable()
+}
 # s-------------------------------------------------------------------------------
 # =================================================
 #' @title

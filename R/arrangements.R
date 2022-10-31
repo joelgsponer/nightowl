@@ -1,10 +1,6 @@
 # =================================================
 #' @title
 #' MISSING_TITLE
-#' @description
-#' @detail
-#' @param
-#' @return
 #' @export
 arrange_summaries <- function(tbls) {
   # Full version

@@ -184,10 +184,6 @@ ggpairs <- function(DATA,
 # =================================================
 #' @title
 #' MISSING_TITLE
-#' @description
-#' @detail
-#' @param
-#' @return
 #' @export
 this_f <- function(data, mapping, method = "lm", ...) {
   .mapping <- purrr::map(mapping, function(.x) {

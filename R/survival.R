@@ -1,8 +1,6 @@
 # =================================================
 #' @title
 #' MISSING_TITLE
-#' @description
-#' @detail
 #' @param data A data frame.
 #' @param time `string` the time variable
 #' @param event `string` the event variable
@@ -11,7 +9,6 @@
 #' @param strata `character vector` of strata variables
 #' @param random_effects `character vector` of random effects variables
 #' @param interactions `list` of interaction terms
-#' @return
 #' @export
 create_Surv_formula <- function(data,
                                 time,

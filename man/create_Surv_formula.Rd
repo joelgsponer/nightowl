@@ -11,8 +11,26 @@ create_Surv_formula(
   treatment,
   covariates = NULL,
   strata = NULL,
+  interactions = NULL,
   random_effects = NULL
 )
+}
+\arguments{
+\item{data}{A data frame.}
+
+\item{time}{\code{string} the time variable}
+
+\item{event}{\code{string} the event variable}
+
+\item{treatment}{\code{string} the treatment variable}
+
+\item{covariates}{\verb{character vector} of covariate variables}
+
+\item{strata}{\verb{character vector} of strata variables}
+
+\item{interactions}{\code{list} of interaction terms}
+
+\item{random_effects}{\verb{character vector} of random effects variables}
 }
 \description{
 MISSING_TITLE

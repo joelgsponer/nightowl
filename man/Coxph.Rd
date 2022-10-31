@@ -47,6 +47,9 @@ R6 Class
 \item \href{#method-Coxph-check_event}{\code{Coxph$check_event()}}
 \item \href{#method-Coxph-check_treatment}{\code{Coxph$check_treatment()}}
 \item \href{#method-Coxph-get_variables}{\code{Coxph$get_variables()}}
+\item \href{#method-Coxph-unpack_interactions}{\code{Coxph$unpack_interactions()}}
+\item \href{#method-Coxph-build_reference_for_interaction_term}{\code{Coxph$build_reference_for_interaction_term()}}
+\item \href{#method-Coxph-build_comparison_for_interaction_term}{\code{Coxph$build_comparison_for_interaction_term()}}
 \item \href{#method-Coxph-check_variables}{\code{Coxph$check_variables()}}
 \item \href{#method-Coxph-set_data}{\code{Coxph$set_data()}}
 \item \href{#method-Coxph-check_data}{\code{Coxph$check_data()}}
@@ -137,6 +140,33 @@ R6 Class
 
 }
 \if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-Coxph-unpack_interactions"></a>}}
+\if{latex}{\out{\hypertarget{method-Coxph-unpack_interactions}{}}}
+\subsection{Method \code{unpack_interactions()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Coxph$unpack_interactions(vars = self$get_variables())}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-Coxph-build_reference_for_interaction_term"></a>}}
+\if{latex}{\out{\hypertarget{method-Coxph-build_reference_for_interaction_term}{}}}
+\subsection{Method \code{build_reference_for_interaction_term()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Coxph$build_reference_for_interaction_term(x)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-Coxph-build_comparison_for_interaction_term"></a>}}
+\if{latex}{\out{\hypertarget{method-Coxph-build_comparison_for_interaction_term}{}}}
+\subsection{Method \code{build_comparison_for_interaction_term()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Coxph$build_comparison_for_interaction_term(x)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-Coxph-check_variables"></a>}}
 \if{latex}{\out{\hypertarget{method-Coxph-check_variables}{}}}
 \subsection{Method \code{check_variables()}}{
@@ -179,7 +209,7 @@ Set reference levels
 \subsection{Method \code{get_reference()}}{
 Get reference levels
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Coxph$get_reference()}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{Coxph$get_reference(x = self$get_variables())}\if{html}{\out{</div>}}
 }
 
 }
@@ -217,7 +247,7 @@ Checks if the formula is present
 \if{latex}{\out{\hypertarget{method-Coxph-results}{}}}
 \subsection{Method \code{results()}}{
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Coxph$results()}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{Coxph$results(exponentiate = self$exponentiate, log_x = self$log_x)}\if{html}{\out{</div>}}
 }
 
 }
@@ -308,7 +338,7 @@ Extract estimates of treament effect
 \if{latex}{\out{\hypertarget{method-Coxph-TE}{}}}
 \subsection{Method \code{TE()}}{
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Coxph$TE()}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{Coxph$TE(term = self$get_variables()$treatment)}\if{html}{\out{</div>}}
 }
 
 }
@@ -318,7 +348,7 @@ Extract estimates of treament effect
 \subsection{Method \code{seTE()}}{
 Extract standard errors of treament effect
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Coxph$seTE()}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{Coxph$seTE(term = self$get_variables()$treatment)}\if{html}{\out{</div>}}
 }
 
 }

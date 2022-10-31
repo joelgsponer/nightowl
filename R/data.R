@@ -1,10 +1,6 @@
 # =================================================
 #' @title
 #' MISSING_TITLE
-#' @description
-#' @detail
-#' @param
-#' @return
 #' @export
 detect_outliers <- function(x, fold = 15) {
   tmp <- graphics::boxplot(x, plot = FALSE)
@@ -17,10 +13,6 @@ detect_outliers <- function(x, fold = 15) {
 # =================================================
 #' @title
 #' MISSING_TITLE
-#' @description
-#' @detail
-#' @param
-#' @return
 #' @export
 count_outliers <- function(x, fold = 15) {
   tmp <- graphics::boxplot(x, plot = FALSE)

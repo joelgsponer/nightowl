@@ -2,10 +2,6 @@
 # =================================================
 #' @title
 #' MISSING_TITLE
-#' @description
-#' @detail
-#' @param
-#' @return
 #' @export
 make_donut_plot_categorical <- function(data,
                                         column,
@@ -93,10 +89,6 @@ make_donut_plot_categorical <- function(data,
 # =================================================
 #' @title
 #' MISSING_TITLE
-#' @description
-#' @detail
-#' @param
-#' @return
 #' @export
 make_donut_plot_numeric <- function(data,
                                     column,
@@ -180,10 +172,6 @@ make_donut_plot_numeric <- function(data,
 # =================================================
 #' @title
 #' MISSING_TITLE
-#' @description
-#' @detail
-#' @param
-#' @return
 #' @export
 donut_plot <- function(data,
                        columns,
@@ -236,10 +224,6 @@ donut_plot <- function(data,
 # =================================================
 #' @title
 #' MISSING_TITLE
-#' @description
-#' @detail
-#' @param
-#' @return
 #' @export
 render_donut_plot <- function(header, ...) {
   plots <- list(...)
@@ -271,10 +255,6 @@ render_donut_plot <- function(header, ...) {
 # =================================================
 #' @title
 #' MISSING_TITLE
-#' @description
-#' @detail
-#' @param
-#' @return
 #' @export
 css_donut_plot <- function() {
   shiny::HTML("<style>

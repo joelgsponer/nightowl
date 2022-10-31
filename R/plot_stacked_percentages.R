@@ -2,10 +2,6 @@
 # =================================================
 #' @title
 #'  Plot stacked percentage barplot
-#' @description
-#' @detail
-#' @param
-#' @return
 #' @export
 plot_stacked_percentages <- function(DATA,
                                      x,

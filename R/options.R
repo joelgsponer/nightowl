@@ -1,6 +1,4 @@
 #' R6 Class
-#' @description
-#' @detail
 .NightowlOptions <- R6::R6Class("NightowlOptions",
   public = list(
     # Initialize the class ---------------------------------------------------

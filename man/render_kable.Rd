@@ -14,6 +14,7 @@ render_kable(
   header_above = NULL,
   htmltable_class = "lightable-minimal",
   footnote = NULL,
+  align = "l",
   ...
 )
 }

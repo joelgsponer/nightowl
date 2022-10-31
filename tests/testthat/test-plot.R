@@ -1,5 +1,4 @@
 test_that("multiplication works", {
-
   require(magrittr)
   testdata <- ChickWeight %>%
     dplyr::filter(Time < 10)
@@ -40,8 +39,8 @@ test_that("multiplication works", {
       axis.line = list(
         element = "ggplot2::element_line",
         color = "red"
-        )
       )
+    )
   )
   a$svg(height = 5)
 

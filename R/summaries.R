@@ -1,10 +1,6 @@
 # =================================================
 #' @title
 #' MISSING_TITLE
-#' @description
-#' @detail
-#' @param
-#' @return
 #' @export
 summarise <- function(data,
                       column,
@@ -59,10 +55,6 @@ summarise <- function(data,
 # =================================================
 #' @title
 #' MISSING_TITLE
-#' @description
-#' @detail
-#' @param
-#' @return
 #' @export
 summarise_categorical <- function(calculations = list(
                                     `N.` = length,
@@ -78,10 +70,6 @@ summarise_categorical <- function(calculations = list(
 # =================================================
 #' @title
 #' MISSING_TITLE
-#' @description
-#' @detail
-#' @param
-#' @return
 #' @export
 summarise_categorical_barplot <- function(self,
                                           calculations = list(
@@ -100,10 +88,6 @@ summarise_categorical_barplot <- function(self,
 # =================================================
 #' @title
 #' MISSING_TITLE
-#' @description
-#' @detail
-#' @param
-#' @return
 #' @export
 summarise_numeric <- function(data,
                               column,
@@ -125,10 +109,6 @@ summarise_numeric <- function(data,
 # ===============================================================================
 #' @title
 #' MISSING_TITLE
-#' @description
-#' @detail
-#' @param
-#' @return
 #' @export
 summarise_numeric_forestplot <- function(data,
                                          column,
@@ -159,10 +139,6 @@ summarise_numeric_forestplot <- function(data,
 # ===============================================================================
 #' @title
 #' MISSING_TITLE
-#' @description
-#' @detail
-#' @param
-#' @return
 #' @export
 summarise_numeric_pointrange <- function(data,
                                          column,
@@ -188,10 +164,6 @@ summarise_numeric_pointrange <- function(data,
 # =================================================
 #' @title
 #' MISSING_TITLE
-#' @description
-#' @detail
-#' @param
-#' @return
 #' @export
 summarise_numeric_violin <- function(self,
                                      calculations = list(
@@ -212,10 +184,6 @@ summarise_numeric_violin <- function(self,
 # ===============================================================================
 #' @title
 #' MISSING_TITLE
-#' @description
-#' @detail
-#' @param
-#' @return
 #' @export
 summarise_numeric_histogram <- function(self,
                                         data,
@@ -237,10 +205,6 @@ summarise_numeric_histogram <- function(self,
 # =================================================
 #' @title
 #' MISSING_TITLE
-#' @description
-#' @detail
-#' @param
-#' @return
 #' @export
 calc_percentage <- function(x, N = length(x), digits = 1) {
   x <- forcats::fct_explicit_na(x)
@@ -252,10 +216,6 @@ calc_percentage <- function(x, N = length(x), digits = 1) {
 # =================================================
 #' @title
 #' MISSING_TITLE
-#' @description
-#' @detail
-#' @param
-#' @return
 #' @export
 format_frequencies <- function(x,
                                N = length(x),
@@ -330,10 +290,6 @@ format_frequencies <- function(x,
 # =================================================
 #' @title
 #' MISSING_TITLE
-#' @description
-#' @detail
-#' @param
-#' @return
 #' @export
 n <- function(...) {
   dplyr::n()
@@ -341,10 +297,6 @@ n <- function(...) {
 # =================================================
 #' @title
 #' MISSING_TITLE
-#' @description
-#' @detail
-#' @param
-#' @return
 #' @export
 formated_mean <- function(x, fun = Hmisc::smean.cl.boot, digits = 2) {
   val <- fun(x)

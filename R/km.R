@@ -1,10 +1,6 @@
 # =================================================
 #' @title
 #' MISSING_TITLE
-#' @description
-#' @detail
-#' @param
-#' @return
 #' @export
 plot_grouped_km <- function(data,
                             time,
@@ -73,10 +69,6 @@ plot_grouped_km <- function(data,
 # =================================================
 #' @title
 #' MISSING_TITLE
-#' @description
-#' @detail
-#' @param
-#' @return
 #' @export
 plot_km <- function(data,
                     time,
@@ -150,13 +142,13 @@ plot_km <- function(data,
     ) +
       ggplot2::geom_point(
         data = .median,
-        mapping = ggplot2::aes(x = median, y = seq(0.8, 0.8 - 0.03 * (nrow(.median)-1), -0.03), nrisk = NULL, color = NULL),
+        mapping = ggplot2::aes(x = median, y = seq(0.8, 0.8 - 0.03 * (nrow(.median) - 1), -0.03), nrisk = NULL, color = NULL),
         size = 5,
         color = "white"
       ) +
       ggplot2::geom_text(
         data = .median,
-        mapping = ggplot2::aes(x = median, y = seq(0.8, 0.8 - 0.03 * (nrow(.median)-1), -0.03), label = round(median, 2), nrisk = NULL),
+        mapping = ggplot2::aes(x = median, y = seq(0.8, 0.8 - 0.03 * (nrow(.median) - 1), -0.03), label = round(median, 2), nrisk = NULL),
         size = 4,
         color = "black"
       ) +
@@ -286,10 +278,6 @@ plot_km <- function(data,
 # =================================================
 #' @title
 #' MISSING_TITLE
-#' @description
-#' @detail
-#' @param
-#' @return
 #' @export
 km_pvalue <- function(.formula, data, html = TRUE) {
   p <- survival::survdiff(.formula, data = data) %>%
@@ -307,10 +295,6 @@ km_pvalue <- function(.formula, data, html = TRUE) {
 # =================================================
 #' @title
 #' MISSING_TITLE
-#' @description
-#' @detail
-#' @param
-#' @return
 #' @export
 fit_km <- function(data, time, event, treatment, covariates = NULL, landmark = NULL, ...) {
   # Landmark -------------------------------------------------------------------
@@ -333,10 +317,6 @@ fit_km <- function(data, time, event, treatment, covariates = NULL, landmark = N
 # =================================================
 #' @title
 #' MISSING_TITLE
-#' @description
-#' @detail
-#' @param
-#' @return
 #' @export
 km_add_0 <- function(fit) {
   fit %>%
@@ -362,10 +342,6 @@ km_add_0 <- function(fit) {
 # =================================================
 #' @title
 #' MISSING_TITLE
-#' @description
-#' @detail
-#' @param
-#' @return
 #' @export
 km_summary <- function(.formula, data) {
   res <- survival::survdiff(.formula, data = data) %>%
@@ -377,10 +353,6 @@ km_summary <- function(.formula, data) {
 # =================================================
 #' @title
 #' MISSING_TITLE
-#' @description
-#' @detail
-#' @param
-#' @return
 #' @export
 km_table <- function(fit, what = "n.risk", break_width = 10, kable = T) {
   fit <- nightowl::km_add_0(fit)
@@ -419,10 +391,6 @@ km_table <- function(fit, what = "n.risk", break_width = 10, kable = T) {
 # =================================================
 #' @title
 #' MISSING_TITLE
-#' @description
-#' @detail
-#' @param
-#' @return
 #' @export
 plot_grouped_km_compact <- function(data,
                                     time,
@@ -456,10 +424,6 @@ plot_grouped_km_compact <- function(data,
 # =================================================
 #' @title
 #' MISSING_TITLE
-#' @description
-#' @detail
-#' @param
-#' @return
 #' @export
 plot_km_covariates <- function(data,
                                time,

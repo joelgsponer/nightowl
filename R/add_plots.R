@@ -394,8 +394,8 @@ theme <- function(g, theme = "ggplot2::theme_bw", ...) {
   }
   # Add other elements to theme
   args <- list(...)
-  elements <- purrr::imap(args, function(.x, .y){
-    if(is.character(.x$element)){
+  elements <- purrr::imap(args, function(.x, .y) {
+    if (is.character(.x$element)) {
       .x$element <- waRRior::getfun(.x$element)
     }
     params <- .x[waRRior::pop(names(.x), "element")]

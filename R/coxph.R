@@ -1,6 +1,4 @@
 #' R6 Class
-#' @description
-#' @detail
 #' @importFrom survival strata
 #' @export
 Coxph <- R6::R6Class("Coxph",
@@ -57,6 +55,7 @@ Coxph <- R6::R6Class("Coxph",
     covariates = NULL,
     strata = NULL,
     random_effects = NULL,
+    interactions = NULL,
     get_variables = function() {
       list(
         time = self$time,
@@ -64,16 +63,67 @@ Coxph <- R6::R6Class("Coxph",
         treatment = self$treatment,
         covariates = self$covariates,
         strata = self$strata,
+        interactions = self$interactions,
         random_effects = self$random_effects,
         group_by = self$group_by
       )
     },
+    unpack_interactions = function(vars = self$get_variables()) {
+      if (is.null(vars$interactions)) {
+        res <- vars
+      } else {
+        vars <- unlist(unname(vars))
+        vars <- unlist(strsplit(vars, ":"))
+        vars <- unlist(stringr::str_split(vars, stringr::fixed("*")))
+      }
+      res <- unlist(vars) %>%
+        unname(vars) %>%
+        unique()
+      return(res)
+    },
+    build_reference_for_interaction_term = function(x) {
+      vars <- self$unpack_interactions(x)
+      refs <- purrr::map(vars, function(.x) {
+        if (is.factor(self$data[[.x]])) {
+          levels(self$data[[.x]])[1]
+        } else if (is.numeric(self$data[[.x]])) {
+          .x
+        } else {
+          rlang::abort("Unable to determine reference for {.x}")
+        }
+      })
+      var <- paste(vars, collapse = "/")
+      ref <- paste(refs, collapse = "/")
+      res <- list()
+      res[[var]] <- ref
+      return(res)
+    },
+    build_comparison_for_interaction_term = function(x) {
+      x %>%
+        stringr::str_split(":") %>%
+        purrr::map(function(.x) {
+          .s <- stringr::str_split(.x, " ")
+          terms <- paste(purrr::map(.s, ~ .x[[1]][1]), collapse = "/")
+          comp <- paste(purrr::map(.s, function(.y) {
+            if (length(.y) > 1) {
+              .y[[2]][1]
+            } else {
+              .y[[1]][1]
+            }
+          }), collapse = "/")
+          paste(terms, "splitthere", comp, sep = "")
+        }) %>%
+        unlist()
+    },
     # Checks
     check_variables = function() {
-      vars <- unlist(unname(self$get_variables()))
-      if(any(duplicated(vars))) {
-        rlang::abort(glue::glue("Duplicated variables: {paste0(vars[duplicated(vars)], collapse = ', ')}"))
+      if (!is.null(self$interactions)) {
+        if (stringr::str_detect(self$interactions, stringr::fixed("*"))) {
+          rlang::abort("Please specify interactions with `:` instead of `*`")
+        }
       }
+      vars <- self$unpack_interactions() %>%
+        purrr::compact()
       if (!all(vars %in% names(self$data))) {
         missing <- vars[!vars %in% names(self$data)]
         msg <- glue::glue("`{missing}` not present in data")
@@ -94,7 +144,7 @@ Coxph <- R6::R6Class("Coxph",
       if (is.null(self$group_by)) self$group_by <- waRRior::get_groups(data)
       data <- data %>%
         dplyr::ungroup() %>%
-        dplyr::select_at(c(unname(unlist(self$get_variables())))) %>%
+        dplyr::select_at(self$unpack_interactions()) %>%
         dplyr::mutate_if(is.character, factor) %>%
         dplyr::group_by_at(self$group_by)
       self$data <- data
@@ -118,13 +168,18 @@ Coxph <- R6::R6Class("Coxph",
         .numeric <- data %>%
           dplyr::select_if(is.numeric) %>%
           purrr::map(~"")
-        self$reference <- c(.reference, .numeric)
+        .interactions <- self$interactions %>%
+          self$build_reference_for_interaction_term()
+        self$reference <- c(.reference, .numeric, .interactions)
       }
       invisible(self)
     },
     # ---------------------------------------------------------
     #' @description Get reference levels
-    get_reference = function() self$reference,
+    get_reference = function(x = self$get_variables()) {
+      self$reference[unlist(x)] %>%
+        purrr::compact()
+    },
     # Formula ==================================================
     #' @field Formula to be used in the model
     formula = NULL,
@@ -137,6 +192,7 @@ Coxph <- R6::R6Class("Coxph",
         event = self$event,
         treatment = self$treatment,
         covariates = self$covariates,
+        interactions = self$interactions,
         strata = self$strata,
         random_effects = self$random_effects
       )
@@ -161,7 +217,7 @@ Coxph <- R6::R6Class("Coxph",
       self$check_variables()
       self$check_formula()
       if (!dplyr::is_grouped_df(self$data)) {
-        data_list <- list(ALL = self$data)
+        data_list <- list(Overall = self$data)
       } else {
         data_list <- waRRior::named_group_split_at(self$data, self$group_by, keep = T, verbose = T)
       }
@@ -183,42 +239,48 @@ Coxph <- R6::R6Class("Coxph",
     # ---------------------------------------------------------
     log_x = TRUE,
     # ---------------------------------------------------------
-    results = function() {
+    results = function(exponentiate = self$exponentiate, log_x = self$log_x) {
       variables <- self$get_variables()
       purrr::map(self$models, "result") %>%
         purrr::imap(function(.result, .group) {
           res <- .result %>%
-            broom::tidy(exponentiate = self$exponentiate, conf.int = TRUE)
-          if(nrow(res) == 0) {
+            broom::tidy(exponentiate = exponentiate, conf.int = TRUE)
+          if (nrow(res) == 0) {
             return(NULL)
-        } else{
-            res %>% 
+          } else {
+            non_interaction_term <- !stringr::str_detect(res$term, ":")
+            res <- res %>%
               dplyr::mutate(term = stringr::str_replace_all(term, "`", "")) %>%
               dplyr::mutate(Subgroup = .group) %>%
               purrr::reduce(c(variables$treatment, variables$covariates), function(.in, .cov) {
-                .in$term <- stringr::str_replace(.in$term, paste0("^", Hmisc::escapeRegex(.cov)), paste0(.cov, "splithere"))
-                .in
-              }, .init = .) %>%
+                .in$term[non_interaction_term] <- stringr::str_replace(.in$term[non_interaction_term], paste0("^", Hmisc::escapeRegex(.cov)), paste0(.cov, "splitthere"))
+                .in$term[!non_interaction_term] <- stringr::str_replace_all(.in$term[!non_interaction_term], paste0(Hmisc::escapeRegex(.cov)), paste0(.cov, " "))
+                return(.in)
+              }, .init = .)
+            res$term[!non_interaction_term] <- res$term[!non_interaction_term] %>%
+              self$build_comparison_for_interaction_term()
+            res %>%
               {
                 x <- .
-               if(nrow(x) == 0) return(NULL)
-                x$comparison <- stringr::str_split(x$term, stringr::fixed("splithere")) %>%
+                if (nrow(x) == 0) {
+                  return(NULL)
+                }
+                x$comparison <- stringr::str_split(x$term, stringr::fixed("splitthere")) %>%
                   purrr::map(~ .x[[2]]) %>%
                   unlist()
-                x$term <- stringr::str_split(x$term, stringr::fixed("splithere")) %>%
+                x$term <- stringr::str_split(x$term, stringr::fixed("splitthere")) %>%
                   purrr::map(~ .x[[1]]) %>%
                   unlist()
                 x
               } %>%
-              dplyr::mutate_if(is.numeric, ~ round(.x, 4)) %>%
               dplyr::arrange(estimate) %>%
               dplyr::mutate(term = factor(term, c(variables$treatment, unique(waRRior::pop(.$term, variables$treatment))))) %>%
               dplyr::arrange(term) %>%
-              dplyr::mutate(reference = purrr::map_chr(as.character(term), ~ self$get_reference()[[.x]])) %>%
+              dplyr::mutate(reference = unlist(purrr::map(as.character(term), ~ self$get_reference(.x)))) %>%
               dplyr::select(Subgroup, term, reference, comparison, estimate, tidyselect::everything())
           }
         }) %>%
-      purrr::compact()
+        purrr::compact()
     },
     # Errors -------------------------------------------------------------------
     errors = function() {
@@ -228,8 +290,10 @@ Coxph <- R6::R6Class("Coxph",
     N = function() {
       variables <- self$get_variables()
       data_list <- waRRior::named_group_split_at(self$data, self$group_by, keep = T, verbose = T)
+      if (is.null(self$group_by)) {
+        names(data_list) <- "Overall"
+      }
       purrr::imap(data_list, function(.data, .subgroup) {
-
         res <- purrr::map(c(variables$treatment, self$covariates, self$strata), function(.var) {
           if (!is.numeric(.data[[.var]])) {
             dplyr::select_at(.data, c(.var, variables$event)) %>%
@@ -264,7 +328,7 @@ Coxph <- R6::R6Class("Coxph",
           dplyr::filter(!!rlang::sym(variables$event) == "1")
         res
       }) %>%
-        dplyr::bind_rows() 
+        dplyr::bind_rows()
     },
     # Annotation ----------------------------------------------------------------
     add_caption = TRUE,
@@ -278,7 +342,7 @@ Coxph <- R6::R6Class("Coxph",
         } else {
           .title <- "Multivariate Cox's Proportional Hazard Model"
         }
-        if(!is.null(self$title)) {
+        if (!is.null(self$title)) {
           .title <- glue::glue("{self$title}<br>{.title}")
         }
         .title
@@ -356,7 +420,7 @@ Coxph <- R6::R6Class("Coxph",
         self$N(),
         dplyr::bind_rows(self$results())
       ) %>%
-      dplyr::distinct()
+        dplyr::distinct()
 
       if (keep_only_treatment) {
         results <- results %>%
@@ -374,20 +438,23 @@ Coxph <- R6::R6Class("Coxph",
         dplyr::group_by_all() %>%
         dplyr::group_split() %>%
         purrr::map(function(.x) {
-          tryCatch({
-            .p <- nightowl::add_inline_forestplot(
-              x = log(.x$estimate),
-              xmin = log(.x$conf.low),
-              xmax = log(.x$conf.high),
-              xlim = log(self$conf_range),
-              xintercept = 0
-            )
-            .x$Visualization <- .p
-            .x
-          }, error = function(e) {
-            .x$Visualization <- NULL
-            .x
-          })
+          tryCatch(
+            {
+              .p <- nightowl::add_inline_forestplot(
+                x = log(.x$estimate),
+                xmin = log(.x$conf.low),
+                xmax = log(.x$conf.high),
+                xlim = log(self$conf_range),
+                xintercept = 0
+              )
+              .x$Visualization <- .p
+              .x
+            },
+            error = function(e) {
+              .x$Visualization <- NULL
+              .x
+            }
+          )
         }) %>%
         dplyr::bind_rows()
       forest_label <- glue::glue("
@@ -403,14 +470,14 @@ Coxph <- R6::R6Class("Coxph",
         dplyr::mutate(`conf.high` = round(`conf.high`, 2)) %>%
         dplyr::mutate_if(is.numeric, ~ round(.x, 3)) %>%
         dplyr::mutate(HR = glue::glue("{estimate} ({conf.low}-{conf.high})")) %>%
-        # dplyr::mutate(reference = dplyr::case_when(
-        #   reference == "" ~ "▲",
-        #   TRUE ~ reference
-        # )) %>%
-        # dplyr::mutate(comparison = dplyr::case_when(
-        #   comparison == "" ~ "<div style = 'text-align: center'>▼",
-        #   TRUE ~ comparison
-        # )) %>%
+        dplyr::mutate(reference = dplyr::case_when(
+          reference == "" ~ "▲",
+          TRUE ~ reference
+        )) %>%
+        dplyr::mutate(comparison = dplyr::case_when(
+          comparison == "" ~ "▼",
+          TRUE ~ comparison
+        )) %>%
         dplyr::select(
           Subgroup,
           Term = term,
@@ -424,22 +491,28 @@ Coxph <- R6::R6Class("Coxph",
       res$`p Value` <- purrr::map_chr(res$`p Value`, ~ nightowl::format_p_value(.x))
       if (!is.null(drop)) {
         res <- waRRior::drop_columns(res, drop)
+        res <- res %>%
+          dplyr::select(-Subgroup) %>%
+          self$arrange()
       }
-      subgroups <- stringr::str_split(res$Subgroup, " / ") %>%
-        purrr::map(~ stringr::str_split(.x, "==")) %>%
-        purrr::map(function(.x) {
-          purrr::map(.x, function(.y) {
-            .res <- list()
-            .res[[.y[[1]]]] <- .y[[2]]
-            tibble::as_tibble(.res)
+      if (is.null(self$group_by)) {
+      } else {
+        subgroups <- stringr::str_split(res$Subgroup, " / ") %>%
+          purrr::map(~ stringr::str_split(.x, "==")) %>%
+          purrr::map(function(.x) {
+            purrr::map(.x, function(.y) {
+              .res <- list()
+              .res[[.y[[1]]]] <- .y[[2]]
+              tibble::as_tibble(.res)
+            }) %>%
+              dplyr::bind_cols()
           }) %>%
-            dplyr::bind_cols()
-        }) %>%
-        dplyr::bind_rows()
-
-      dplyr::bind_cols(subgroups, res) %>%
-        dplyr::select(-Subgroup) %>%
-        self$arrange()
+          dplyr::bind_rows()
+        res <- dplyr::bind_cols(subgroups, res) %>%
+          dplyr::select(-Subgroup) %>%
+          self$arrange()
+      }
+      return(res)
     },
     # Extract ==================================================================
     #' @description Extract estimates of treament effect
@@ -449,37 +522,39 @@ Coxph <- R6::R6Class("Coxph",
         purrr::map(purrr::safely(function(.fit) {
           .fit$coef
         })) %>%
-      purrr::map("result") %>%
-      purrr::compact()
-      res <- purrr::reduce(coefs, ~rbind(.x, .y))
+        purrr::map("result") %>%
+        purrr::compact()
+      res <- purrr::reduce(coefs, ~ rbind(.x, .y, make.row.names = TRUE))
+      res <- matrix(res, ncol = length(coefs[[1]]), nrow = length(fits))
       rownames(res) <- names(coefs)
-      colnames(res) <- stringr::str_replace_all(colnames(res), "`", "")
+      colnames(res) <- stringr::str_replace_all(names(coefs[[1]]), "`", "")
       res
     },
-    se = function(){
+    se = function() {
       fits <- purrr::map(self$models, "result")
       ses <- fits %>%
         purrr::map(purrr::safely(function(.fit) {
           sqrt(diag(vcov(.fit)))
         })) %>%
-      purrr::map("result") %>%
-      purrr::compact()
-      res <- purrr::reduce(ses, ~rbind(.x, .y))
+        purrr::map("result") %>%
+        purrr::compact()
+      res <- purrr::reduce(ses, ~ rbind(.x, .y))
+      res <- matrix(res, ncol = length(ses[[1]]), nrow = length(fits))
       rownames(res) <- names(ses)
-      colnames(res) <- stringr::str_replace_all(colnames(res), "`", "")
+      colnames(res) <- stringr::str_replace_all(names(ses[[1]]), "`", "")
       res
     },
-    TE = function(){
+    TE = function(term = self$get_variables()$treatment) {
       coefs <- self$coefficients()
-      cols <- colnames(coefs)[stringr::str_starts(colnames(coefs), Hmisc::escapeRegex(self$get_variables()$treatment)) ]
-      coefs[, cols, drop = FALSE]
+      cols <- colnames(coefs)[stringr::str_starts(colnames(coefs), Hmisc::escapeRegex(term))]
+      coefs[, cols, drop = FALSE][, 1]
     },
     # ---------------------------------------------------------
     #' @description Extract standard errors of treament effect
-    seTE = function(){
+    seTE = function(term = self$get_variables()$treatment) {
       se <- self$se()
-      cols <- colnames(se)[stringr::str_starts(colnames(se), Hmisc::escapeRegex(self$get_variables()$treatment))]
-      se[, cols, drop = FALSE]
+      cols <- colnames(se)[stringr::str_starts(colnames(se), Hmisc::escapeRegex(term))]
+      se[, cols, drop = FALSE][, 1]
     },
     # Metaanalysis =============================================================
     #' @field Parameters to be passed to `meta::metagen`
@@ -497,13 +572,13 @@ Coxph <- R6::R6Class("Coxph",
       grouping <- self$get_variables()$group_by
       TE <- self$TE()
       seTE <- self$seTE()
-      purrr::map(colnames(TE), purrr::safely(function(.x){
+      purrr::map(colnames(TE), purrr::safely(function(.x) {
         params <- list(
-            TE = unname(TE[, .x]),
-            seTE =  unname(seTE[, .x]),
-            #data = self$data
-            studlab = rownames(TE)
-            #title = title
+          TE = unname(TE[, .x]),
+          seTE = unname(seTE[, .x]),
+          # data = self$data
+          studlab = rownames(TE)
+          # title = title
         )
         meta <- do.call(meta::metagen, c(params, self$options_metagen))
         attributes(meta)$grouping <- grouping
@@ -513,21 +588,21 @@ Coxph <- R6::R6Class("Coxph",
     },
     # ---------------------------------------------------------
     #' @description Extract metaanalysis results
-    metagen_results = function(...){
+    metagen_results = function(...) {
       self$metagen(...) %>%
         purrr::map("result")
     },
     # ---------------------------------------------------------
     #' @description Extract metaanalysis errors
-    metagen_errors = function(...){
+    metagen_errors = function(...) {
       self$metagen(...) %>%
         purrr::map("error")
     },
     # ---------------------------------------------------------
     #' @description Summarise metaanalysis results
-    metagen_summarise = function(...){
+    metagen_summarise = function(...) {
       meta <- self$metagen_results(...)
-      purrr::map(meta, function(.x){    
+      purrr::map(meta, function(.x) {
         tibble::tibble(
           grouping = attributes(.x)$grouping,
           term = attributes(.x)$term,
@@ -564,74 +639,76 @@ Coxph <- R6::R6Class("Coxph",
           weights = list(weights(.x))
         )
       }) %>%
-      dplyr::bind_rows()
+        dplyr::bind_rows()
     },
     # ---------------------------------------------------------
-    metagen_raw = function(...){
+    metagen_raw = function(...) {
       meta <- self$metagen_summarise(...)
       grouping <- meta$grouping[1]
-      raw <-  self$raw()
-      forest_column <- purrr::imap(raw, ~if(nightowl::is_NightowlPlots(.x)) return(.y)) %>%
-       unlist() %>%
-       unname()
-        raw %>%
-          dplyr::mutate(term = paste0(Term, Comparison)) %>%
-          waRRior::named_group_split(term, keep = F) %>%
-          purrr::map(~dplyr::arrange(.x, !!rlang::sym(grouping))) %>%
-          purrr::imap(function(.x, .y){
-             obj <- .x[[forest_column]][[1]]
-             .options_svg <- obj$options_svg
-            .gg <- obj$plot
-            .gg$layers <- NULL
-            .meta <- dplyr::filter(meta, term == .y)
-            polygon.x <- c(.meta$lower, .meta$HR, .meta$upper)
-            polygon.x <- log(c(polygon.x, rev(polygon.x)))
-            polygon.y <- c(0, 1, 0)
-            polygon.y <- c(polygon.y, -(polygon.y))
-            polygon <- data.frame(x = polygon.x, y = polygon.y)
-            p <- .gg +
-              ggplot2::geom_vline(xintercept = 0, color = picasso::roche_colors("red"), linetype = "solid", size = 1) +
-              ggplot2::geom_polygon(
-                data = polygon,
-                ggplot2::aes(
-                  y = y,
-                  x = x
-                ),
-                fill = picasso::roche_colors("apple"),
-                color = picasso::roche_colors("black")
-              ) +
-              ggplot2::ylim(c(-1.5, 2))
-            p <- nightowl::Plot$new(
-              plot = p,
-              type = "DiamondPlot",
+      raw <- self$raw()
+      forest_column <- purrr::imap(raw, ~ if (nightowl::is_NightowlPlots(.x)) {
+          return(.y)
+        }) %>%
+        unlist() %>%
+        unname()
+      raw %>%
+        dplyr::mutate(term = paste0(Term, Comparison)) %>%
+        waRRior::named_group_split(term, keep = F) %>%
+        purrr::map(~ dplyr::arrange(.x, !!rlang::sym(grouping))) %>%
+        purrr::imap(function(.x, .y) {
+          obj <- .x[[forest_column]][[1]]
+          .options_svg <- obj$options_svg
+          .gg <- obj$plot
+          .gg$layers <- NULL
+          .meta <- dplyr::filter(meta, term == .y)
+          polygon.x <- c(.meta$lower, .meta$HR, .meta$upper)
+          polygon.x <- log(c(polygon.x, rev(polygon.x)))
+          polygon.y <- c(0, 1, 0)
+          polygon.y <- c(polygon.y, -(polygon.y))
+          polygon <- data.frame(x = polygon.x, y = polygon.y)
+          p <- .gg +
+            ggplot2::geom_vline(xintercept = 0, color = picasso::roche_colors("red"), linetype = "solid", size = 1) +
+            ggplot2::geom_polygon(
+              data = polygon,
+              ggplot2::aes(
+                y = y,
+                x = x
+              ),
+              fill = picasso::roche_colors("apple"),
+              color = picasso::roche_colors("black")
+            ) +
+            ggplot2::ylim(c(-1.5, 2))
+          p <- nightowl::Plot$new(
+            plot = p,
+            type = "DiamondPlot",
+            resize = FALSE,
+            options_svg = .options_svg
+          )
+
+          w <- .meta$weights[[1]]
+          split <- stringr::str_split(rownames(w), "==")
+          column <- split[[1]][1]
+          values <- purrr::map(split, ~ .x[2]) %>% unlist()
+          .weights <- tibble::tibble(
+            !!rlang::sym(column) := values,
+            Weight = paste0(round(w[, "p.random"]), "%")
+            # w = w[, "w.random"]
+          )
+          .x <- dplyr::left_join(.x, .weights)
+          tmp <- purrr::map2(.x[[forest_column]], .x$Weight, function(.obj, .w) {
+            .gg <- .obj$plot
+            .gg$layers[[3]]$aes_params$size <- as.numeric(stringr::str_replace(.w, "%", "")) * 0.3
+            res <- nightowl::Plot$new(
+              plot = .gg,
+              type = "WeightPlot",
               resize = FALSE,
               options_svg = .options_svg
             )
-
-            w <- .meta$weights[[1]]
-            split <- stringr::str_split(rownames(w), "==")
-            column <- split[[1]][1]
-            values <- purrr::map(split, ~.x[2]) %>% unlist()
-           .weights <- tibble::tibble(
-              !!rlang::sym(column) := values,
-              Weight = paste0(round(w[, "p.random"]), "%")
-              #w = w[, "w.random"]
-            )
-            .x <- dplyr::left_join(.x, .weights)
-            tmp <- purrr::map2(.x[[forest_column]], .x$Weight, function(.obj, .w){
-             .gg <- .obj$plot
-              .gg$layers[[3]]$aes_params$size <- as.numeric(stringr::str_replace(.w, "%", "")) * 0.3
-              res <- nightowl::Plot$new(
-                plot = .gg,
-                type = "WeightPlot",
-                resize = FALSE,
-                options_svg = .options_svg
-              )
-            })
-            .x[[forest_column]] <- do.call(nightowl::new_NightowlPlots, tmp)
-            diamond <- tibble::tibble(TERM = "")
-            diamond[[forest_column]] <- nightowl::new_NightowlPlots(p)
-            footnote = as.character(glue::glue("
+          })
+          .x[[forest_column]] <- do.call(nightowl::new_NightowlPlots, tmp)
+          diamond <- tibble::tibble(TERM = "")
+          diamond[[forest_column]] <- nightowl::new_NightowlPlots(p)
+          footnote <- as.character(glue::glue("
               <div style = 'display:flex; flex-wrap: wrap; align-items: center;'>
                 <div>Random Effects Model:</div>
                 <div style='background-color: #EEEEEE; border-radius: 5px; margin: 3px; padding: 5px;'>Hazard Ratio: {round(.meta$HR, 3)} [{round(.meta$lower,2)};{round(.meta$upper,2)}]</div>
@@ -647,26 +724,26 @@ Coxph <- R6::R6Class("Coxph",
                 <div>Prediction Interval (HR): [{round(exp(.meta$lower.predict), 2)}; {round(exp(.meta$upper.predict), 2)}]</div>
               </div>
             "))
-            res <- dplyr::bind_rows(.x, diamond) %>%
-              dplyr::select(-TERM)
-            attributes(res)$footnote <- footnote
-            return(res)
-          })
+          res <- dplyr::bind_rows(.x, diamond) %>%
+            dplyr::select(-TERM)
+          attributes(res)$footnote <- footnote
+          return(res)
+        })
     },
     # ---------------------------------------------------------
-    metagen_kable = function(){
+    metagen_kable = function() {
       meta <- self$metagen_raw()
-      meta %>% 
-        purrr::map(~nightowl::render_kable(.x, footnote = attributes(.x)$footnote))
+      meta %>%
+        purrr::map(~ nightowl::render_kable(.x, footnote = attributes(.x)$footnote))
     },
-    metagen_html = function(){
+    metagen_html = function() {
       meta <- self$metagen_kable()
-      meta %>% 
-        purrr::map(~htmltools::HTML(.x))
+      meta %>%
+        purrr::map(~ htmltools::HTML(.x))
     },
-    metagen_output = function(){
+    metagen_output = function() {
       meta <- self$metagen_html()
-      meta %>% 
+      meta %>%
         shiny::div(
           style = "font-family: 'Lato', sans-serif;",
           kableExtra:::html_dependency_lightable(),
@@ -682,7 +759,15 @@ Coxph <- R6::R6Class("Coxph",
     #' @param drop A character vector of columns to drop
     #' @param keep_only_treatment A logical indicating whether to keep only the treatment effect estimates
     kable = function(drop = NULL, keep_only_treatment = TRUE) {
-      do.call(nightowl::render_kable, c(list(.tbl = self$raw(drop = drop, keep_only_treatment = keep_only_treatment), caption = self$caption(), footnote = self$footnote()), self$options_kable))
+      raw <- self$raw(drop = drop, keep_only_treatment = keep_only_treatment)
+      align <- rep("l", length(names(raw)))
+      names(align) <- names(raw)
+      print(align)
+      align["Comparison"] <- "c"
+      align["Reference"] <- "c"
+      align <- unname(align)
+      print(align)
+      do.call(nightowl::render_kable, c(list(.tbl = raw, caption = self$caption(), footnote = self$footnote(), align = align), self$options_kable))
     },
     # HTML =====================================================================
     #' @description Returns output as HTML to be used in e.g. a Shiny app
@@ -693,11 +778,11 @@ Coxph <- R6::R6Class("Coxph",
     #' @description Opens a styled HTML report in the browser
     output = function(drop = NULL) {
       self$html(drop = drop) %>%
-      shiny::div(
-        style = "font-family: 'Lato', sans-serif;",
-        kableExtra:::html_dependency_lightable(),
-      ) %>%
-      htmltools::browsable()
+        shiny::div(
+          style = "font-family: 'Lato', sans-serif;",
+          kableExtra:::html_dependency_lightable(),
+        ) %>%
+        htmltools::browsable()
     },
     # Reactables ===============================================================
     #' @field options to be passed to `nightowl::render_reactable()`
@@ -727,4 +812,234 @@ Coxph <- R6::R6Class("Coxph",
     }
   )
 )
-#==============================================================================
+# ==============================================================================
+#' @export
+coefficients <- function(models) {
+  coefs <- models %>%
+    purrr::map(purrr::safely(function(.model) {
+      .model$coef
+    })) %>%
+    purrr::map("result") %>%
+    purrr::compact()
+  res <- purrr::reduce(coefs, ~ rbind(.x, .y))
+  res <- matrix(res, ncol = length(coefs[[1]]), nrow = length(models))
+  rownames(res) <- names(models)
+  colnames(res) <- names(coefs[[1]])
+  res
+}
+#' @export
+se <- function(models) {
+  ses <- models %>%
+    purrr::map(purrr::safely(function(.model) {
+      sqrt(diag(vcov(.model)))
+    })) %>%
+    purrr::map("result") %>%
+    purrr::compact()
+  res <- purrr::reduce(ses, ~ rbind(.x, .y))
+  res <- matrix(res, ncol = length(ses[[1]]), nrow = length(models))
+  rownames(res) <- names(ses)
+  colnames(res) <- names(ses[[1]])
+  res
+}
+#' @export
+metagen_default_options <- function() {
+  options_metagen <- list(
+    fixed = FALSE,
+    random = TRUE,
+    method.tau = "SJ",
+    hakn = TRUE,
+    prediction = TRUE,
+    sm = "HR"
+  )
+}
+#' @export
+metagen <- function(models, term, options = metagen_default_options()) {
+  TE <- nightowl::coefficients(models = models)
+  seTE <- nightowl::se(models = models)
+  params <- list(
+    TE = unname(TE[, term]),
+    seTE = unname(seTE[, term]),
+    # data = self$data
+    studlab = rownames(TE)
+    # title = title
+  )
+  meta <- do.call(meta::metagen, c(params, options))
+  attributes(meta)$options <- options
+  attributes(meta)$term <- term
+  meta
+}
+#' @export
+metagen_tidy <- function(meta) {
+  tibble::tibble(
+    grouping = attributes(meta)$grouping,
+    term = attributes(meta)$term,
+    k = meta$k,
+    TE.random = meta$TE.random,
+    TE.random.lower = meta$lower.random,
+    TE.random.upper = meta$upper.random,
+    `exp(TE)` = exp(meta$TE.random),
+    `exp(TE).random.lower` = exp(meta$lower.random),
+    `exp(TE).random.upper` = exp(meta$upper.random),
+    pvalue = meta$pval.random,
+    tau = meta$tau,
+    se.tau = meta$se.tau,
+    lower.tau = meta$lower.tau,
+    upper.tau = meta$upper.tau,
+    tau2 = meta$tau2,
+    se.tau2 = meta$se.tau2,
+    lower.tau2 = meta$lower.tau2,
+    upper.tau2 = meta$upper.tau2,
+    H = meta$H,
+    lower.H = meta$lower.H,
+    upper.H = meta$upper.H,
+    Q = meta$Q,
+    df.Q = meta$df.Q,
+    pval.Q = meta$pval.Q,
+    method_tau = meta$options$method.tau,
+    I2 = meta$I2,
+    lower.I2 = meta$lower.I2,
+    upper.I2 = meta$upper.I2,
+    Rb = meta$Rb,
+    lower.Rb = meta$lower.Rb,
+    upper.Rb = meta$upper.Rb,
+    prediction = meta$prediction,
+    seTE.predict = meta$seTE.predict,
+    lower.predict = meta$lower.predict,
+    upper.predict = meta$upper.predict,
+    weights = list(weights(meta))
+  )
+}
+#' @export
+metagen_forest <- function(meta,
+                           conf_range = NULL,
+                           label_left = "Comparison Better",
+                           label_right = "Reference Better",
+                           arrange_by = "TE") {
+  meta_df <- as.data.frame(meta)
+
+  if (is.null(conf_range)) {
+    conf_range <- c(
+      min(meta_df$upper[meta_df$upper != -Inf], na.rm = T),
+      max(meta_df$lower[meta_df$lower != Inf], na.rm = T)
+    )
+  }
+
+
+  purrr::pmap(
+    list(
+      TE = meta_df$TE,
+      lower = meta$lower,
+      upper = meta$upper
+    ),
+    function(TE, lower, upper) {
+      tryCatch(
+        {
+          .p <- nightowl::add_inline_forestplot(
+            x = TE,
+            xmin = lower,
+            xmax = upper,
+            xlim = conf_range,
+            xintercept = 0
+          )
+          return(res)
+        },
+        error = function(e) {
+          print(e)
+          return(NULL)
+        }
+      )
+    }
+  )
+
+
+  forest_label <- glue::glue("
+        <div
+        style= 'font-size: smaller;display:flex; flex-direction:column;align-items:center;'>
+        <div>log(HR)</div>
+        <div>← {label_left} | {label_right} →</div>
+        </div>
+      ")
+
+
+  # # Prepare diamond
+  # forest_column <- purrr::imap(res, ~if(nightowl::is_NightowlPlots(.x)) return(.y)) %>%
+  #  unlist() %>%
+  #  unname()
+  # obj <- res[[forest_column]][[1]]
+  # .options_svg <- obj$options_svg
+  # .gg <- obj$plot
+  # .gg$layers <- NULL
+  # TE.random <- meta$TE.random
+  # lower.random <- meta$lower.random
+  # upper.random <- meta$upper.random
+  #
+  # polygon.x <- c(lower.random, TE.random, upper.random)
+  # polygon.y <- c(0, 1, 0)
+  # polygon.y <- c(polygon.y, -(polygon.y))
+  # polygon <- data.frame(x = polygon.x, y = polygon.y)
+  #
+  # p <- .gg +
+  #   ggplot2::geom_vline(xintercept = 0, color = picasso::roche_colors("red"), linetype = "solid", size = 1) +
+  #   ggplot2::geom_polygon(
+  #     data = polygon,
+  #     ggplot2::aes(
+  #       y = y,
+  #       x = x
+  #     ),
+  #     fill = picasso::roche_colors("apple"),
+  #     color = picasso::roche_colors("black")
+  #   ) +
+  #   ggplot2::ylim(c(-1.5, 2))
+
+  #   p <- nightowl::Plot$new(
+  #     plot = p,
+  #     type = "DiamondPlot",
+  #     resize = FALSE,
+  #     options_svg = .options_svg
+  #   )
+  #
+  #   w <- .meta$weights[[1]]
+  #   split <- stringr::str_split(rownames(w), "==")
+  #   column <- split[[1]][1]
+  #   values <- purrr::map(split, ~.x[2]) %>% unlist()
+  #  .weights <- tibble::tibble(
+  #     !!rlang::sym(column) := values,
+  #     Weight = paste0(round(w[, "p.random"]), "%")
+  #     #w = w[, "w.random"]
+  #   )
+  #   .x <- dplyr::left_join(.x, .weights)
+  #   tmp <- purrr::map2(.x[[forest_column]], .x$Weight, function(.obj, .w){
+  #    .gg <- .obj$plot
+  #     .gg$layers[[3]]$aes_params$size <- as.numeric(stringr::str_replace(.w, "%", "")) * 0.3
+  #     res <- nightowl::Plot$new(
+  #       plot = .gg,
+  #       type = "WeightPlot",
+  #       resize = FALSE,
+  #       options_svg = .options_svg
+  #     )
+  #   })
+  #   .x[[forest_column]] <- do.call(nightowl::new_NightowlPlots, tmp)
+  #   diamond <- tibble::tibble(TERM = "")
+  #   diamond[[forest_column]] <- nightowl::new_NightowlPlots(p)
+  #   footnote = as.character(glue::glue("
+  #     <div style = 'display:flex; flex-wrap: wrap; align-items: center;'>
+  #       <div>Random Effects Model:</div>
+  #       <div style='background-color: #EEEEEE; border-radius: 5px; margin: 3px; padding: 5px;'>Hazard Ratio: {round(.meta$HR, 3)} [{round(.meta$lower,2)};{round(.meta$upper,2)}]</div>
+  #       <div style='background-color: #EEEEEE; border-radius: 5px; margin: 3px; padding: 5px;'>p-value: {nightowl::format_p_value(.meta$pvalue)}</div>
+  #     </div>
+  #     <div style = 'display:flex; flex-wrap: wrap; align-items: center;'>
+  #       <div>Heterogenity:</div>
+  #       <div style='background-color: #EEEEEE; border-radius: 5px; margin: 3px; padding: 5px;'>I<sup>2</sup>: {100*round(.meta$I2, 2)}%</div>
+  #       <div style='background-color: #EEEEEE; border-radius: 5px; margin: 3px; padding: 5px;'>𝜏<sup>2</sup>: {round(.meta$tau, 3)}</div>
+  #       <div style='background-color: #EEEEEE; border-radius: 5px; margin: 3px; padding: 5px;'>Q: {round(.meta$Q, 1)} (pvalue: {nightowl::format_p_value(.meta$pval.Q)})</div>
+  #     </div>
+  #     <div>
+  #       <div>Prediction Interval (HR): [{round(exp(.meta$lower.predict), 2)}; {round(exp(.meta$upper.predict), 2)}]</div>
+  #     </div>
+  #   "))
+  #   res <- dplyr::bind_rows(.x, diamond) %>%
+  #     dplyr::select(-TERM)
+  #   attributes(res)$footnote <- footnote
+  #   return(res)
+  # })
+}

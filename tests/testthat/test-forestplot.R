@@ -48,5 +48,4 @@ test_that("multiplication works", {
     htmltools::browsable()
   nightowl::forestplot(1.4, 1.1, 2.1, xlim = c(1.1, 2), log = T) %>%
     htmltools::browsable()
-
 })
