@@ -24,3 +24,19 @@ ggplot_to_girafe <- function(ggobj,
   )
 }
 # =================================================
+#' Use lowRider
+#' Includes required javascript and css files.
+#' @return
+#' @export
+useNightowl <- function() {
+  scripts <- c("d3-bundle.min.js", "d3-lasso.min.js", "flatbush.min.js", "ggiraphjs.min.js", "save-svg-as-png.min.js")
+  htmltools::tagList(
+    htmltools::htmlDependency(
+      name = "ggiraph-assets", version = packageVersion("nightowl"),
+      package = "nightowl",
+      src = "assets",
+      script = scripts
+    )
+  )
+}
+# =================================================

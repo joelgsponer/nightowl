@@ -35,5 +35,6 @@ Imports:
     stringr,
     testthat,
     tibble,
+    uuid,
     vctrs,
     waRRior

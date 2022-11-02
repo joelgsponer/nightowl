@@ -1,0 +1,12 @@
+test_that("ggiraph works", {
+  .p <- ggplot2::ggplot(infert, ggplot2::aes(x = education, y = age, data_id = education, tooltip = age)) +
+    ggiraph::geom_point_interactive()
+  nightowl::ggplot_to_girafe(.p, color = "white")
+
+  shiny::div(
+    nightowl::useNightowl(),
+    shiny::h1("ggiraph"),
+    nightowl::render_girafe(ggobj = .p)
+  ) %>%
+    htmltools::browsable()
+})

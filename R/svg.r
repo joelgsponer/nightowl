@@ -1,3 +1,64 @@
+# =================================================
+#' @title
+#' MISSING_TITLE
+#' @description
+#' @detail
+#' @param
+#' @return
+#' @export
+render_girafe <- function(code, ggobj = NULL, pointsize = 12,
+                          width_svg = NULL, height_svg = NULL,
+                          options = list(),
+                          fix_rect = TRUE,
+                          ...) {
+  path <- tempfile()
+
+  if (is.null(width_svg)) {
+    width_svg <- 6
+  }
+  if (is.null(height_svg)) {
+    height_svg <- 5
+  }
+
+
+  args <- list(...)
+  args$canvas_id <- args$canvas_id %||% paste("svg", gsub("-", "_", uuid::UUIDgenerate()), sep = "_")
+  args$file <- path
+  args$width <- width_svg
+  args$height <- height_svg
+  args$pointsize <- pointsize
+  args$standalone <- FALSE
+  args$setdims <- FALSE
+  # we need a surface with pointer events
+  if (identical(args$bg, "transparent")) {
+    args$bg <- "#fffffffd"
+  }
+
+  devlength <- length(dev.list())
+  do.call(ggiraph::dsvg, args)
+  tryCatch(
+    {
+      if (!is.null(ggobj)) {
+        if (!inherits(ggobj, "ggplot")) {
+          abort("`ggobj` must be a ggplot2 plot", call = NULL)
+        }
+        print(ggobj)
+      } else {
+        code
+      }
+    },
+    finally = {
+      if (length(dev.list()) > devlength) {
+        dev.off()
+      }
+    }
+  )
+  svg <- waRRior::read_plain_textfile(args$file)
+  if (fix_rect) svg <- stringr::str_replace(svg, stringr::fixed("/>"), "></rect>")
+  svg <- htmltools::HTML(svg)
+  svg <- htmltools::browsable(svg)
+  return(svg)
+}
 # ===============================================================================
 #' Create SVG string
 #' @param g ggplot object

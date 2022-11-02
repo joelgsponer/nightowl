@@ -48,27 +48,27 @@ create_Surv_formula <- function(data,
       purrr::compact()
   }
   # Put everything together ---------------------------------------------------
-  str_treatment <- if (!is.null(treatment)) {
+  str_treatment <- if (!is.null(treatment) && length(treatment) > 0) {
     paste0(" + `", treatment, "`", collapse = " ")
   } else {
     rlang::abort("🦉⛔ No treatment provided.")
   }
-  str_covariates <- if (!is.null(covariates)) {
+  str_covariates <- if (!is.null(covariates) && length(covariates) > 0) {
     paste0(" + `", covariates, "`", collapse = " ")
   } else {
     NULL
   }
-  str_strata <- if (!is.null(strata)) {
+  str_strata <- if (!is.null(strata) && length(strata) > 0) {
     paste0(" + strata(`", strata, "`)", collapse = " ")
   } else {
     NULL
   }
-  str_interactions <- if (!is.null(interactions)) {
+  str_interactions <- if (!is.null(interactions) && length(interactions) > 0) {
     paste0(" + ", interactions, collapse = " ")
   } else {
     NULL
   }
-  str_random_effects <- if (!is.null(random_effects)) {
+  str_random_effects <- if (!is.null(random_effects) && length(random_effects) > 0) {
     paste0(" + (1|`", random_effects, "`)", collapse = "", sep = "")
   } else {
     NULL

@@ -70,6 +70,11 @@ format_p_value <- function(p, htmlsafe = T) {
     return(paste(p, "(n.s.)"))
   }
 }
+# ===============================================================================
+# from ggplot2 utilities.r
+"%||%" <- function(a, b) {
+  if (!is.null(a)) a else b
+}
 # =================================================s
 `[.R6` <- function(x, ...) x$`[`(...)
 `[<-.R6` <- function(x, ...) x$`[<-`(...)
