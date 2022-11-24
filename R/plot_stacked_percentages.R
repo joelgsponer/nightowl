@@ -151,17 +151,18 @@ plot_stacked_percentages <- function(DATA,
       position = ggplot2::position_dodge(dodge)
     )
   } else if (add_labels) {
-    g <- g + ggtext::geom_richtext(ggplot2::aes(
-      label = paste0(round(p), "% (", n, ")"),
-      fill = NULL,
-      color = NULL
-    ),
-    size = 3,
-    fill = NA,
-    label.color = NA,
-    alpha = 1,
-    angle = 90,
-    hjust = 0
+    g <- g + ggtext::geom_richtext(
+      ggplot2::aes(
+        label = paste0(round(p), "% (", n, ")"),
+        fill = NULL,
+        color = NULL
+      ),
+      size = 3,
+      fill = NA,
+      label.color = NA,
+      alpha = 1,
+      angle = 90,
+      hjust = 0
     )
   }
   return(g)

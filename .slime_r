@@ -1,11 +1,9 @@
 
-    .p <- ggplot2::ggplot(infert, ggplot2::aes(x = education, y = age, data_id = education, tooltip = age)) +
-        ggiraph::geom_point_interactive()
-     nightowl::ggplot_to_girafe(.p, color = "white")
-   
-     shiny::div(
-      nightowl::useNightowl(),
-      shiny::h1("ggiraph"),
-      nightowl::render_girafe(ggobj = .p)
-     ) %>%
-     htmltools::browsable()
+   testdata <- mtcars
+   nightowl::create_formula(testdata,
+     response = "cyl",
+     treatment = "gear",
+     covariates = c("wt", "mpg"),
+     strata = "am",
+     random = "cyl"
+   )

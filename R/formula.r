@@ -90,12 +90,12 @@ create_Surv_formula <- function(data,
 #' @param interactions `list` of interaction terms
 #' @export
 create_formula <- function(data,
-                                response,
-                                treatment,
-                                covariates = NULL,
-                                strata = NULL,
-                                interactions = NULL,
-                                random_effects = NULL) {
+                           response,
+                           treatment,
+                           covariates = NULL,
+                           strata = NULL,
+                           interactions = NULL,
+                           random_effects = NULL) {
   # Covariates and strata need to have at least two levels ---------------------
   if (!is.null(covariates)) {
     covariates <- purrr::map(covariates, function(.covariate) {
@@ -152,6 +152,3 @@ create_formula <- function(data,
   cli::cli_alert("🦉 Formula: {base}")
   as.formula(base)
 }
-
-
-

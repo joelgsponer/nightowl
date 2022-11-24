@@ -64,6 +64,7 @@ render_girafe <- function(code, ggobj = NULL, pointsize = 12,
 #' @param g ggplot object
 #' @export
 render_svg <- function(g,
+                       code = NULL,
                        height = 8,
                        width = 8,
                        element_width = "100%",

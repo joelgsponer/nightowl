@@ -6,7 +6,7 @@ test_that("ggiraph works", {
   shiny::div(
     nightowl::useNightowl(),
     shiny::h1("ggiraph"),
-    nightowl::render_girafe(ggobj = .p)
+    shiny::div(class = "girafe_container_std", nightowl::render_girafe(ggobj = .p))
   ) %>%
     htmltools::browsable()
 })

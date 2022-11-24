@@ -233,21 +233,22 @@ test_that("summary works", {
 
   nightowl::calc_summary(dplyr::group_by(testdata, foo), "qux", calculations = list(N = nightowl::n, Freq = nightowl::frequencies))
 
-  nightowl::calc_summary(dplyr::group_by(
-    testdata,
-    foo
-  ),
-  column = "qux",
-  calculations = list(
-    N = nightowl::n,
-    Freq = nightowl::frequencies,
-    Bar = function(x) {
-      nightowl::frequencies(x,
-        output = "barplot"
-      )
-    }
-  ),
-  names_sep = NULL
+  nightowl::calc_summary(
+    dplyr::group_by(
+      testdata,
+      foo
+    ),
+    column = "qux",
+    calculations = list(
+      N = nightowl::n,
+      Freq = nightowl::frequencies,
+      Bar = function(x) {
+        nightowl::frequencies(x,
+          output = "barplot"
+        )
+      }
+    ),
+    names_sep = NULL
   ) %>%
     nightowl::render_kable()
 

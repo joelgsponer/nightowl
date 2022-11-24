@@ -6,6 +6,7 @@
 \usage{
 render_svg(
   g,
+  code = NULL,
   height = 8,
   width = 8,
   element_width = "100\%",

@@ -647,8 +647,8 @@ Coxph <- R6::R6Class("Coxph",
       grouping <- meta$grouping[1]
       raw <- self$raw()
       forest_column <- purrr::imap(raw, ~ if (nightowl::is_NightowlPlots(.x)) {
-          return(.y)
-        }) %>%
+        return(.y)
+      }) %>%
         unlist() %>%
         unname()
       raw %>%
