@@ -126,7 +126,7 @@ create_formula <- function(data,
   str_treatment <- if (!is.null(treatment) && length(treatment) > 0) {
     paste0("`", treatment, "`", collapse = " ")
   } else {
-    rlang::abort("🦉⛔ No treatment provided.")
+    rlang::abort("🦉⛔ No response provided.")
   }
   str_covariates <- if (!is.null(covariates) && length(covariates) > 0) {
     paste0(" + `", covariates, "`", collapse = " ")

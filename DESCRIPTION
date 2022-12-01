@@ -22,6 +22,7 @@ Imports:
     ggpmisc,
     ggpubr,
     gtools,
+    Hmisc,
     magrittr,
     MetBrewer,
     palmerpenguins,
