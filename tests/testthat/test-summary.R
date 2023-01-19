@@ -1,28 +1,24 @@
 test_that("summary works", {
-  testdata <- tibble::tibble(
-    "foo" = c(rep("A", 50), rep("B", 50), rep("C", 50), rep("D", 50)),
-    "bar" = c(rnorm(50, 0, 1), rnorm(50, 1, 2), rnorm(50, 2, 3), rnorm(50, 3, 4)),
-    "baz" = runif(200),
-    "qux" = sample(c("Apple", "Pears", "Banana", "This  is something very long ...."), 199, T),
-    "s1" = sample(c("Morning", "Midday", "Evening"), 200, T)
-  ) %>%
-    dplyr::mutate(qux = dplyr::case_when(
-      foo == "A" & qux == "Apple" ~ "Pears",
-      foo == "B" & qux == "Banana" ~ NA_character_,
-      TRUE ~ qux
-    )) %>%
-    dplyr::mutate(bar = dplyr::case_when(
-      foo == "A" & bar < 0 ~ NA_real_,
-      TRUE ~ bar
-    )) %>%
-    dplyr::mutate(qux = factor(qux))
-  testdata
 
-  s1 <- nightowl::Summary$new(testdata, "qux", "s1", debug = F)
+
+  penguins <- palmerpenguins::penguins
+  
+  nightowl::summarise(penguins %>% dplyr::group_by(island), "island")
+
+  nightowl::summarise(penguins %>% dplyr::group_by(island), "species", template = nightowl::summarise_categorical()) %>%
+    nightowl::render_reactable()
+
+  nightowl::summarise(penguins %>% dplyr::group_by(island), "species", template = nightowl::summarise_categorical_barplot()) %>%
+    nightowl::render_reactable()
+                      
+
+  s1 <- nightowl::summary(penguins, "species", "island", debug = F)
   s1
   s1$calculations
   s1$add_calculation(list(Missing = function(x) sum(is.na(x))))
-  s1$raw()
+  s1$raw() 
+  s1$html()
+  s1$html(htmltable_class = "lightable-classic")
 
   nightowl::Summary$new(testdata, "qux", "s1")$raw()
   nightowl::Summary$new(testdata, "qux", "s1")$reactable()

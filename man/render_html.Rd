@@ -4,7 +4,11 @@
 \alias{render_html}
 \title{MISSING_TITLE}
 \usage{
-render_html(.tbl, ...)
+render_html(
+  .tbl,
+  html_dependencies = kableExtra:::html_dependency_lightable,
+  ...
+)
 }
 \description{
 MISSING_TITLE

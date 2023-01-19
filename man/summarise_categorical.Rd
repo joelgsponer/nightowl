@@ -5,6 +5,7 @@
 \title{MISSING_TITLE}
 \usage{
 summarise_categorical(
+  self,
   calculations = list(N. = length, Freq = nightowl::format_frequencies),
   parameters = list(Freq = list(add_colors = FALSE))
 )

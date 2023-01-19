@@ -7,8 +7,9 @@
 summarise(
   data,
   column,
-  calculations = list(N. = length),
-  parameters = list(),
+  template = NULL,
+  calculations = template$calculations,
+  parameters = template$parameters,
   unnest = TRUE,
   name_for_column = "Variable",
   names_sep = "."

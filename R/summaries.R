@@ -4,11 +4,19 @@
 #' @export
 summarise <- function(data,
                       column,
-                      calculations = list(`N.` = length),
-                      parameters = list(),
+                      template = NULL,
+                      calculations = template$calculations,
+                      parameters = template$parameters,
                       unnest = TRUE,
                       name_for_column = "Variable",
                       names_sep = ".") {
+  if(is.null(template) &&
+     is.null(calculations) &&
+     is.null(parameters)) {
+    cli::cli_alert_warning("No template or calculations provided, defaulting to just counting.")
+    calculations = list(`N.` = length)
+    parameters = list()
+  }
   stopifnot(is.list(calculations))
   if (rlang::is_expression(parameters)) {
     parameters <- eval(parameters)
@@ -56,7 +64,8 @@ summarise <- function(data,
 #' @title
 #' MISSING_TITLE
 #' @export
-summarise_categorical <- function(calculations = list(
+summarise_categorical <- function(self,
+                                  calculations = list(
                                     `N.` = length,
                                     Freq = nightowl::format_frequencies
                                   ),
@@ -79,6 +88,7 @@ summarise_categorical_barplot <- function(self,
                                           ),
                                           parameters = list(
                                             Freq = list(
+                                              add_legend = TRUE,
                                               add_colors = TRUE
                                             )
                                           ),
@@ -214,6 +224,7 @@ calc_percentage <- function(x, N = length(x), digits = 1) {
   return(percent)
 }
 # =================================================
+#' @expo'
 #' @title
 #' MISSING_TITLE
 #' @export
@@ -222,7 +233,9 @@ format_frequencies <- function(x,
                                output = "print",
                                digits = 1,
                                str_width = NightowlOptions$get_header_width(),
-                               add_colors = T, colors = NightowlOptions$get_colors) {
+                               add_legend = FALSE,
+                               add_colors = T, 
+                               colors = NightowlOptions$get_colors) {
   x <- forcats::fct_explicit_na(x)
   counts <- base::table(x)
   if (output == "counts") {
@@ -245,16 +258,20 @@ format_frequencies <- function(x,
       stringr::str_replace_all("\n", "<br>")
     colors <- colors(n = length(counts), missing = "(Missing)" %in% names(counts))
     legend <- purrr::map(colors, function(x) {
-      shiny::div(
-        "",
-        style = glue::glue("background-color:{x}; width:10px; height:10px; border-radius:50%;")
-      )
+      if(add_legend){
+        shiny::div(
+          "",
+          style = glue::glue("background-color:{x}; width:10px; height:10px; border-radius:50%;")
+        )
+      } else {
+        ""
+      }
     })
     print <- purrr::map2(print, colors, ~ nightowl::style_cell(.x,
       # background_color = ifelse(add_colors, .y, "white"),
       # color = ifelse(picasso::is_dark(.y) && add_colors, "white", "black"),
       # border_style = "solid",
-      # border_width = "3px",
+      # border_width = "3px" ,
       # font_weight = ifelse(add_colors, "bold", "normal"),
       text_align = "center",
       padding_top = "0px",
@@ -287,6 +304,8 @@ format_frequencies <- function(x,
       return()
   }
 }
+
+
 # =================================================
 #' @title
 #' MISSING_TITLE

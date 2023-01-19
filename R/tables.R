@@ -78,9 +78,11 @@ render_kable <- function(.tbl,
 #' @param
 #' @return
 #' @export
-render_html <- function(.tbl, ...) {
-  nightowl::render_kable(.tbl, ...) %>%
-    shiny::HTML() %>%
+render_html <- function(.tbl, html_dependencies = kableExtra:::html_dependency_lightable, ...) {
+    shiny::div(
+      html_dependencies(),
+      shiny::HTML(nightowl::render_kable(.tbl, ...))
+    ) %>%
     htmltools::browsable()
 }
 # s-------------------------------------------------------------------------------

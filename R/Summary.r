@@ -189,8 +189,9 @@ Summary <- R6::R6Class("Summary",
       do.call(nightowl::render_kable, c(list(.tbl = self$raw(drop = drop), caption = self$caption(), footnote = self$footnote()), self$options_kable))
     },
     # HTML ---------------------------------------------------------------------
-    html = function(drop = NULL) {
-      shiny::HTML(self$kable(drop = drop))
+    html = function(drop = NULL, ...) {
+      dot_args <- list(...)
+      do.call(nightowl::render_html, c(list(.tbl = self$raw(drop = drop), caption = self$caption(), footnote = self$footnote()), self$options_kable, dot_args))
     },
     # Reactables ---------------------------------------------------------------
     reactable = function(drop = NULL, ...) {
@@ -216,3 +217,29 @@ Summary <- R6::R6Class("Summary",
     }
   )
 )
+#=================================================
+#' @title
+#' Summarise
+#' @description
+#' @detail
+#' @param
+#' @return
+#' @export
+new_summary <- function(.data,
+                    column,
+                    group_by = NULL,
+                    method = NULL,
+                    labels = NULL,
+                    debug = F,
+                    ...) {
+  nightowl::Summary$new(
+    .data = .data,
+    column = column,
+    group_by = group_by,
+    method = method,
+    labels = labels,
+    debug = debug,
+    ...
+  )
+}
+#=================================================

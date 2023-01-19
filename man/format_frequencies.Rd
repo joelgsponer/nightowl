@@ -10,6 +10,7 @@ format_frequencies(
   output = "print",
   digits = 1,
   str_width = NightowlOptions$get_header_width(),
+  add_legend = FALSE,
   add_colors = T,
   colors = NightowlOptions$get_colors
 )
