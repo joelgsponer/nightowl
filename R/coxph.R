@@ -440,7 +440,6 @@ Coxph <- R6::R6Class("Coxph",
         purrr::map(function(.x) {
           tryCatch(
             {
-              browser()
               .p <- nightowl::add_inline_forestplot(
                 x = log(.x$estimate),
                 xmin = log(.x$conf.low),
@@ -777,8 +776,8 @@ Coxph <- R6::R6Class("Coxph",
     },
     # Output ===================================================================
     #' @description Opens a styled HTML report in the browser
-    output = function(drop = NULL) {
-      self$html(drop = drop) %>%
+    output = function(drop = NULL, keep_only_treatment = TRUE) {
+      self$html(drop = drop, keep_only_treatment = keep_only_treatment) %>%
         shiny::div(
           style = "font-family: 'Lato', sans-serif;",
           kableExtra:::html_dependency_lightable(),
