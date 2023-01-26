@@ -56,7 +56,7 @@ render_kable <- function(.tbl,
   .tbl <- dplyr::mutate_if(.tbl, is.numeric, as.character)
   .tbl <- dplyr::mutate_if(.tbl, nightowl::is_NightowlPlots, as.character)
   .tbl <- dplyr::mutate_all(.tbl, function(x) tidyr::replace_na(x, ""))
-  .tbl <- purrr::map(.tbl, function(.x) nightowl::style_cell(.x, width = "max-content") %>% as.character()) %>%
+  .tbl <- purrr::map(.tbl, function(.x) nightowl::style_cell(.x, width = "auto") %>% as.character()) %>%
     tibble::as_tibble()
   .kable <- .tbl %>%
     knitr::kable("html", escape = FALSE, caption = caption, align = align)
