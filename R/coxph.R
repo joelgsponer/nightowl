@@ -429,6 +429,7 @@ Coxph <- R6::R6Class("Coxph",
       }
 
       if (is.null(self$conf_range)) {
+        browser()
         self$conf_range <- c(
           min(results$conf.low[results$conf.low != -Inf], na.rm = T),
           max(results$conf.high[results$conf.high != Inf], na.rm = T)
