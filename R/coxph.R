@@ -166,6 +166,7 @@ Coxph <- R6::R6Class("Coxph",
           droplevels() %>%
           purrr::map(~ levels(.x)[1])
         .numeric <- data %>%
+          dplyr::ungroup() %>%
           dplyr::select_if(is.numeric) %>%
           purrr::map(~"")
         .interactions <- self$interactions %>%
@@ -471,11 +472,11 @@ Coxph <- R6::R6Class("Coxph",
         dplyr::mutate_if(is.numeric, ~ round(.x, 3)) %>%
         dplyr::mutate(HR = glue::glue("{estimate} ({conf.low}-{conf.high})")) %>%
         dplyr::mutate(reference = dplyr::case_when(
-          reference == "" ~ "▲",
+          reference == "" ~ "↑",
           TRUE ~ reference
         )) %>%
         dplyr::mutate(comparison = dplyr::case_when(
-          comparison == "" ~ "▼",
+          comparison == "" ~ "↓",
           TRUE ~ comparison
         )) %>%
         dplyr::select(
@@ -771,8 +772,8 @@ Coxph <- R6::R6Class("Coxph",
     },
     # HTML =====================================================================
     #' @description Returns output as HTML to be used in e.g. a Shiny app
-    html = function(drop = NULL) {
-      shiny::HTML(self$kable(drop = drop))
+    html = function(drop = NULL, keep_only_treatment = TRUE) {
+      shiny::HTML(self$kable(drop = drop, keep_only_treatment = keep_only_treatment))
     },
     # Output ===================================================================
     #' @description Opens a styled HTML report in the browser

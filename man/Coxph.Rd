@@ -453,7 +453,7 @@ Renders a kable table
 \subsection{Method \code{html()}}{
 Returns output as HTML to be used in e.g. a Shiny app
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Coxph$html(drop = NULL)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{Coxph$html(drop = NULL, keep_only_treatment = TRUE)}\if{html}{\out{</div>}}
 }
 
 }
@@ -463,7 +463,7 @@ Returns output as HTML to be used in e.g. a Shiny app
 \subsection{Method \code{output()}}{
 Opens a styled HTML report in the browser
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Coxph$output(drop = NULL)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{Coxph$output(drop = NULL, keep_only_treatment = TRUE)}\if{html}{\out{</div>}}
 }
 
 }
