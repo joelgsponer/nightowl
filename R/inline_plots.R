@@ -20,7 +20,6 @@ add_inline_forestplot <- function(x,
                                   alpha = 0.8,
                                   breaks = seq(-10, 10, 0.5),
                                   theme = ggplot2::theme_void) {
-  browser()
   .data <- tibble::tibble(x = x, xmin = xmin, xmax = xmax)
   .p <- ggplot2::ggplot(NULL, ggplot2::aes(
     y = 0,

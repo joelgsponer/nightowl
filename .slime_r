@@ -1,1 +1,1 @@
-  s1 <- nightowl::summary(penguins, "species", "island", debug = F)
+  basic$kable(keep_only_treatment = FALSE)

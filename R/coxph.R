@@ -440,6 +440,7 @@ Coxph <- R6::R6Class("Coxph",
         purrr::map(function(.x) {
           tryCatch(
             {
+              browser()
               .p <- nightowl::add_inline_forestplot(
                 x = log(.x$estimate),
                 xmin = log(.x$conf.low),
