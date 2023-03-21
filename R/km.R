@@ -87,6 +87,7 @@ plot_km <- function(data,
                     wrap = NULL,
                     legend_position = "top",
                     height = 600,
+                    table_height_fraction = 0.2,
                     width = "100%",
                     colors = unname(unlist(picasso::roche_colors())),
                     lowrider_theme = "print",
@@ -218,7 +219,7 @@ plot_km <- function(data,
           gridcolor = "ffff"
         )
       )
-    .img <- plotly::subplot(.img, risk.table.plot, nrows = 2, heights = c(0.8, 0.2))
+    .img <- plotly::subplot(.img, risk.table.plot, nrows = 2, heights = c(1 - table_height_fraction, table_height_fraction))
   }
   shiny::div(
     style = "
