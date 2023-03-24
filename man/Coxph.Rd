@@ -15,7 +15,7 @@ R6 Class
 
 \item{\code{Formula}}{to be used in the model}
 
-\item{\code{Parameters}}{to be passed to \code{meta::metagen}}
+\item{\code{Parameters}}{to be passed to \code{meta::rmetagen}}
 
 \item{\code{options}}{to be passed to \code{nightowl::render_kable()}}
 
@@ -30,7 +30,7 @@ R6 Class
 
 \item{\code{Formula}}{to be used in the model}
 
-\item{\code{Parameters}}{to be passed to \code{meta::metagen}}
+\item{\code{Parameters}}{to be passed to \code{meta::rmetagen}}
 
 \item{\code{options}}{to be passed to \code{nightowl::render_kable()}}
 
@@ -358,7 +358,7 @@ Extract standard errors of treament effect
 \subsection{Method \code{metagen()}}{
 Run metaanalysis
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Coxph$metagen(title = var)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{Coxph$metagen(term = self$get_variables()$treatment, title = var)}\if{html}{\out{</div>}}
 }
 
 }
@@ -406,7 +406,7 @@ Summarise metaanalysis results
 \if{latex}{\out{\hypertarget{method-Coxph-metagen_kable}{}}}
 \subsection{Method \code{metagen_kable()}}{
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Coxph$metagen_kable()}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{Coxph$metagen_kable(...)}\if{html}{\out{</div>}}
 }
 
 }
@@ -415,7 +415,7 @@ Summarise metaanalysis results
 \if{latex}{\out{\hypertarget{method-Coxph-metagen_html}{}}}
 \subsection{Method \code{metagen_html()}}{
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Coxph$metagen_html()}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{Coxph$metagen_html(...)}\if{html}{\out{</div>}}
 }
 
 }
@@ -424,7 +424,7 @@ Summarise metaanalysis results
 \if{latex}{\out{\hypertarget{method-Coxph-metagen_output}{}}}
 \subsection{Method \code{metagen_output()}}{
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Coxph$metagen_output()}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{Coxph$metagen_output(...)}\if{html}{\out{</div>}}
 }
 
 }

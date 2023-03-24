@@ -1,11 +1,1 @@
-
-  # Basic
-  basic <- nightowl::Coxph$new(
-    data = veterans,
-    time = "time",
-    event = "status",
-    treatment = "trt",
-    group_by = "prior",
-    covariates = c("karno")
-  )
-  basic$output(keep_only_treatment = FALSE)
+  tmp$metagen_output()

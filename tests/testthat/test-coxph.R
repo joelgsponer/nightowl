@@ -88,9 +88,13 @@ test_that("coxph works", {
     time = "time",
     event = "event",
     treatment = "treatment",
-    covariates = c("c1", "c2", "c3"),
-    interactions = c("treatment*s2")
+    covariates = c("c1", "c2", "s2"),
+    interactions = c("treatment:s2")
   )
+  tmp
+
+  survival::coxph(survival::Surv(time, event) ~ treatment + c1 + c2 + s2 + treatment:s2, data = testdata)
+
   tmp$models
 
   tmp$results()
@@ -149,9 +153,15 @@ test_that("coxph works", {
   tmp$coefficients()
   tmp$se()
   tmp$TE()
+  tmp$TE("age")
   tmp$seTE()
-  tmp$TE("celltype")
+  tmp$seTE("age")
   tmp$metagen()
+  tmp$metagen_results()
+  tmp$metagen_summarise()
+  tmp$metagen_raw()
+  tmp$metagen_kable()
+  tmp$metagen_output()
 
 
   # this needs work but maybe it is out of scope of this object or a separate output

@@ -82,7 +82,7 @@ Coxph <- R6::R6Class("Coxph",
       return(res)
     },
     build_reference_for_interaction_term = function(x) {
-      vars <- self$unpack_interactions(x)
+      vars <- self$unpack_interactions(list(interactions = x))
       refs <- purrr::map(vars, function(.x) {
         if (is.factor(self$data[[.x]])) {
           levels(self$data[[.x]])[1]
@@ -260,6 +260,7 @@ Coxph <- R6::R6Class("Coxph",
               }, .init = .)
             res$term[!non_interaction_term] <- res$term[!non_interaction_term] %>%
               self$build_comparison_for_interaction_term()
+
             res %>%
               {
                 x <- .
@@ -525,7 +526,7 @@ Coxph <- R6::R6Class("Coxph",
         })) %>%
         purrr::map("result") %>%
         purrr::compact()
-      res <- purrr::reduce(coefs, ~ rbind(.x, .y, make.row.names = TRUE))
+      res <- purrr::reduce(coefs, ~ rbind(.x, .y))
       res <- matrix(res, ncol = length(coefs[[1]]), nrow = length(fits))
       rownames(res) <- names(coefs)
       colnames(res) <- stringr::str_replace_all(names(coefs[[1]]), "`", "")
@@ -558,7 +559,7 @@ Coxph <- R6::R6Class("Coxph",
       se[, cols, drop = FALSE][, 1]
     },
     # Metaanalysis =============================================================
-    #' @field Parameters to be passed to `meta::metagen`
+    #' @field Parameters to be passed to `meta::rmetagen`
     options_metagen = list(
       fixed = FALSE,
       random = TRUE,
@@ -569,29 +570,26 @@ Coxph <- R6::R6Class("Coxph",
     ),
     # ---------------------------------------------------------
     #' @description Run metaanalysis
-    metagen = function(title = var) {
+    metagen = function(term = self$get_variables()$treatment, title = var) {
       grouping <- self$get_variables()$group_by
-      TE <- self$TE()
-      seTE <- self$seTE()
-      purrr::map(colnames(TE), purrr::safely(function(.x) {
-        params <- list(
-          TE = unname(TE[, .x]),
-          seTE = unname(seTE[, .x]),
-          # data = self$data
-          studlab = rownames(TE)
-          # title = title
-        )
-        meta <- do.call(meta::metagen, c(params, self$options_metagen))
-        attributes(meta)$grouping <- grouping
-        attributes(meta)$term <- .x
-        meta
-      }))
+      TE <- self$TE(term = term)
+      seTE <- self$seTE(term = term)
+      params <- list(
+        TE = unname(TE),
+        seTE = unname(seTE),
+        # data = self$data
+        studlab = names(TE)
+        # title = title
+      )
+      meta <- do.call(meta::metagen, c(params, self$options_metagen))
+      attributes(meta)$grouping <- grouping
+      attributes(meta)$term <-term
+      meta
     },
     # ---------------------------------------------------------
     #' @description Extract metaanalysis results
     metagen_results = function(...) {
-      self$metagen(...) %>%
-        purrr::map("result")
+      self$metagen(...)
     },
     # ---------------------------------------------------------
     #' @description Extract metaanalysis errors
@@ -602,45 +600,42 @@ Coxph <- R6::R6Class("Coxph",
     # ---------------------------------------------------------
     #' @description Summarise metaanalysis results
     metagen_summarise = function(...) {
-      meta <- self$metagen_results(...)
-      purrr::map(meta, function(.x) {
-        tibble::tibble(
-          grouping = attributes(.x)$grouping,
-          term = attributes(.x)$term,
-          k = .x$k,
-          HR = exp(.x$TE.random),
-          lower = exp(.x$lower.random),
-          upper = exp(.x$upper.random),
-          pvalue = .x$pval.random,
-          tau = .x$tau,
-          se.tau = .x$se.tau,
-          lower.tau = .x$lower.tau,
-          upper.tau = .x$upper.tau,
-          tau2 = .x$tau2,
-          se.tau2 = .x$se.tau2,
-          lower.tau2 = .x$lower.tau2,
-          upper.tau2 = .x$upper.tau2,
-          H = .x$H,
-          lower.H = .x$lower.H,
-          upper.H = .x$upper.H,
-          Q = .x$Q,
-          df.Q = .x$df.Q,
-          pval.Q = .x$pval.Q,
-          method_tau = self$options_metagen$method.tau,
-          I2 = .x$I2,
-          lower.I2 = .x$lower.I2,
-          upper.I2 = .x$upper.I2,
-          Rb = .x$Rb,
-          lower.Rb = .x$lower.Rb,
-          upper.Rb = .x$upper.Rb,
-          prediction = .x$prediction,
-          seTE.predict = .x$seTE.predict,
-          lower.predict = .x$lower.predict,
-          upper.predict = .x$upper.predict,
-          weights = list(weights(.x))
-        )
-      }) %>%
-        dplyr::bind_rows()
+      .x <- self$metagen_results(...)
+      tibble::tibble(
+        grouping = attributes(.x)$grouping,
+        term = attributes(.x)$term,
+        k = .x$k,
+        HR = exp(.x$TE.random),
+        lower = exp(.x$lower.random),
+        upper = exp(.x$upper.random),
+        pvalue = .x$pval.random,
+        tau = .x$tau,
+        se.tau = .x$se.tau,
+        lower.tau = .x$lower.tau,
+        upper.tau = .x$upper.tau,
+        tau2 = .x$tau2,
+        se.tau2 = .x$se.tau2,
+        lower.tau2 = .x$lower.tau2,
+        upper.tau2 = .x$upper.tau2,
+        H = .x$H,
+        lower.H = .x$lower.H,
+        upper.H = .x$upper.H,
+        Q = .x$Q,
+        df.Q = .x$df.Q,
+        pval.Q = .x$pval.Q,
+        method_tau = self$options_metagen$method.tau,
+        I2 = .x$I2,
+        lower.I2 = .x$lower.I2,
+        upper.I2 = .x$upper.I2,
+        Rb = .x$Rb,
+        lower.Rb = .x$lower.Rb,
+        upper.Rb = .x$upper.Rb,
+        prediction = .x$prediction,
+        seTE.predict = .x$seTE.predict,
+        lower.predict = .x$lower.predict,
+        upper.predict = .x$upper.predict,
+        weights = list(weights(.x))
+      )
     },
     # ---------------------------------------------------------
     metagen_raw = function(...) {
@@ -662,7 +657,7 @@ Coxph <- R6::R6Class("Coxph",
           .gg <- obj$plot
           .gg$layers <- NULL
           .meta <- dplyr::filter(meta, term == .y)
-          polygon.x <- c(.meta$lower, .meta$HR, .meta$upper)
+          polygon.x <- c(meta$lower, meta$HR, meta$upper)
           polygon.x <- log(c(polygon.x, rev(polygon.x)))
           polygon.y <- c(0, 1, 0)
           polygon.y <- c(polygon.y, -(polygon.y))
@@ -685,8 +680,7 @@ Coxph <- R6::R6Class("Coxph",
             resize = FALSE,
             options_svg = .options_svg
           )
-
-          w <- .meta$weights[[1]]
+          w <- meta$weights[[1]]
           split <- stringr::str_split(rownames(w), "==")
           column <- split[[1]][1]
           values <- purrr::map(split, ~ .x[2]) %>% unlist()
@@ -712,17 +706,17 @@ Coxph <- R6::R6Class("Coxph",
           footnote <- as.character(glue::glue("
               <div style = 'display:flex; flex-wrap: wrap; align-items: center;'>
                 <div>Random Effects Model:</div>
-                <div style='background-color: #EEEEEE; border-radius: 5px; margin: 3px; padding: 5px;'>Hazard Ratio: {round(.meta$HR, 3)} [{round(.meta$lower,2)};{round(.meta$upper,2)}]</div>
-                <div style='background-color: #EEEEEE; border-radius: 5px; margin: 3px; padding: 5px;'>p-value: {nightowl::format_p_value(.meta$pvalue)}</div>
+                <div style='background-color: #EEEEEE; border-radius: 5px; margin: 3px; padding: 5px;'>Hazard Ratio: {round(meta$HR, 3)} [{round(meta$lower,2)};{round(meta$upper,2)}]</div>
+                <div style='background-color: #EEEEEE; border-radius: 5px; margin: 3px; padding: 5px;'>p-value: {nightowl::format_p_value(meta$pvalue)}</div>
               </div>
               <div style = 'display:flex; flex-wrap: wrap; align-items: center;'>
                 <div>Heterogenity:</div>
-                <div style='background-color: #EEEEEE; border-radius: 5px; margin: 3px; padding: 5px;'>I<sup>2</sup>: {100*round(.meta$I2, 2)}%</div>
-                <div style='background-color: #EEEEEE; border-radius: 5px; margin: 3px; padding: 5px;'>𝜏<sup>2</sup>: {round(.meta$tau, 3)}</div>
-                <div style='background-color: #EEEEEE; border-radius: 5px; margin: 3px; padding: 5px;'>Q: {round(.meta$Q, 1)} (pvalue: {nightowl::format_p_value(.meta$pval.Q)})</div>
+                <div style='background-color: #EEEEEE; border-radius: 5px; margin: 3px; padding: 5px;'>I<sup>2</sup>: {100*round(meta$I2, 2)}%</div>
+                <div style='background-color: #EEEEEE; border-radius: 5px; margin: 3px; padding: 5px;'>𝜏<sup>2</sup>: {round(meta$tau, 3)}</div>
+                <div style='background-color: #EEEEEE; border-radius: 5px; margin: 3px; padding: 5px;'>Q: {round(meta$Q, 1)} (pvalue: {nightowl::format_p_value(meta$pval.Q)})</div>
               </div>
               <div>
-                <div>Prediction Interval (HR): [{round(exp(.meta$lower.predict), 2)}; {round(exp(.meta$upper.predict), 2)}]</div>
+                <div>Prediction Interval (HR): [{round(exp(meta$lower.predict), 2)}; {round(exp(meta$upper.predict), 2)}]</div>
               </div>
             "))
           res <- dplyr::bind_rows(.x, diamond) %>%
@@ -732,18 +726,17 @@ Coxph <- R6::R6Class("Coxph",
         })
     },
     # ---------------------------------------------------------
-    metagen_kable = function() {
-      meta <- self$metagen_raw()
-      meta %>%
-        purrr::map(~ nightowl::render_kable(.x, footnote = attributes(.x)$footnote))
+    metagen_kable = function(...) {
+      meta <- self$metagen_raw(...)[[1]]
+      nightowl::render_kable(meta, footnote = attributes(meta)$footnote)
     },
-    metagen_html = function() {
-      meta <- self$metagen_kable()
+    metagen_html = function(...) {
+      meta <- self$metagen_kable(...)
       meta %>%
         purrr::map(~ htmltools::HTML(.x))
     },
-    metagen_output = function() {
-      meta <- self$metagen_html()
+    metagen_output = function(...) {
+      meta <- self$metagen_html(...)
       meta %>%
         shiny::div(
           style = "font-family: 'Lato', sans-serif;",
