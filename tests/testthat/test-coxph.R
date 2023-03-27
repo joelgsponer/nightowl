@@ -158,7 +158,7 @@ test_that("coxph works", {
   )
 
   tmp$raw()
-  tmp$raw(term = "age")
+  tmp$raw(term2 = "age")
   tmp$models
   tmp$get_reference()
   tmp$results()
@@ -179,7 +179,7 @@ test_that("coxph works", {
   tmp$metagen_raw(term = "age")
   tmp$metagen_kable()
   tmp$metagen_output(term = "trt")
-  tmp$metagen_output(term = "age")
+  tmp$metagen_output(term = "age", term2 = "age")
   tmp$metagen_output(term = "trtA/karno", term2 = "trt/karno", comparison = "B/karno")
 
 

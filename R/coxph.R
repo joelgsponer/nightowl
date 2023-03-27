@@ -445,7 +445,6 @@ Coxph <- R6::R6Class("Coxph",
     label_right = "Reference better",
     # ---------------------------------------------------------
     raw = function(drop = NULL, keep_only_treatment = TRUE, term = NULL, term2 = NULL, comparison = NULL) {
-      browser()
 
       results <- dplyr::inner_join(
         self$N(),
@@ -453,7 +452,7 @@ Coxph <- R6::R6Class("Coxph",
       ) %>%
         dplyr::distinct()
 
-      if (keep_only_treatment && is.null(term)) {
+      if (keep_only_treatment && is.null(term2)) {
         results <- results %>%
           dplyr::filter(term == self$get_variables()$treatment)
       }
