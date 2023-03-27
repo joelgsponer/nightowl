@@ -260,6 +260,7 @@ Coxph <- R6::R6Class("Coxph",
               }, .init = .)
             res$term[!non_interaction_term] <- res$term[!non_interaction_term] %>%
               self$build_comparison_for_interaction_term()
+            
 
             res %>%
               {
@@ -296,8 +297,34 @@ Coxph <- R6::R6Class("Coxph",
         names(data_list) <- "Overall"
       }
       purrr::imap(data_list, function(.data, .subgroup) {
-        res <- purrr::map(c(variables$treatment, self$covariates, self$strata), function(.var) {
-          if (!is.numeric(.data[[.var]])) {
+        res <- purrr::map(c(variables$treatment, self$covariates, self$strata, self$interactions), function(.var) {
+          if (stringr::str_detect(.var, ":")) {
+              .vars <- stringr::str_split(.var, ":") %>% unlist()
+              is_numeric <- purrr::map_lgl(.vars, ~is.numeric(.data[[.x]]))
+              if(all(is_numeric)) {
+                dplyr::select_at(.data, c(.vars, variables$event)) %>%
+                  waRRior::tally_at(c(variables$event)) %>%
+                  dplyr::mutate(!!rlang::sym(variables$event) := as.character(!!rlang::sym(variables$event))) %>%
+                  dplyr::select_at(c("n", variables$event)) %>%
+                  dplyr::mutate(term = stringr::str_replace(.var, ":", "/")) %>%
+                  # dplyr::rename(`Events/N` = n) %>%
+                  dplyr::mutate(comparison = "")
+              } else if (!all(is_numeric)){
+                .num_vars <- .vars[is_numeric]
+                .data[.num_vars] <- .num_vars
+                dplyr::select_at(.data, c(.vars, variables$event)) %>%
+                  waRRior::tally_at(c(variables$event, .vars)) %>%
+                  dplyr::mutate(!!rlang::sym(variables$event) := as.character(!!rlang::sym(variables$event))) %>%
+                  dplyr::select_at(c("n", variables$event, .vars)) %>%
+                  dplyr::mutate(term = stringr::str_replace(.var, ":", "/")) %>%
+                  # dplyr::rename(`Events/N` = n) %>%
+                  dplyr::mutate(comparison = paste(!!!rlang::syms(.vars))) %>%
+                  dplyr::mutate(comparison = stringr::str_squish(stringr::str_replace(comparison, " ", "/"))) %>%
+                  dplyr::ungroup() %>%
+                  waRRior::drop_columns(.vars[1]) %>%
+                  waRRior::drop_columns(.vars[2])
+              }
+          } else if (!is.numeric(.data[[.var]])) {
             dplyr::select_at(.data, c(.var, variables$event)) %>%
               waRRior::tally_at(c(.var, variables$event)) %>%
               dplyr::mutate(!!rlang::sym(variables$event) := as.character(!!rlang::sym(variables$event))) %>%
@@ -417,24 +444,35 @@ Coxph <- R6::R6Class("Coxph",
     # ---------------------------------------------------------
     label_right = "Reference better",
     # ---------------------------------------------------------
-    raw = function(drop = NULL, keep_only_treatment = TRUE) {
+    raw = function(drop = NULL, keep_only_treatment = TRUE, term = NULL, term2 = NULL, comparison = NULL) {
+      browser()
+
       results <- dplyr::inner_join(
         self$N(),
         dplyr::bind_rows(self$results())
       ) %>%
         dplyr::distinct()
 
-      if (keep_only_treatment) {
+      if (keep_only_treatment && is.null(term)) {
         results <- results %>%
           dplyr::filter(term == self$get_variables()$treatment)
       }
 
-      if (is.null(self$conf_range)) {
-        self$conf_range <- c(
-          min(results$conf.low[results$conf.low != -Inf], na.rm = T),
-          max(results$conf.high[results$conf.high != Inf], na.rm = T)
-        )
+      if (!is.null(term2)){
+        .term <- term2
+        results <- results %>%
+          dplyr::filter(term == .term)
       }
+      if (!is.null(comparison)){
+        .comparison = comparison
+        results <- results %>%
+          dplyr::filter(comparison == comparison)
+      }
+
+      self$conf_range <- c(
+        min(results$conf.low[results$conf.low != -Inf], na.rm = T),
+        max(results$conf.high[results$conf.high != Inf], na.rm = T)
+      )
 
       res <- results %>%
         dplyr::group_by_all() %>%
@@ -547,6 +585,7 @@ Coxph <- R6::R6Class("Coxph",
       res
     },
     TE = function(term = self$get_variables()$treatment) {
+      term <- stringr::str_replace(term, "/", ":")
       coefs <- self$coefficients()
       cols <- colnames(coefs)[stringr::str_starts(colnames(coefs), Hmisc::escapeRegex(term))]
       coefs[, cols, drop = FALSE][, 1]
@@ -554,6 +593,7 @@ Coxph <- R6::R6Class("Coxph",
     # ---------------------------------------------------------
     #' @description Extract standard errors of treament effect
     seTE = function(term = self$get_variables()$treatment) {
+      term <- stringr::str_replace(term, "/", ":")
       se <- self$se()
       cols <- colnames(se)[stringr::str_starts(colnames(se), Hmisc::escapeRegex(term))]
       se[, cols, drop = FALSE][, 1]
@@ -570,7 +610,7 @@ Coxph <- R6::R6Class("Coxph",
     ),
     # ---------------------------------------------------------
     #' @description Run metaanalysis
-    metagen = function(term = self$get_variables()$treatment, title = var) {
+    metagen = function(term = self$get_variables()$treatment, term2 = NULL, title = var) {
       grouping <- self$get_variables()$group_by
       TE <- self$TE(term = term)
       seTE <- self$seTE(term = term)
@@ -638,10 +678,10 @@ Coxph <- R6::R6Class("Coxph",
       )
     },
     # ---------------------------------------------------------
-    metagen_raw = function(...) {
-      meta <- self$metagen_summarise(...)
+    metagen_raw = function(term = self$get_variables()$treatment, term2 = NULL, comparison = NULL, ...) {
+      meta <- self$metagen_summarise(term = term)
       grouping <- meta$grouping[1]
-      raw <- self$raw()
+      raw <- self$raw(term = term, term2 = term2, comparison = comparison)
       forest_column <- purrr::imap(raw, ~ if (nightowl::is_NightowlPlots(.x)) {
         return(.y)
       }) %>%
@@ -715,7 +755,7 @@ Coxph <- R6::R6Class("Coxph",
                 <div style='background-color: #EEEEEE; border-radius: 5px; margin: 3px; padding: 5px;'>𝜏<sup>2</sup>: {round(meta$tau, 3)}</div>
                 <div style='background-color: #EEEEEE; border-radius: 5px; margin: 3px; padding: 5px;'>Q: {round(meta$Q, 1)} (pvalue: {nightowl::format_p_value(meta$pval.Q)})</div>
               </div>
-              <div>
+              <div> r
                 <div>Prediction Interval (HR): [{round(exp(meta$lower.predict), 2)}; {round(exp(meta$upper.predict), 2)}]</div>
               </div>
             "))
@@ -911,12 +951,10 @@ metagen_forest <- function(meta,
                            arrange_by = "TE") {
   meta_df <- as.data.frame(meta)
 
-  if (is.null(conf_range)) {
-    conf_range <- c(
-      min(meta_df$upper[meta_df$upper != -Inf], na.rm = T),
-      max(meta_df$lower[meta_df$lower != Inf], na.rm = T)
-    )
-  }
+  conf_range <- c(
+    min(meta_df$upper[meta_df$upper != -Inf], na.rm = T),
+    max(meta_df$lower[meta_df$lower != Inf], na.rm = T)
+  )
 
 
   purrr::pmap(

@@ -310,7 +310,13 @@ Checks if the formula is present
 \if{latex}{\out{\hypertarget{method-Coxph-raw}{}}}
 \subsection{Method \code{raw()}}{
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Coxph$raw(drop = NULL, keep_only_treatment = TRUE)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{Coxph$raw(
+  drop = NULL,
+  keep_only_treatment = TRUE,
+  term = NULL,
+  term2 = NULL,
+  comparison = NULL
+)}\if{html}{\out{</div>}}
 }
 
 }
@@ -358,7 +364,7 @@ Extract standard errors of treament effect
 \subsection{Method \code{metagen()}}{
 Run metaanalysis
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Coxph$metagen(term = self$get_variables()$treatment, title = var)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{Coxph$metagen(term = self$get_variables()$treatment, term2 = NULL, title = var)}\if{html}{\out{</div>}}
 }
 
 }
@@ -397,7 +403,12 @@ Summarise metaanalysis results
 \if{latex}{\out{\hypertarget{method-Coxph-metagen_raw}{}}}
 \subsection{Method \code{metagen_raw()}}{
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Coxph$metagen_raw(...)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{Coxph$metagen_raw(
+  term = self$get_variables()$treatment,
+  term2 = NULL,
+  comparison = NULL,
+  ...
+)}\if{html}{\out{</div>}}
 }
 
 }

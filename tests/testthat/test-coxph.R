@@ -93,6 +93,17 @@ test_that("coxph works", {
   )
   tmp
 
+  tmp <- nightowl::Coxph$new(
+    data = testdata,
+    time = "time",
+    event = "event",
+    treatment = "treatment",
+    covariates = c("c1", "c2", "s2"),
+    interactions = c("treatment:s2"),
+    group_by = "split"
+  )
+  tmp
+
   survival::coxph(survival::Surv(time, event) ~ treatment + c1 + c2 + s2 + treatment:s2, data = testdata)
 
   tmp$models
@@ -146,6 +157,8 @@ test_that("coxph works", {
     interactions = c("trt:karno")
   )
 
+  tmp$raw()
+  tmp$raw(term = "age")
   tmp$models
   tmp$get_reference()
   tmp$results()
@@ -157,11 +170,17 @@ test_that("coxph works", {
   tmp$seTE()
   tmp$seTE("age")
   tmp$metagen()
+  tmp$metagen(term = "age")
   tmp$metagen_results()
+  tmp$metagen_results(term = "age")
   tmp$metagen_summarise()
+  tmp$metagen_summarise(term = "age")
   tmp$metagen_raw()
+  tmp$metagen_raw(term = "age")
   tmp$metagen_kable()
-  tmp$metagen_output()
+  tmp$metagen_output(term = "trt")
+  tmp$metagen_output(term = "age")
+  tmp$metagen_output(term = "trtA/karno", term2 = "trt/karno", comparison = "B/karno")
 
 
   # this needs work but maybe it is out of scope of this object or a separate output
