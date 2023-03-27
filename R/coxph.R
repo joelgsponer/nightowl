@@ -311,8 +311,10 @@ Coxph <- R6::R6Class("Coxph",
                   dplyr::mutate(comparison = "")
               } else if (!all(is_numeric)){
                 browser()
-                .num_vars <- .vars[is_numeric]
-                .data[.num_vars] <- .num_vars
+                if(!all(!is_numeric)){
+                  .num_vars <- .vars[is_numeric]
+                  .data[.num_vars] <- .num_vars
+                }
                 dplyr::select_at(.data, c(.vars, variables$event)) %>%
                   waRRior::tally_at(c(variables$event, .vars)) %>%
                   dplyr::mutate(!!rlang::sym(variables$event) := as.character(!!rlang::sym(variables$event))) %>%
