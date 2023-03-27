@@ -310,7 +310,6 @@ Coxph <- R6::R6Class("Coxph",
                   # dplyr::rename(`Events/N` = n) %>%
                   dplyr::mutate(comparison = "")
               } else if (!all(is_numeric)){
-                browser()
                 if(!all(!is_numeric)){
                   .num_vars <- .vars[is_numeric]
                   .data[.num_vars] <- .num_vars

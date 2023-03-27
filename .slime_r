@@ -1,1 +1,1 @@
-  tmp$metagen_output(term = "trtA/karno", term2 = "trt/karno", comparison = "B/karno")
+devtools::document();devtools::load_all()
