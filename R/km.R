@@ -30,6 +30,7 @@ plot_grouped_km <- function(data,
     purrr::imap(function(.data, .split) {
       cli::cli_progress_step(.split)
       .data <- droplevels(.data)
+      browser()
       nightowl::plot_km(.data,
         time,
         event = event,

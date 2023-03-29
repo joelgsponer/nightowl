@@ -42,7 +42,7 @@ render_girafe <- function(code, ggobj = NULL, pointsize = 12,
         if (!inherits(ggobj, "ggplot")) {
           abort("`ggobj` must be a ggplot2 plot", call = NULL)
         }
-        print(ggobj)
+        print(ggobj)Asdfasdfasdfasd
       } else {
         code
       }
