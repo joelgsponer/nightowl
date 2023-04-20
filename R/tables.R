@@ -79,10 +79,11 @@ render_kable <- function(.tbl,
 #' @return
 #' @export
 render_html <- function(.tbl, html_dependencies = kableExtra:::html_dependency_lightable, ...) {
-    shiny::div(
-      html_dependencies(),
-      shiny::HTML(nightowl::render_kable(.tbl, ...))
-    ) %>%
+  shiny::div(
+    html_dependencies(),
+    shiny::HTML("<style>body {font-family: Lato, sans-serif;}</style>"),
+    shiny::HTML(nightowl::render_kable(.tbl, ...))
+  ) %>%
     htmltools::browsable()
 }
 # s-------------------------------------------------------------------------------

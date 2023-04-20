@@ -10,12 +10,12 @@ summarise <- function(data,
                       unnest = TRUE,
                       name_for_column = "Variable",
                       names_sep = ".") {
-  if(is.null(template) &&
-     is.null(calculations) &&
-     is.null(parameters)) {
+  if (is.null(template) &&
+    is.null(calculations) &&
+    is.null(parameters)) {
     cli::cli_alert_warning("No template or calculations provided, defaulting to just counting.")
-    calculations = list(`N.` = length)
-    parameters = list()
+    calculations <- list(`N.` = length)
+    parameters <- list()
   }
   stopifnot(is.list(calculations))
   if (rlang::is_expression(parameters)) {
@@ -202,6 +202,8 @@ summarise_numeric_histogram <- function(self,
                                           `N.` = function(x) sum(!is.na(x)),
                                           Median = function(x) median(x, na.rm = T),
                                           Mean = nightowl::formated_mean,
+                                          Min = function(x) min(x, na.rm = T),
+                                          Max = function(x) max(x, na.rm = T),
                                           Histogram = nightowl::add_inline_histogram
                                         ),
                                         parameters = list(
@@ -234,7 +236,7 @@ format_frequencies <- function(x,
                                digits = 1,
                                str_width = NightowlOptions$get_header_width(),
                                add_legend = FALSE,
-                               add_colors = T, 
+                               add_colors = T,
                                colors = NightowlOptions$get_colors) {
   x <- forcats::fct_explicit_na(x)
   counts <- base::table(x)
@@ -258,7 +260,7 @@ format_frequencies <- function(x,
       stringr::str_replace_all("\n", "<br>")
     colors <- colors(n = length(counts), missing = "(Missing)" %in% names(counts))
     legend <- purrr::map(colors, function(x) {
-      if(add_legend){
+      if (add_legend) {
         shiny::div(
           "",
           style = glue::glue("background-color:{x}; width:10px; height:10px; border-radius:50%;")

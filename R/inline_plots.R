@@ -194,14 +194,11 @@ add_inline_plot <- function(x,
     }
     .style <- .ellipsis
   }
-  ## Putting them together
-  .args <- c(
-    list(data = DATA),
-    list(mapping = mapping),
-    .style
-  )
-  .p <- do.call(nightowl::plot, .args)$plot
-
+  .p <- nightowl::DeclarativePlot$new(
+    data = DATA,
+    mapping = mapping,
+    layers = .style$layers
+  )$plot
   # Coord flip
   if (coord_flip) {
     .p <- .p + ggplot2::coord_flip()
@@ -216,7 +213,6 @@ add_inline_plot <- function(x,
     .p <- .p + ggplot2::scale_y_continuous(limits = ylim)
   }
   .p <- .p + theme()
-
   # Hiding stuff
   if (hide_title) {
     .p <- .p + picasso::hide_title()

@@ -1,8 +1,6 @@
 test_that("summary works", {
-
-
   penguins <- palmerpenguins::penguins
-  
+
   nightowl::summarise(penguins %>% dplyr::group_by(island), "island")
 
   nightowl::summarise(penguins %>% dplyr::group_by(island), "species", template = nightowl::summarise_categorical()) %>%
@@ -10,13 +8,17 @@ test_that("summary works", {
 
   nightowl::summarise(penguins %>% dplyr::group_by(island), "species", template = nightowl::summarise_categorical_barplot()) %>%
     nightowl::render_reactable()
-                      
+
+  nightowl::summarise(penguins %>% dplyr::group_by(island), "bill_length_mm", template = nightowl::summarise_numeric_violin)
+
+  nightowl::Summary$new(penguins, "bill_length_mm", "species")$raw()
+  nightowl::Summary$new(penguins %>% dplyr::group_by(species), "bill_length_mm", method = nightowl::summarise_numeric_histogram)$html()
 
   s1 <- nightowl::summary(penguins, "species", "island", debug = F)
   s1
   s1$calculations
   s1$add_calculation(list(Missing = function(x) sum(is.na(x))))
-  s1$raw() 
+  s1$raw()
   s1$html()
   s1$html(htmltable_class = "lightable-classic")
 

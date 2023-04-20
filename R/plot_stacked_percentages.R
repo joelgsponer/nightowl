@@ -1,4 +1,3 @@
-
 # =================================================
 #' @title
 #'  Plot stacked percentage barplot

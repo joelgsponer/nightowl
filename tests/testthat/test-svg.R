@@ -14,12 +14,12 @@ test_that("svg works", {
       group = "thisisareally reallylongvariablename",
       id = "Chick",
       lty = "thisisareally reallylongvariablename"
-     ),
-     layers = list(
+    ),
+    layers = list(
       list(type = "traces", geom = "line", alpha = 0.3),
       list(type = "summary", mapping = list(color = NULL), geom = "line", dodge = 0, size = 1.5)
-     )
-   )
+    )
+  )
   # ggplot2::guides(colour = ggplot2::guide_legend(nrow = 2))
 
   .p <- .p + MetBrewer::scale_color_met_d("Demuth")

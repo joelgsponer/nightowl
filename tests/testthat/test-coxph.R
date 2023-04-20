@@ -1,5 +1,4 @@
 test_that("coxph works", {
-
   testdata <- tibble::tibble(
     time = sample(1:100, size = 100, replace = TRUE),
     event = sample(c(0, 1), size = 100, replace = TRUE),

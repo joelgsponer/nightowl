@@ -217,7 +217,7 @@ Summary <- R6::R6Class("Summary",
     }
   )
 )
-#=================================================
+# =================================================
 #' @title
 #' Summarise
 #' @description
@@ -226,12 +226,12 @@ Summary <- R6::R6Class("Summary",
 #' @return
 #' @export
 new_summary <- function(.data,
-                    column,
-                    group_by = NULL,
-                    method = NULL,
-                    labels = NULL,
-                    debug = F,
-                    ...) {
+                        column,
+                        group_by = NULL,
+                        method = NULL,
+                        labels = NULL,
+                        debug = F,
+                        ...) {
   nightowl::Summary$new(
     .data = .data,
     column = column,
@@ -242,4 +242,4 @@ new_summary <- function(.data,
     ...
   )
 }
-#=================================================
+# =================================================

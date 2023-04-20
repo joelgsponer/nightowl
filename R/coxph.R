@@ -260,7 +260,7 @@ Coxph <- R6::R6Class("Coxph",
               }, .init = .)
             res$term[!non_interaction_term] <- res$term[!non_interaction_term] %>%
               self$build_comparison_for_interaction_term()
-            
+
 
             res %>%
               {
@@ -299,33 +299,33 @@ Coxph <- R6::R6Class("Coxph",
       purrr::imap(data_list, function(.data, .subgroup) {
         res <- purrr::map(c(variables$treatment, self$covariates, self$strata, self$interactions), function(.var) {
           if (stringr::str_detect(.var, ":")) {
-              .vars <- stringr::str_split(.var, ":") %>% unlist()
-              is_numeric <- purrr::map_lgl(.vars, ~is.numeric(.data[[.x]]))
-              if(all(is_numeric)) {
-                dplyr::select_at(.data, c(.vars, variables$event)) %>%
-                  waRRior::tally_at(c(variables$event)) %>%
-                  dplyr::mutate(!!rlang::sym(variables$event) := as.character(!!rlang::sym(variables$event))) %>%
-                  dplyr::select_at(c("n", variables$event)) %>%
-                  dplyr::mutate(term = stringr::str_replace(.var, ":", "/")) %>%
-                  # dplyr::rename(`Events/N` = n) %>%
-                  dplyr::mutate(comparison = "")
-              } else if (!all(is_numeric)){
-                if(!all(!is_numeric)){
-                  .num_vars <- .vars[is_numeric]
-                  .data[.num_vars] <- .num_vars
-                }
-                dplyr::select_at(.data, c(.vars, variables$event)) %>%
-                  waRRior::tally_at(c(variables$event, .vars)) %>%
-                  dplyr::mutate(!!rlang::sym(variables$event) := as.character(!!rlang::sym(variables$event))) %>%
-                  dplyr::select_at(c("n", variables$event, .vars)) %>%
-                  dplyr::mutate(term = stringr::str_replace(.var, ":", "/")) %>%
-                  # dplyr::rename(`Events/N` = n) %>%
-                  dplyr::mutate(comparison = paste(!!!rlang::syms(.vars))) %>%
-                  dplyr::mutate(comparison = stringr::str_squish(stringr::str_replace(comparison, " ", "/"))) %>%
-                  dplyr::ungroup() %>%
-                  waRRior::drop_columns(.vars[1]) %>%
-                  waRRior::drop_columns(.vars[2])
+            .vars <- stringr::str_split(.var, ":") %>% unlist()
+            is_numeric <- purrr::map_lgl(.vars, ~ is.numeric(.data[[.x]]))
+            if (all(is_numeric)) {
+              dplyr::select_at(.data, c(.vars, variables$event)) %>%
+                waRRior::tally_at(c(variables$event)) %>%
+                dplyr::mutate(!!rlang::sym(variables$event) := as.character(!!rlang::sym(variables$event))) %>%
+                dplyr::select_at(c("n", variables$event)) %>%
+                dplyr::mutate(term = stringr::str_replace(.var, ":", "/")) %>%
+                # dplyr::rename(`Events/N` = n) %>%
+                dplyr::mutate(comparison = "")
+            } else if (!all(is_numeric)) {
+              if (!all(!is_numeric)) {
+                .num_vars <- .vars[is_numeric]
+                .data[.num_vars] <- .num_vars
               }
+              dplyr::select_at(.data, c(.vars, variables$event)) %>%
+                waRRior::tally_at(c(variables$event, .vars)) %>%
+                dplyr::mutate(!!rlang::sym(variables$event) := as.character(!!rlang::sym(variables$event))) %>%
+                dplyr::select_at(c("n", variables$event, .vars)) %>%
+                dplyr::mutate(term = stringr::str_replace(.var, ":", "/")) %>%
+                # dplyr::rename(`Events/N` = n) %>%
+                dplyr::mutate(comparison = paste(!!!rlang::syms(.vars))) %>%
+                dplyr::mutate(comparison = stringr::str_squish(stringr::str_replace(comparison, " ", "/"))) %>%
+                dplyr::ungroup() %>%
+                waRRior::drop_columns(.vars[1]) %>%
+                waRRior::drop_columns(.vars[2])
+            }
           } else if (!is.numeric(.data[[.var]])) {
             dplyr::select_at(.data, c(.var, variables$event)) %>%
               waRRior::tally_at(c(.var, variables$event)) %>%
@@ -447,7 +447,6 @@ Coxph <- R6::R6Class("Coxph",
     label_right = "Reference better",
     # ---------------------------------------------------------
     raw = function(drop = NULL, keep_only_treatment = TRUE, term = NULL, term2 = NULL, comparison = NULL) {
-
       results <- dplyr::inner_join(
         self$N(),
         dplyr::bind_rows(self$results())
@@ -459,13 +458,13 @@ Coxph <- R6::R6Class("Coxph",
           dplyr::filter(term == self$get_variables()$treatment)
       }
 
-      if (!is.null(term2)){
+      if (!is.null(term2)) {
         .term <- term2
         results <- results %>%
           dplyr::filter(term == .term)
       }
-      if (!is.null(comparison)){
-        .comparison = comparison
+      if (!is.null(comparison)) {
+        .comparison <- comparison
         results <- results %>%
           dplyr::filter(comparison == comparison)
       }
@@ -624,7 +623,7 @@ Coxph <- R6::R6Class("Coxph",
       )
       meta <- do.call(meta::metagen, c(params, self$options_metagen))
       attributes(meta)$grouping <- grouping
-      attributes(meta)$term <-term
+      attributes(meta)$term <- term
       meta
     },
     # ---------------------------------------------------------
@@ -756,7 +755,7 @@ Coxph <- R6::R6Class("Coxph",
                 <div style='background-color: #EEEEEE; border-radius: 5px; margin: 3px; padding: 5px;'>𝜏<sup>2</sup>: {round(meta$tau, 3)}</div>
                 <div style='background-color: #EEEEEE; border-radius: 5px; margin: 3px; padding: 5px;'>Q: {round(meta$Q, 1)} (pvalue: {nightowl::format_p_value(meta$pval.Q)})</div>
               </div>
-              <div> r
+              <div>
                 <div>Prediction Interval (HR): [{round(exp(meta$lower.predict), 2)}; {round(exp(meta$upper.predict), 2)}]</div>
               </div>
             "))
