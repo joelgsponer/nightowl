@@ -157,6 +157,8 @@ Closes #$ISSUE_NUMBER"
 
 ### 14. Update Project Status to Review
 Change issue status to "In Review" in the project
+Add label "done" to github issue.
+Remove label "in-progress"
 
 ### 16. Return to Main Branch
 Clean up and return to dev:
