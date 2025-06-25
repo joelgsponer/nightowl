@@ -1,10 +1,27 @@
 # =================================================
-#' @title
-#' MISSING_TITLE
+#' @title Create inline forest plots for embedding in tables
 #' @description
-#' @detail
-#' @param
-#' @return
+#' Creates compact forest plots suitable for embedding within table cells,
+#' with customizable confidence intervals and out-of-bounds indicators.
+#' @param x Numeric. Point estimate value(s) for the main effect
+#' @param xmin Numeric. Lower confidence limit(s)
+#' @param xmax Numeric. Upper confidence limit(s)
+#' @param xlim Numeric vector of length 2. Plot x-axis limits. If NULL, uses data range
+#' @param xintercept Numeric. Value for vertical reference line. Default NULL
+#' @param xlab String. X-axis label. Default NULL
+#' @param ylab String. Y-axis label. Default NULL
+#' @param hide_y_axis Logical. Whether to hide y-axis. Default TRUE
+#' @param hide_x_axis Logical. Whether to hide x-axis. Default TRUE
+#' @param hide_legend Logical. Whether to hide legend. Default TRUE
+#' @param height Numeric. Plot height for inline display. Default 0.3
+#' @param width Numeric. Plot width for inline display. Default 3
+#' @param scaling Numeric. SVG scaling factor. Default 0.8
+#' @param shape Integer. Point shape for estimates. Default 15
+#' @param size Numeric. Point size. Default 4
+#' @param alpha Numeric. Point transparency. Default 0.8
+#' @param breaks Numeric vector. X-axis breaks. Default seq(-10, 10, 2)
+#' @param theme ggplot2 theme function. Default ggplot2::theme_void
+#' @return A NightowlPlots object containing the inline forest plot
 #' @export
 add_inline_forestplot <- function(x,
                                   xmin,
@@ -102,12 +119,16 @@ add_inline_forestplot <- function(x,
     nightowl::new_NightowlPlots()
 }
 # =================================================
-#' @title
-#' MISSING_TITLE
+#' @title Create inline stacked bar plots for categorical data
 #' @description
-#' @detail
-#' @param
-#' @return
+#' Creates compact horizontal stacked bar plots showing percentage distributions
+#' of categorical variables, suitable for embedding in summary tables.
+#' @param x A vector (factor or character) containing categorical data
+#' @param height Numeric. Plot height for inline display. Default 0.3
+#' @param width Numeric. Plot width for inline display. Default 2.5
+#' @param scaling Numeric. SVG scaling factor. Default 1
+#' @param colors Function. Color palette function for categories
+#' @return A NightowlPlots object containing the inline stacked bar plot
 #' @export
 add_barplot <- function(x,
                         height = 0.3,
@@ -143,12 +164,15 @@ add_barplot <- function(x,
     nightowl::new_NightowlPlots()
 }
 # =================================================
-#' @title
-#' MISSING_TITLE
+#' @title Create forest plot from raw data with confidence intervals
 #' @description
-#' @detail
-#' @param
-#' @return
+#' Generates a forest plot by applying statistical functions to raw data
+#' to calculate point estimates and confidence intervals automatically.
+#' @param x Numeric vector. Raw data for forest plot calculation
+#' @param fun_data Function. Statistical function to calculate estimates and CI. Default ggplot2::mean_cl_boot
+#' @param xintercept Numeric. Value for vertical reference line. Default NULL
+#' @param xlim Numeric vector of length 2. Plot x-axis limits. If NULL, uses data range
+#' @return An SVG string containing the rendered forest plot
 #' @export
 add_forestplot <- function(x,
                            fun_data = ggplot2::mean_cl_boot,
@@ -164,12 +188,30 @@ add_forestplot <- function(x,
   )
 }
 # =================================================
-#' @title
-#' MISSING_TITLE
+#' @title Create flexible inline plots with customizable styling
 #' @description
-#' @detail
-#' @param
-#' @return
+#' Creates versatile inline plots that can adapt to different data types and styling
+#' configurations, supporting both data frames and vectors with extensive customization.
+#' @param x Numeric vector or data frame. Data for plotting
+#' @param y Numeric vector. Y values if x is a vector. Default NULL
+#' @param mapping Named list. Aesthetic mappings. Default list(x = "x", y = "y")
+#' @param style String. Predefined style name to load. Default NULL
+#' @param xlim Numeric vector. X-axis limits. Default NULL
+#' @param ylim Numeric vector. Y-axis limits. Default NULL
+#' @param height Numeric. Plot height. Default 0.8
+#' @param width Numeric. Plot width. Default 8
+#' @param scaling Numeric. SVG scaling factor. Default 1
+#' @param theme ggplot2 theme function. Default ggplot2::theme_void
+#' @param coord_flip Logical. Whether to flip coordinates. Default FALSE
+#' @param hide_title Logical. Whether to hide plot title. Default TRUE
+#' @param hide_legend Logical. Whether to hide legend. Default TRUE
+#' @param hide_x_axis Logical. Whether to hide x-axis. Default TRUE
+#' @param hide_y_axis Logical. Whether to hide y-axis. Default TRUE
+#' @param fill String. Fill color for plot elements
+#' @param expansion_y Numeric. Y-axis expansion factor. Default 0
+#' @param add_download_button Logical. Whether to add download functionality. Default FALSE
+#' @param ... Additional arguments passed to plot styling
+#' @return A NightowlPlots object containing the customized inline plot
 #' @export
 add_inline_plot <- function(x,
                             y = NULL,
@@ -259,12 +301,14 @@ add_inline_plot <- function(x,
     nightowl::new_NightowlPlots()
 }
 # =================================================
-#' @title
-#' MISSING_TITLE
+#' @title Create inline histogram plots for distribution visualization
 #' @description
-#' @detail
-#' @param
-#' @return
+#' Creates compact histogram plots for showing data distributions within tables,
+#' using predefined styling optimized for inline display.
+#' @param x Numeric vector. Data for histogram creation
+#' @param mapping Named list. Aesthetic mappings. Default list(x = "x", y = NULL)
+#' @param ... Additional arguments passed to add_inline_plot()
+#' @return A NightowlPlots object containing the inline histogram
 #' @export
 add_inline_histogram <- function(x,
                                  mapping = list(x = "x", y = NULL),
@@ -276,12 +320,15 @@ add_inline_histogram <- function(x,
   )
 }
 # =================================================
-#' @title
-#' MISSING_TITLE
+#' @title Create inline point range plots with confidence intervals
 #' @description
-#' @detail
-#' @param
-#' @return
+#' Creates compact point range plots showing point estimates with confidence intervals,
+#' suitable for embedding in tables to display statistical summaries.
+#' @param x Numeric vector or data frame. Data for point range calculation
+#' @param fun_data Function. Statistical function for calculating point and range. Default NULL
+#' @param mapping Named list. Aesthetic mappings. Default list(x = "y", xmin = "ymin", xmax = "ymax", y = NULL)
+#' @param ... Additional arguments passed to add_inline_plot()
+#' @return A NightowlPlots object containing the inline point range plot
 #' @export
 add_inline_pointrange <- function(x,
                                   fun_data = NULL,
@@ -297,12 +344,24 @@ add_inline_pointrange <- function(x,
   )
 }
 # =================================================
-#' @title
-#' MISSING_TITLE
+#' @title Create violin plots with summary statistics overlay
 #' @description
-#' @detail
-#' @param
-#' @return
+#' Creates violin plots showing data distribution density with overlaid
+#' summary statistics, suitable for compact visualization of numeric distributions.
+#' @param x Numeric vector. Data for violin plot creation
+#' @param ylim Numeric vector. Y-axis limits. Default NULL
+#' @param height Numeric. Plot height. Default 0.3
+#' @param width Numeric. Plot width. Default 2.5
+#' @param scaling Numeric. SVG scaling factor. Default 1
+#' @param theme ggplot2 theme function. Default ggplot2::theme_void
+#' @param hide_legend Logical. Whether to hide legend. Default TRUE
+#' @param hide_x_axis Logical. Whether to hide x-axis. Default TRUE
+#' @param hide_y_axis Logical. Whether to hide y-axis. Default TRUE
+#' @param fill String. Fill color for violin. Default "#B9B9B8"
+#' @param expansion_y Numeric. Y-axis expansion factor. Default 10
+#' @param add_download_button Logical. Whether to add download functionality. Default FALSE
+#' @param fun.data Function. Summary statistic function. Default ggplot2::mean_cl_boot
+#' @return A NightowlPlots object containing the violin plot
 #' @export
 add_violin <- function(x,
                        ylim = NULL,
@@ -348,12 +407,22 @@ add_violin <- function(x,
     nightowl::new_NightowlPlots()
 }
 # ===============================================================================
-#' @title
-#' MISSING_TITLE
+#' @title Create density plots for continuous data visualization
 #' @description
-#' @detail
-#' @param
-#' @return
+#' Creates density plots showing the probability density of continuous data,
+#' with customizable styling and summary statistics overlay.
+#' @param x Numeric vector. Data for density plot creation
+#' @param ylim Numeric vector. Y-axis limits. Default NULL
+#' @param height Numeric. Plot height. Default 0.8
+#' @param width Numeric. Plot width. Default 8
+#' @param scaling Numeric. SVG scaling factor. Default 1
+#' @param theme ggplot2 theme function. Default ggplot2::theme_void
+#' @param hide_x_axis Logical. Whether to hide x-axis. Default TRUE
+#' @param hide_y_axis Logical. Whether to hide y-axis. Default TRUE
+#' @param fill String. Fill color for density curve
+#' @param expansion_y Numeric. Y-axis expansion factor. Default 0
+#' @param add_download_button Logical. Whether to add download functionality. Default FALSE
+#' @return An SVG string containing the rendered density plot
 #' @export
 add_density <- function(x,
                         ylim = NULL,
@@ -390,12 +459,16 @@ add_density <- function(x,
   )
 }
 # =================================================
-#' @title
-#' MISSING_TITLE
+#' @title Create basic histogram plots for data distribution
 #' @description
-#' @detail
-#' @param
-#' @return
+#' Creates simple histogram plots showing the frequency distribution of numeric data
+#' with customizable binning and optional axis scaling.
+#' @param x Numeric vector. Data for histogram creation
+#' @param height Numeric. Plot height. Default 0.8
+#' @param binwidth Numeric. Width of histogram bins. Default NULL (automatic)
+#' @param xlim Numeric vector. X-axis limits. Default NULL
+#' @param add_scale Logical. Whether to show axis scales. Default FALSE
+#' @return An SVG string containing the rendered histogram
 #' @export
 add_histogram <- function(x,
                           height = 0.8,
@@ -416,12 +489,15 @@ add_histogram <- function(x,
   nightowl::render_svg(.p, height = height, add_download_button = FALSE)
 }
 # =================================================
-#' @title
-#' MISSING_TITLE
+#' @title Add axis scales to NightowlPlots objects
 #' @description
-#' @detail
-#' @param
-#' @return
+#' Adds axis scale information as a separate row to tables containing NightowlPlots,
+#' providing reference scales for embedded visualizations.
+#' @param obj A data frame containing NightowlPlots objects in columns
+#' @param text_size Numeric. Relative size of axis text. Default 1.5
+#' @param line_size Numeric. Relative thickness of axis lines. Default 1
+#' @param legend_position String. Position of legend. Default "none"
+#' @return A data frame with an additional scale row appended
 #' @export
 add_scale <- function(obj,
                       text_size = 1.5,

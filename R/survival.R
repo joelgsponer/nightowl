@@ -1,10 +1,16 @@
 # =================================================
-#' @title
-#' MISSING_TITLE
+#' @title Create secure survival analysis formula with validation
 #' @description
-#' @detail
-#' @param
-#' @return
+#' Constructs a survival analysis formula with comprehensive input validation
+#' and secure handling of variable names to prevent code injection vulnerabilities.
+#' @param data A data frame containing all specified variables
+#' @param time String. Name of the time-to-event variable
+#' @param event String. Name of the event indicator variable (0/1 or logical)
+#' @param treatment String. Name of the primary treatment variable
+#' @param covariates Character vector. Names of covariate variables. Default NULL
+#' @param strata Character vector. Names of stratification variables. Default NULL
+#' @param random_effects Character vector. Names of random effect variables. Default NULL
+#' @return A formula object for use with survival analysis functions (coxph, survreg)
 #' @export
 create_Surv_formula <- function(data, time, event, treatment, covariates = NULL, strata = NULL, random_effects = NULL) {
   stopifnot(length(treatment) == 1)
