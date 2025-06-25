@@ -261,8 +261,8 @@ format_frequencies <- function(x,
                                N = length(x),
                                output = "print",
                                digits = 1,
-                               str_width = NightowlOptions$get_header_width(),
-                               add_colors = T, colors = NightowlOptions$get_colors) {
+                               str_width = get_nightowl_options()$get_header_width(),
+                               add_colors = T, colors = get_nightowl_options()$get_colors) {
   x <- forcats::fct_explicit_na(x)
   counts <- base::table(x)
   if (output == "counts") {

@@ -1,7 +1,8 @@
-# On Package load it assigns som 
+# Package environment for internal state management
+.pkg_env <- new.env(parent = emptyenv())
+
+# On Package load - initialize internal package state
 .onLoad <- function(libname, pkgname) {
-  assign("NightowlOptions",
-    nightowl:::.NightowlOptions$new(),
-    env = globalenv()
-  )
+  # Initialize options in package environment instead of global environment
+  .pkg_env$nightowl_options <- .NightowlOptions$new()
 }

@@ -32,8 +32,9 @@ test_that("summary works", {
   nightowl::Summary$new(testdata, "qux", "foo", method = nightowl::summarise_categorical_barplot)$kable()
   nightowl::Summary$new(testdata %>% dplyr::filter(foo == "A"), "qux", "foo", method = nightowl::summarise_categorical_barplot)$kable()
 
-  NightowlOptions$set_colors(picasso::roche_colors() %>% rev())
-  NightowlOptions$set_header_width(10)
+  options <- get_nightowl_options()
+  options$set_colors(picasso::roche_colors() %>% rev())
+  options$set_header_width(10)
   nightowl::Summary$new(testdata, "qux", "foo", method = nightowl::summarise_categorical_barplot)$kable()
 
   nightowl::Summary$new(testdata, "baz", "s1", method = nightowl::summarise_numeric_violin)$raw()

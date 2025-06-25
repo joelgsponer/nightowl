@@ -137,14 +137,15 @@ ggpairs <- function(DATA,
   #*******************************************************************************
   # Transformations
   if (!is.null(transform)) {
-    purrr::iwalk(transform, function(.f, .var) {
-      .f <- match.fun(.f)
-      .var <- mapping[[.var]]
+    DATA <- purrr::reduce(names(transform), function(DATA, .var_name) {
+      .f <- match.fun(transform[[.var_name]])
+      .var <- mapping[[.var_name]]
       if (!is.null(.var)) {
-        DATA <<- DATA %>%
+        DATA <- DATA %>%
           dplyr::mutate(!!rlang::sym(.var) := .f(!!rlang::sym(.var)))
       }
-    })
+      return(DATA)
+    }, .init = DATA)
   }
   #*******************************************************************************
   # Spread data

@@ -47,3 +47,28 @@
   )
 )
 # ====
+
+#' Get Nightowl Package Options
+#' 
+#' @description Access the global nightowl options instance from package namespace
+#' @return NightowlOptions R6 object instance
+#' @export
+get_nightowl_options <- function() {
+  if (is.null(.pkg_env$nightowl_options)) {
+    .pkg_env$nightowl_options <- .NightowlOptions$new()
+  }
+  return(.pkg_env$nightowl_options)
+}
+
+#' Set Nightowl Package Options  
+#' 
+#' @description Replace the global nightowl options instance
+#' @param options NightowlOptions R6 object instance
+#' @export
+set_nightowl_options <- function(options) {
+  if (!inherits(options, "NightowlOptions")) {
+    stop("options must be a NightowlOptions object")
+  }
+  .pkg_env$nightowl_options <- options
+  invisible(options)
+}
