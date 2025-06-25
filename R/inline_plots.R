@@ -113,7 +113,7 @@ add_barplot <- function(x,
                         height = 0.3,
                         width = 2.5,
                         scaling = 1,
-                        colors = NightowlOptions$get_colors) {
+                        colors = get_nightowl_options()$get_colors) {
   if (!is.factor(x)) {
     x <- factor(x) %>%
       forcats::fct_explicit_na()
@@ -430,12 +430,18 @@ add_scale <- function(obj,
   obj <- dplyr::ungroup(obj)
   columns <- purrr::imap(obj, ~ if (nightowl::is_NightowlPlots(.x)) .y else NULL) %>%
     purrr::compact()
-  options_svg <- NULL
-  ggs <- purrr::map(columns, function(.column) {
-    .obj <- obj[[.column]]
+  # Get options_svg from first valid column
+  options_svg <- if (length(columns) > 0) {
+    .obj <- obj[[columns[1]]]
     .options_svg <- .obj[[1]]$options_svg
     .options_svg$height <- 0.3
-    options_svg <<- .options_svg
+    .options_svg
+  } else {
+    NULL
+  }
+  
+  ggs <- purrr::map(columns, function(.column) {
+    .obj <- obj[[.column]]
     .gg <- nightowl::as_ggplot(.obj)[[1]]
     .gg$layers <- NULL
     .gg +

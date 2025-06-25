@@ -186,19 +186,24 @@ DeclarativePlot <- R6::R6Class("DeclarativePlot",
       if (!is.null(transform)) {
         transform_data <- transform$data
         transform <- transform[waRRior::pop(names(transform), "data")]
-        purrr::iwalk(transform, function(.f, .var) {
+        .data <- purrr::reduce(names(transform), function(.data, .var_name) {
+          .f <- transform[[.var_name]]
           if (is.character(.f)) .f <- waRRior::getfun(.f)
-          .var <- mapping[[.var]]
+          .var <- mapping[[.var_name]]
           if (!is.null(.var)) {
-            .data <<- .data %>%
+            .data <- .data %>%
               dplyr::mutate(!!rlang::sym(.var) := .f(!!rlang::sym(.var)))
           }
-        })
+          return(.data)
+        }, .init = .data)
         if (!is.null(transform_data)) {
           if (is.character(transform_data)) .f <- waRRior::getfun(transform_data)
           res_tranform_data <- .f(.data, mapping)
           self$data <- res_tranform_data$data
           self$mapping <- res_tranform_data$mapping
+        } else {
+          # Update self$data with transformed data when no transform_data function
+          self$data <- .data
         }
       }
     },
