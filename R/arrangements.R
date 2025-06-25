@@ -1,10 +1,8 @@
 # =================================================
-#' @title
-#' MISSING_TITLE
-#' @description
-#' @detail
-#' @param
-#' @return
+#' @title Arrange Multiple Summary Tables
+#' @description Creates a responsive layout displaying multiple summary tables in a flexbox container
+#' @param tbls Named list of summary tables to display side by side
+#' @return HTML object with arranged summary tables that can be viewed in a browser
 #' @export
 arrange_summaries <- function(tbls) {
   # Full version

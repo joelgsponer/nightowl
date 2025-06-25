@@ -1,10 +1,10 @@
 # =================================================
-#' @title
-#' MISSING_TITLE
+#' @title Check if object is a Plot instance
 #' @description
-#' @detail
-#' @param
-#' @return
+#' Tests whether an object inherits from both the Plot and R6 classes,
+#' confirming it is a valid Plot object.
+#' @param x Any R object to test
+#' @return Logical. TRUE if object is a Plot instance, FALSE otherwise
 #' @export
 is_Plot <- function(x) {
   all(
@@ -13,11 +13,25 @@ is_Plot <- function(x) {
   )
 }
 # ===============================================================================
-#' R6 Class
+#' R6 Class for Plot Objects
 #'
 #' @description
+#' A comprehensive R6 class for creating, managing, and rendering plot objects.
+#' Supports ggplot2 objects with SVG rendering, HTML output, and customizable styling.
 #'
-#' @detail
+#' @details
+#' The Plot class provides a flexible interface for plot objects with:
+#' - SVG rendering with customizable dimensions
+#' - HTML output with CSS styling support
+#' - Automatic resizing capabilities
+#' - Memoized rendering for performance
+#' 
+#' @field plot The underlying plot object (typically ggplot2)
+#' @field type String identifier for the plot type
+#' @field options_svg List of SVG rendering options (width, height, scaling)
+#' @field css List of CSS styling options (class, style)
+#' @field resize Logical indicating if plots should auto-resize
+#' 
 #' @export
 Plot <- R6::R6Class("Plot",
   public = list(
@@ -117,11 +131,30 @@ Plot <- R6::R6Class("Plot",
   )
 )
 # ===============================================================================
-#' R6 Class
+#' R6 Class for Declarative Plot Construction
 #'
 #' @description
+#' An advanced R6 class that extends Plot to provide declarative plot construction
+#' with automatic data processing, transformation, and layered visualization building.
 #'
-#' @detail
+#' @details
+#' DeclarativePlot enables building complex visualizations through:
+#' - Declarative mapping of data to aesthetics
+#' - Automatic data selection and transformation
+#' - Layered geometry and scale management
+#' - Faceting and theming support
+#' - Optimized rendering with memoization
+#' 
+#' This class is designed for programmatic plot construction where plot
+#' specifications are built incrementally through configuration objects.
+#' 
+#' @field data The source data frame for the plot
+#' @field mapping List of aesthetic mappings (x, y, color, fill, etc.)
+#' @field layers List of plot layers (geometries, statistics)
+#' @field scales List of scale specifications
+#' @field facets Faceting specification
+#' @field theming Theme configuration
+#' 
 #' @export
 DeclarativePlot <- R6::R6Class("DeclarativePlot",
   inherit = nightowl::Plot,
@@ -151,6 +184,10 @@ DeclarativePlot <- R6::R6Class("DeclarativePlot",
     # Intitalize ---------------------------------------------------------------
     initialize = function(...) {
       super$initialize()
+      
+      # Initialize memoized plot function once during object creation
+      private$memoized_plot_fn <- memoise::memoise(private$generate_plot)
+      
       args <- list(...)
       purrr::imap(list(...), function(.x, .y) {
         if (.y %in% names(self)) {
@@ -226,7 +263,7 @@ DeclarativePlot <- R6::R6Class("DeclarativePlot",
     # ggplot ---
     plot = NULL,
     set_plot = function() {
-      # Create cache key from plot parameters
+      # Create serialized cache key for better consistency
       cache_key <- list(
         data = self$data,
         mapping = self$mapping,
@@ -240,15 +277,10 @@ DeclarativePlot <- R6::R6Class("DeclarativePlot",
         dodge = self$dodge
       )
       
-      # Create memoized plot generation function with cache tracking
-      if (is.null(private$memoized_plot_fn)) {
-        private$memoized_plot_fn <- memoise::memoise(private$generate_plot)
-      }
-      
       # Track if this is a cache hit by comparing counters before/after
       misses_before <- private$cache_misses
       
-      # Generate plot using memoized function with cache key
+      # Generate plot using pre-initialized memoized function
       self$plot <- private$memoized_plot_fn(cache_key)
       
       # If misses didn't increase, it was a cache hit
@@ -258,7 +290,11 @@ DeclarativePlot <- R6::R6Class("DeclarativePlot",
     },
     # Cache invalidation methods
     invalidate_cache = function() {
-      private$memoized_plot_fn <- NULL
+      # Clear the memoised cache and recreate the function
+      if (!is.null(private$memoized_plot_fn)) {
+        memoise::forget(private$memoized_plot_fn)
+        private$memoized_plot_fn <- memoise::memoise(private$generate_plot)
+      }
       invisible(self)
     },
     
@@ -319,6 +355,7 @@ DeclarativePlot <- R6::R6Class("DeclarativePlot",
     generate_plot = function(cache_key) {
       # Increment cache miss counter (only called on actual generation)
       private$cache_misses <- private$cache_misses + 1
+      
       # Extract parameters from cache_key
       data <- cache_key$data
       mapping <- cache_key$mapping

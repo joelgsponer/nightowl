@@ -418,12 +418,17 @@ Coxph <- R6::R6Class("Coxph",
   )
 )
 # =================================================
-#' @title
-#' MISSING_TITLE
-#' @description
-#' @detail
-#' @param
-#' @return
+#' @title Fit Cox Proportional Hazards Model
+#' @description Fits a Cox proportional hazards model and returns tidy results with confidence intervals
+#' @param data Data frame containing the survival data
+#' @param time Character string specifying the time variable name
+#' @param event Character string specifying the event variable name
+#' @param treatment Character string specifying the treatment variable name
+#' @param covariates Character vector of covariate variable names (optional)
+#' @param strata Character vector of stratification variable names (optional)
+#' @param exponentiate Logical indicating whether to exponentiate coefficients (default: FALSE)
+#' @param ... Additional arguments passed to survival::coxph
+#' @return Tidy data frame of model results with attached attributes containing model details
 #' @export
 fit_coxph <- function(data, time, event, treatment, covariates, strata, exponentiate = FALSE, ...) {
   cli::cli_h1("🦉 Fitting Cox Proportional Hazard Model")
@@ -506,12 +511,10 @@ fit_coxph <- function(data, time, event, treatment, covariates, strata, exponent
 }
 # =================================================
 # =================================================
-#' @title
-#' MISSING_TITLE
-#' @description
-#' @detail
-#' @param
-#' @oetun
+#' @title Plot Cox Proportional Hazards Model Results
+#' @description Creates a forest plot visualization of Cox model results with hazard ratios
+#' @param data Data frame containing the survival data
+#' @return Forest plot visualization with hazard ratios and confidence intervals
 #' @export
 plot_coxph <- function(data,
                        time,

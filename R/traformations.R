@@ -1,10 +1,9 @@
 # =================================================
-#' @title
-#' MISSING_TITLE
-#' @description
-#' @detail
-#' @param
-#' @return
+#' @title Calculate Percentage Transformation
+#' @description Transforms count data to percentages within groups
+#' @param data Data frame containing the data to transform
+#' @param mapping List specifying variable mappings including x, facet_row, and facet_col
+#' @return List containing transformed data with percentage column and updated mapping
 #' @export
 percentage <- function(data, mapping) {
   n <- data %>%
@@ -20,12 +19,11 @@ percentage <- function(data, mapping) {
   return(list(data = join, mapping = mapping))
 }
 # =================================================
-#' @title
-#' MISSING_TITLE
-#' @description
-#' @detail
-#' @param
-#' @return
+#' @title Calculate Frequency Transformation
+#' @description Transforms count data to frequencies (proportions) within groups
+#' @param data Data frame containing the data to transform
+#' @param mapping List specifying variable mappings including x variable
+#' @return List containing transformed data with frequency column and updated mapping
 #' @export
 frequency <- function(data, mapping) {
   n <- data %>%
@@ -42,19 +40,17 @@ frequency <- function(data, mapping) {
 }
 # =================================================
 # =================================================
-#' @title
-#' MISSING_TITLE
-#' @description
-#' @detail
-#' @param
-#' @return
+#' @title Calculate Count Transformation
+#' @description Counts occurrences of combinations in grouped data
+#' @param data Data frame containing the data to count
+#' @param mapping List specifying variable mappings
+#' @return List containing counted data with n column and updated mapping
 #' @export
 count <- function(data, mapping) {
   n <- data %>%
     dplyr::group_by_all() %>%
     dplyr::tally()
   mapping$y <- "n"
-  join[[mapping$y]] <- join$n / join$N * 100
-  return(list(data = join, mapping = mapping))
+  return(list(data = n, mapping = mapping))
 }
 # =================================================

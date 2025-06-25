@@ -183,12 +183,13 @@ ggpairs <- function(DATA,
 }
 # ===============================================================================
 # =================================================
-#' @title
-#' MISSING_TITLE
-#' @description
-#' @detail
-#' @param
-#' @return
+#' @title Create Histogram for Diagonal of Correlation Matrix
+#' @description Generates a styled histogram plot for diagonal panels in ggpairs correlation matrix
+#' @param data Data frame containing the variables to plot
+#' @param mapping ggplot2 aesthetic mappings
+#' @param method Method for fitting (default: "lm")
+#' @param ... Additional arguments passed to styled_plot
+#' @return ggplot object for the diagonal panel
 #' @export
 this_f <- function(data, mapping, method = "lm", ...) {
   .mapping <- purrr::map(mapping, function(.x) {

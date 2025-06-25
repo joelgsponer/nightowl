@@ -1,10 +1,8 @@
 # =================================================
-#' @title
-#' MISSING_TITLE
-#' @description
-#' @detail
-#' @param
-#' @return
+#' @title Plot Grouped Kaplan-Meier Curves
+#' @description Creates multiple Kaplan-Meier survival curves grouped by a splitting variable
+#' @param data Data frame containing the survival data
+#' @return HTML object with arranged Kaplan-Meier plots that can be viewed in a browser
 #' @export
 plot_grouped_km <- function(data,
                             time,
@@ -71,12 +69,10 @@ plot_grouped_km <- function(data,
 }
 
 # =================================================
-#' @title
-#' MISSING_TITLE
-#' @description
-#' @detail
-#' @param
-#' @return
+#' @title Plot Kaplan-Meier Survival Curve
+#' @description Creates an interactive Kaplan-Meier survival curve with risk table and statistical tests
+#' @param data Data frame containing the survival data
+#' @return HTML object with interactive Kaplan-Meier plot or ggplot object if as_ggplot = TRUE
 #' @export
 plot_km <- function(data,
                     time,
@@ -284,12 +280,12 @@ plot_km <- function(data,
     htmltools::browsable()
 }
 # =================================================
-#' @title
-#' MISSING_TITLE
-#' @description
-#' @detail
-#' @param
-#' @return
+#' @title Calculate Kaplan-Meier P-value
+#' @description Calculates the log-rank test p-value for survival differences
+#' @param .formula Survival formula object
+#' @param data Data frame containing the survival data
+#' @param html Logical indicating whether to return HTML formatted output (default: TRUE)
+#' @return P-value from log-rank test, optionally formatted as HTML
 #' @export
 km_pvalue <- function(.formula, data, html = TRUE) {
   p <- survival::survdiff(.formula, data = data) %>%
@@ -305,12 +301,16 @@ km_pvalue <- function(.formula, data, html = TRUE) {
   return(p)
 }
 # =================================================
-#' @title
-#' MISSING_TITLE
-#' @description
-#' @detail
-#' @param
-#' @return
+#' @title Fit Kaplan-Meier Survival Model
+#' @description Fits a Kaplan-Meier survival model and returns tidy results
+#' @param data Data frame containing the survival data
+#' @param time Character string specifying the time variable name
+#' @param event Character string specifying the event variable name
+#' @param treatment Character string specifying the treatment/grouping variable name
+#' @param covariates Character vector of covariate variable names (optional)
+#' @param landmark Numeric value for landmark analysis time point (optional)
+#' @param ... Additional arguments passed to survfit
+#' @return Tidy data frame with survival estimates and confidence intervals
 #' @export
 fit_km <- function(data, time, event, treatment, covariates = NULL, landmark = NULL, ...) {
   # Landmark -------------------------------------------------------------------
@@ -331,12 +331,10 @@ fit_km <- function(data, time, event, treatment, covariates = NULL, landmark = N
     dplyr:::mutate(tooltip = round(estimate, 2))
 }
 # =================================================
-#' @title
-#' MISSING_TITLE
-#' @description
-#' @detail
-#' @param
-#' @return
+#' @title Add Time Zero to Kaplan-Meier Fit
+#' @description Adds time zero point to Kaplan-Meier survival data for complete curves
+#' @param fit Data frame from fit_km containing survival estimates
+#' @return Data frame with time zero point added for each stratum
 #' @export
 km_add_0 <- function(fit) {
   fit %>%
@@ -360,12 +358,11 @@ km_add_0 <- function(fit) {
     dplyr::ungroup()
 }
 # =================================================
-#' @title
-#' MISSING_TITLE
-#' @description
-#' @detail
-#' @param
-#' @return
+#' @title Generate Kaplan-Meier Summary
+#' @description Creates a formatted summary of survival differences using survdiff
+#' @param .formula Survival formula object
+#' @param data Data frame containing the survival data
+#' @return HTML formatted summary of survival differences
 #' @export
 km_summary <- function(.formula, data) {
   res <- survival::survdiff(.formula, data = data) %>%
@@ -375,12 +372,13 @@ km_summary <- function(.formula, data) {
   shiny::tag("pre", res)
 }
 # =================================================
-#' @title
-#' MISSING_TITLE
-#' @description
-#' @detail
-#' @param
-#' @return
+#' @title Create Kaplan-Meier Risk Table
+#' @description Generates a risk table showing number at risk at specified time intervals
+#' @param fit Data frame from fit_km containing survival estimates
+#' @param what Character string specifying what to display (default: "n.risk")
+#' @param break_width Numeric value for time interval width (default: 10)
+#' @param kable Logical indicating whether to return formatted kable table (default: TRUE)
+#' @return Risk table as kable HTML or data frame
 #' @export
 km_table <- function(fit, what = "n.risk", break_width = 10, kable = T) {
   fit <- nightowl::km_add_0(fit)
@@ -417,12 +415,10 @@ km_table <- function(fit, what = "n.risk", break_width = 10, kable = T) {
   }
 }
 # =================================================
-#' @title
-#' MISSING_TITLE
-#' @description
-#' @detail
-#' @param
-#' @return
+#' @title Plot Compact Grouped Kaplan-Meier Curves
+#' @description Creates compact multiple Kaplan-Meier curves with minimal styling
+#' @param data Data frame containing the survival data
+#' @return HTML object with compact arranged Kaplan-Meier plots
 #' @export
 plot_grouped_km_compact <- function(data,
                                     time,
@@ -454,12 +450,10 @@ plot_grouped_km_compact <- function(data,
   )
 }
 # =================================================
-#' @title
-#' MISSING_TITLE
-#' @description
-#' @detail
-#' @param
-#' @return
+#' @title Plot Kaplan-Meier with Covariate Distribution
+#' @description Creates Kaplan-Meier curves with additional panels showing covariate distributions over time
+#' @param data Data frame containing the survival data
+#' @return Interactive plot combining survival curves and covariate distributions
 #' @export
 plot_km_covariates <- function(data,
                                time,
