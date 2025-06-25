@@ -58,7 +58,7 @@ Forest plots are one of nightowl's signature features. Let's start with a simple
 
 ```{r forest-basic}
 # Create a basic forest plot
-forestplot(estimate = 0.75, lower = 0.5, upper = 1.1)
+forestplot(x = 0.75, xmin = 0.5, xmax = 1.1)
 ```
 
 This creates a forest plot showing an estimate of 0.75 with confidence interval from 0.5 to 1.1. The vertical line at 1.0 represents the null hypothesis line.
@@ -68,13 +68,11 @@ This creates a forest plot showing an estimate of 0.75 with confidence interval 
 ```{r forest-styled}
 # Create a styled forest plot
 forestplot(
-  estimate = 0.65, 
-  lower = 0.4, 
-  upper = 0.9,
-  height = 0.4,
-  theme = theme_minimal()
-) +
-  labs(title = "Treatment Effect", subtitle = "Odds Ratio with 95% CI")
+  x = 0.65, 
+  xmin = 0.4, 
+  xmax = 0.9,
+  height = 0.4
+)
 ```
 
 ## Data Summarization with Summary Class
@@ -84,9 +82,10 @@ nightowl provides powerful data summarization capabilities through the `Summary`
 ```{r summary-basic}
 # Create a summary of mpg by cylinder count
 summary_obj <- Summary$new(
-  data = mtcars, 
-  x = "mpg", 
-  by = "cyl"
+  .data = mtcars, 
+  column = "mpg", 
+  group_by = "cyl",
+  method = summarise_numeric_violin
 )
 
 # View the raw summary data
@@ -100,10 +99,10 @@ The Summary class can automatically create appropriate visualizations:
 ```{r summary-plot}
 # Create summary with point range visualization
 mpg_summary <- Summary$new(
-  data = mtcars,
-  x = "mpg", 
-  by = "cyl",
-  method = summarise_numeric_pointrange
+  .data = mtcars,
+  column = "mpg", 
+  group_by = "cyl",
+  method = summarise_numeric_violin
 )
 
 # Display as interactive table
@@ -116,12 +115,15 @@ nightowl's declarative plotting system lets you describe your visualization at a
 
 ```{r declarative-basic}
 # Create a declarative plot
+# First create a factor column
+mtcars$gear_factor <- factor(mtcars$gear)
+
 plot_obj <- plot(
   data = mtcars,
   mapping = list(
     x = "cyl",
     y = "mpg", 
-    color = "factor(gear)"
+    color = "gear_factor"
   ),
   layers = list(
     list(type = "boxplot"),
@@ -172,9 +174,9 @@ head(clinical_data)
 ```{r treatment-response}
 # Analyze treatment response by age group
 response_summary <- Summary$new(
-  data = clinical_data,
-  x = "response",
-  by = "age_group", 
+  .data = clinical_data,
+  column = "response",
+  group_by = "age_group",
   method = summarise_categorical_barplot
 )
 
@@ -304,16 +306,17 @@ nightowl provides extensive styling options:
 # style_config <- load_style("Boxplot-Dotplot")
 
 # Create styled plot
+# First create a factor column
+mtcars$cyl_factor <- factor(mtcars$cyl)
+
 styled_plot <- plot(
   data = mtcars,
-  mapping = list(x = "factor(cyl)", y = "mpg"),
+  mapping = list(x = "cyl_factor", y = "mpg"),
   layers = list(
     list(type = "boxplot"),
     list(type = "dotplot")
   )
-) +
-  theme_minimal() +
-  labs(title = "Fuel Efficiency by Cylinder Count")
+)
 
 styled_plot
 ```
