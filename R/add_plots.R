@@ -30,7 +30,25 @@ add_geom <- function(geom,
   .data <- g$data
   nightowl:::expand_mapping(mapping)
   if (is.numeric(dplyr::pull(g$data, !!g$mapping$x))) {
-    if (is.character(cut_f)) cut_f <- eval(parse(text = cut_f))
+    # Safe function lookup - only allow specific cut functions
+    if (is.character(cut_f)) {
+      allowed_cut_functions <- c(
+        "cut_interval" = ggplot2::cut_interval,
+        "cut_number" = ggplot2::cut_number,
+        "cut_width" = ggplot2::cut_width
+      )
+      
+      # Remove any namespace prefix
+      func_name <- sub(".*::", "", cut_f)
+      
+      if (!func_name %in% names(allowed_cut_functions)) {
+        stop(paste("Invalid cut function:", cut_f, 
+                   ". Allowed functions are:", 
+                   paste(names(allowed_cut_functions), collapse = ", ")))
+      }
+      
+      cut_f <- allowed_cut_functions[[func_name]]
+    }
     peacock::log("cutting")
     .group <- do.call(cut_f, c(
       list(x = g$data[[rlang::as_label(g$mapping$x)]]),
