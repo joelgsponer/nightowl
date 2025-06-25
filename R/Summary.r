@@ -16,7 +16,7 @@ Summary <- R6::R6Class("Summary",
     options_reactables = list(defaultPageSize = 30),
     options_kable = list(),
     options_test = list(),
-    initialize = function(.data, column, group_by = NULL, method = NULL, labels = NULL, debug = F, ...) {
+    initialize = function(data, column, group_by = NULL, method = NULL, labels = NULL, debug = F, ...) {
       if (debug) browser()
       purrr::imap(list(...), function(.x, .y) {
         if (.y %in% names(self)) {
@@ -25,7 +25,7 @@ Summary <- R6::R6Class("Summary",
       })
       self$column <- column
       self$group_by <- group_by
-      self$set_data(.data)
+      self$set_data(data)
       self$set_labels(labels)
       self$set_type()
       self$set_method(method)

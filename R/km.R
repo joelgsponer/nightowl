@@ -29,10 +29,10 @@ plot_grouped_km <- function(data,
   .formula <- nightowl::create_Surv_formula(data = data, time = time, event = event, treatment = treatment, covariates = covariates)
   res <- data %>%
     waRRior::named_group_split_at(split) %>%
-    purrr::imap(function(.data, .split) {
+    purrr::imap(function(data, .split) {
       cli::cli_progress_step(.split)
-      .data <- droplevels(.data)
-      nightowl::plot_km(.data,
+      data <- droplevels(data)
+      nightowl::plot_km(data,
         time,
         event = event,
         title = title(),
@@ -581,8 +581,8 @@ plot_km_covariates <- function(data,
       purrr::map(purrr::safely(function(.x) {
         times <- .x[[time]] %>% sort()
         res <- purrr::map_df(times, function(.y) {
-          .data <- .x %>% dplyr::filter(time >= .y)
-          dplyr::select_at(.data, .covariate) %>%
+          data <- .x %>% dplyr::filter(time >= .y)
+          dplyr::select_at(data, .covariate) %>%
             tidyr::pivot_longer(cols = names(.)) %>%
             dplyr::group_by(name) %>%
             dplyr::add_count() %>%
