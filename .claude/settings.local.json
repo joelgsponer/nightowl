@@ -44,7 +44,9 @@
       "Bash(BRANCH_NAME=\"issue-11-create-comprehensive-user-documentation\")",
       "Bash(git push:*)",
       "Bash(git push:*)",
-      "Bash(gh pr create:*)"
+      "Bash(gh pr create:*)",
+      "Bash(grep:*)",
+      "Bash(R:*)"
     ],
     "deny": []
   }
