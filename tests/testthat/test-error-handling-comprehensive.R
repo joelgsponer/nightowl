@@ -21,27 +21,27 @@ create_test_data <- function(n = 50) {
 test_that("functions handle invalid data types gracefully", {
   # NULL data
   expect_error(
-    nightowl::Summary$new(data = NULL, x = "var", by = "group"),
+    nightowl::Summary$new(data = NULL, column = "var", group_by = "group"),
     ".*data.*"
   )
   
   # Non-data.frame input
   expect_error(
-    nightowl::Summary$new(data = list(a = 1, b = 2), x = "a", by = "b"),
+    nightowl::Summary$new(data = list(a = 1, b = 2), column = "a", group_by = "b"),
     ".*data.*"
   )
   
   # Empty data frame
   empty_data <- data.frame()
   expect_error(
-    nightowl::Summary$new(data = empty_data, x = "var", by = "group"),
+    nightowl::Summary$new(data = empty_data, column = "var", group_by = "group"),
     ".*empty.*|.*column.*"
   )
   
   # Single row data frame
   single_row <- data.frame(x = 1, y = "A")
   expect_warning(
-    nightowl::Summary$new(data = single_row, x = "x", by = "y"),
+    nightowl::Summary$new(data = single_row, column = "x", group_by = "y"),
     ".*sample size.*|.*row.*"
   )
 })
@@ -51,24 +51,24 @@ test_that("functions validate column names and handle non-existent columns", {
   
   # Non-existent column names
   expect_error(
-    nightowl::Summary$new(data = test_data, x = "nonexistent", by = "categorical_var"),
+    nightowl::Summary$new(data = test_data, column = "nonexistent", group_by = "categorical_var"),
     ".*column.*|.*variable.*"
   )
   
   expect_error(
-    nightowl::Summary$new(data = test_data, x = "numeric_var", by = "nonexistent"),
+    nightowl::Summary$new(data = test_data, column = "numeric_var", group_by = "nonexistent"),
     ".*column.*|.*variable.*"
   )
   
   # Empty string column names
   expect_error(
-    nightowl::Summary$new(data = test_data, x = "", by = "categorical_var"),
+    nightowl::Summary$new(data = test_data, column = "", group_by = "categorical_var"),
     ".*column.*|.*name.*"
   )
   
   # NULL column names
   expect_error(
-    nightowl::Summary$new(data = test_data, x = NULL, by = "categorical_var"),
+    nightowl::Summary$new(data = test_data, column = NULL, group_by = "categorical_var"),
     ".*column.*|.*name.*"
   )
 })
@@ -84,8 +84,8 @@ test_that("functions handle special column names correctly", {
   expect_no_error(
     nightowl::Summary$new(
       data = special_data, 
-      x = "var_with_underscores", 
-      by = "categorical_var"
+      column = "var_with_underscores", 
+      group_by = "categorical_var"
     )
   )
   
@@ -94,8 +94,8 @@ test_that("functions handle special column names correctly", {
     expect_no_error(
       nightowl::Summary$new(
         data = special_data, 
-        x = "`var with spaces`", 
-        by = "categorical_var"
+        column = "`var with spaces`", 
+        group_by = "categorical_var"
       )
     )
   }
@@ -112,8 +112,8 @@ test_that("functions handle missing data appropriately", {
   expect_warning(
     nightowl::Summary$new(
       data = all_missing_data, 
-      x = "numeric_var", 
-      by = "categorical_var"
+      column = "numeric_var", 
+      group_by = "categorical_var"
     ),
     ".*missing.*|.*NA.*"
   )
@@ -125,8 +125,8 @@ test_that("functions handle missing data appropriately", {
   expect_warning(
     nightowl::Summary$new(
       data = all_missing_by, 
-      x = "numeric_var", 
-      by = "categorical_var"
+      column = "numeric_var", 
+      group_by = "categorical_var"
     ),
     ".*missing.*|.*NA.*"
   )
@@ -139,8 +139,8 @@ test_that("functions handle missing data appropriately", {
   expect_no_error(
     nightowl::Summary$new(
       data = mixed_missing, 
-      x = "numeric_var", 
-      by = "categorical_var"
+      column = "numeric_var", 
+      group_by = "categorical_var"
     )
   )
 })
@@ -156,8 +156,8 @@ test_that("functions handle extreme numeric values correctly", {
   expect_warning(
     nightowl::Summary$new(
       data = inf_data, 
-      x = "extreme_values", 
-      by = "categorical_var"
+      column = "extreme_values", 
+      group_by = "categorical_var"
     ),
     ".*infinite.*|.*Inf.*"
   )
@@ -169,8 +169,8 @@ test_that("functions handle extreme numeric values correctly", {
   expect_no_error(
     nightowl::Summary$new(
       data = large_data, 
-      x = "numeric_var", 
-      by = "categorical_var"
+      column = "numeric_var", 
+      group_by = "categorical_var"
     )
   )
   
@@ -181,8 +181,8 @@ test_that("functions handle extreme numeric values correctly", {
   expect_no_error(
     nightowl::Summary$new(
       data = small_data, 
-      x = "numeric_var", 
-      by = "categorical_var"
+      column = "numeric_var", 
+      group_by = "categorical_var"
     )
   )
 })
@@ -195,8 +195,8 @@ test_that("functions handle type mismatches appropriately", {
   expect_no_error(
     nightowl::Summary$new(
       data = test_data, 
-      x = "numeric_var", 
-      by = "categorical_var",
+      column = "numeric_var", 
+      group_by = "categorical_var",
       method = nightowl::summarise_categorical
     )
   )
@@ -208,8 +208,8 @@ test_that("functions handle type mismatches appropriately", {
   expect_error(
     nightowl::Summary$new(
       data = char_as_numeric, 
-      x = "supposed_numeric", 
-      by = "categorical_var",
+      column = "supposed_numeric", 
+      group_by = "categorical_var",
       method = nightowl::summarise_numeric_pointrange
     ),
     ".*numeric.*|.*type.*"
@@ -222,8 +222,8 @@ test_that("functions handle type mismatches appropriately", {
   expect_warning(
     nightowl::Summary$new(
       data = many_levels, 
-      x = "many_factor", 
-      by = "categorical_var"
+      column = "many_factor", 
+      group_by = "categorical_var"
     ),
     ".*levels.*|.*factor.*"
   )
@@ -407,8 +407,8 @@ test_that("functions handle large datasets appropriately", {
   start_time <- Sys.time()
   result <- nightowl::Summary$new(
     data = large_data, 
-    x = "numeric_var", 
-    by = "categorical_var"
+    column = "numeric_var", 
+    group_by = "categorical_var"
   )
   end_time <- Sys.time()
   
@@ -432,8 +432,8 @@ test_that("functions handle datasets with many columns gracefully", {
   expect_no_error(
     nightowl::Summary$new(
       data = wide_data, 
-      x = "numeric_var", 
-      by = "categorical_var"
+      column = "numeric_var", 
+      group_by = "categorical_var"
     )
   )
 })
@@ -446,8 +446,8 @@ test_that("multiple function calls handle error propagation correctly", {
   expect_error({
     summary_obj <- nightowl::Summary$new(
       data = test_data, 
-      x = "nonexistent_var", 
-      by = "categorical_var"
+      column = "nonexistent_var", 
+      group_by = "categorical_var"
     )
     summary_obj$raw()
     summary_obj$kable()
@@ -456,8 +456,8 @@ test_that("multiple function calls handle error propagation correctly", {
   # Partial failure scenarios
   summary_obj <- nightowl::Summary$new(
     data = test_data, 
-    x = "numeric_var", 
-    by = "categorical_var"
+    column = "numeric_var", 
+    group_by = "categorical_var"
   )
   
   # Adding invalid calculation should not break existing functionality

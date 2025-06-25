@@ -1,23 +1,8 @@
 {
   "permissions": {
     "allow": [
-      "Bash(rg:*)",
-      "Bash(git branch:*)",
-      "Bash(git checkout:*)",
-      "Bash(git pull:*)",
-      "Bash(gh issue comment:*)",
-      "Bash(rg:*)",
-      "Bash(gh label create:*)",
-      "Bash(gh issue edit:*)",
-      "Bash(gh issue comment:*)",
-      "Bash(gh label create:*)",
-      "Bash(gh issue edit:*)",
-      "Bash(gh issue view:*)",
-      "Bash(find:*)",
-      "Bash(git checkout:*)",
-      "Bash(Rscript:*)",
-      "Bash(gh issue list:*)",
-      "Bash(grep:*)"
+      "Bash(git fetch:*)",
+      "Bash(BRANCH_NAME=\"issue-29-fix-tests\")"
     ],
     "deny": []
   }

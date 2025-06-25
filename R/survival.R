@@ -38,7 +38,7 @@ create_Surv_formula <- function(data, time, event, treatment, covariates = NULL,
       if (waRRior::length_unique(data[[.covariate]]) > 1) {
         return(.covariate)
       } else {
-        cli::cli_alert("🦉⛔ Covariate `{.covariate}` has only one level. Skipping.")
+        cli::cli_alert("🦉⛔ Covariate `{(.covariate)}` has only one level. Skipping.")
         return(NULL)
       }
     }) %>%
