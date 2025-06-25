@@ -151,6 +151,10 @@ DeclarativePlot <- R6::R6Class("DeclarativePlot",
     # Intitalize ---------------------------------------------------------------
     initialize = function(...) {
       super$initialize()
+      
+      # Initialize memoized plot function once during object creation
+      private$memoized_plot_fn <- memoise::memoise(private$generate_plot)
+      
       args <- list(...)
       purrr::imap(list(...), function(.x, .y) {
         if (.y %in% names(self)) {
@@ -226,7 +230,7 @@ DeclarativePlot <- R6::R6Class("DeclarativePlot",
     # ggplot ---
     plot = NULL,
     set_plot = function() {
-      # Create cache key from plot parameters
+      # Create serialized cache key for better consistency
       cache_key <- list(
         data = self$data,
         mapping = self$mapping,
@@ -240,15 +244,10 @@ DeclarativePlot <- R6::R6Class("DeclarativePlot",
         dodge = self$dodge
       )
       
-      # Create memoized plot generation function with cache tracking
-      if (is.null(private$memoized_plot_fn)) {
-        private$memoized_plot_fn <- memoise::memoise(private$generate_plot)
-      }
-      
       # Track if this is a cache hit by comparing counters before/after
       misses_before <- private$cache_misses
       
-      # Generate plot using memoized function with cache key
+      # Generate plot using pre-initialized memoized function
       self$plot <- private$memoized_plot_fn(cache_key)
       
       # If misses didn't increase, it was a cache hit
@@ -258,7 +257,11 @@ DeclarativePlot <- R6::R6Class("DeclarativePlot",
     },
     # Cache invalidation methods
     invalidate_cache = function() {
-      private$memoized_plot_fn <- NULL
+      # Clear the memoised cache and recreate the function
+      if (!is.null(private$memoized_plot_fn)) {
+        memoise::forget(private$memoized_plot_fn)
+        private$memoized_plot_fn <- memoise::memoise(private$generate_plot)
+      }
       invisible(self)
     },
     
@@ -319,6 +322,7 @@ DeclarativePlot <- R6::R6Class("DeclarativePlot",
     generate_plot = function(cache_key) {
       # Increment cache miss counter (only called on actual generation)
       private$cache_misses <- private$cache_misses + 1
+      
       # Extract parameters from cache_key
       data <- cache_key$data
       mapping <- cache_key$mapping
