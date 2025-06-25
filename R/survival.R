@@ -8,6 +8,22 @@
 #' @export
 create_Surv_formula <- function(data, time, event, treatment, covariates = NULL, strata = NULL, random_effects = NULL) {
   stopifnot(length(treatment) == 1)
+  
+  # Validate all inputs are valid column names
+  all_vars <- c(time, event, treatment, covariates, strata, random_effects)
+  if (!all(all_vars %in% names(data))) {
+    missing_vars <- all_vars[!all_vars %in% names(data)]
+    stop(paste("The following variables are not present in the data:", paste(missing_vars, collapse = ", ")))
+  }
+  
+  # Validate variable names don't contain special characters that could be exploited
+  validate_var_names <- function(vars) {
+    if (!all(grepl("^[a-zA-Z][a-zA-Z0-9._]*$", vars))) {
+      stop("Variable names must start with a letter and contain only letters, numbers, dots, and underscores")
+    }
+  }
+  validate_var_names(all_vars)
+  
   # Remove time and event if present in covariates or strata -------------------
   # Covariates and strata need to have at least two levels ---------------------
   if (!is.null(covariates)) {
@@ -34,37 +50,55 @@ create_Surv_formula <- function(data, time, event, treatment, covariates = NULL,
     }) %>%
       purrr::compact()
   }
-  # if (!is.null(random_effects)) {
-  #   random_effects <- waRRior::pop(effects, c(time, event))
-  #   random_effects <- purrr::map(random_effects, function(.random_effect) {
-  #     if (waRRior::length_unique(data[[.random_effect]]) > 1) {
-  #       return(.random_effect)
-  #     } else {
-  #       cli::cli_alert("🦉⛔ Random Effect `{.random_effect}` has only one level. Skipping.")
-  #       return(NULL)
-  #     }
-  #   }) %>%
-  #     purrr::compact()
-  # }
-  # Put everything together ---------------------------------------------------
-  str_covariates <- if (!is.null(covariates)) {
-    paste0(" + ", covariates, collapse = " ")
-  } else {
-    NULL
+  
+  # Build formula using safe methods -------------------------------------------
+  # Start with the left-hand side (response)
+  lhs <- rlang::call2("Surv", rlang::sym(time), rlang::sym(event), .ns = "survival")
+  
+  # Build the right-hand side (predictors)
+  rhs_terms <- list()
+  
+  # Add treatment
+  rhs_terms <- append(rhs_terms, rlang::sym(treatment))
+  
+  # Add covariates
+  if (!is.null(covariates) && length(covariates) > 0) {
+    covariate_syms <- purrr::map(covariates, rlang::sym)
+    rhs_terms <- append(rhs_terms, covariate_syms)
   }
-  str_strata <- if (!is.null(strata)) {
-    paste0(" + strata(", strata, ")", collapse = " ")
-  } else {
-    NULL
+  
+  # Add strata terms
+  if (!is.null(strata) && length(strata) > 0) {
+    strata_terms <- purrr::map(strata, function(s) {
+      rlang::call2("strata", rlang::sym(s))
+    })
+    rhs_terms <- append(rhs_terms, strata_terms)
   }
-  str_random_effects <- if (!is.null(random_effects)) {
-    paste0(" + (1|", random_effects, ")", collapse = "", sep = "")
-  } else {
-    NULL
+  
+  # Add random effects
+  if (!is.null(random_effects) && length(random_effects) > 0) {
+    re_terms <- purrr::map(random_effects, function(re) {
+      # Create (1|re) structure
+      rlang::call2("||", 1, rlang::sym(re))
+    })
+    rhs_terms <- append(rhs_terms, re_terms)
   }
-  base <- glue::glue("survival::Surv({time}, {event}) ~ {paste(treatment, str_covariates, str_strata, str_random_effects, collapse = '', sep = '')}")
-  cli::cli_alert("🦉 Formula: `{base}`")
-  as.formula(base)
+  
+  # Combine all RHS terms with +
+  if (length(rhs_terms) == 1) {
+    rhs <- rhs_terms[[1]]
+  } else {
+    rhs <- purrr::reduce(rhs_terms, function(x, y) rlang::call2("+", x, y))
+  }
+  
+  # Create the formula
+  formula_obj <- rlang::new_formula(lhs, rhs)
+  
+  # Display the formula (safely)
+  formula_str <- rlang::expr_text(formula_obj)
+  cli::cli_alert("🦉 Formula: `{formula_str}`")
+  
+  return(formula_obj)
 }
 # ===============================================================================
 # .fits <- CHRONO %>%

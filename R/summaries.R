@@ -14,8 +14,9 @@ summarise <- function(data,
                       name_for_column = "Variable",
                       names_sep = ".") {
   stopifnot(is.list(calculations))
-  if (rlang::is_expression(parameters)) {
-    parameters <- eval(parameters)
+  # Remove unsafe eval - parameters should already be a list
+  if (!is.list(parameters)) {
+    stop("parameters must be a list, not an expression")
   }
 
   .calculations <- purrr::imap(calculations, ~ list(
