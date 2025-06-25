@@ -44,7 +44,6 @@ Search for relevant documentation if needed:
 
 ### 6. Formulate Implementation Plan
 Create a structured plan:
-
 PLAN="## Implementation Plan for #$ISSUE_NUMBER
 
 ### Analysis
@@ -72,43 +71,13 @@ Post the plan as a comment on the issue:
 RUN gh issue comment "$ISSUE_NUMBER" --body "$PLAN"
 
 ### 8. Add Labels
-Add appropriate labels to the issue, creating them if they don't exist:
-
-# Function to create label if it doesn't exist
-create_label_if_missing() {
-    local label_name="$1"
-    local label_color="$2"
-    local label_description="$3"
-    if ! gh label list --json name -q ".[] | select(.name == \"$label_name\")"; then
-        echo "Creating label: $label_name"
-        gh label create "$label_name" --color "$label_color" --description "$label_description"
-    fi
-}
-
-
-# Ensure required labels exist
-create_label_if_missing "in-progress" "fbca04" "Work is currently in progress"
-create_label_if_missing "enhancement" "a2eeef" "New feature or request"
-create_label_if_missing "bug" "d73a4a" "Something isn't working"
-create_label_if_missing "feature" "0075ca" "New feature implementation"
-
-# Add default labels
-RUN gh issue edit "$ISSUE_NUMBER" --add-label "in-progress,enhancement"
-
-# Add type-specific labels based on issue title
-if [[ "$ISSUE_TITLE" =~ "bug" ]]; then
-    gh issue edit "$ISSUE_NUMBER" --add-label "bug"
-elif [[ "$ISSUE_TITLE" =~ "feature" ]]; then
-    gh issue edit "$ISSUE_NUMBER" --add-label "feature"
-fi
+Check for available issue labels.
+Add appropriate labels to the issue, create them if they don't exist.
 
 ### 9. Update Project Status
+List available github projects.
+Add issue to the project that seems most fitting.
 Change issue status to "In Progress":
-# Get project info
-PROJECT_ID=$(gh project list --owner "$(gh repo view --json owner -q .owner.login)" --json id,title -q '.[] | select(.title=="Your Project Name") | .id')
-
-# Update status
-RUN gh project item-edit --project-id "$PROJECT_ID" --id "$ISSUE_NUMBER" --field-id "Status" --value "In Progress"
 
 ### 10. Create Worktree Branch
 Set up a new worktree for the feature:
@@ -125,6 +94,7 @@ cd "./tree/$BRANCH_NAME"
 
 ### 11. Reference Issue in Commits
 Ensure all commits reference the issue:
+
 #### Git commit template
 GIT_COMMIT_TEMPLATE="fix: [Brief description]
 
@@ -146,7 +116,6 @@ chmod +x .git/hooks/prepare-commit-msg
 Execute the implementation:
 Add frequent commits, so it can be read like a changelog.
 
-
 #### Run tests
 e.g. npm test || cargo test || pytest
 fix any failed tests. 
@@ -155,12 +124,16 @@ fix any failed tests.
 git add -A
 
 ### 13. Create Pull Request
-Create PR pointing to dev branch:
+Pull and merge dev branch.
+Resolve merge conflicts.
 
 #### Push branch
 git push -u origin "$BRANCH_NAME"
 
 #### Create PR
+Create PR pointing to dev branch:
+
+<example>
 gh pr create \
   --base dev \
   --head "$BRANCH_NAME" \
@@ -180,13 +153,10 @@ Screenshots
 [If applicable]
 
 Closes #$ISSUE_NUMBER"
+</example>
 
 ### 14. Update Project Status to Review
-Change issue status to "In Review":
-RUN gh project item-edit --project-id "$PROJECT_ID" --id "$ISSUE_NUMBER" --field-id "Status" --value "In Review"
-
-### 15. Close the Issue
-The issue will auto-close when PR is merged, but if needed:
+Change issue status to "In Review" in the project
 
 ### 16. Return to Main Branch
 Clean up and return to dev:
@@ -201,7 +171,6 @@ RUN git checkout dev
 RUN git pull origin dev
 
 ## Tips
-- Use meaningful branch names that include the issue number
 - Keep commits focused and reference the issue
 - Update the project board status at each stage
 - Test thoroughly before creating the PR
