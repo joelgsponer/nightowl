@@ -42,6 +42,9 @@ Imports:
     vctrs,
     waRRior
 Suggests:
+    knitr,
     palmerpenguins,
+    rmarkdown,
     testthat,
     vdiffr
+VignetteBuilder: knitr

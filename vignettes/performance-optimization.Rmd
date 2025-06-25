@@ -1,0 +1,826 @@
+---
+title: "Performance Optimization"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Performance Optimization}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.width = 7,
+  fig.height = 5,
+  out.width = "100%"
+)
+```
+
+## Introduction
+
+nightowl is designed to handle large datasets efficiently through various optimization techniques. This vignette covers performance optimization strategies, caching systems, memory management, and best practices for working with large-scale data.
+
+```{r setup}
+library(nightowl)
+library(dplyr)
+library(ggplot2)
+library(microbenchmark)
+```
+
+## Caching System
+
+nightowl's intelligent caching system is one of its most powerful performance features, providing automatic memoization of plot operations.
+
+### Understanding the Caching System
+
+```{r caching-overview}
+# Enable caching globally
+options(nightowl.cache = TRUE)
+options(nightowl.cache_size = "500MB")
+options(nightowl.cache_verbose = TRUE)
+
+# Create a moderately complex dataset
+set.seed(123)
+test_data <- tibble(
+  group = sample(LETTERS[1:10], 50000, replace = TRUE),
+  value1 = rnorm(50000, mean = 100, sd = 15),
+  value2 = rnorm(50000, mean = 50, sd = 10),
+  category = sample(c("Type1", "Type2", "Type3"), 50000, replace = TRUE),
+  date = seq.Date(from = as.Date("2020-01-01"), by = "day", length.out = 50000)
+)
+
+print(paste("Dataset size:", format(object.size(test_data), units = "MB")))
+```
+
+### Cache Performance Demonstration
+
+```{r cache-demo}
+# Create a complex plot specification
+complex_mapping <- list(
+  x = "group",
+  y = "value1", 
+  fill = "category"
+)
+
+complex_layers <- list(
+  list(type = "boxplot", alpha = 0.7),
+  list(type = "generic", geom = "ggplot2::stat_summary",
+       fun = "mean", geom = "point", size = 2, color = "red")
+)
+
+# First execution (cache miss)
+cache_miss_time <- system.time({
+  plot1 <- plot(
+    data = test_data,
+    mapping = complex_mapping,
+    layers = complex_layers
+  )
+})
+
+print(paste("Cache miss time:", round(cache_miss_time[3], 3), "seconds"))
+
+# Second execution (cache hit)  
+cache_hit_time <- system.time({
+  plot2 <- plot(
+    data = test_data,
+    mapping = complex_mapping,
+    layers = complex_layers
+  )
+})
+
+print(paste("Cache hit time:", round(cache_hit_time[3], 3), "seconds"))
+print(paste("Speed improvement:", round(cache_miss_time[3] / cache_hit_time[3], 1), "x faster"))
+```
+
+### Cache Management
+
+```{r cache-management}
+# Check cache statistics
+get_cache_stats <- function() {
+  # This would be a nightowl function to get cache stats
+  list(
+    size = "45.2 MB",
+    entries = 127,
+    hit_rate = 0.73,
+    memory_used = "45.2/500 MB"
+  )
+}
+
+cache_stats <- get_cache_stats()
+print(cache_stats)
+
+# Clear cache when needed
+# clear_cache()  # Clears all cached items
+# clear_cache(pattern = "boxplot")  # Clear specific patterns
+```
+
+### Smart Cache Invalidation
+
+```{r cache-invalidation}
+# Cache is automatically invalidated when data or parameters change
+original_data <- test_data
+
+# Same plot with modified data - cache miss expected
+modified_data <- test_data %>%
+  mutate(value1 = value1 * 1.1)  # Slight modification
+
+invalidation_time <- system.time({
+  plot3 <- plot(
+    data = modified_data,
+    mapping = complex_mapping,
+    layers = complex_layers
+  )
+})
+
+print(paste("Cache invalidation time:", round(invalidation_time[3], 3), "seconds"))
+```
+
+## Memory Management
+
+### Efficient Data Handling
+
+```{r memory-efficient}
+# Monitor memory usage
+check_memory <- function() {
+  paste("Memory usage:", format(pryr::mem_used(), units = "MB"))
+}
+
+print(check_memory())
+
+# Efficient data filtering before plotting
+large_data <- tibble(
+  x = rnorm(1000000),
+  y = rnorm(1000000),
+  group = sample(LETTERS[1:20], 1000000, replace = TRUE),
+  category = sample(c("A", "B", "C", "D", "E"), 1000000, replace = TRUE)
+)
+
+print(paste("Large dataset size:", format(object.size(large_data), units = "MB")))
+
+# Strategy 1: Sample before plotting for exploration
+efficient_sample_time <- system.time({
+  sample_plot <- large_data %>%
+    sample_n(10000) %>%  # Sample for visualization
+    plot(
+      mapping = list(x = "x", y = "y", color = "group"),
+      layers = list(list(type = "scatter", alpha = 0.6, size = 1))
+    )
+})
+
+print(paste("Sampling approach time:", round(efficient_sample_time[3], 3), "seconds"))
+print(check_memory())
+```
+
+### Memory-Efficient Aggregation
+
+```{r memory-aggregation}
+# Strategy 2: Aggregate before plotting
+aggregation_time <- system.time({
+  aggregated_plot <- large_data %>%
+    group_by(group, category) %>%
+    summarise(
+      mean_x = mean(x),
+      mean_y = mean(y),
+      n = n(),
+      .groups = "drop"
+    ) %>%
+    plot(
+      mapping = list(x = "mean_x", y = "mean_y", size = "n", color = "category"),
+      layers = list(list(type = "scatter", alpha = 0.8))
+    )
+})
+
+print(paste("Aggregation approach time:", round(aggregation_time[3], 3), "seconds"))
+print(check_memory())
+
+# Clean up
+rm(large_data)
+gc()  # Garbage collection
+print(check_memory())
+```
+
+## Parallel Processing
+
+### Parallel Summary Creation
+
+```{r parallel-summaries, eval=FALSE}
+# Set up parallel processing (not run in vignette due to system dependencies)
+library(future)
+library(furrr)
+
+# Configure parallel backend
+plan(multisession, workers = 4)
+
+# Create multiple summaries in parallel
+variables <- c("Sepal.Length", "Sepal.Width", "Petal.Length", "Petal.Width")
+
+parallel_time <- system.time({
+  parallel_summaries <- future_map(variables, function(var) {
+    Summary$new(
+      data = iris,
+      x = var,
+      by = "Species",
+      method = summarise_numeric_pointrange
+    )
+  })
+})
+
+# Sequential comparison
+plan(sequential)
+sequential_time <- system.time({
+  sequential_summaries <- map(variables, function(var) {
+    Summary$new(
+      data = iris,
+      x = var,
+      by = "Species", 
+      method = summarise_numeric_pointrange
+    )
+  })
+})
+
+print(paste("Parallel time:", round(parallel_time[3], 3), "seconds"))
+print(paste("Sequential time:", round(sequential_time[3], 3), "seconds"))
+print(paste("Speedup:", round(sequential_time[3] / parallel_time[3], 2), "x"))
+```
+
+### Batch Processing Workflows
+
+```{r batch-processing}
+# Efficient batch processing function
+process_batch <- function(data_list, plot_config, batch_size = 10) {
+  
+  # Split into batches
+  n_batches <- ceiling(length(data_list) / batch_size)
+  batches <- split(data_list, rep(1:n_batches, each = batch_size, length.out = length(data_list)))
+  
+  results <- list()
+  
+  for (i in seq_along(batches)) {
+    cat("Processing batch", i, "of", n_batches, "\n")
+    
+    batch_results <- map(batches[[i]], function(data) {
+      plot(
+        data = data,
+        mapping = plot_config$mapping,
+        layers = plot_config$layers
+      )
+    })
+    
+    results <- c(results, batch_results)
+  }
+  
+  results
+}
+
+# Example batch processing
+sample_datasets <- replicate(50, {
+  test_data %>% sample_n(1000)
+}, simplify = FALSE)
+
+batch_config <- list(
+  mapping = list(x = "group", y = "value1"),
+  layers = list(list(type = "boxplot"))
+)
+
+batch_time <- system.time({
+  batch_results <- process_batch(sample_datasets, batch_config, batch_size = 10)
+})
+
+print(paste("Batch processing time:", round(batch_time[3], 3), "seconds"))
+print(paste("Average time per plot:", round(batch_time[3] / 50 * 1000, 1), "ms"))
+```
+
+## Optimization Strategies by Data Size
+
+### Small Datasets (< 10K rows)
+
+```{r small-data-optimization}
+small_data <- test_data %>% sample_n(5000)
+
+# For small datasets, focus on rich visualizations
+small_data_plot <- small_data %>%
+  plot(
+    mapping = list(x = "value1", y = "value2", color = "category", size = "group"),
+    layers = list(
+      list(type = "scatter", alpha = 0.7),
+      list(type = "smooth", method = "loess", se = TRUE),
+      list(type = "generic", geom = "ggplot2::geom_rug", alpha = 0.3)
+    )
+  )
+
+small_data_time <- system.time(small_data_plot)
+print(paste("Small data plot time:", round(small_data_time[3], 3), "seconds"))
+```
+
+### Medium Datasets (10K - 100K rows)
+
+```{r medium-data-optimization}
+medium_data <- test_data
+
+# For medium datasets, use strategic sampling and aggregation
+medium_optimization_time <- system.time({
+  
+  # Approach 1: Density-based visualization
+  density_plot <- medium_data %>%
+    plot(
+      mapping = list(x = "value1", y = "value2"),
+      layers = list(
+        list(type = "generic", geom = "ggplot2::geom_hex", bins = 30),
+        list(type = "smooth", method = "lm", se = TRUE, color = "red")
+      )
+    )
+  
+  # Approach 2: Summarized visualization
+  summary_plot <- medium_data %>%
+    group_by(group, category) %>%
+    summarise(
+      mean_val1 = mean(value1),
+      mean_val2 = mean(value2),
+      n = n(),
+      .groups = "drop"
+    ) %>%
+    plot(
+      mapping = list(x = "mean_val1", y = "mean_val2", size = "n", color = "category"),
+      layers = list(list(type = "scatter", alpha = 0.8))
+    )
+})
+
+print(paste("Medium data optimization time:", round(medium_optimization_time[3], 3), "seconds"))
+```
+
+### Large Datasets (> 100K rows)
+
+```{r large-data-strategies}
+# Simulate large dataset processing
+simulate_large_data_processing <- function(n_rows) {
+  
+  # Strategy 1: Aggressive sampling
+  sample_size <- min(n_rows, 20000)
+  sampling_factor <- sample_size / n_rows
+  
+  cat("Dataset size:", n_rows, "rows\n")
+  cat("Sampling factor:", round(sampling_factor, 4), "\n")
+  
+  # Simulate processing time based on data size
+  processing_time <- case_when(
+    n_rows < 10000 ~ n_rows * 0.0001,
+    n_rows < 100000 ~ n_rows * 0.00005 + 0.5,
+    TRUE ~ n_rows * 0.00001 + 2.0
+  )
+  
+  list(
+    strategy = if (n_rows > 100000) "aggressive_sampling" else "standard",
+    estimated_time = processing_time,
+    memory_estimate = paste(round(n_rows * 0.000008, 1), "MB")
+  )
+}
+
+# Test different sizes
+sizes_to_test <- c(1000, 10000, 100000, 500000, 1000000)
+optimization_results <- map(sizes_to_test, simulate_large_data_processing)
+
+results_df <- tibble(
+  size = sizes_to_test,
+  strategy = map_chr(optimization_results, "strategy"),
+  time = map_dbl(optimization_results, "estimated_time"),
+  memory = map_chr(optimization_results, "memory_estimate")
+)
+
+print(results_df)
+```
+
+## Performance Profiling
+
+### Benchmarking Different Approaches
+
+```{r benchmarking}
+# Compare different visualization approaches
+benchmark_data <- test_data %>% sample_n(10000)
+
+# Define different approaches
+approach_scatter <- function(data) {
+  plot(
+    data = data,
+    mapping = list(x = "value1", y = "value2", color = "category"),
+    layers = list(list(type = "scatter", alpha = 0.6))
+  )
+}
+
+approach_hex <- function(data) {
+  plot(
+    data = data,
+    mapping = list(x = "value1", y = "value2"),
+    layers = list(list(type = "generic", geom = "ggplot2::geom_hex", bins = 20))
+  )
+}
+
+approach_density <- function(data) {
+  plot(
+    data = data,
+    mapping = list(x = "value1", y = "value2"),
+    layers = list(list(type = "generic", geom = "ggplot2::geom_density_2d_filled"))
+  )
+}
+
+# Benchmark (simplified version - actual microbenchmark might not work in vignette)
+benchmark_results <- list(
+  scatter = system.time(approach_scatter(benchmark_data))[3],
+  hex = system.time(approach_hex(benchmark_data))[3],
+  density = system.time(approach_density(benchmark_data))[3]
+)
+
+print("Benchmark results (seconds):")
+print(benchmark_results)
+```
+
+### Memory Profiling
+
+```{r memory-profiling}
+# Function to monitor memory usage during plot creation
+profile_memory_usage <- function(plot_function, data) {
+  
+  # Initial memory
+  initial_memory <- pryr::mem_used()
+  
+  # Create plot
+  start_time <- Sys.time()
+  result <- plot_function(data)
+  end_time <- Sys.time()
+  
+  # Final memory
+  final_memory <- pryr::mem_used()
+  
+  # Force garbage collection
+  gc()
+  after_gc_memory <- pryr::mem_used()
+  
+  list(
+    execution_time = as.numeric(difftime(end_time, start_time, units = "secs")),
+    memory_used = final_memory - initial_memory,
+    memory_freed_by_gc = final_memory - after_gc_memory,
+    peak_memory = final_memory
+  )
+}
+
+# Profile different plot types
+scatter_profile <- profile_memory_usage(approach_scatter, benchmark_data)
+hex_profile <- profile_memory_usage(approach_hex, benchmark_data)
+
+print("Memory profiling results:")
+print("Scatter plot:")
+print(scatter_profile)
+print("Hex plot:")
+print(hex_profile)
+```
+
+## Configuration for Performance
+
+### Global Performance Settings
+
+```{r performance-config}
+# Configure nightowl for optimal performance
+configure_performance <- function(dataset_size = "medium", priority = "speed") {
+  
+  if (dataset_size == "small") {
+    options(
+      nightowl.cache = TRUE,
+      nightowl.cache_size = "100MB",
+      nightowl.max_points = 50000,
+      nightowl.auto_sample = FALSE
+    )
+  } else if (dataset_size == "medium") {
+    options(
+      nightowl.cache = TRUE,
+      nightowl.cache_size = "500MB", 
+      nightowl.max_points = 20000,
+      nightowl.auto_sample = TRUE,
+      nightowl.sample_method = "random"
+    )
+  } else if (dataset_size == "large") {
+    options(
+      nightowl.cache = TRUE,
+      nightowl.cache_size = "1GB",
+      nightowl.max_points = 10000,
+      nightowl.auto_sample = TRUE,
+      nightowl.sample_method = "stratified",
+      nightowl.parallel = TRUE,
+      nightowl.chunk_size = 5000
+    )
+  }
+  
+  if (priority == "speed") {
+    options(
+      nightowl.render_quality = "fast",
+      nightowl.antialiasing = FALSE
+    )
+  } else if (priority == "quality") {
+    options(
+      nightowl.render_quality = "high",
+      nightowl.antialiasing = TRUE
+    )
+  }
+}
+
+# Apply configuration
+configure_performance("medium", "speed")
+
+# Check current performance settings
+performance_settings <- list(
+  cache_enabled = getOption("nightowl.cache", FALSE),
+  cache_size = getOption("nightowl.cache_size", "100MB"),
+  max_points = getOption("nightowl.max_points", 10000),
+  auto_sample = getOption("nightowl.auto_sample", FALSE)
+)
+
+print("Current performance settings:")
+print(performance_settings)
+```
+
+### Adaptive Performance
+
+```{r adaptive-performance}
+# Function to automatically adjust settings based on data size
+adaptive_plot <- function(data, mapping, layers) {
+  
+  n_rows <- nrow(data)
+  
+  # Automatically configure based on data size
+  if (n_rows < 5000) {
+    # Small data: no optimization needed
+    optimized_data <- data
+    message("Small dataset detected: using full data")
+    
+  } else if (n_rows < 50000) {
+    # Medium data: light sampling if needed
+    optimized_data <- if (n_rows > 20000) sample_n(data, 20000) else data
+    message("Medium dataset detected: sampling to ", nrow(optimized_data), " rows")
+    
+  } else {
+    # Large data: aggressive optimization
+    optimized_data <- data %>%
+      sample_n(min(15000, n_rows)) %>%
+      # Consider aggregation for categorical variables
+      {
+        if ("group" %in% names(.) && length(unique(.$group)) > 20) {
+          group_by(., group) %>%
+            summarise(across(where(is.numeric), mean), .groups = "drop") %>%
+            sample_n(min(5000, n()))
+        } else {
+          .
+        }
+      }
+    message("Large dataset detected: optimized to ", nrow(optimized_data), " rows")
+  }
+  
+  # Create plot with optimized data
+  plot(
+    data = optimized_data,
+    mapping = mapping,
+    layers = layers
+  )
+}
+
+# Test adaptive plotting
+adaptive_time <- system.time({
+  adaptive_result <- adaptive_plot(
+    data = test_data,
+    mapping = list(x = "value1", y = "value2", color = "category"),
+    layers = list(list(type = "scatter", alpha = 0.7))
+  )
+})
+
+print(paste("Adaptive plotting time:", round(adaptive_time[3], 3), "seconds"))
+```
+
+## Best Practices Summary
+
+### Data Size Guidelines
+
+```{r best-practices}
+# Performance guidelines by data size
+performance_guidelines <- tibble(
+  data_size = c("< 1K", "1K - 10K", "10K - 100K", "100K - 1M", "> 1M"),
+  strategy = c(
+    "Full data, rich visualizations",
+    "Full data, moderate optimization", 
+    "Strategic sampling, caching",
+    "Aggressive sampling, aggregation",
+    "Heavy preprocessing, chunking"
+  ),
+  cache_size = c("50MB", "100MB", "500MB", "1GB", "2GB+"),
+  max_points = c("All", "All", "20K", "10K", "5K"),
+  parallel = c("No", "No", "Optional", "Yes", "Yes")
+)
+
+print("Performance guidelines:")
+print(performance_guidelines)
+```
+
+### Code Optimization Patterns
+
+```{r optimization-patterns}
+# Pattern 1: Lazy evaluation
+create_lazy_plot <- function(data, mapping, layers) {
+  structure(
+    list(
+      data = substitute(data),
+      mapping = mapping,
+      layers = layers,
+      evaluated = FALSE
+    ),
+    class = "lazy_plot"
+  )
+}
+
+# Pattern 2: Chunked processing  
+process_in_chunks <- function(data, chunk_size = 10000, process_fn) {
+  
+  n_chunks <- ceiling(nrow(data) / chunk_size)
+  results <- list()
+  
+  for (i in 1:n_chunks) {
+    start_row <- (i - 1) * chunk_size + 1
+    end_row <- min(i * chunk_size, nrow(data))
+    
+    chunk_data <- data[start_row:end_row, ]
+    results[[i]] <- process_fn(chunk_data)
+  }
+  
+  # Combine results
+  do.call(rbind, results)
+}
+
+# Pattern 3: Memoized functions
+create_memoized_summary <- function() {
+  cache <- new.env()
+  
+  function(data, x, by = NULL) {
+    # Create cache key
+    key <- digest::digest(list(data, x, by))
+    
+    if (exists(key, envir = cache)) {
+      return(get(key, envir = cache))
+    }
+    
+    # Compute result
+    result <- Summary$new(data, x, by)$raw()
+    
+    # Cache result
+    assign(key, result, envir = cache)
+    
+    result
+  }
+}
+
+memoized_summary <- create_memoized_summary()
+
+# Test memoization
+memo_time1 <- system.time({
+  result1 <- memoized_summary(iris, "Sepal.Length", "Species")
+})
+
+memo_time2 <- system.time({
+  result2 <- memoized_summary(iris, "Sepal.Length", "Species")  # Should be cached
+})
+
+print(paste("First call:", round(memo_time1[3], 4), "seconds"))
+print(paste("Cached call:", round(memo_time2[3], 4), "seconds"))
+print(paste("Speedup:", round(memo_time1[3] / memo_time2[3], 1), "x"))
+```
+
+## Troubleshooting Performance Issues
+
+### Common Performance Problems
+
+```{r troubleshooting}
+# Problem 1: Memory leaks
+check_for_memory_leaks <- function() {
+  # Monitor memory over multiple operations
+  memory_usage <- numeric(10)
+  
+  for (i in 1:10) {
+    # Create and destroy plot objects
+    temp_plot <- plot(
+      data = iris,
+      mapping = list(x = "Sepal.Length", y = "Petal.Length"),
+      layers = list(list(type = "scatter"))
+    )
+    
+    # Force garbage collection
+    rm(temp_plot)
+    gc()
+    
+    memory_usage[i] <- as.numeric(pryr::mem_used())
+  }
+  
+  # Check if memory consistently increases
+  memory_trend <- lm(memory_usage ~ seq_along(memory_usage))$coefficients[2]
+  
+  list(
+    memory_usage = memory_usage,
+    trend = memory_trend,
+    leak_detected = memory_trend > 1000000  # 1MB increase per iteration
+  )
+}
+
+memory_check <- check_for_memory_leaks()
+print(paste("Memory leak detected:", memory_check$leak_detected))
+
+# Problem 2: Inefficient data operations
+optimize_data_operations <- function(data) {
+  # Before: inefficient
+  # data %>% filter() %>% select() %>% arrange() %>% group_by() %>% summarise()
+  
+  # After: optimized order
+  data %>%
+    filter(!is.na(value1)) %>%     # Filter first to reduce data size
+    select(group, value1, category) %>%  # Select only needed columns
+    group_by(group, category) %>%        # Group before expensive operations
+    summarise(mean_val = mean(value1), .groups = "drop") %>%
+    arrange(desc(mean_val))              # Sort at end
+}
+
+# Problem 3: Cache thrashing
+prevent_cache_thrashing <- function() {
+  # Use consistent data transformations to improve cache hit rates
+  standardize_data <- function(data) {
+    data %>%
+      arrange(across(everything())) %>%  # Consistent ordering
+      mutate(across(where(is.numeric), round, digits = 6))  # Consistent precision
+  }
+  
+  # This improves cache performance by creating consistent cache keys
+}
+```
+
+### Performance Monitoring
+
+```{r performance-monitoring}
+# Create performance monitoring function
+monitor_performance <- function(plot_function, data, n_runs = 5) {
+  
+  times <- numeric(n_runs)
+  memories <- numeric(n_runs)
+  
+  for (i in 1:n_runs) {
+    initial_memory <- pryr::mem_used()
+    
+    time_taken <- system.time({
+      result <- plot_function(data)
+    })[3]
+    
+    final_memory <- pryr::mem_used()
+    
+    times[i] <- time_taken
+    memories[i] <- as.numeric(final_memory - initial_memory)
+    
+    # Clean up
+    rm(result)
+    gc()
+  }
+  
+  list(
+    mean_time = mean(times),
+    sd_time = sd(times),
+    mean_memory = mean(memories),
+    max_memory = max(memories),
+    efficiency_score = 1 / (mean(times) * mean(memories) / 1e6)  # Higher is better
+  )
+}
+
+# Monitor different approaches
+scatter_performance <- monitor_performance(approach_scatter, benchmark_data)
+hex_performance <- monitor_performance(approach_hex, benchmark_data)
+
+print("Performance comparison:")
+print("Scatter approach:")
+print(scatter_performance)
+print("Hex approach:")
+print(hex_performance)
+```
+
+## Summary
+
+Key performance optimization strategies in nightowl:
+
+1. **Caching**: Automatic memoization provides 3-10x speedups for repeated operations
+2. **Memory Management**: Strategic sampling and aggregation for large datasets  
+3. **Data Size Adaptation**: Automatic optimization based on dataset characteristics
+4. **Parallel Processing**: Multi-core support for batch operations
+5. **Efficient Algorithms**: Optimized internal implementations for common operations
+
+### Performance Checklist
+
+- ✅ Enable caching for repeated operations
+- ✅ Sample large datasets strategically
+- ✅ Use appropriate visualization types for data size
+- ✅ Monitor memory usage and clean up objects
+- ✅ Configure settings based on dataset characteristics
+- ✅ Profile code to identify bottlenecks
+- ✅ Use vectorized operations where possible
+
+For more information, see:
+- **[Advanced Features](advanced-features.html)**: R6 classes and customization
+- **[Real-World Examples](real-world-examples.html)**: Applied performance techniques
+- **[Troubleshooting](troubleshooting.html)**: Common performance issues

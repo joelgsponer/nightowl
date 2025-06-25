@@ -1,0 +1,177 @@
+url: https://joelgsponer.github.io/nightowl/
+
+template:
+  bootstrap: 5
+  bootswatch: flatly
+
+home:
+  title: "nightowl " Statistical Visualization for Clinical Research"
+  description: >
+    A comprehensive R package for statistical visualization and analysis,
+    designed for clinical research applications with publication-ready plots
+    and interactive visualizations.
+
+navbar:
+  structure:
+    left:  [intro, reference, articles, tutorials, news]
+    right: [search, github]
+  components:
+    articles:
+      text: Articles
+      menu:
+      - text: Getting Started
+        href: articles/getting-started.html
+      - text: Statistical Visualization  
+        href: articles/statistical-visualization.html
+      - text: Advanced Features
+        href: articles/advanced-features.html
+      - text: Performance Optimization
+        href: articles/performance-optimization.html
+      - text: -------
+      - text: Troubleshooting
+        href: articles/troubleshooting.html
+      - text: Real-World Examples
+        href: articles/real-world-examples.html
+
+reference:
+- title: Core Plotting Functions
+  desc: Main plotting functions for creating visualizations
+  contents:
+  - forestplot
+  - donut_plot
+  - plot
+  - add_inline_plot
+  - add_inline_forestplot
+  - add_inline_histogram
+  - add_inline_pointrange
+
+- title: Statistical Analysis
+  desc: Functions for statistical analysis and modeling
+  contents:
+  - fit_coxph
+  - plot_coxph
+  - grouped_chisq
+  - plot_grouped_chisq
+  - ci_t
+  - calc_test
+  - calc_test_chisq
+  - calc_test_kruskal
+
+- title: Survival Analysis
+  desc: Specialized functions for survival analysis
+  contents:
+  - fit_km
+  - plot_km
+  - plot_grouped_km
+  - plot_grouped_km_compact
+  - plot_km_covariates
+  - km_summary
+  - km_table
+  - km_pvalue
+  - km_add_0
+  - create_Surv_formula
+
+- title: Data Summarization
+  desc: Functions for data summarization and aggregation
+  contents:
+  - starts_with("summarise")
+  - Summary
+  - arrange_summaries
+  - frequency
+  - format_frequencies
+  - percentage
+  - calc_percentage
+
+- title: Interactive Elements & Tables
+  desc: Functions for creating interactive visualizations and tables
+  contents:
+  - render_reactable
+  - render_kable
+  - reactable_default
+  - reactable_grouped_chisq
+  - render_svg
+  - ggplot_to_girafe
+  - as_html
+  - as_ggplot
+
+- title: R6 Classes
+  desc: Object-oriented interfaces for complex operations
+  contents:
+  - Plot
+  - DeclarativePlot
+  - Summary
+  - Coxph
+  - Test
+  - NightowlOptions
+
+- title: Styling and Themes
+  desc: Functions for customizing plot appearance
+  contents:
+  - load_style
+  - styled_plot
+  - colors
+  - add_colors
+  - apply_colors
+  - get_labels
+  - add_theme
+  - apply_theme
+  - ggpairs_theme
+
+- title: Data Transformation
+  desc: Functions for data manipulation and preparation
+  contents:
+  - spread_data
+  - prepare_data_for_plotting
+  - aggregate_y_values
+  - expand_mapping
+  - detect_outliers
+  - count_outliers
+  - count
+
+- title: Geoms and Statistics
+  desc: Custom ggplot2 geoms and statistical transformations
+  contents:
+  - starts_with("geom_")
+  - starts_with("Geom")
+  - starts_with("Stat")
+  - starts_with("stat_")
+
+- title: Utilities
+  desc: Helper functions and utilities
+  contents:
+  - pipe
+  - aes
+  - generic
+  - this_f
+  - peek
+  - n
+  - fct_natural
+  - format_p_value
+  - formated_mean
+  - text_wraping
+  - label_with_wraping
+  - add_text_wraping
+
+articles:
+- title: Getting Started
+  navbar: ~
+  contents:
+  - getting-started
+
+- title: Core Features
+  desc: Learn about nightowl's main capabilities
+  contents:
+  - statistical-visualization
+  - advanced-features
+  - performance-optimization
+
+- title: Specialized Topics
+  desc: Advanced topics and use cases
+  contents:
+  - troubleshooting
+  - real-world-examples
+
+news:
+  releases:
+  - text: "Version 0.0.1"
+    href: https://github.com/joelgsponer/nightowl/releases/tag/v0.0.1
