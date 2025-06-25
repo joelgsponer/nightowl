@@ -25,7 +25,7 @@ test_that("forestplot with styling works", {
 
 test_that("Summary class works with correct parameters", {
   # Test basic Summary instantiation (fixing vignette parameter issues)
-  summary_obj <- Summary$new(.data = mtcars, column = "mpg", group_by = "cyl", method = summarise_numeric_violin)
+  summary_obj <- Summary$new(data = mtcars, column = "mpg", group_by = "cyl", method = summarise_numeric_violin)
   expect_s3_class(summary_obj, "R6")
   
   # Test raw() method
@@ -39,7 +39,7 @@ test_that("Summary class works with correct parameters", {
 test_that("Summary with pointrange method works", {
   # Test Summary with specific method
   mpg_summary <- Summary$new(
-    .data = mtcars,
+    data = mtcars,
     column = "mpg", 
     group_by = "cyl",
     method = summarise_numeric_violin
@@ -114,7 +114,7 @@ test_that("treatment response analysis works", {
   
   # Test response analysis (fix parameter names from vignette)
   response_summary <- Summary$new(
-    .data = clinical_data,
+    data = clinical_data,
     column = "response",
     group_by = "age_group",
     method = summarise_categorical_barplot
