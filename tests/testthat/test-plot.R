@@ -1,4 +1,4 @@
-test_that("multiplication works", {
+test_that("declarative plots execute and render correctly with various configurations", {
   require(magrittr)
   testdata <- ChickWeight %>%
     dplyr::filter(Time < 10)
