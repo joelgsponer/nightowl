@@ -14,23 +14,32 @@ LazyData: true
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
 Imports: 
+    cli,
     dplyr,
+    forcats,
     furrr,
     GGally,
+    ggdist,
+    gghalves,
     ggplot2,
     ggpmisc,
     ggpubr,
+    glue,
     magrittr,
     memoise,
     MetBrewer,
+    patchwork,
     peacock,
     picasso,
-    pillar,
     purrr,
     reactable,
     reactablefmtr,
+    rlang,
     stringr,
+    survival,
     tibble,
+    tidyr,
+    tidyselect,
     vctrs,
     waRRior
 Suggests:
