@@ -226,53 +226,151 @@ DeclarativePlot <- R6::R6Class("DeclarativePlot",
     # ggplot ---
     plot = NULL,
     set_plot = function() {
-      self$plot <- memoise::memoise(function() {
-        # Setup Plot
-        .aes <- nightowl:::aes(self$mapping)
-        g <- ggplot2::ggplot(self$data, .aes)
-        # Add layers
-        g <- purrr::reduce(self$layers, function(.x, .y) {
-          .y$g <- .x
-          .y <- rev(.y)
-          if (is.null(.y$dodge)) .y$dodge <- self$dodge
-          type <- .y$type
-          .y$type <- NULL
-          .y <- purrr::compact(.y)
-          thiscall <- glue::glue("do.call(nightowl::{type}, .y)")
-          eval(parse(text = thiscall))
-        }, .init = g)
-        # ************************************************************************
-        # Add scales
-        g <- purrr::reduce(self$scales, function(.x, .y) {
-          .y$g <- .x
-          .y <- rev(.y)
-          .y <- purrr::compact(.y)
-          thiscall <- glue::glue("do.call(nightowl::scales, .y)")
-          eval(parse(text = thiscall))
-        }, .init = g)
-        #*******************************************************************************
-        # Facets
-        g <- do.call(nightowl::facets, c(list(g = g), self$facets))
-        #*******************************************************************************
-        # Axis
-        g <- do.call(nightowl::axis, c(list(g = g), self$axis))
-        # #*******************************************************************************
-        # Colors and theming
-        g <- do.call(nightowl::colors, c(list(g = g, DATA = self$data, mapping = self$mapping), self$colors))
-        # # Add Theme
-        g <- do.call(nightowl::theme, c(list(g = g), self$theming))
-        # #*******************************************************************************
-        # # Annotation
-        g <- do.call(nightowl::annotation, c(list(g = g), self$mapping, self$annotation, self$axis))
-        #*******************************************************************************
-        # Finishing up
-        return(g)
-      })()
+      # Create cache key from plot parameters
+      cache_key <- list(
+        data = self$data,
+        mapping = self$mapping,
+        layers = self$layers,
+        scales = self$scales,
+        facets = self$facets,
+        axis = self$axis,
+        colors = self$colors,
+        theming = self$theming,
+        annotation = self$annotation,
+        dodge = self$dodge
+      )
+      
+      # Create memoized plot generation function with cache tracking
+      if (is.null(private$memoized_plot_fn)) {
+        private$memoized_plot_fn <- memoise::memoise(private$generate_plot)
+      }
+      
+      # Track if this is a cache hit by comparing counters before/after
+      misses_before <- private$cache_misses
+      
+      # Generate plot using memoized function with cache key
+      self$plot <- private$memoized_plot_fn(cache_key)
+      
+      # If misses didn't increase, it was a cache hit
+      if (private$cache_misses == misses_before) {
+        private$cache_hits <- private$cache_hits + 1
+      }
     },
+    # Cache invalidation methods
+    invalidate_cache = function() {
+      private$memoized_plot_fn <- NULL
+      invisible(self)
+    },
+    
+    # Cache statistics methods
+    get_cache_stats = function() {
+      list(
+        hits = private$cache_hits,
+        misses = private$cache_misses,
+        hit_rate = if ((private$cache_hits + private$cache_misses) > 0) {
+          private$cache_hits / (private$cache_hits + private$cache_misses)
+        } else {
+          0
+        }
+      )
+    },
+    
+    reset_cache_stats = function() {
+      private$cache_hits <- 0
+      private$cache_misses <- 0
+      invisible(self)
+    },
+    
+    # Override setters to invalidate cache when properties change
+    set_data = function(value) {
+      self$data <- value
+      self$invalidate_cache()
+      invisible(self)
+    },
+    
+    set_mapping = function(value) {
+      self$mapping <- value
+      self$invalidate_cache()
+      invisible(self)
+    },
+    
+    set_layers = function(value) {
+      self$layers <- value
+      self$invalidate_cache()
+      invisible(self)
+    },
+    
+    set_scales = function(value) {
+      self$scales <- value
+      self$invalidate_cache()
+      invisible(self)
+    },
+    
     # Format ---
     type = "<NightowlDeclarativePlot>",
     format = function(...) {
       return(self$type)
+    }
+  ),
+  private = list(
+    memoized_plot_fn = NULL,
+    cache_hits = 0,
+    cache_misses = 0,
+    generate_plot = function(cache_key) {
+      # Increment cache miss counter (only called on actual generation)
+      private$cache_misses <- private$cache_misses + 1
+      # Extract parameters from cache_key
+      data <- cache_key$data
+      mapping <- cache_key$mapping
+      layers <- cache_key$layers
+      scales <- cache_key$scales
+      facets <- cache_key$facets
+      axis <- cache_key$axis
+      colors <- cache_key$colors
+      theming <- cache_key$theming
+      annotation <- cache_key$annotation
+      dodge <- cache_key$dodge
+      
+      # Setup Plot
+      .aes <- nightowl:::aes(mapping)
+      g <- ggplot2::ggplot(data, .aes)
+      # Add layers
+      g <- purrr::reduce(layers, function(.x, .y) {
+        .y$g <- .x
+        .y <- rev(.y)
+        if (is.null(.y$dodge)) .y$dodge <- dodge
+        type <- .y$type
+        .y$type <- NULL
+        .y <- purrr::compact(.y)
+        thiscall <- glue::glue("do.call(nightowl::{type}, .y)")
+        eval(parse(text = thiscall))
+      }, .init = g)
+      # ************************************************************************
+      # Add scales
+      g <- purrr::reduce(scales, function(.x, .y) {
+        .y$g <- .x
+        .y <- rev(.y)
+        .y <- purrr::compact(.y)
+        thiscall <- glue::glue("do.call(nightowl::scales, .y)")
+        eval(parse(text = thiscall))
+      }, .init = g)
+      #*******************************************************************************
+      # Facets
+      g <- do.call(nightowl::facets, c(list(g = g), facets))
+      #*******************************************************************************
+      # Axis
+      g <- do.call(nightowl::axis, c(list(g = g), axis))
+      # #*******************************************************************************
+      # Colors and theming
+      g <- do.call(nightowl::colors, c(list(g = g, DATA = data, mapping = mapping), colors))
+      # # Add Theme
+      g <- do.call(nightowl::theme, c(list(g = g), theming))
+      # #*******************************************************************************
+      # # Annotation
+      g <- do.call(nightowl::annotation, c(list(g = g), mapping, annotation, axis))
+      #*******************************************************************************
+      # Finishing up
+      return(g)
     }
   )
 )
