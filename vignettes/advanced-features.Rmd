@@ -1,0 +1,757 @@
+---
+title: "Advanced Features and R6 Classes"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Advanced Features and R6 Classes}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.width = 8,
+  fig.height = 6,
+  out.width = "100%"
+)
+```
+
+## Introduction
+
+nightowl's advanced features center around its R6 class-based architecture, which provides object-oriented interfaces for complex statistical operations. This vignette explores the advanced capabilities that make nightowl a powerful tool for sophisticated data analysis workflows.
+
+```{r setup}
+library(nightowl)
+library(dplyr)
+library(ggplot2)
+library(survival)
+```
+
+## R6 Architecture Overview
+
+nightowl uses R6 classes to provide consistent, object-oriented interfaces for complex operations. The main classes are:
+
+- **`Plot`**: Core plotting functionality with declarative syntax
+- **`DeclarativePlot`**: Extended plotting with caching and optimization
+- **`Summary`**: Data summarization with multiple output formats
+- **`Coxph`**: Cox proportional hazards modeling and visualization
+- **`Test`**: Statistical testing framework
+- **`NightowlOptions`**: Global configuration management
+
+## The Plot Class: Declarative Visualization
+
+### Basic Plot Creation
+
+```{r plot-basic}
+# Create a Plot object
+plot_obj <- Plot$new(
+  data = iris,
+  mapping = list(
+    x = "Sepal.Length",
+    y = "Petal.Length",
+    color = "Species"
+  ),
+  layers = list(
+    list(type = "scatter", size = 3, alpha = 0.8)
+  )
+)
+
+# Display the plot
+plot_obj$render()
+```
+
+### Plot Object Inspection
+
+```{r plot-inspection}
+# Inspect plot components
+plot_obj$get_data() %>% head()
+plot_obj$get_mapping()
+plot_obj$get_layers()
+```
+
+### Dynamic Plot Modification
+
+```{r plot-modification}
+# Add layers dynamically
+plot_obj$add_layer(list(type = "smooth", method = "lm", se = TRUE))
+
+# Update mapping
+plot_obj$update_mapping(list(size = "Petal.Width"))
+
+# Render updated plot
+plot_obj$render()
+```
+
+### Plot Conversion and Export
+
+```{r plot-conversion}
+# Convert to different formats
+ggplot_version <- plot_obj$as_ggplot()
+class(ggplot_version)
+
+# Convert to HTML (interactive)
+html_version <- plot_obj$as_html()
+
+# Export capabilities
+# plot_obj$save("my_plot.png", width = 10, height = 8)
+# plot_obj$save("my_plot.svg", width = 10, height = 8)
+```
+
+## The DeclarativePlot Class: Advanced Plotting
+
+The `DeclarativePlot` class extends `Plot` with advanced features including caching, performance optimization, and complex layering.
+
+### Advanced Plot Construction
+
+```{r declarative-advanced}
+# Create advanced declarative plot
+advanced_plot <- DeclarativePlot$new(
+  data = mtcars,
+  mapping = list(
+    x = "wt",
+    y = "mpg",
+    color = "factor(cyl)",
+    size = "hp"
+  ),
+  layers = list(
+    list(type = "scatter", alpha = 0.7),
+    list(type = "smooth", method = "lm", se = TRUE, alpha = 0.3),
+    list(type = "generic", geom = "ggplot2::geom_rug", alpha = 0.5)
+  ),
+  theme = theme_minimal(),
+  labs = list(
+    title = "Advanced Multi-Layer Visualization",
+    subtitle = "Weight vs MPG with multiple aesthetic mappings",
+    x = "Weight (1000 lbs)",
+    y = "Miles per Gallon",
+    color = "Cylinders",
+    size = "Horsepower"
+  )
+)
+
+advanced_plot$render()
+```
+
+### Caching and Performance
+
+```{r caching-performance}
+# Enable detailed performance tracking
+advanced_plot$enable_caching(TRUE)
+advanced_plot$enable_performance_tracking(TRUE)
+
+# First render (cache miss)
+system.time({
+  plot1 <- advanced_plot$render()
+})
+
+# Second render (cache hit)
+system.time({
+  plot2 <- advanced_plot$render()
+})
+
+# Check cache statistics
+advanced_plot$get_cache_stats()
+```
+
+### Layer Management
+
+```{r layer-management}
+# Inspect layers
+advanced_plot$list_layers()
+
+# Remove specific layer
+advanced_plot$remove_layer(3)  # Remove rug layer
+
+# Insert layer at specific position
+advanced_plot$insert_layer(
+  position = 2,
+  layer = list(type = "generic", geom = "ggplot2::geom_point", 
+               shape = 21, stroke = 1.2, alpha = 0.8)
+)
+
+advanced_plot$render()
+```
+
+## The Summary Class: Advanced Data Summarization
+
+The `Summary` class provides powerful data summarization with multiple output formats.
+
+### Basic Summary Creation
+
+```{r summary-basic}
+# Create Summary object
+mpg_summary <- Summary$new(
+  data = mtcars,
+  x = "mpg",
+  by = "cyl",
+  method = summarise_numeric_pointrange
+)
+
+# Access raw summary data
+mpg_summary$raw()
+```
+
+### Multiple Output Formats
+
+```{r summary-outputs}
+# Table outputs
+mpg_summary$kable()
+mpg_summary$reactable()
+
+# Plot outputs
+mpg_summary$plot()
+```
+
+### Custom Summarize Methods
+
+```{r custom-summarize}
+# Define custom summarization method
+custom_summarise <- function(data, x, by = NULL) {
+  if (is.null(by)) {
+    data %>%
+      summarise(
+        n = n(),
+        mean = mean(!!sym(x), na.rm = TRUE),
+        median = median(!!sym(x), na.rm = TRUE),
+        q25 = quantile(!!sym(x), 0.25, na.rm = TRUE),
+        q75 = quantile(!!sym(x), 0.75, na.rm = TRUE),
+        cv = sd(!!sym(x), na.rm = TRUE) / mean(!!sym(x), na.rm = TRUE)
+      )
+  } else {
+    data %>%
+      group_by(!!sym(by)) %>%
+      summarise(
+        n = n(),
+        mean = mean(!!sym(x), na.rm = TRUE),
+        median = median(!!sym(x), na.rm = TRUE),
+        q25 = quantile(!!sym(x), 0.25, na.rm = TRUE),
+        q75 = quantile(!!sym(x), 0.75, na.rm = TRUE),
+        cv = sd(!!sym(x), na.rm = TRUE) / mean(!!sym(x), na.rm = TRUE),
+        .groups = "drop"
+      )
+  }
+}
+
+# Use custom method
+custom_summary <- Summary$new(
+  data = iris,
+  x = "Sepal.Length",
+  by = "Species",
+  method = custom_summarise
+)
+
+custom_summary$kable()
+```
+
+### Summary Chaining and Composition
+
+```{r summary-chaining}
+# Chain multiple summaries
+library(patchwork)
+
+sepal_length_summary <- Summary$new(iris, "Sepal.Length", "Species", summarise_numeric_boxplot)
+sepal_width_summary <- Summary$new(iris, "Sepal.Width", "Species", summarise_numeric_boxplot)
+petal_length_summary <- Summary$new(iris, "Petal.Length", "Species", summarise_numeric_boxplot)
+
+# Combine plots
+combined_plot <- sepal_length_summary$plot() + 
+                 sepal_width_summary$plot() + 
+                 petal_length_summary$plot() +
+                 plot_layout(ncol = 3)
+
+combined_plot
+```
+
+## The Coxph Class: Survival Analysis
+
+The `Coxph` class provides comprehensive Cox proportional hazards modeling.
+
+### Advanced Cox Modeling
+
+```{r cox-advanced}
+# Create survival dataset
+set.seed(123)
+survival_data <- tibble(
+  patient_id = 1:200,
+  age = rnorm(200, 65, 12),
+  sex = sample(c("Male", "Female"), 200, replace = TRUE),
+  stage = sample(c("I", "II", "III", "IV"), 200, replace = TRUE, prob = c(0.3, 0.3, 0.25, 0.15)),
+  treatment = sample(c("Control", "Treatment"), 200, replace = TRUE),
+  time = rexp(200, rate = 0.05),
+  event = rbinom(200, 1, 0.7)
+)
+
+# Create Coxph object
+cox_model <- Coxph$new(
+  data = survival_data,
+  time = "time",
+  event = "event",
+  covariates = c("age", "sex", "stage", "treatment")
+)
+
+# Model summary
+cox_model$summary()
+```
+
+### Cox Model Visualization
+
+```{r cox-visualization}
+# Forest plot of hazard ratios
+cox_model$forest_plot() +
+  labs(title = "Hazard Ratios from Cox Proportional Hazards Model")
+
+# Survival curves by treatment
+cox_model$survival_plot(stratify_by = "treatment") +
+  labs(title = "Adjusted Survival Curves by Treatment")
+```
+
+### Model Diagnostics
+
+```{r cox-diagnostics}
+# Check proportional hazards assumption
+cox_model$check_ph()
+
+# Schoenfeld residuals
+cox_model$plot_schoenfeld() +
+  labs(title = "Schoenfeld Residuals for PH Assumption")
+
+# Martingale residuals
+cox_model$plot_martingale() +
+  labs(title = "Martingale Residuals")
+```
+
+## Advanced Statistical Testing with Test Class
+
+```{r test-class}
+# Create Test object for comprehensive analysis
+test_obj <- Test$new(
+  data = iris,
+  x = "Sepal.Length",
+  by = "Species"
+)
+
+# Multiple tests
+test_obj$t_test()
+test_obj$anova()
+test_obj$kruskal_wallis()
+
+# Post-hoc tests
+test_obj$pairwise_comparisons()
+
+# Visualization with test results
+test_obj$plot_with_stats() +
+  labs(title = "Sepal Length by Species with Statistical Tests")
+```
+
+## Configuration with NightowlOptions
+
+```{r options-config}
+# Create configuration object
+config <- NightowlOptions$new()
+
+# Set global options
+config$set_theme(theme_minimal())
+config$set_color_palette(c("#E74C3C", "#3498DB", "#2ECC71", "#F39C12"))
+config$enable_caching(TRUE)
+config$set_performance_tracking(TRUE)
+
+# Apply configuration globally
+config$apply_globally()
+
+# Check current settings
+config$get_all_options()
+```
+
+## Advanced Geoms and Custom Extensions
+
+### Custom Geom Development
+
+```{r custom-geoms}
+# nightowl includes several custom geoms
+# Example: Using built-in forest plot geom
+
+# Create data for forest plot
+forest_data <- tibble(
+  study = paste("Study", 1:6),
+  estimate = c(0.8, 0.65, 0.75, 0.9, 0.55, 0.7),
+  lower = estimate - 0.15,
+  upper = estimate + 0.15
+)
+
+# Use custom forest geom
+ggplot(forest_data, aes(x = estimate, y = study)) +
+  geom_forest_point(aes(xmin = lower, xmax = upper), size = 3) +
+  geom_vline(xintercept = 1, linetype = "dashed", color = "red") +
+  labs(
+    title = "Custom Forest Geom Example",
+    x = "Effect Size",
+    y = "Study"
+  ) +
+  theme_minimal()
+```
+
+### Advanced Inline Plots
+
+```{r advanced-inline}
+# Complex inline plot configurations
+inline_config <- list(
+  style = "Inline-Advanced",
+  height = 0.8,
+  colors = c("#FF6B6B", "#4ECDC4", "#45B7D1"),
+  theme_elements = list(
+    background = "transparent",
+    grid = FALSE,
+    axis = FALSE
+  )
+)
+
+# Create advanced inline visualization
+set.seed(42)
+multi_group_data <- tibble(
+  group = rep(LETTERS[1:3], each = 100),
+  value = c(rnorm(100, 10, 2), rnorm(100, 12, 2.5), rnorm(100, 8, 1.8))
+)
+
+advanced_inline <- add_inline_plot(
+  multi_group_data,
+  x = "group",
+  y = "value",
+  config = inline_config
+)
+
+advanced_inline
+```
+
+## Performance Optimization Techniques
+
+### Memory Management
+
+```{r memory-management}
+# Create large dataset for performance testing
+large_data <- tibble(
+  group = sample(LETTERS[1:20], 100000, replace = TRUE),
+  x = rnorm(100000),
+  y = rnorm(100000),
+  category = sample(c("A", "B", "C", "D"), 100000, replace = TRUE)
+)
+
+# Efficient plotting with sampling
+efficient_plot <- Plot$new(
+  data = large_data %>% sample_n(5000),  # Sample for display
+  mapping = list(x = "x", y = "y", color = "category"),
+  layers = list(list(type = "scatter", alpha = 0.6))
+)
+
+# Enable performance optimizations
+efficient_plot$enable_lazy_loading(TRUE)
+efficient_plot$enable_chunked_processing(TRUE, chunk_size = 1000)
+
+system.time(efficient_plot$render())
+```
+
+### Parallel Processing Integration
+
+```{r parallel-processing, eval=FALSE}
+# Example of parallel processing (not run in vignette)
+library(future)
+plan(multisession, workers = 4)
+
+# Parallel summary creation
+parallel_summaries <- future_map(
+  list("mpg", "hp", "wt", "qsec"),
+  ~ Summary$new(mtcars, x = .x, by = "cyl", method = summarise_numeric_boxplot)
+)
+
+# Combine results
+combined_parallel_plot <- wrap_plots(map(parallel_summaries, ~.x$plot()))
+```
+
+## Integration with External Packages
+
+### ggplot2 Extensions
+
+```{r ggplot2-integration}
+# Seamless integration with ggplot2 ecosystem
+library(ggrepel)
+library(gganimate)
+
+# Enhanced plot with extensions
+enhanced_plot <- Plot$new(
+  data = mtcars,
+  mapping = list(x = "wt", y = "mpg", label = "rownames(mtcars)"),
+  layers = list(
+    list(type = "scatter", size = 3, alpha = 0.7),
+    list(type = "generic", geom = "ggrepel::geom_text_repel", size = 3)
+  )
+)$render() +
+  theme_minimal() +
+  labs(title = "Enhanced Plot with ggrepel Integration")
+
+enhanced_plot
+```
+
+### Reactable Advanced Features
+
+```{r reactable-advanced}
+# Advanced interactive table
+advanced_table_data <- iris %>%
+  group_by(Species) %>%
+  summarise(
+    n = n(),
+    across(ends_with("Length"), list(mean = mean, sd = sd)),
+    across(ends_with("Width"), list(mean = mean, sd = sd)),
+    .groups = "drop"
+  )
+
+render_reactable(
+  advanced_table_data,
+  columns = list(
+    Species = colDef(
+      name = "Species",
+      cell = function(value) {
+        paste0("<strong>", value, "</strong>")
+      },
+      html = TRUE
+    )
+  ),
+  theme = reactableTheme(
+    headerStyle = list(
+      "&:hover" = list(background = "#eee")
+    ),
+    cellStyle = list(
+      "&:hover" = list(background = "#f5f5f5")
+    )
+  ),
+  filterable = TRUE,
+  searchable = TRUE,
+  showPageSizeOptions = TRUE,
+  pageSizeOptions = c(5, 10, 20),
+  defaultPageSize = 10
+)
+```
+
+## Custom Styling and Themes
+
+### Advanced Theme Creation
+
+```{r advanced-themes}
+# Create publication-ready theme
+publication_theme <- function() {
+  theme_minimal() +
+    theme(
+      # Text elements
+      plot.title = element_text(size = 16, face = "bold", color = "#2C3E50", hjust = 0),
+      plot.subtitle = element_text(size = 12, color = "#7F8C8D", hjust = 0, margin = margin(b = 20)),
+      axis.title = element_text(size = 11, face = "bold", color = "#34495E"),
+      axis.text = element_text(size = 10, color = "#2C3E50"),
+      legend.title = element_text(size = 10, face = "bold", color = "#2C3E50"),
+      legend.text = element_text(size = 9, color = "#2C3E50"),
+      
+      # Panel and grid
+      panel.grid.major = element_line(color = "#ECF0F1", size = 0.5),
+      panel.grid.minor = element_blank(),
+      panel.background = element_rect(fill = "white", color = NA),
+      plot.background = element_rect(fill = "white", color = NA),
+      
+      # Legend
+      legend.position = "bottom",
+      legend.box = "horizontal",
+      legend.margin = margin(t = 15),
+      
+      # Facets
+      strip.text = element_text(size = 10, face = "bold", color = "#2C3E50"),
+      strip.background = element_rect(fill = "#ECF0F1", color = NA)
+    )
+}
+
+# Apply custom theme
+mtcars %>%
+  Plot$new(
+    mapping = list(x = "wt", y = "mpg", color = "factor(cyl)"),
+    layers = list(
+      list(type = "scatter", size = 3),
+      list(type = "smooth", method = "lm", se = TRUE, alpha = 0.2)
+    )
+  )$render() +
+  publication_theme() +
+  scale_color_manual(
+    name = "Cylinders",
+    values = c("4" = "#E74C3C", "6" = "#3498DB", "8" = "#2ECC71")
+  ) +
+  labs(
+    title = "Custom Publication Theme",
+    subtitle = "Weight vs Fuel Efficiency with Custom Styling",
+    x = "Weight (1000 lbs)",
+    y = "Miles per Gallon"
+  )
+```
+
+### Color Palette Management
+
+```{r color-palettes}
+# Define multiple color palettes
+clinical_palette <- c("#E74C3C", "#3498DB", "#2ECC71", "#F39C12", "#9B59B6")
+nature_palette <- c("#27AE60", "#E67E22", "#8E44AD", "#F1C40F", "#E74C3C")
+grayscale_palette <- c("#2C3E50", "#7F8C8D", "#95A5A6", "#BDC3C7", "#ECF0F1")
+
+# Create color palette manager
+palette_manager <- list(
+  clinical = clinical_palette,
+  nature = nature_palette,
+  grayscale = grayscale_palette
+)
+
+# Apply different palettes
+plot_base <- iris %>%
+  Plot$new(
+    mapping = list(x = "Sepal.Width", y = "Sepal.Length", color = "Species"),
+    layers = list(list(type = "scatter", size = 3))
+  )
+
+# Clinical palette
+clinical_plot <- plot_base$render() +
+  scale_color_manual(values = palette_manager$clinical) +
+  labs(title = "Clinical Palette") +
+  theme_minimal()
+
+clinical_plot
+```
+
+## Best Practices for Advanced Usage
+
+### 1. Object-Oriented Design Patterns
+
+```{r oop-patterns}
+# Factory pattern for plot creation
+PlotFactory <- R6::R6Class(
+  "PlotFactory",
+  public = list(
+    create_scatter = function(data, x, y, color = NULL) {
+      Plot$new(
+        data = data,
+        mapping = if(is.null(color)) list(x = x, y = y) else list(x = x, y = y, color = color),
+        layers = list(list(type = "scatter", size = 3, alpha = 0.7))
+      )
+    },
+    
+    create_boxplot = function(data, x, y, fill = NULL) {
+      Plot$new(
+        data = data,
+        mapping = if(is.null(fill)) list(x = x, y = y) else list(x = x, y = y, fill = fill),
+        layers = list(list(type = "boxplot", alpha = 0.7))
+      )
+    }
+  )
+)
+
+# Use factory
+factory <- PlotFactory$new()
+scatter_plot <- factory$create_scatter(iris, "Sepal.Length", "Petal.Length", "Species")
+scatter_plot$render()
+```
+
+### 2. Workflow Integration
+
+```{r workflow-integration}
+# Create analysis workflow class
+AnalysisWorkflow <- R6::R6Class(
+  "AnalysisWorkflow",
+  public = list(
+    data = NULL,
+    summaries = list(),
+    plots = list(),
+    
+    initialize = function(data) {
+      self$data <- data
+    },
+    
+    add_summary = function(name, x, by = NULL, method = summarise_numeric_boxplot) {
+      self$summaries[[name]] <- Summary$new(self$data, x, by, method)
+      invisible(self)
+    },
+    
+    add_plot = function(name, mapping, layers) {
+      self$plots[[name]] <- Plot$new(self$data, mapping, layers)
+      invisible(self)
+    },
+    
+    generate_report = function() {
+      list(
+        summaries = self$summaries,
+        plots = self$plots
+      )
+    }
+  )
+)
+
+# Use workflow
+workflow <- AnalysisWorkflow$new(iris)
+workflow$
+  add_summary("sepal_length", "Sepal.Length", "Species")$
+  add_summary("petal_length", "Petal.Length", "Species")$
+  add_plot("scatter", list(x = "Sepal.Length", y = "Petal.Length", color = "Species"),
+           list(list(type = "scatter")))
+
+report <- workflow$generate_report()
+report$plots$scatter$render()
+```
+
+## Advanced Error Handling and Validation
+
+```{r error-handling}
+# Robust plot creation with validation
+create_robust_plot <- function(data, mapping, layers, validate = TRUE) {
+  if (validate) {
+    # Data validation
+    if (!is.data.frame(data)) {
+      stop("Data must be a data frame")
+    }
+    
+    # Mapping validation
+    required_vars <- unlist(mapping)
+    missing_vars <- setdiff(required_vars, names(data))
+    if (length(missing_vars) > 0) {
+      stop("Missing variables in data: ", paste(missing_vars, collapse = ", "))
+    }
+  }
+  
+  tryCatch({
+    Plot$new(data = data, mapping = mapping, layers = layers)
+  }, error = function(e) {
+    warning("Plot creation failed: ", e$message)
+    NULL
+  })
+}
+
+# Example usage
+robust_plot <- create_robust_plot(
+  data = iris,
+  mapping = list(x = "Sepal.Length", y = "Petal.Length"),
+  layers = list(list(type = "scatter"))
+)
+
+if (!is.null(robust_plot)) {
+  robust_plot$render()
+}
+```
+
+## Next Steps
+
+Explore these additional advanced topics:
+
+- **[Performance Optimization](performance-optimization.html)**: Advanced performance techniques
+- **[Real-World Examples](real-world-examples.html)**: Complex analysis workflows
+- **[Troubleshooting](troubleshooting.html)**: Common issues and solutions
+
+## Summary
+
+nightowl's advanced features provide:
+
+- **Object-Oriented Architecture**: Consistent R6-based interfaces
+- **Performance Optimization**: Caching, lazy loading, and memory management
+- **Extensibility**: Custom geoms, themes, and integration patterns
+- **Workflow Integration**: Factory patterns and analysis pipelines
+- **Robust Error Handling**: Validation and graceful failure recovery
+
+These advanced capabilities make nightowl suitable for complex, production-ready statistical analysis workflows while maintaining ease of use for exploratory analysis.

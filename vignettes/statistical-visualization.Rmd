@@ -1,0 +1,660 @@
+---
+title: "Statistical Visualization with nightowl"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Statistical Visualization with nightowl}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.width = 8,
+  fig.height = 6,
+  out.width = "100%",
+  dpi = 300
+)
+```
+
+## Introduction
+
+nightowl provides a comprehensive suite of statistical visualization tools designed specifically for clinical research and data analysis. This vignette demonstrates the full range of plotting capabilities, from basic visualizations to complex multi-panel displays.
+
+```{r setup}
+library(nightowl)
+library(dplyr)
+library(ggplot2)
+library(survival)
+```
+
+## Forest Plots: The Heart of Clinical Research
+
+Forest plots are nightowl's flagship feature, essential for meta-analyses and clinical trial reporting.
+
+### Basic Forest Plots
+
+```{r forest-basic}
+# Simple forest plot with confidence interval
+forestplot(estimate = 0.65, lower = 0.45, upper = 0.95)
+```
+
+### Multi-Study Forest Plots
+
+```{r forest-multi}
+# Create dataset for multiple studies
+studies <- tibble(
+  study = paste("Study", LETTERS[1:8]),
+  n = sample(50:200, 8),
+  estimate = rnorm(8, mean = 0.7, sd = 0.15),
+  se = runif(8, 0.08, 0.20)
+) %>%
+  mutate(
+    lower = estimate - 1.96 * se,
+    upper = estimate + 1.96 * se
+  )
+
+# Create comprehensive forest plot
+studies %>%
+  forestplot(
+    estimate = estimate,
+    lower = lower, 
+    upper = upper,
+    study_labels = study,
+    height = 0.6
+  ) +
+  geom_vline(xintercept = 1, linetype = "dashed", color = "red", alpha = 0.7) +
+  labs(
+    title = "Treatment Effect Across Multiple Studies",
+    subtitle = "Odds Ratios with 95% Confidence Intervals",
+    x = "Odds Ratio"
+  ) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(size = 16, face = "bold"),
+    axis.title = element_text(size = 12)
+  )
+```
+
+### Subgroup Forest Plots
+
+```{r forest-subgroup}
+# Forest plot with subgroup analysis
+subgroup_data <- tibble(
+  subgroup = rep(c("Age < 65", "Age ≥ 65", "Male", "Female", "Stage I-II", "Stage III-IV"), each = 3),
+  category = rep(c("Overall", "Treatment A", "Treatment B"), 6),
+  estimate = c(0.75, 0.68, 0.82, 0.71, 0.65, 0.78, 0.73, 0.69, 0.77, 0.69, 0.61, 0.76, 0.72, 0.67, 0.78, 0.74, 0.70, 0.79),
+  lower = estimate - 0.15,
+  upper = estimate + 0.15
+)
+
+subgroup_data %>%
+  forestplot(
+    estimate = estimate,
+    lower = lower,
+    upper = upper,
+    study_labels = paste(subgroup, "-", category),
+    color_by = subgroup
+  ) +
+  facet_wrap(~subgroup, scales = "free_y", ncol = 2) +
+  labs(title = "Subgroup Analysis of Treatment Effects") +
+  theme_minimal()
+```
+
+## Survival Analysis Visualizations
+
+nightowl excels at survival analysis visualization with specialized functions for Kaplan-Meier curves and Cox regression.
+
+### Kaplan-Meier Survival Curves
+
+```{r km-basic}
+# Create simulated survival data
+set.seed(42)
+surv_data <- tibble(
+  patient_id = 1:300,
+  treatment = sample(c("Control", "Treatment A", "Treatment B"), 300, replace = TRUE),
+  age_group = sample(c("Young", "Middle", "Elderly"), 300, replace = TRUE),
+  time = rexp(300, rate = 0.1),
+  event = rbinom(300, 1, 0.7)
+)
+
+# Basic Kaplan-Meier plot
+km_fit <- fit_km(surv_data, time = "time", event = "event", treatment = "treatment")
+plot_km(km_fit) +
+  labs(title = "Kaplan-Meier Survival Curves by Treatment")
+```
+
+### Advanced Survival Plots with Risk Tables
+
+```{r km-advanced}
+# Kaplan-Meier with risk tables and p-values
+plot_grouped_km(
+  surv_data,
+  time = "time",
+  event = "event", 
+  treatment = "treatment",
+  show_risk_table = TRUE,
+  show_pvalue = TRUE
+) +
+  theme_minimal() +
+  labs(
+    title = "Overall Survival by Treatment Group",
+    subtitle = "With risk tables and statistical comparison"
+  )
+```
+
+### Cox Proportional Hazards Visualization
+
+```{r cox-analysis}
+# Cox regression with forest plot
+cox_model <- fit_coxph(
+  surv_data,
+  time = "time",
+  event = "event",
+  covariates = c("treatment", "age_group")
+)
+
+plot_coxph(cox_model) +
+  labs(
+    title = "Cox Proportional Hazards Model",
+    subtitle = "Hazard Ratios with 95% Confidence Intervals"
+  )
+```
+
+## Categorical Data Visualization
+
+### Chi-Square Analysis with Visualization
+
+```{r chisq-analysis}
+# Create categorical dataset
+categorical_data <- tibble(
+  treatment = sample(c("Placebo", "Drug A", "Drug B"), 400, replace = TRUE),
+  response = sample(c("No Response", "Partial Response", "Complete Response"), 
+                   400, replace = TRUE, prob = c(0.5, 0.3, 0.2)),
+  severity = sample(c("Mild", "Moderate", "Severe"), 400, replace = TRUE)
+)
+
+# Grouped chi-square analysis
+chisq_result <- grouped_chisq(
+  categorical_data,
+  x = "response",
+  by = "treatment"
+)
+
+plot_grouped_chisq(chisq_result) +
+  labs(
+    title = "Treatment Response Analysis",
+    subtitle = "Chi-square test with residuals visualization"
+  )
+```
+
+### Donut Charts for Proportions
+
+```{r donut-plots}
+# Create donut plot for response rates
+response_summary <- categorical_data %>%
+  count(response) %>%
+  mutate(percentage = n / sum(n) * 100)
+
+donut_plot(
+  response_summary,
+  values = "n",
+  labels = "response",
+  title = "Overall Response Distribution"
+) +
+  scale_fill_manual(values = c("#E74C3C", "#F39C12", "#27AE60"))
+```
+
+## Continuous Data Visualization
+
+### Advanced Boxplot Configurations
+
+```{r boxplot-advanced}
+# Enhanced boxplot with multiple comparisons
+mtcars %>%
+  plot(
+    mapping = list(
+      x = "factor(cyl)",
+      y = "mpg",
+      fill = "factor(cyl)"
+    ),
+    layers = list(
+      list(type = "boxplot", alpha = 0.7, outlier.alpha = 0.6),
+      list(type = "generic", geom = "ggplot2::geom_jitter", 
+           width = 0.2, alpha = 0.4, size = 2)
+    )
+  ) +
+  stat_compare_means(method = "anova", label.y = 35) +
+  stat_compare_means(
+    comparisons = list(c("4", "6"), c("6", "8"), c("4", "8")),
+    method = "t.test"
+  ) +
+  labs(
+    title = "Fuel Efficiency by Cylinder Count",
+    subtitle = "Boxplots with statistical comparisons",
+    x = "Number of Cylinders",
+    y = "Miles per Gallon"
+  ) +
+  theme_minimal()
+```
+
+### Violin Plots with Summary Statistics
+
+```{r violin-plots}
+# Violin plots with embedded boxplots
+iris %>%
+  plot(
+    mapping = list(
+      x = "Species",
+      y = "Sepal.Length",
+      fill = "Species"
+    ),
+    layers = list(
+      list(type = "violin", alpha = 0.7, trim = FALSE),
+      list(type = "boxplot", width = 0.1, alpha = 0.8),
+      list(type = "generic", geom = "ggplot2::stat_summary",
+           fun = "mean", geom = "point", size = 3, color = "red")
+    )
+  ) +
+  labs(
+    title = "Sepal Length Distribution by Species",
+    subtitle = "Violin plots with embedded boxplots and mean indicators"
+  ) +
+  theme_minimal()
+```
+
+## Multi-Panel and Complex Visualizations
+
+### Correlation Matrices
+
+```{r correlation-matrix}
+# Create correlation matrix visualization
+library(GGally)
+
+mtcars %>%
+  select(mpg, disp, hp, drat, wt, qsec) %>%
+  ggpairs(
+    title = "Motor Car Characteristics Correlation Matrix",
+    theme = ggpairs_theme()
+  )
+```
+
+### Faceted Analysis
+
+```{r faceted-analysis}
+# Multi-panel analysis by groups
+iris %>%
+  plot(
+    mapping = list(
+      x = "Sepal.Width",
+      y = "Sepal.Length",
+      color = "Species"
+    ),
+    layers = list(
+      list(type = "scatter", size = 2, alpha = 0.7),
+      list(type = "smooth", method = "lm", se = TRUE)
+    )
+  ) +
+  facet_wrap(~Species, scales = "free") +
+  labs(
+    title = "Sepal Dimensions Relationship by Species",
+    subtitle = "Scatter plots with linear regression fits"
+  ) +
+  theme_minimal()
+```
+
+## Interactive Visualizations
+
+### Interactive Tables with Statistical Summaries
+
+```{r interactive-tables}
+# Comprehensive summary table
+summary_table <- categorical_data %>%
+  group_by(treatment, severity) %>%
+  summarise(
+    n = n(),
+    complete_response_rate = mean(response == "Complete Response"),
+    partial_response_rate = mean(response == "Partial Response"),
+    overall_response_rate = mean(response %in% c("Complete Response", "Partial Response")),
+    .groups = "drop"
+  ) %>%
+  mutate(
+    across(ends_with("_rate"), ~round(.x * 100, 1))
+  )
+
+# Render interactive table
+render_reactable(
+  summary_table,
+  columns = list(
+    complete_response_rate = colDef(
+      name = "Complete Response (%)",
+      format = colFormat(suffix = "%")
+    ),
+    partial_response_rate = colDef(
+      name = "Partial Response (%)", 
+      format = colFormat(suffix = "%")
+    ),
+    overall_response_rate = colDef(
+      name = "Overall Response (%)",
+      format = colFormat(suffix = "%")
+    )
+  ),
+  defaultPageSize = 15
+)
+```
+
+### SVG Plots with Interactivity
+
+```{r interactive-svg}
+# Create interactive scatter plot
+interactive_plot <- iris %>%
+  plot(
+    mapping = list(
+      x = "Sepal.Length",
+      y = "Petal.Length", 
+      color = "Species",
+      tooltip = "paste('Species:', Species, '<br>Sepal Length:', Sepal.Length, '<br>Petal Length:', Petal.Length)"
+    ),
+    layers = list(
+      list(type = "scatter", size = 3, alpha = 0.8)
+    )
+  )
+
+# Convert to interactive HTML
+as_html(interactive_plot)
+```
+
+## Inline and Report-Ready Visualizations
+
+### Inline Plots for Text Integration
+
+```{r inline-plots}
+# Create small inline plots for reports
+set.seed(123)
+sample_data <- rnorm(200, mean = 50, sd = 10)
+
+# Histogram inline plot
+inline_hist <- add_inline_plot(
+  sample_data,
+  style = "Inline-Histogram",
+  height = 0.4,
+  color = "#3498DB"
+)
+
+inline_hist
+
+# Violin inline plot
+inline_violin <- add_inline_plot(
+  sample_data,
+  style = "Inline-Violin",
+  height = 0.3,
+  color = "#E74C3C"
+)
+
+inline_violin
+
+# Point range inline plot
+group_data <- tibble(
+  group = LETTERS[1:5],
+  mean = c(45, 52, 48, 55, 50),
+  se = c(2.1, 1.8, 2.3, 1.9, 2.0)
+)
+
+inline_pointrange <- add_inline_pointrange(
+  group_data,
+  x = "group",
+  y = "mean",
+  ymin = "mean - se",
+  ymax = "mean + se",
+  height = 0.5
+)
+
+inline_pointrange
+```
+
+### Publication-Ready Styling
+
+```{r publication-styling}
+# Load publication-ready styles
+# style_config <- load_style("Publication-Ready")
+
+# Create publication-quality plot
+publication_plot <- surv_data %>%
+  filter(treatment %in% c("Control", "Treatment A")) %>%
+  plot_km(
+    time = "time",
+    event = "event",
+    treatment = "treatment"
+  ) +
+  theme_minimal() +
+  theme(
+    panel.grid.minor = element_blank(),
+    legend.position = "bottom",
+    plot.title = element_text(size = 14, face = "bold"),
+    axis.title = element_text(size = 12),
+    legend.title = element_text(size = 11, face = "bold")
+  ) +
+  labs(
+    title = "Overall Survival: Control vs Treatment A",
+    x = "Time (months)",
+    y = "Survival Probability",
+    color = "Treatment Group"
+  ) +
+  scale_color_manual(values = c("Control" = "#E74C3C", "Treatment A" = "#3498DB"))
+
+publication_plot
+```
+
+## Performance Optimization
+
+### Caching for Large Datasets
+
+```{r performance-caching}
+# Enable caching for better performance
+options(nightowl.cache = TRUE)
+
+# Create large dataset
+large_dataset <- tibble(
+  group = sample(LETTERS[1:10], 50000, replace = TRUE),
+  value = rnorm(50000),
+  category = sample(c("X", "Y", "Z"), 50000, replace = TRUE)
+)
+
+# Time plot creation (first run - cache miss)
+system.time({
+  large_plot <- large_dataset %>%
+    sample_n(1000) %>%  # Sample for demonstration
+    plot(
+      mapping = list(x = "group", y = "value", fill = "category"),
+      layers = list(list(type = "boxplot"))
+    )
+})
+
+# Second access (cache hit - faster)
+system.time({
+  large_plot_cached <- large_dataset %>%
+    sample_n(1000) %>%
+    plot(
+      mapping = list(x = "group", y = "value", fill = "category"),
+      layers = list(list(type = "boxplot"))
+    )
+})
+```
+
+## Advanced Statistical Visualizations
+
+### Time Series and Longitudinal Data
+
+```{r longitudinal-analysis}
+# Create longitudinal dataset
+longitudinal_data <- tibble(
+  patient_id = rep(1:50, each = 6),
+  visit = rep(c("Baseline", "Month 1", "Month 3", "Month 6", "Month 9", "Month 12"), 50),
+  treatment = rep(sample(c("A", "B"), 50, replace = TRUE), each = 6),
+  score = rnorm(300, mean = 75, sd = 15) + 
+          rep(rnorm(50, 0, 5), each = 6) +  # Random patient effect
+          c(0, -2, -5, -8, -10, -12)[rep(1:6, 50)]  # Treatment effect over time
+) %>%
+  mutate(
+    visit = factor(visit, levels = c("Baseline", "Month 1", "Month 3", "Month 6", "Month 9", "Month 12"))
+  )
+
+# Longitudinal analysis plot
+longitudinal_data %>%
+  plot(
+    mapping = list(
+      x = "visit",
+      y = "score",
+      color = "treatment",
+      group = "treatment"
+    ),
+    layers = list(
+      list(type = "generic", geom = "ggplot2::stat_summary",
+           fun = "mean", geom = "point", size = 3),
+      list(type = "generic", geom = "ggplot2::stat_summary",
+           fun = "mean", geom = "line", size = 1.2),
+      list(type = "generic", geom = "ggplot2::stat_summary",
+           fun.data = "mean_se", geom = "errorbar", width = 0.2)
+    )
+  ) +
+  labs(
+    title = "Treatment Response Over Time",
+    subtitle = "Mean scores with standard errors",
+    x = "Visit",
+    y = "Clinical Score",
+    color = "Treatment"
+  ) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+### Dose-Response Relationships
+
+```{r dose-response}
+# Dose-response analysis
+dose_data <- tibble(
+  dose = rep(c(0, 10, 25, 50, 100, 200), each = 20),
+  response = sapply(dose, function(d) {
+    # Sigmoid dose-response curve with noise
+    max_response <- 100
+    ec50 <- 50
+    hill_slope <- 1.5
+    baseline <- 10
+    
+    expected_response <- baseline + (max_response - baseline) / (1 + (ec50/d)^hill_slope)
+    rnorm(20, expected_response, 8)
+  }) %>% as.numeric()
+)
+
+dose_data %>%
+  plot(
+    mapping = list(x = "dose", y = "response"),
+    layers = list(
+      list(type = "scatter", alpha = 0.6, size = 2),
+      list(type = "smooth", method = "nls", 
+           formula = "y ~ SSlogis(x, Asym, xmid, scal)",
+           se = TRUE, color = "red")
+    )
+  ) +
+  labs(
+    title = "Dose-Response Relationship",
+    subtitle = "Sigmoid curve fit with confidence bands",
+    x = "Dose (mg)",
+    y = "Response (%)"
+  ) +
+  theme_minimal()
+```
+
+## Customization and Styling
+
+### Custom Color Palettes
+
+```{r custom-colors}
+# Define custom color palette
+custom_colors <- c("#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd", "#8c564b")
+
+# Apply to visualization
+iris %>%
+  plot(
+    mapping = list(
+      x = "Sepal.Width",
+      y = "Petal.Width",
+      color = "Species"
+    ),
+    layers = list(list(type = "scatter", size = 3))
+  ) +
+  scale_color_manual(values = custom_colors[1:3]) +
+  labs(title = "Custom Color Palette Example") +
+  theme_minimal()
+```
+
+### Theme Customization
+
+```{r theme-customization}
+# Create custom theme
+custom_theme <- theme_minimal() +
+  theme(
+    plot.title = element_text(size = 16, face = "bold", color = "#2C3E50"),
+    plot.subtitle = element_text(size = 12, color = "#7F8C8D"),
+    axis.title = element_text(size = 11, face = "bold"),
+    legend.title = element_text(size = 10, face = "bold"),
+    panel.grid.major = element_line(color = "#ECF0F1", size = 0.5),
+    panel.grid.minor = element_blank()
+  )
+
+# Apply custom theme
+mtcars %>%
+  plot(
+    mapping = list(x = "wt", y = "mpg", color = "factor(cyl)"),
+    layers = list(
+      list(type = "scatter", size = 3),
+      list(type = "smooth", method = "lm", se = FALSE)
+    )
+  ) +
+  custom_theme +
+  labs(
+    title = "Custom Theme Example",
+    subtitle = "Weight vs Fuel Efficiency",
+    x = "Weight (1000 lbs)",
+    y = "Miles per Gallon",
+    color = "Cylinders"
+  )
+```
+
+## Best Practices
+
+### 1. Consistent Styling
+Always use consistent color schemes and themes across related visualizations.
+
+### 2. Statistical Rigor
+Include appropriate statistical tests and confidence intervals.
+
+### 3. Clear Labeling
+Provide descriptive titles, subtitles, and axis labels.
+
+### 4. Performance Optimization
+Enable caching for large datasets and repeated operations.
+
+### 5. Interactive Elements
+Leverage nightowl's interactive capabilities for exploratory analysis.
+
+## Next Steps
+
+Explore these advanced topics:
+
+- **[Advanced Features](advanced-features.html)**: R6 classes and customization
+- **[Performance Optimization](performance-optimization.html)**: Large dataset handling
+- **[Real-World Examples](real-world-examples.html)**: Applied case studies
+
+## Summary
+
+nightowl provides a comprehensive statistical visualization toolkit that combines:
+
+- **Clinical Focus**: Specialized functions for medical research
+- **Statistical Integration**: Built-in statistical testing and modeling
+- **Interactive Capabilities**: Modern web-based visualizations
+- **Performance Optimization**: Efficient handling of large datasets
+- **Publication Quality**: Professional styling and export options
+
+The declarative approach and R6 architecture ensure reproducible, maintainable visualizations suitable for both exploratory analysis and publication-ready reports.
