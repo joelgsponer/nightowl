@@ -1,4 +1,5 @@
 test_that("donut_plot works", {
+
   nightowl::make_donut_plot_categorical(
     data = palmerpenguins::penguins,
     column = "species",

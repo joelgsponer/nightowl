@@ -1,4 +1,5 @@
 test_that("multiplication works", {
+
   require(magrittr)
   testdata <- ChickWeight %>%
     dplyr::filter(Time < 10)
@@ -14,7 +15,7 @@ test_that("multiplication works", {
   a <- nightowl::Plot$new(plot = p, options_svg = list(height = 1))
   a
 
-  a <- nightowl::plot(
+  a <- nightowl::DeclarativePlot$new(
     data = testdata,
     transform = list(x = "waRRior::fct_lexicographic"),
     mapping = list(
