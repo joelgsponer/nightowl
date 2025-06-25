@@ -1,10 +1,12 @@
 # =================================================
-#' @title
-#' MISSING_TITLE
-#' @description
-#' @detail
-#' @param
-#' @return
+#' @title Calculate Statistical Test
+#' @description Automatically selects and performs appropriate statistical test based on variable type
+#' @param .data Data frame containing the variables to test
+#' @param y Character string specifying the dependent variable name
+#' @param x Character string specifying the grouping variable name (optional, uses existing groups if NULL)
+#' @param gracefully Logical indicating whether to return an error object instead of stopping on error (default: TRUE)
+#' @param ... Additional arguments passed to the test function
+#' @return List containing test results with components: test (test object), method (test name), p_value (p-value), and optionally error (if gracefully = TRUE)
 #' @export
 calc_test <- function(.data, y, x = NULL, gracefully = T, ...) {
   tryCatch(
@@ -35,12 +37,13 @@ calc_test <- function(.data, y, x = NULL, gracefully = T, ...) {
   )
 }
 # =================================================
-#' @title
-#' MISSING_TITLE
-#' @description
-#' @detail
-#' @param
-#' @return
+#' @title Calculate Kruskal-Wallis Test
+#' @description Performs Kruskal-Wallis rank sum test for numeric variables across groups
+#' @param .data Data frame containing the variables to test
+#' @param y Character string specifying the numeric dependent variable name
+#' @param x Character string specifying the grouping variable name (optional, uses existing groups if NULL)
+#' @param ... Additional arguments passed to kruskal.test
+#' @return List containing test results with components: test (kruskal.test object), method ("Kruskal-Wallis"), p_value (p-value)
 #' @export
 calc_test_kruskal <- function(.data, y, x = NULL, ...) {
   if (is.null(x)) {
@@ -59,12 +62,14 @@ calc_test_kruskal <- function(.data, y, x = NULL, ...) {
   )
 }
 # =================================================
-#' @title
-#' MISSING_TITLE
-#' @description
-#' @detail
-#' @param
-#' @return
+#' @title Calculate Chi-Square Test
+#' @description Performs Pearson's chi-square test for categorical variables across groups
+#' @param .data Data frame containing the variables to test
+#' @param y Character string specifying the categorical dependent variable name
+#' @param x Character string specifying the grouping variable name (optional, uses existing groups if NULL)
+#' @param correct Logical indicating whether to apply Yates' continuity correction (default: FALSE)
+#' @param ... Additional arguments passed to chisq.test
+#' @return List containing test results with components: test (chisq.test object), table (contingency table), method ("Pearson's χ2 test"), p_value (p-value)
 #' @export
 calc_test_chisq <- function(.data, y, x = NULL, correct = F, ...) {
   if (is.null(x)) {
@@ -88,9 +93,10 @@ calc_test_chisq <- function(.data, y, x = NULL, correct = F, ...) {
   )
 }
 # =================================================
-#' R6 Class
-#' @description
-#' @detail
+#' @title Test R6 Class
+#' @description R6 class for conducting and storing statistical test results
+#' @details This class provides a convenient interface for performing statistical tests on grouped data,
+#' automatically selecting the appropriate test based on the variable type and storing all relevant results
 #' @export
 Test <- R6::R6Class("Test",
   public = list(
