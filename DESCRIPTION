@@ -43,4 +43,5 @@ Imports:
     waRRior
 Suggests:
     palmerpenguins,
-    testthat
+    testthat,
+    vdiffr

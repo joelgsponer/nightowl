@@ -1,4 +1,4 @@
-test_that("multiplication works", {
+test_that("confidence intervals calculate correctly for numeric vectors", {
   require(magrittr)
   x <- runif(sample(seq(10, 100), 1))
   alpha <- runif(1)
