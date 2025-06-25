@@ -35,7 +35,7 @@ test_that("donut_plot works", {
     data = palmerpenguins::penguins,
     columns = c("sex", "bill_length_mm", "species"),
     split = "island",
-    labels = c("Bill length (mm)", "Species"),
+    labels = c("Sex", "Bill length (mm)", "Species"),
     options = list(numeric = list(colors = picasso::colors_ibm()), categorical = list(brewer_pal = "YlGnBu"))
   )
 
