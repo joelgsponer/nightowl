@@ -137,7 +137,7 @@ add_barplot <- function(x,
                         colors = get_nightowl_options()$get_colors) {
   if (!is.factor(x)) {
     x <- factor(x) %>%
-      forcats::fct_explicit_na()
+      forcats::fct_na_value_to_level(level = "(Missing)")
   }
   counts <- base::table(x) / length(x) * 100
   colors <- colors(length(counts), missing = "(Missing)" %in% names(counts)) %>%
