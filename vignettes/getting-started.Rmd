@@ -58,6 +58,7 @@ Forest plots are one of nightowl's signature features. Let's start with a simple
 
 ```{r forest-basic}
 # Create a basic forest plot
+
 forestplot(estimate = 0.75, lower = 0.5, upper = 1.1)
 ```
 
@@ -68,8 +69,8 @@ This creates a forest plot showing an estimate of 0.75 with confidence interval 
 ```{r forest-styled}
 # Create a styled forest plot
 forestplot(
-  estimate = 0.65, 
-  lower = 0.4, 
+  estimate = 0.65,
+  lower = 0.4,
   upper = 0.9,
   height = 0.4,
   theme = theme_minimal()
@@ -84,11 +85,9 @@ nightowl provides powerful data summarization capabilities through the `Summary`
 ```{r summary-basic}
 # Create a summary of mpg by cylinder count
 summary_obj <- Summary$new(
-  data = mtcars, 
-  x = "mpg", 
+  column = "mpg",
   by = "cyl"
 )
-
 # View the raw summary data
 summary_obj$raw()
 ```
@@ -100,12 +99,11 @@ The Summary class can automatically create appropriate visualizations:
 ```{r summary-plot}
 # Create summary with point range visualization
 mpg_summary <- Summary$new(
-  data = mtcars,
-  x = "mpg", 
+  .data = tibble::as_tibble(mtcars),
+  column = "mpg",
   by = "cyl",
   method = summarise_numeric_pointrange
 )
-
 # Display as interactive table
 mpg_summary$reactable()
 ```
@@ -120,16 +118,17 @@ plot_obj <- plot(
   data = mtcars,
   mapping = list(
     x = "cyl",
-    y = "mpg", 
+    y = "mpg",
     color = "factor(gear)"
   ),
   layers = list(
     list(type = "boxplot"),
-    list(type = "generic", geom = "ggplot2::geom_jitter", 
-         alpha = 0.6, width = 0.2)
+    list(
+      type = "generic", geom = "ggplot2::geom_jitter",
+      alpha = 0.6, width = 0.2
+    )
   )
 )
-
 plot_obj
 ```
 
@@ -158,8 +157,10 @@ clinical_data <- tibble(
   patient_id = 1:200,
   treatment = sample(c("Control", "Treatment"), 200, replace = TRUE),
   age_group = sample(c("Young", "Middle", "Old"), 200, replace = TRUE),
-  response = sample(c("No Response", "Response"), 200, replace = TRUE, 
-                   prob = c(0.6, 0.4)),
+  response = sample(c("No Response", "Response"), 200,
+    replace = TRUE,
+    prob = c(0.6, 0.4)
+  ),
   survival_time = rexp(200, rate = 0.1),
   event = sample(c(0, 1), 200, replace = TRUE, prob = c(0.3, 0.7))
 )
@@ -171,13 +172,13 @@ head(clinical_data)
 
 ```{r treatment-response}
 # Analyze treatment response by age group
+
 response_summary <- Summary$new(
-  data = clinical_data,
-  x = "response",
-  by = "age_group", 
+  .data = clinical_data,
+  column = "response",
+  by = "age_group",
   method = summarise_categorical_barplot
 )
-
 response_summary$kable()
 ```
 
@@ -194,15 +195,17 @@ treatment_plot <- plot(
   ),
   layers = list(
     list(type = "boxplot", alpha = 0.7),
-    list(type = "generic", geom = "ggplot2::geom_jitter", 
-         alpha = 0.4, width = 0.2)
+    list(
+      type = "generic", geom = "ggplot2::geom_jitter",
+      alpha = 0.4, width = 0.2
+    )
   )
 ) +
   theme_minimal() +
   labs(
     title = "Survival Time by Treatment Group",
     subtitle = "Clinical Trial Results",
-    x = "Treatment Group", 
+    x = "Treatment Group",
     y = "Survival Time (months)",
     fill = "Treatment"
   ) +
@@ -233,7 +236,7 @@ inline_hist
 # Create inline violin plot
 inline_violin <- add_inline_plot(
   sample_data,
-  style = "Inline-Violin", 
+  style = "Inline-Violin",
   height = 0.5
 )
 

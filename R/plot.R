@@ -160,6 +160,7 @@ DeclarativePlot <- R6::R6Class("DeclarativePlot",
   inherit = nightowl::Plot,
   public = list(
     data = NULL,
+    data_ref = NULL,
     mapping = list(
       x = NULL,
       y = NULL,
@@ -201,46 +202,53 @@ DeclarativePlot <- R6::R6Class("DeclarativePlot",
       self$set_plot()
       return(self)
     },
-    # select data
+    # select data with memory-efficient reference pattern
     select_data = function() {
       cols <- c(
         unlist(unname(self$mapping)),
         purrr::map(self$layers, ~ unlist(unname(.x$mapping))) %>% unlist()
       ) %>%
         unique()
+      
+      # Store data reference instead of copying
       if (inherits(self$data, "data.frame")) {
-        .data <- tibble::as_tibble(self$data)
+        if (!tibble::is_tibble(self$data)) {
+          self$data <- tibble::as_tibble(self$data)
+        }
+        # Use reference-based column selection to avoid full data copy
+        self$data_ref <- list(
+          source = self$data,
+          columns = cols,
+          rows = seq_len(nrow(self$data))
+        )
+        # Only select columns, don't copy entire data
+        self$data <- self$data[cols]
       }
-      self$data <- .data %>%
-        dplyr::select_at(cols)
       if (any(dim(self$data) == 0)) rlang::abort("No data, check mapping")
     },
-    # tranform data (this also potentionally updates the mapping if for example frequencies are calculated)
+    # tranform data with memory-efficient in-place modifications
     transform_data = function() {
       transform <- self$transform
       mapping <- self$mapping
-      .data <- self$data
       if (!is.null(transform)) {
         transform_data <- transform$data
         transform <- transform[waRRior::pop(names(transform), "data")]
-        .data <- purrr::reduce(names(transform), function(.data, .var_name) {
+        
+        # Apply transformations in-place to avoid data copying
+        for (.var_name in names(transform)) {
           .f <- transform[[.var_name]]
           if (is.character(.f)) .f <- waRRior::getfun(.f)
           .var <- mapping[[.var_name]]
           if (!is.null(.var)) {
-            .data <- .data %>%
-              dplyr::mutate(!!rlang::sym(.var) := .f(!!rlang::sym(.var)))
+            self$data[[.var]] <- .f(self$data[[.var]])
           }
-          return(.data)
-        }, .init = .data)
+        }
+        
         if (!is.null(transform_data)) {
           if (is.character(transform_data)) .f <- waRRior::getfun(transform_data)
-          res_tranform_data <- .f(.data, mapping)
+          res_tranform_data <- .f(self$data, mapping)
           self$data <- res_tranform_data$data
           self$mapping <- res_tranform_data$mapping
-        } else {
-          # Update self$data with transformed data when no transform_data function
-          self$data <- .data
         }
       }
     },
@@ -263,9 +271,10 @@ DeclarativePlot <- R6::R6Class("DeclarativePlot",
     # ggplot ---
     plot = NULL,
     set_plot = function() {
-      # Create serialized cache key for better consistency
+      # Create memory-efficient cache key using data hash
       cache_key <- list(
-        data = self$data,
+        data_hash = digest::digest(self$data, algo = "xxhash64"),
+        data_dim = dim(self$data),
         mapping = self$mapping,
         layers = self$layers,
         scales = self$scales,
