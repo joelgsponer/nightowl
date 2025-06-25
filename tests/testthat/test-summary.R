@@ -104,9 +104,9 @@ test_that("summary works", {
   # Groupings
   testdata %>%
     dplyr::group_by(foo) %>%
-    purrr::map_df(c("bar", "baz"), function(col, .data) {
-      nightowl::summarise_numeric_violin(.data, col)
-    }, .data = .) %>%
+    purrr::map_df(c("bar", "baz"), function(col, data) {
+      nightowl::summarise_numeric_violin(data, col)
+    }, data = .) %>%
     nightowl::render_kable()
 
   testdata %>%
