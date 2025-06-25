@@ -29,7 +29,6 @@ Imports:
     memoise,
     MetBrewer,
     patchwork,
-    peacock,
     picasso,
     purrr,
     reactable,

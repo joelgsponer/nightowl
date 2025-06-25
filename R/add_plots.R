@@ -49,7 +49,7 @@ add_geom <- function(geom,
       
       cut_f <- allowed_cut_functions[[func_name]]
     }
-    peacock::log("cutting")
+    cli::cli_inform("cutting")
     .group <- do.call(cut_f, c(
       list(x = g$data[[rlang::as_label(g$mapping$x)]]),
       cut_args
