@@ -1,10 +1,22 @@
 # =================================================
-#' @title
-#' MISSING_TITLE
+#' @title Create forest plot with confidence intervals
 #' @description
-#' @detail
-#' @param
-#' @return
+#' Creates a forest plot visualization showing point estimates with confidence intervals,
+#' optional reference lines, and out-of-bounds indicators for values exceeding plot limits.
+#' @param x Numeric. Point estimate value(s) for the main effect
+#' @param xmin Numeric. Lower confidence limit(s)
+#' @param xmax Numeric. Upper confidence limit(s)
+#' @param xlim Numeric vector of length 2. Plot x-axis limits. If NULL, uses data range
+#' @param xintercept Numeric. Value for vertical reference line (e.g., null effect). Default NULL
+#' @param height Numeric. Plot height for SVG rendering. Default 0.5
+#' @param xlab String. X-axis label. Default NULL
+#' @param ylab String. Y-axis label. Default NULL
+#' @param hide_y_axis Logical. Whether to hide y-axis. Default TRUE
+#' @param hide_x_axis Logical. Whether to hide x-axis. Default TRUE
+#' @param hide_legend Logical. Whether to hide legend. Default TRUE
+#' @param shape Integer. Point shape for main estimates. Default 15 (square)
+#' @param theme ggplot2 theme function. Default ggplot2::theme_void
+#' @return An SVG string containing the rendered forest plot
 #' @export
 forestplot <- function(x,
                        xmin,
