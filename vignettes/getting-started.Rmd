@@ -1,0 +1,349 @@
+---
+title: "Getting Started with nightowl"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Getting Started with nightowl}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.width = 7,
+  fig.height = 5,
+  out.width = "100%"
+)
+```
+
+## Welcome to nightowl
+
+nightowl is a comprehensive R package designed for statistical visualization and analysis, with a particular focus on clinical research applications. This vignette will get you started with the basic concepts and workflow of nightowl.
+
+## Package Philosophy
+
+nightowl is built around several core principles:
+
+- **Declarative Approach**: Describe what you want, not how to create it
+- **Clinical Focus**: Specialized functions for medical and clinical research
+- **Performance First**: Built-in caching and optimization for large datasets
+- **Interactive by Default**: SVG-based plots with hover effects and interactivity
+- **Publication Ready**: Professional styling and export options
+
+## Installation
+
+First, let's install nightowl from GitHub:
+
+```{r installation, eval = FALSE}
+# Install from GitHub
+if (!requireNamespace("remotes", quietly = TRUE)) {
+  install.packages("remotes")
+}
+
+remotes::install_github("joelgsponer/nightowl")
+```
+
+Load the package:
+
+```{r setup}
+library(nightowl)
+library(dplyr)
+library(ggplot2)
+```
+
+## Your First Plot: Forest Plot
+
+Forest plots are one of nightowl's signature features. Let's start with a simple example:
+
+```{r forest-basic}
+# Create a basic forest plot
+forestplot(estimate = 0.75, lower = 0.5, upper = 1.1)
+```
+
+This creates a forest plot showing an estimate of 0.75 with confidence interval from 0.5 to 1.1. The vertical line at 1.0 represents the null hypothesis line.
+
+### Forest Plot with Custom Styling
+
+```{r forest-styled}
+# Create a styled forest plot
+forestplot(
+  estimate = 0.65, 
+  lower = 0.4, 
+  upper = 0.9,
+  height = 0.4,
+  theme = theme_minimal()
+) +
+  labs(title = "Treatment Effect", subtitle = "Odds Ratio with 95% CI")
+```
+
+## Data Summarization with Summary Class
+
+nightowl provides powerful data summarization capabilities through the `Summary` R6 class. Let's explore this with the built-in `mtcars` dataset:
+
+```{r summary-basic}
+# Create a summary of mpg by cylinder count
+summary_obj <- Summary$new(
+  data = mtcars, 
+  x = "mpg", 
+  by = "cyl"
+)
+
+# View the raw summary data
+summary_obj$raw()
+```
+
+### Visualizing Summaries
+
+The Summary class can automatically create appropriate visualizations:
+
+```{r summary-plot}
+# Create summary with point range visualization
+mpg_summary <- Summary$new(
+  data = mtcars,
+  x = "mpg", 
+  by = "cyl",
+  method = summarise_numeric_pointrange
+)
+
+# Display as interactive table
+mpg_summary$reactable()
+```
+
+## Declarative Plotting System
+
+nightowl's declarative plotting system lets you describe your visualization at a high level:
+
+```{r declarative-basic}
+# Create a declarative plot
+plot_obj <- plot(
+  data = mtcars,
+  mapping = list(
+    x = "cyl",
+    y = "mpg", 
+    color = "factor(gear)"
+  ),
+  layers = list(
+    list(type = "boxplot"),
+    list(type = "generic", geom = "ggplot2::geom_jitter", 
+         alpha = 0.6, width = 0.2)
+  )
+)
+
+plot_obj
+```
+
+### Converting Between Formats
+
+One of nightowl's strengths is format flexibility:
+
+```{r format-conversion}
+# Convert to ggplot2 object
+ggplot_version <- as_ggplot(plot_obj)
+class(ggplot_version)
+
+# Convert to HTML (interactive)
+# html_version <- as_html(plot_obj)
+# This creates an interactive plot with hover effects
+```
+
+## Working with Clinical Data
+
+Let's explore nightowl's clinical research capabilities with a simulated dataset:
+
+```{r clinical-data}
+# Create simulated clinical trial data
+set.seed(123)
+clinical_data <- tibble(
+  patient_id = 1:200,
+  treatment = sample(c("Control", "Treatment"), 200, replace = TRUE),
+  age_group = sample(c("Young", "Middle", "Old"), 200, replace = TRUE),
+  response = sample(c("No Response", "Response"), 200, replace = TRUE, 
+                   prob = c(0.6, 0.4)),
+  survival_time = rexp(200, rate = 0.1),
+  event = sample(c(0, 1), 200, replace = TRUE, prob = c(0.3, 0.7))
+)
+
+head(clinical_data)
+```
+
+### Treatment Response Analysis
+
+```{r treatment-response}
+# Analyze treatment response by age group
+response_summary <- Summary$new(
+  data = clinical_data,
+  x = "response",
+  by = "age_group", 
+  method = summarise_categorical_barplot
+)
+
+response_summary$kable()
+```
+
+### Creating Publication-Ready Plots
+
+```{r publication-plot}
+# Create a comprehensive treatment comparison plot
+treatment_plot <- plot(
+  data = clinical_data,
+  mapping = list(
+    x = "treatment",
+    y = "survival_time",
+    fill = "treatment"
+  ),
+  layers = list(
+    list(type = "boxplot", alpha = 0.7),
+    list(type = "generic", geom = "ggplot2::geom_jitter", 
+         alpha = 0.4, width = 0.2)
+  )
+) +
+  theme_minimal() +
+  labs(
+    title = "Survival Time by Treatment Group",
+    subtitle = "Clinical Trial Results",
+    x = "Treatment Group", 
+    y = "Survival Time (months)",
+    fill = "Treatment"
+  ) +
+  scale_fill_manual(values = c("Control" = "#E74C3C", "Treatment" = "#3498DB"))
+
+treatment_plot
+```
+
+## Inline Plots for Reports
+
+nightowl excels at creating small, inline plots perfect for reports and presentations:
+
+```{r inline-plots}
+# Create inline histogram
+set.seed(42)
+sample_data <- rnorm(1000, mean = 100, sd = 15)
+
+inline_hist <- add_inline_plot(
+  sample_data,
+  style = "Inline-Histogram",
+  height = 0.6
+)
+
+inline_hist
+```
+
+```{r inline-violin}
+# Create inline violin plot
+inline_violin <- add_inline_plot(
+  sample_data,
+  style = "Inline-Violin", 
+  height = 0.5
+)
+
+inline_violin
+```
+
+## Performance Features
+
+nightowl includes several performance optimizations:
+
+### Caching System
+
+```{r caching}
+# Enable caching for better performance
+options(nightowl.cache = TRUE)
+
+# Large dataset example
+large_data <- tibble(
+  group = sample(LETTERS[1:5], 10000, replace = TRUE),
+  value = rnorm(10000),
+  category = sample(c("X", "Y", "Z"), 10000, replace = TRUE)
+)
+
+# First plot creation (cache miss)
+system.time({
+  large_plot <- plot(
+    data = large_data,
+    mapping = list(x = "group", y = "value", color = "category"),
+    layers = list(list(type = "boxplot"))
+  )
+})
+
+# Second access (cache hit - much faster)
+system.time({
+  large_plot_cached <- plot(
+    data = large_data,
+    mapping = list(x = "group", y = "value", color = "category"),
+    layers = list(list(type = "boxplot"))
+  )
+})
+```
+
+## Interactive Tables
+
+nightowl makes it easy to create professional interactive tables:
+
+```{r interactive-table}
+# Create an interactive summary table
+summary_table <- clinical_data %>%
+  group_by(treatment, age_group) %>%
+  summarise(
+    n = n(),
+    response_rate = mean(response == "Response"),
+    median_survival = median(survival_time),
+    .groups = "drop"
+  )
+
+# Render as interactive table
+render_reactable(summary_table)
+```
+
+## Styling and Themes
+
+nightowl provides extensive styling options:
+
+```{r styling}
+# Load a predefined style
+# style_config <- load_style("Boxplot-Dotplot")
+
+# Create styled plot
+styled_plot <- plot(
+  data = mtcars,
+  mapping = list(x = "factor(cyl)", y = "mpg"),
+  layers = list(
+    list(type = "boxplot"),
+    list(type = "dotplot")
+  )
+) +
+  theme_minimal() +
+  labs(title = "Fuel Efficiency by Cylinder Count")
+
+styled_plot
+```
+
+## Next Steps
+
+Now that you've learned the basics, explore these advanced topics:
+
+1. **[Statistical Visualization](statistical-visualization.html)**: Deep dive into nightowl's plotting capabilities
+2. **[Advanced Features](advanced-features.html)**: Learn about R6 classes and customization
+3. **[Performance Optimization](performance-optimization.html)**: Optimize nightowl for large datasets
+4. **[Real-World Examples](real-world-examples.html)**: See nightowl in action with real data
+
+## Key Functions Reference
+
+Here are the main functions you'll use frequently:
+
+| Function | Purpose | Example |
+|----------|---------|---------|
+| `forestplot()` | Create forest plots | `forestplot(0.5, 0.2, 0.8)` |
+| `Summary$new()` | Data summarization | `Summary$new(data, "x", "by")` |
+| `plot()` | Declarative plotting | `plot(data, mapping, layers)` |
+| `render_reactable()` | Interactive tables | `render_reactable(data)` |
+| `add_inline_plot()` | Small inline plots | `add_inline_plot(data, style)` |
+
+## Getting Help
+
+- **Documentation**: Use `?function_name` for detailed help
+- **Vignettes**: Browse all vignettes with `browseVignettes("nightowl")`
+- **Issues**: Report bugs at [GitHub Issues](https://github.com/joelgsponer/nightowl/issues)
+- **Discussions**: Ask questions at [GitHub Discussions](https://github.com/joelgsponer/nightowl/discussions)
+
+Welcome to the nightowl community! 🦉✨

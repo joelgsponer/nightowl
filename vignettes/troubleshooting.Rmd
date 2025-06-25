@@ -1,0 +1,875 @@
+---
+title: "Troubleshooting Guide"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Troubleshooting Guide}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.width = 7,
+  fig.height = 5,
+  out.width = "100%",
+  error = TRUE
+)
+```
+
+## Introduction
+
+This guide addresses common issues, error messages, and troubleshooting strategies when using nightowl. It includes practical solutions, diagnostic techniques, and preventive measures to help you resolve problems quickly.
+
+```{r setup}
+library(nightowl)
+library(dplyr)
+library(ggplot2)
+```
+
+## Installation Issues
+
+### Problem: Package Installation Fails
+
+**Common error messages:**
+- `installation of package 'nightowl' had non-zero exit status`
+- `dependency 'xyz' is not available`
+- `compilation ERROR`
+
+**Solutions:**
+
+```{r install-troubleshooting, eval = FALSE}
+# Solution 1: Install dependencies first
+install.packages("remotes")
+install.packages(c("dplyr", "ggplot2", "survival", "reactable"))
+
+# Solution 2: Use different installation method
+# If GitHub installation fails
+remotes::install_github("joelgsponer/nightowl", dependencies = TRUE)
+
+# Solution 3: Install from specific branch or commit
+remotes::install_github("joelgsponer/nightowl@dev")
+
+# Solution 4: Skip problematic dependencies temporarily
+remotes::install_github("joelgsponer/nightowl", dependencies = FALSE)
+```
+
+**Prevention:**
+- Keep R and packages up to date
+- Ensure adequate system resources (disk space, memory)
+- Check network connectivity for GitHub downloads
+
+### Problem: Package Loads but Functions Don't Work
+
+```{r loading-issues, eval = FALSE}
+# Check if package loaded correctly
+library(nightowl)
+packageVersion("nightowl")
+
+# Verify core functions are available
+exists("forestplot")
+exists("Summary")
+
+# Check for namespace conflicts
+conflicts()
+```
+
+**Solution for namespace conflicts:**
+```{r namespace-conflicts, eval = FALSE}
+# Use explicit namespace
+nightowl::forestplot(0.5, 0.2, 0.8)
+
+# Or detach conflicting packages
+detach("package:conflicting_package", unload = TRUE)
+```
+
+## Data-Related Issues
+
+### Problem: "Object not found" Errors
+
+**Common scenarios:**
+- Column names don't match data
+- Variable scoping issues in functions
+- Typos in column references
+
+```{r data-errors, error = TRUE}
+# Example: Wrong column name
+test_data <- tibble(sepal_length = 1:10, species = rep(c("A", "B"), 5))
+
+# This will fail
+try({
+  Summary$new(test_data, x = "Sepal.Length", by = "Species")
+})
+
+# Solution: Check column names
+colnames(test_data)
+
+# Correct usage
+Summary$new(test_data, x = "sepal_length", by = "species")
+```
+
+**Diagnostic techniques:**
+
+```{r data-diagnostics}
+# Check data structure
+check_data_structure <- function(data) {
+  list(
+    dimensions = dim(data),
+    column_names = names(data),
+    column_types = sapply(data, class),
+    missing_values = sapply(data, function(x) sum(is.na(x))),
+    sample_rows = head(data, 3)
+  )
+}
+
+# Example usage
+data_info <- check_data_structure(iris)
+print(data_info)
+```
+
+### Problem: Data Type Mismatches
+
+```{r type-mismatches, error = TRUE}
+# Example: Trying to plot character as numeric
+problematic_data <- tibble(
+  x = c("1", "2", "3", "4", "5"),  # Character, not numeric
+  y = 1:5,
+  group = c("A", "A", "B", "B", "B")
+)
+
+# This may cause issues
+try({
+  plot(
+    data = problematic_data,
+    mapping = list(x = "x", y = "y"),
+    layers = list(list(type = "scatter"))
+  )
+})
+
+# Solution: Convert data types
+fixed_data <- problematic_data %>%
+  mutate(x = as.numeric(x))
+
+# This works
+plot(
+  data = fixed_data,
+  mapping = list(x = "x", y = "y"),
+  layers = list(list(type = "scatter"))
+)
+```
+
+**Data cleaning helper function:**
+
+```{r data-cleaning}
+clean_data_for_plotting <- function(data, numeric_cols = NULL, factor_cols = NULL) {
+  
+  result <- data
+  
+  # Convert specified columns to numeric
+  if (!is.null(numeric_cols)) {
+    for (col in numeric_cols) {
+      if (col %in% names(result)) {
+        result[[col]] <- as.numeric(as.character(result[[col]]))
+      }
+    }
+  }
+  
+  # Convert specified columns to factor
+  if (!is.null(factor_cols)) {
+    for (col in factor_cols) {
+      if (col %in% names(result)) {
+        result[[col]] <- as.factor(result[[col]])
+      }
+    }
+  }
+  
+  # Remove rows with all NA values
+  result <- result[rowSums(is.na(result)) != ncol(result), ]
+  
+  # Report cleaning results
+  cat("Data cleaning summary:\n")
+  cat("Original rows:", nrow(data), "\n")
+  cat("Cleaned rows:", nrow(result), "\n")
+  cat("Rows removed:", nrow(data) - nrow(result), "\n")
+  
+  result
+}
+
+# Example usage
+cleaned_data <- clean_data_for_plotting(
+  problematic_data,
+  numeric_cols = "x",
+  factor_cols = "group"
+)
+```
+
+## Plotting Issues
+
+### Problem: Plots Don't Render or Look Wrong
+
+**Empty or malformed plots:**
+
+```{r plotting-issues, error = TRUE}
+# Example: Missing aesthetic mapping
+try({
+  plot(
+    data = iris,
+    mapping = list(),  # Empty mapping
+    layers = list(list(type = "scatter"))
+  )
+})
+
+# Solution: Ensure required aesthetics
+plot(
+  data = iris,
+  mapping = list(x = "Sepal.Length", y = "Petal.Length"),
+  layers = list(list(type = "scatter"))
+)
+```
+
+**Diagnostic function for plots:**
+
+```{r plot-diagnostics}
+diagnose_plot_issue <- function(data, mapping, layers) {
+  
+  cat("=== Plot Diagnostic Report ===\n")
+  
+  # Check data
+  cat("\n1. Data Check:\n")
+  cat("   - Rows:", nrow(data), "\n")
+  cat("   - Columns:", ncol(data), "\n")
+  cat("   - Column names:", paste(names(data), collapse = ", "), "\n")
+  
+  # Check mapping
+  cat("\n2. Mapping Check:\n")
+  required_vars <- unlist(mapping)
+  missing_vars <- setdiff(required_vars, names(data))
+  
+  if (length(missing_vars) > 0) {
+    cat("   ❌ Missing variables:", paste(missing_vars, collapse = ", "), "\n")
+  } else {
+    cat("   ✅ All mapped variables present\n")
+  }
+  
+  # Check for missing values in mapped columns
+  if (length(missing_vars) == 0) {
+    for (var in required_vars) {
+      na_count <- sum(is.na(data[[var]]))
+      if (na_count > 0) {
+        cat("   ⚠️  Variable", var, "has", na_count, "missing values\n")
+      }
+    }
+  }
+  
+  # Check layers
+  cat("\n3. Layer Check:\n")
+  cat("   - Number of layers:", length(layers), "\n")
+  for (i in seq_along(layers)) {
+    layer_type <- layers[[i]]$type %||% "unknown"
+    cat("   - Layer", i, "type:", layer_type, "\n")
+  }
+  
+  cat("\n=== End Diagnostic ===\n")
+}
+
+# Example usage
+diagnose_plot_issue(
+  data = iris,
+  mapping = list(x = "Sepal.Length", y = "Missing.Column"),
+  layers = list(list(type = "scatter"))
+)
+```
+
+### Problem: Forest Plot Issues
+
+**Common forest plot problems:**
+
+```{r forest-issues, error = TRUE}
+# Problem: Invalid confidence intervals
+try({
+  forestplot(estimate = 0.5, lower = 0.8, upper = 0.3)  # lower > upper
+})
+
+# Problem: Missing data
+forest_data <- tibble(
+  estimate = c(0.5, NA, 0.7),
+  lower = c(0.3, 0.4, 0.5),
+  upper = c(0.7, 0.8, 0.9)
+)
+
+# This may cause issues - handle missing values
+cleaned_forest_data <- forest_data %>%
+  filter(!is.na(estimate), !is.na(lower), !is.na(upper)) %>%
+  filter(lower <= estimate, estimate <= upper)  # Validate CI bounds
+
+forestplot(
+  estimate = cleaned_forest_data$estimate,
+  lower = cleaned_forest_data$lower,
+  upper = cleaned_forest_data$upper
+)
+```
+
+**Forest plot validation function:**
+
+```{r forest-validation}
+validate_forest_data <- function(estimate, lower, upper) {
+  
+  issues <- character(0)
+  
+  # Check for missing values
+  if (any(is.na(c(estimate, lower, upper)))) {
+    issues <- c(issues, "Missing values detected")
+  }
+  
+  # Check confidence interval logic
+  if (any(lower > estimate, na.rm = TRUE)) {
+    issues <- c(issues, "Lower bound greater than estimate")
+  }
+  
+  if (any(upper < estimate, na.rm = TRUE)) {
+    issues <- c(issues, "Upper bound less than estimate")
+  }
+  
+  if (any(lower >= upper, na.rm = TRUE)) {
+    issues <- c(issues, "Lower bound >= upper bound")
+  }
+  
+  # Check for extreme values
+  if (any(abs(c(estimate, lower, upper)) > 100, na.rm = TRUE)) {
+    issues <- c(issues, "Extreme values detected (>100 or <-100)")
+  }
+  
+  if (length(issues) == 0) {
+    cat("✅ Forest plot data validation passed\n")
+    return(TRUE)
+  } else {
+    cat("❌ Forest plot data validation failed:\n")
+    for (issue in issues) {
+      cat("   -", issue, "\n")
+    }
+    return(FALSE)
+  }
+}
+
+# Example usage
+validate_forest_data(
+  estimate = c(0.5, 0.7, 0.8),
+  lower = c(0.3, 0.5, 0.6),
+  upper = c(0.7, 0.9, 1.0)
+)
+```
+
+## Performance Issues
+
+### Problem: Slow Plot Rendering
+
+**Common causes and solutions:**
+
+```{r performance-issues}
+# Problem: Large datasets without optimization
+set.seed(123)
+large_data <- tibble(
+  x = rnorm(100000),
+  y = rnorm(100000),
+  group = sample(LETTERS[1:10], 100000, replace = TRUE)
+)
+
+# Slow approach (don't run with full dataset)
+# plot(large_data, mapping = list(x = "x", y = "y"), layers = list(list(type = "scatter")))
+
+# Solution 1: Sample the data
+sampled_approach <- function(data, sample_size = 10000) {
+  sampled_data <- data %>% sample_n(min(sample_size, nrow(data)))
+  
+  plot(
+    data = sampled_data,
+    mapping = list(x = "x", y = "y", color = "group"),
+    layers = list(list(type = "scatter", alpha = 0.6))
+  )
+}
+
+# Time the approach
+system.time({
+  sampled_plot <- sampled_approach(large_data)
+})
+
+# Solution 2: Use density plots for large datasets
+density_approach <- function(data) {
+  plot(
+    data = data,
+    mapping = list(x = "x", y = "y"),
+    layers = list(list(type = "generic", geom = "ggplot2::geom_hex", bins = 30))
+  )
+}
+
+system.time({
+  density_plot <- density_approach(large_data)
+})
+```
+
+**Performance optimization helper:**
+
+```{r performance-optimization}
+optimize_plot_performance <- function(data, mapping, layers, max_points = 20000) {
+  
+  n_rows <- nrow(data)
+  
+  cat("Original data size:", n_rows, "rows\n")
+  
+  # Determine optimization strategy
+  if (n_rows <= max_points) {
+    cat("No optimization needed\n")
+    optimized_data <- data
+    
+  } else {
+    cat("Applying performance optimization...\n")
+    
+    # Strategy 1: Random sampling
+    if (n_rows < max_points * 5) {
+      optimized_data <- data %>% sample_n(max_points)
+      cat("Applied random sampling to", max_points, "rows\n")
+      
+    } else {
+      # Strategy 2: Stratified sampling if grouping variable exists
+      group_vars <- intersect(unlist(mapping), names(data)[sapply(data, function(x) is.character(x) || is.factor(x))])
+      
+      if (length(group_vars) > 0) {
+        group_var <- group_vars[1]
+        optimized_data <- data %>%
+          group_by(!!sym(group_var)) %>%
+          sample_n(min(max_points / n_distinct(data[[group_var]]), n())) %>%
+          ungroup()
+        cat("Applied stratified sampling by", group_var, "to", nrow(optimized_data), "rows\n")
+        
+      } else {
+        # Fallback to random sampling
+        optimized_data <- data %>% sample_n(max_points)
+        cat("Applied random sampling (fallback) to", max_points, "rows\n")
+      }
+    }
+  }
+  
+  # Create optimized plot
+  plot(
+    data = optimized_data,
+    mapping = mapping,
+    layers = layers
+  )
+}
+
+# Example usage
+optimized_plot <- optimize_plot_performance(
+  data = large_data,
+  mapping = list(x = "x", y = "y", color = "group"),
+  layers = list(list(type = "scatter", alpha = 0.7))
+)
+```
+
+### Problem: Memory Issues
+
+```{r memory-issues}
+# Memory monitoring function
+monitor_memory_usage <- function(plot_function, ...) {
+  
+  # Initial memory
+  initial_memory <- pryr::mem_used()
+  cat("Initial memory usage:", format(initial_memory, units = "MB"), "\n")
+  
+  # Execute plot function
+  result <- plot_function(...)
+  
+  # Memory after plot creation
+  after_plot_memory <- pryr::mem_used()
+  cat("Memory after plot:", format(after_plot_memory, units = "MB"), "\n")
+  
+  # Memory difference
+  memory_increase <- after_plot_memory - initial_memory
+  cat("Memory increase:", format(memory_increase, units = "MB"), "\n")
+  
+  # Garbage collection
+  gc()
+  after_gc_memory <- pryr::mem_used()
+  cat("Memory after GC:", format(after_gc_memory, units = "MB"), "\n")
+  
+  if (memory_increase > as.numeric(format(initial_memory, units = "Mb")) * 0.1) {
+    cat("⚠️  High memory usage detected\n")
+  }
+  
+  result
+}
+
+# Example usage
+memory_efficient_plot <- monitor_memory_usage(function() {
+  plot(
+    data = iris,
+    mapping = list(x = "Sepal.Length", y = "Petal.Length"),
+    layers = list(list(type = "scatter"))
+  )
+})
+```
+
+## R6 Class Issues
+
+### Problem: R6 Object Errors
+
+```{r r6-issues, error = TRUE}
+# Problem: Invalid initialization
+try({
+  invalid_summary <- Summary$new()  # Missing required arguments
+})
+
+# Problem: Method doesn't exist
+summary_obj <- Summary$new(iris, "Sepal.Length", "Species")
+try({
+  summary_obj$nonexistent_method()
+})
+
+# Solution: Check available methods
+cat("Available methods for Summary class:\n")
+print(names(Summary))
+```
+
+**R6 debugging helper:**
+
+```{r r6-debugging}
+debug_r6_object <- function(r6_obj) {
+  
+  cat("=== R6 Object Debug Info ===\n")
+  cat("Class:", class(r6_obj)[1], "\n")
+  
+  # Public methods and fields
+  if ("public" %in% names(r6_obj)) {
+    public_items <- names(r6_obj)
+    cat("Public methods/fields:", paste(public_items, collapse = ", "), "\n")
+  }
+  
+  # Check if object is properly initialized
+  if (exists("initialize", envir = r6_obj)) {
+    cat("✅ Object appears to be initialized\n")
+  } else {
+    cat("⚠️  Object may not be properly initialized\n")
+  }
+  
+  # Check common methods
+  common_methods <- c("print", "clone", "render", "raw", "plot")
+  available_methods <- intersect(common_methods, names(r6_obj))
+  cat("Common methods available:", paste(available_methods, collapse = ", "), "\n")
+  
+  cat("=== End Debug Info ===\n")
+}
+
+# Example usage
+summary_obj <- Summary$new(iris, "Sepal.Length", "Species")
+debug_r6_object(summary_obj)
+```
+
+## Statistical Analysis Issues
+
+### Problem: Survival Analysis Errors
+
+```{r survival-issues, error = TRUE}
+# Problem: Invalid survival data
+invalid_surv_data <- tibble(
+  time = c(-1, 2, 3, 4),  # Negative time
+  event = c(1, 1, 2, 1),  # Invalid event code
+  group = c("A", "B", "A", "B")
+)
+
+# Validate survival data
+validate_survival_data <- function(data, time_col, event_col) {
+  
+  issues <- character(0)
+  
+  # Check for required columns
+  if (!time_col %in% names(data)) {
+    issues <- c(issues, paste("Time column", time_col, "not found"))
+  }
+  
+  if (!event_col %in% names(data)) {
+    issues <- c(issues, paste("Event column", event_col, "not found"))
+  }
+  
+  if (length(issues) > 0) {
+    return(list(valid = FALSE, issues = issues))
+  }
+  
+  # Check time values
+  times <- data[[time_col]]
+  if (any(times <= 0, na.rm = TRUE)) {
+    issues <- c(issues, "Non-positive time values detected")
+  }
+  
+  if (any(is.na(times))) {
+    issues <- c(issues, "Missing time values detected")
+  }
+  
+  # Check event values
+  events <- data[[event_col]]
+  unique_events <- unique(events[!is.na(events)])
+  if (!all(unique_events %in% c(0, 1))) {
+    issues <- c(issues, "Event values should be 0 or 1")
+  }
+  
+  if (any(is.na(events))) {
+    issues <- c(issues, "Missing event values detected")
+  }
+  
+  list(
+    valid = length(issues) == 0,
+    issues = issues
+  )
+}
+
+# Example usage
+validation_result <- validate_survival_data(invalid_surv_data, "time", "event")
+if (!validation_result$valid) {
+  cat("❌ Survival data validation failed:\n")
+  for (issue in validation_result$issues) {
+    cat("   -", issue, "\n")
+  }
+}
+
+# Fix the data
+fixed_surv_data <- invalid_surv_data %>%
+  mutate(
+    time = pmax(time, 0.001),  # Ensure positive times
+    event = ifelse(event %in% c(0, 1), event, 0)  # Fix event codes
+  )
+
+validation_result_fixed <- validate_survival_data(fixed_surv_data, "time", "event")
+if (validation_result_fixed$valid) {
+  cat("✅ Fixed survival data passes validation\n")
+}
+```
+
+## Common Error Messages and Solutions
+
+### Error: "Aesthetics must be either length 1 or the same as the data"
+
+```{r aesthetic-errors, error = TRUE}
+# Problem: Mismatched vector lengths
+try({
+  plot(
+    data = iris[1:10, ],
+    mapping = list(x = "Sepal.Length", y = "Petal.Length", color = LETTERS[1:5]),  # Wrong length
+    layers = list(list(type = "scatter"))
+  )
+})
+
+# Solution: Ensure consistent data lengths
+plot(
+  data = iris[1:10, ],
+  mapping = list(x = "Sepal.Length", y = "Petal.Length", color = "Species"),
+  layers = list(list(type = "scatter"))
+)
+```
+
+### Error: "Cannot add ggproto objects together"
+
+This usually occurs when trying to combine incompatible plot objects.
+
+```{r ggproto-errors, error = TRUE}
+# Problem: Incorrect plot combination
+plot1 <- plot(iris, list(x = "Sepal.Length", y = "Petal.Length"), list(list(type = "scatter")))
+
+# This might cause issues
+try({
+  # Invalid combination attempt
+  plot1 + plot1
+})
+
+# Solution: Use proper plot combination methods or patchwork
+library(patchwork)
+plot1 + plot1  # This should work with patchwork
+```
+
+## Debugging Techniques
+
+### Enable Verbose Logging
+
+```{r debugging-techniques, eval = FALSE}
+# Enable nightowl debugging
+options(nightowl.debug = TRUE)
+options(nightowl.verbose = TRUE)
+
+# This will show detailed information about plot creation
+plot(iris, list(x = "Sepal.Length", y = "Petal.Length"), list(list(type = "scatter")))
+```
+
+### Step-by-Step Debugging
+
+```{r step-debugging}
+debug_plot_creation <- function(data, mapping, layers) {
+  
+  cat("Step 1: Validating data...\n")
+  if (!is.data.frame(data)) {
+    stop("Data must be a data frame")
+  }
+  cat("✅ Data is valid data frame with", nrow(data), "rows\n")
+  
+  cat("Step 2: Validating mapping...\n")
+  required_vars <- unlist(mapping)
+  missing_vars <- setdiff(required_vars, names(data))
+  if (length(missing_vars) > 0) {
+    stop("Missing variables: ", paste(missing_vars, collapse = ", "))
+  }
+  cat("✅ All mapped variables present\n")
+  
+  cat("Step 3: Validating layers...\n")
+  if (length(layers) == 0) {
+    stop("At least one layer is required")
+  }
+  cat("✅", length(layers), "layer(s) specified\n")
+  
+  cat("Step 4: Creating plot...\n")
+  result <- plot(data = data, mapping = mapping, layers = layers)
+  cat("✅ Plot created successfully\n")
+  
+  result
+}
+
+# Example usage
+debug_result <- debug_plot_creation(
+  data = iris,
+  mapping = list(x = "Sepal.Length", y = "Petal.Length"),
+  layers = list(list(type = "scatter"))
+)
+```
+
+## Getting Help
+
+### When to Seek Help
+
+1. **Error persists after troubleshooting**: Try the solutions in this guide first
+2. **Unexpected behavior**: Document what you expected vs. what happened
+3. **Performance issues**: Include dataset size and system specifications
+4. **Feature requests**: Check if functionality exists first
+
+### How to Report Issues
+
+```{r issue-reporting, eval = FALSE}
+# Create a minimal reproducible example
+library(nightowl)
+
+# Simple data
+test_data <- data.frame(
+  x = 1:10,
+  y = rnorm(10),
+  group = rep(c("A", "B"), 5)
+)
+
+# Code that demonstrates the issue
+# (Include this in your bug report)
+problematic_plot <- plot(
+  data = test_data,
+  mapping = list(x = "x", y = "y"),
+  layers = list(list(type = "scatter"))
+)
+
+# Include session information
+sessionInfo()
+```
+
+### System Information Helper
+
+```{r system-info}
+get_system_info <- function() {
+  list(
+    r_version = R.version.string,
+    platform = R.version$platform,
+    nightowl_version = as.character(packageVersion("nightowl")),
+    key_dependencies = sapply(c("ggplot2", "dplyr", "survival"), function(pkg) {
+      if (requireNamespace(pkg, quietly = TRUE)) {
+        as.character(packageVersion(pkg))
+      } else {
+        "Not installed"
+      }
+    }),
+    locale = Sys.getlocale(),
+    memory = format(pryr::mem_used(), units = "MB")
+  )
+}
+
+system_info <- get_system_info()
+print(system_info)
+```
+
+## Prevention and Best Practices
+
+### Code Review Checklist
+
+- ✅ Data types are appropriate for the plot type
+- ✅ Required columns exist in the dataset
+- ✅ No missing values in critical variables (or handled appropriately)
+- ✅ Confidence intervals are logically consistent (lower ≤ estimate ≤ upper)
+- ✅ Large datasets are appropriately sampled or aggregated
+- ✅ Memory usage is monitored for large operations
+- ✅ Error handling is implemented for production code
+
+### Defensive Programming
+
+```{r defensive-programming}
+safe_plot <- function(data, mapping, layers, ...) {
+  
+  # Input validation
+  if (!is.data.frame(data)) {
+    stop("Data must be a data frame")
+  }
+  
+  if (nrow(data) == 0) {
+    warning("Empty dataset provided")
+    return(NULL)
+  }
+  
+  # Check for required variables
+  required_vars <- unlist(mapping)
+  missing_vars <- setdiff(required_vars, names(data))
+  if (length(missing_vars) > 0) {
+    stop("Missing variables in data: ", paste(missing_vars, collapse = ", "))
+  }
+  
+  # Automatic performance optimization
+  if (nrow(data) > 50000) {
+    warning("Large dataset detected, applying sampling")
+    data <- data %>% sample_n(50000)
+  }
+  
+  # Create plot with error handling
+  tryCatch({
+    plot(data = data, mapping = mapping, layers = layers, ...)
+  }, error = function(e) {
+    warning("Plot creation failed: ", e$message)
+    NULL
+  })
+}
+
+# Example usage
+safe_result <- safe_plot(
+  data = iris,
+  mapping = list(x = "Sepal.Length", y = "Petal.Length"),
+  layers = list(list(type = "scatter"))
+)
+```
+
+## Summary
+
+This troubleshooting guide covers the most common issues encountered when using nightowl:
+
+- **Installation problems**: Dependency issues, compilation errors
+- **Data issues**: Missing columns, type mismatches, validation
+- **Plotting problems**: Rendering issues, aesthetic errors, performance
+- **R6 class issues**: Initialization errors, method problems
+- **Statistical analysis**: Survival data validation, forest plot issues
+
+Remember:
+1. **Read error messages carefully** - they often contain the solution
+2. **Use diagnostic functions** - validate your data before plotting
+3. **Start simple** - create basic plots before adding complexity
+4. **Monitor performance** - especially with large datasets
+5. **Report issues properly** - include reproducible examples
+
+For additional help:
+- **[Getting Started](getting-started.html)**: Basic nightowl usage
+- **[Advanced Features](advanced-features.html)**: R6 classes and customization
+- **[GitHub Issues](https://github.com/joelgsponer/nightowl/issues)**: Report bugs and request features
