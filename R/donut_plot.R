@@ -1,11 +1,19 @@
 # Make some more simple barcharts
 # =================================================
-#' @title
-#' MISSING_TITLE
+#' @title Create donut plots for categorical variables
 #' @description
-#' @detail
-#' @param
-#' @return
+#' Creates interactive donut plot visualizations for categorical variables split by groups,
+#' with automatic color coding and percentage labels.
+#' @param data A data frame containing the categorical variable and grouping variable
+#' @param column String. Name of the categorical column to visualize
+#' @param split String. Name of the grouping variable to split plots by
+#' @param threshold_levels Integer. Minimum levels to apply fraction threshold. Default 3
+#' @param threshold_fractions Numeric. Minimum fraction for label display. Default 0.089
+#' @param colors Named vector of colors for categories. If NULL, uses brewer palette
+#' @param brewer_pal String. RColorBrewer palette name. Default "OrRd"
+#' @param color_missing String. Color for missing values. Default "#BEBEBE"
+#' @param label String. Display label for the row header. Default column name
+#' @return An HTML div containing the donut plots with legend
 #' @export
 make_donut_plot_categorical <- function(data,
                                         column,
@@ -91,12 +99,19 @@ make_donut_plot_categorical <- function(data,
 }
 # =================================================
 # =================================================
-#' @title
-#' MISSING_TITLE
+#' @title Create violin-box plots for numeric variables
 #' @description
-#' @detail
-#' @param
-#' @return
+#' Creates violin-box plot combinations for numeric variables split by groups,
+#' showing distribution and median reference lines.
+#' @param data A data frame containing the numeric variable and grouping variable
+#' @param column String. Name of the numeric column to visualize
+#' @param split String. Name of the grouping variable to split plots by
+#' @param colors Named vector of colors for groups. If NULL, uses brewer palette
+#' @param brewer_pal String. RColorBrewer palette name. Default "OrRd"
+#' @param color_missing String. Color for missing values. Default "grey"
+#' @param label String. Display label for the row header. Default column name
+#' @param .range Numeric vector of length 2. Y-axis limits. If NULL, uses data range
+#' @return An HTML div containing the violin-box plots with median annotations
 #' @export
 make_donut_plot_numeric <- function(data,
                                     column,
@@ -178,12 +193,16 @@ make_donut_plot_numeric <- function(data,
     htmltools::browsable()
 }
 # =================================================
-#' @title
-#' MISSING_TITLE
+#' @title Create multi-column donut plot dashboard
 #' @description
-#' @detail
-#' @param
-#' @return
+#' Creates a comprehensive dashboard of donut plots for multiple variables,
+#' automatically choosing appropriate plot types based on variable types.
+#' @param data A data frame containing variables to visualize
+#' @param columns Character vector. Names of columns to create plots for
+#' @param split String. Name of the grouping variable to split plots by
+#' @param labels Character vector. Display labels for each column. If NULL, uses column names
+#' @param options List. Plotting options for each column or by variable type
+#' @return An HTML dashboard with headers and multiple donut plots
 #' @export
 donut_plot <- function(data,
                        columns,
@@ -234,12 +253,13 @@ donut_plot <- function(data,
   do.call(nightowl::render_donut_plot, c(list(header = header), p))
 }
 # =================================================
-#' @title
-#' MISSING_TITLE
+#' @title Render donut plot dashboard with headers
 #' @description
-#' @detail
-#' @param
-#' @return
+#' Renders a complete donut plot dashboard with column headers and multiple plot rows,
+#' applying consistent styling and layout.
+#' @param header Character vector. Column headers for the dashboard
+#' @param ... Plot objects to include in the dashboard
+#' @return An HTML div containing the complete dashboard with styling
 #' @export
 render_donut_plot <- function(header, ...) {
   plots <- list(...)
@@ -269,12 +289,11 @@ render_donut_plot <- function(header, ...) {
     htmltools::browsable()
 }
 # =================================================
-#' @title
-#' MISSING_TITLE
+#' @title Generate CSS styling for donut plot dashboards
 #' @description
-#' @detail
-#' @param
-#' @return
+#' Generates comprehensive CSS styling for donut plot dashboards,
+#' including layout, borders, fonts, and responsive design elements.
+#' @return An HTML style tag containing CSS for donut plot styling
 #' @export
 css_donut_plot <- function() {
   shiny::HTML("<style>

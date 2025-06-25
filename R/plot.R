@@ -1,10 +1,10 @@
 # =================================================
-#' @title
-#' MISSING_TITLE
+#' @title Check if object is a Plot instance
 #' @description
-#' @detail
-#' @param
-#' @return
+#' Tests whether an object inherits from both the Plot and R6 classes,
+#' confirming it is a valid Plot object.
+#' @param x Any R object to test
+#' @return Logical. TRUE if object is a Plot instance, FALSE otherwise
 #' @export
 is_Plot <- function(x) {
   all(
@@ -13,11 +13,25 @@ is_Plot <- function(x) {
   )
 }
 # ===============================================================================
-#' R6 Class
+#' R6 Class for Plot Objects
 #'
 #' @description
+#' A comprehensive R6 class for creating, managing, and rendering plot objects.
+#' Supports ggplot2 objects with SVG rendering, HTML output, and customizable styling.
 #'
-#' @detail
+#' @details
+#' The Plot class provides a flexible interface for plot objects with:
+#' - SVG rendering with customizable dimensions
+#' - HTML output with CSS styling support
+#' - Automatic resizing capabilities
+#' - Memoized rendering for performance
+#' 
+#' @field plot The underlying plot object (typically ggplot2)
+#' @field type String identifier for the plot type
+#' @field options_svg List of SVG rendering options (width, height, scaling)
+#' @field css List of CSS styling options (class, style)
+#' @field resize Logical indicating if plots should auto-resize
+#' 
 #' @export
 Plot <- R6::R6Class("Plot",
   public = list(
@@ -117,11 +131,30 @@ Plot <- R6::R6Class("Plot",
   )
 )
 # ===============================================================================
-#' R6 Class
+#' R6 Class for Declarative Plot Construction
 #'
 #' @description
+#' An advanced R6 class that extends Plot to provide declarative plot construction
+#' with automatic data processing, transformation, and layered visualization building.
 #'
-#' @detail
+#' @details
+#' DeclarativePlot enables building complex visualizations through:
+#' - Declarative mapping of data to aesthetics
+#' - Automatic data selection and transformation
+#' - Layered geometry and scale management
+#' - Faceting and theming support
+#' - Optimized rendering with memoization
+#' 
+#' This class is designed for programmatic plot construction where plot
+#' specifications are built incrementally through configuration objects.
+#' 
+#' @field data The source data frame for the plot
+#' @field mapping List of aesthetic mappings (x, y, color, fill, etc.)
+#' @field layers List of plot layers (geometries, statistics)
+#' @field scales List of scale specifications
+#' @field facets Faceting specification
+#' @field theming Theme configuration
+#' 
 #' @export
 DeclarativePlot <- R6::R6Class("DeclarativePlot",
   inherit = nightowl::Plot,

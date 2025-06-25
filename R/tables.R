@@ -1,10 +1,8 @@
 # =================================================
-#' @title
-#' MISSING_TITLE
-#' @description
-#' @detail
-#' @param
-#' @return
+#' @title Default Reactable Configuration (Deprecated)
+#' @description Creates a reactable with default styling options - use render_reactable() instead
+#' @param x Data frame to display in the table
+#' @return Reactable object with default styling
 #' @export
 reactable_default <- function(x,
                               filterable = T,
@@ -29,12 +27,10 @@ reactable_default <- function(x,
   )
 }
 # =================================================
-#' @title
-#' MISSING_TITLE
-#' @description
-#' @detail
-#' @param
-#' @return
+#' @title Render Kable Table
+#' @description Creates a styled HTML table using knitr::kable with nightowl formatting
+#' @param .tbl Data frame to render as a table
+#' @return HTML string containing the formatted table
 #' @export
 render_kable <- function(.tbl,
                          caption = NULL,
@@ -71,12 +67,10 @@ render_kable <- function(.tbl,
 }
 # s-------------------------------------------------------------------------------
 # =================================================
-#' @title
-#' MISSING_TITLE
-#' @description
-#' @detail
-#' @param
-#' @return
+#' @title Render Reactable Table
+#' @description Creates an interactive table using reactable with nightowl styling and themes
+#' @param .tbl Data frame to render as an interactive table
+#' @return Reactable object with nightowl styling and interactive features
 #' @export
 render_reactable <- function(.tbl,
                              html_columns = NULL,
