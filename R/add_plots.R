@@ -27,7 +27,7 @@ add_geom <- function(geom,
                      cut_f = ggplot2::cut_interval,
                      cut_args = list(n = 5),
                      ...) {
-  .data <- g$data
+  data <- g$data
   nightowl:::expand_mapping(mapping)
   if (is.numeric(dplyr::pull(g$data, !!g$mapping$x))) {
     # Safe function lookup - only allow specific cut functions
@@ -54,7 +54,7 @@ add_geom <- function(geom,
       list(x = g$data[[rlang::as_label(g$mapping$x)]]),
       cut_args
     ))
-    .data <- cbind(g$data, .group)
+    data <- cbind(g$data, .group)
     if (!is.null(g$mapping$fill)) {
       .aes <- ggplot2::aes(group = interaction(!!g$mapping$fill, .group))
     } else {
@@ -64,7 +64,7 @@ add_geom <- function(geom,
     .aes <- do.call(ggplot2::aes, mapping)
   }
   g + geom(
-    data = .data,
+    data = data,
     mapping = .aes,
     position = ggplot2::position_dodge(dodge, preserve = "total"),
     ...

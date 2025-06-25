@@ -150,12 +150,12 @@ Coxph <- R6::R6Class("Coxph",
       } else {
         data_list <- waRRior::named_group_split_at(self$data, self$group_by, keep = T, verbose = T)
       }
-      self$models <- purrr::map(data_list, purrr::safely(function(.data) {
+      self$models <- purrr::map(data_list, purrr::safely(function(data) {
         do.call(
           survival::coxph,
           c(
             list(
-              data = .data,
+              data = data,
               formula = self$formula
             ),
             self$args_model
@@ -203,10 +203,10 @@ Coxph <- R6::R6Class("Coxph",
     N = function() {
       variables <- self$get_variables()
       data_list <- waRRior::named_group_split_at(self$data, self$group_by, keep = T, verbose = T)
-      purrr::imap(data_list, function(.data, .subgroup) {
+      purrr::imap(data_list, function(data, .subgroup) {
         res <- purrr::map(c(variables$treatment, self$covariates, self$strata), function(.var) {
-          if (!is.numeric(.data[[.var]])) {
-            dplyr::select_at(.data, c(.var, variables$event)) %>%
+          if (!is.numeric(data[[.var]])) {
+            dplyr::select_at(data, c(.var, variables$event)) %>%
               waRRior::tally_at(c(.var, variables$event)) %>%
               dplyr::mutate(!!rlang::sym(variables$event) := as.character(!!rlang::sym(variables$event))) %>%
               dplyr::select_at(c(.var, "n", variables$event)) %>%
