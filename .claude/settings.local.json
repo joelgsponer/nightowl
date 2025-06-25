@@ -10,7 +10,12 @@
       "Bash(mkdir:*)",
       "Bash(R:*)",
       "Bash(gh issue create:*)",
-      "Bash(git worktree:*)"
+      "Bash(git worktree:*)",
+      "Bash(git commit:*)",
+      "Bash(git checkout:*)",
+      "Bash(gh issue view:*)",
+      "Bash(git pull:*)",
+      "Bash(git add:*)"
     ],
     "deny": []
   }
