@@ -41,3 +41,4 @@ vignettes/*.pdf
 
 # Claude Code settings
 .claude/
+.claude/
