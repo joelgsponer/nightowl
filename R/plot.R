@@ -232,12 +232,12 @@ DeclarativePlot <- R6::R6Class("DeclarativePlot",
       mapping <- self$mapping
       if (!is.null(transform)) {
         transform_data <- transform$data
-        transform <- transform[waRRior::pop(names(transform), "data")]
+        transform <- transform[nightowl_pop(names(transform), "data")]
         
         # Apply transformations in-place to avoid data copying
         for (.var_name in names(transform)) {
           .f <- transform[[.var_name]]
-          if (is.character(.f)) .f <- waRRior::getfun(.f)
+          if (is.character(.f)) .f <- nightowl_getfun(.f)
           .var <- mapping[[.var_name]]
           if (!is.null(.var)) {
             self$data[[.var]] <- .f(self$data[[.var]])
@@ -245,7 +245,7 @@ DeclarativePlot <- R6::R6Class("DeclarativePlot",
         }
         
         if (!is.null(transform_data)) {
-          if (is.character(transform_data)) .f <- waRRior::getfun(transform_data)
+          if (is.character(transform_data)) .f <- nightowl_getfun(transform_data)
           res_tranform_data <- .f(self$data, mapping)
           self$data <- res_tranform_data$data
           self$mapping <- res_tranform_data$mapping
@@ -265,7 +265,7 @@ DeclarativePlot <- R6::R6Class("DeclarativePlot",
       }
       if (!is.null(mapping$facet_col)) facets$column <- mapping$facet_col
       if (!is.null(mapping$facet_row)) facets$row <- mapping$facet_row
-      self$mapping <- mapping[waRRior::pop(names(mapping), c("facet_row", "facet_col"))]
+      self$mapping <- mapping[nightowl_pop(names(mapping), c("facet_row", "facet_col"))]
       self$facets <- facets
     },
     # ggplot ---

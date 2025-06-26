@@ -31,7 +31,7 @@ summarise <- function(data,
     params = tryCatch(parameters[[.y]], error = function(e) NULL)
   ))
 
-  .group <- waRRior::get_groups(data)
+  .group <- nightowl_get_groups(data)
 
   res <- purrr::reduce(.calculations, function(.x, .y) {
     .x <- .x %>%

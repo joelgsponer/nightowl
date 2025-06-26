@@ -5,7 +5,7 @@ generic <- function(geom,
                     mapping = list(),
                     ...) {
   .aes <- do.call(ggplot2::aes, mapping)
-  .f <- waRRior::getfun(geom)
+  .f <- nightowl_getfun(geom)
   g + .f(mapping = .aes, ...)
 }
 #' generic
@@ -13,7 +13,7 @@ generic <- function(geom,
 scales <- function(scale,
                    g,
                    ...) {
-  .f <- waRRior::getfun(scale)
+  .f <- nightowl_getfun(scale)
   g + do.call(.f, list(...))
 }
 # ===============================================================================
@@ -404,7 +404,7 @@ colors <- function(g, DATA, mapping, ...) {
 theme <- function(g, theme = "ggplot2::theme_bw", ...) {
   # Add Theme
   if (is.character(theme)) {
-    .f <- waRRior::getfun(theme)
+    .f <- nightowl_getfun(theme)
     g <- g + .f()
   } else if (is.function(theme)) {
     g <- g + theme()
@@ -415,9 +415,9 @@ theme <- function(g, theme = "ggplot2::theme_bw", ...) {
   args <- list(...)
   elements <- purrr::imap(args, function(.x, .y){
     if(is.character(.x$element)){
-      .x$element <- waRRior::getfun(.x$element)
+      .x$element <- nightowl_getfun(.x$element)
     }
-    params <- .x[waRRior::pop(names(.x), "element")]
+    params <- .x[nightowl_pop(names(.x), "element")]
     do.call(.x$element, params)
   })
   g <- g + do.call(ggplot2::theme, elements)

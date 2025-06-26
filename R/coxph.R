@@ -88,7 +88,7 @@ Coxph <- R6::R6Class("Coxph",
       }
       if (is.null(self$data)) rlang::abort("No data provided - use `set_data` method to update")
       self$check_variables()
-      if (is.null(self$group_by)) self$group_by <- waRRior::get_groups(data)
+      if (is.null(self$group_by)) self$group_by <- nightowl_get_groups(data)
       data <- data %>%
         dplyr::ungroup() %>%
         dplyr::select_at(c(unname(unlist(self$get_variables())))) %>%
@@ -148,7 +148,7 @@ Coxph <- R6::R6Class("Coxph",
       if (!dplyr::is_grouped_df(self$data)) {
         data_list <- list(ALL = self$data)
       } else {
-        data_list <- waRRior::named_group_split_at(self$data, self$group_by, keep = T, verbose = T)
+        data_list <- nightowl_named_group_split_at(self$data, self$group_by, keep = T, verbose = T)
       }
       self$models <- purrr::map(data_list, purrr::safely(function(data) {
         do.call(
@@ -189,7 +189,7 @@ Coxph <- R6::R6Class("Coxph",
             } %>%
             dplyr::mutate_if(is.numeric, ~ round(.x, 4)) %>%
             dplyr::arrange(estimate) %>%
-            dplyr::mutate(term = factor(term, c(variables$treatment, unique(waRRior::pop(.$term, variables$treatment))))) %>%
+            dplyr::mutate(term = factor(term, c(variables$treatment, unique(nightowl_pop(.$term, variables$treatment))))) %>%
             dplyr::arrange(term) %>%
             dplyr::mutate(reference = purrr::map_chr(as.character(term), ~ self$get_reference()[[.x]])) %>%
             dplyr::select(Subgroup, term, reference, comparison, estimate, tidyselect::everything())
@@ -202,12 +202,12 @@ Coxph <- R6::R6Class("Coxph",
     # N ------------------------------------------------------------------
     N = function() {
       variables <- self$get_variables()
-      data_list <- waRRior::named_group_split_at(self$data, self$group_by, keep = T, verbose = T)
+      data_list <- nightowl_named_group_split_at(self$data, self$group_by, keep = T, verbose = T)
       purrr::imap(data_list, function(data, .subgroup) {
         res <- purrr::map(c(variables$treatment, self$covariates, self$strata), function(.var) {
           if (!is.numeric(data[[.var]])) {
             dplyr::select_at(data, c(.var, variables$event)) %>%
-              waRRior::tally_at(c(.var, variables$event)) %>%
+              nightowl_tally_at(c(.var, variables$event)) %>%
               dplyr::mutate(!!rlang::sym(variables$event) := as.character(!!rlang::sym(variables$event))) %>%
               dplyr::select_at(c(.var, "n", variables$event)) %>%
               dplyr::rename(comparison = .var) %>%
@@ -216,7 +216,7 @@ Coxph <- R6::R6Class("Coxph",
               dplyr::mutate(comparison = as.character(comparison))
           } else {
             dplyr::select_at(data, c(.var, event)) %>%
-              waRRior::tally_at(c(event)) %>%
+              nightowl_tally_at(c(event)) %>%
               dplyr::mutate(!!rlang::sym(variables$event) := as.character(!!rlang::sym(variables$event))) %>%
               dplyr::select_at(c(.var, "n", variables$event)) %>%
               dplyr::select_at(c("n")) %>%
@@ -232,7 +232,7 @@ Coxph <- R6::R6Class("Coxph",
           dplyr::inner_join(res) %>%
           dplyr::mutate(`Events/N` = paste(n, N, sep = "/")) %>%
           dplyr::filter(!!rlang::sym(variables$event) == "1") %>%
-          waRRior::drop_columns(c("n", "N", variables$event)) %>%
+          nightowl_drop_columns(c("n", "N", variables$event)) %>%
           dplyr::mutate(Subgroup = .subgroup)
       }) %>%
         dplyr::bind_rows()
@@ -366,7 +366,7 @@ Coxph <- R6::R6Class("Coxph",
         )
       res$`p Value` <- purrr::map_chr(res$`p Value`, ~ nightowl::format_p_value(.x))
       if (!is.null(drop)) {
-        res <- waRRior::drop_columns(res, drop)
+        res <- nightowl_drop_columns(res, drop)
       }
       subgroups <- stringr::str_split(res$Subgroup, " / ") %>%
         purrr::map(~ stringr::str_split(.x, "==")) %>%
@@ -468,7 +468,7 @@ fit_coxph <- function(data, time, event, treatment, covariates, strata, exponent
     } %>%
     dplyr::mutate_if(is.numeric, ~ round(.x, 4)) %>%
     dplyr::arrange(estimate) %>%
-    dplyr::mutate(term = factor(term, c(treatment, unique(waRRior::pop(.$term, treatment))))) %>%
+    dplyr::mutate(term = factor(term, c(treatment, unique(nightowl_pop(.$term, treatment))))) %>%
     dplyr::arrange(term) %>%
     dplyr::mutate(reference = purrr::map_chr(as.character(term), ~ .reference[[.x]])) %>%
     dplyr::select(variable = term, reference, group, estimate, tidyselect::everything())
@@ -476,7 +476,7 @@ fit_coxph <- function(data, time, event, treatment, covariates, strata, exponent
   .n <- purrr::map(c(treatment, covariates, strata), function(.var) {
     if (!is.numeric(data[[.var]])) {
       dplyr::select_at(data, c(.var, event)) %>%
-        waRRior::tally_at(c(.var, event)) %>%
+        nightowl_tally_at(c(.var, event)) %>%
         dplyr::filter(!!rlang::sym(event) == 1) %>%
         dplyr::select_at(c(.var, "n")) %>%
         dplyr::rename(group = .var) %>%
@@ -485,7 +485,7 @@ fit_coxph <- function(data, time, event, treatment, covariates, strata, exponent
         dplyr::mutate(group = as.character(group))
     } else {
       dplyr::select_at(data, c(.var, event)) %>%
-        waRRior::tally_at(c(event)) %>%
+        nightowl_tally_at(c(event)) %>%
         dplyr::filter(!!rlang::sym(event) == 1) %>%
         dplyr::select_at(c("n")) %>%
         dplyr::mutate(variable = .var) %>%
@@ -539,7 +539,7 @@ plot_coxph <- function(data,
     .result <- nightowl::fit_coxph(data, time, event, treatment, covariates, strata, exponentiate = TRUE)
   } else {
     .result <- data %>%
-      waRRior::named_group_split_at(split) %>%
+      nightowl_named_group_split_at(data, split) %>%
       furrr::future_imap(~ nightowl::fit_coxph(.x, time, event, treatment, covariates, strata, exponentiate = TRUE) %>%
         dplyr::mutate(!!rlang::sym(split) := .y)) %>%
       dplyr::bind_rows() %>%
@@ -547,7 +547,7 @@ plot_coxph <- function(data,
   }
   .attributes <- attributes(.result)
   .result <- dplyr::filter(.result, !is.na(estimate))
-  if (show_only_treatment) .result <- dplyr::filter(.result, variable == treatment) %>% waRRior::drop_empty_columns()
+  if (show_only_treatment) .result <- dplyr::filter(.result, variable == treatment) %>% nightowl_drop_empty_columns()
   if (is.null(conf_range)) {
     conf_range <- range.default(.result$conf.low, .result$conf.high, na.rm = TRUE, finite = TRUE)
   }
@@ -583,7 +583,7 @@ plot_coxph <- function(data,
         !!rlang::sym(forest_label) := Visualization,
         split
       ) %>%
-      dplyr::select_at(c(split, waRRior::pop(names(.), split)))
+      dplyr::select_at(c(split, nightowl_pop(names(.), split)))
     collapse_this <- 1
   } else {
     .result <- .result %>%

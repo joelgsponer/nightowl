@@ -46,10 +46,10 @@ make_donut_plot_categorical <- function(data,
     try(colors[["(Missing)"]] <- color_missing)
   }
   # Split Data
-  p <- waRRior::named_group_split(data, !!rlang::sym(split)) %>%
+  p <- nightowl_named_group_split(data, !!rlang::sym(split)) %>%
     purrr::imap(function(.x, .y) {
       # Calculate frequencies and prepare labels
-      freq <- waRRior::tally_at(.x, column) %>%
+      freq <- nightowl_tally_at(.x, column) %>%
         dplyr::arrange(!!rlang::sym(column))
       freq$fraction <- freq$n / sum(freq$n)
       freq$ymax <- cumsum(freq$fraction)
@@ -144,7 +144,7 @@ make_donut_plot_numeric <- function(data,
   }
   try(colors[["(Missing)"]] <- color_missing)
   # Split and plot
-  p <- waRRior::named_group_split(data, !!rlang::sym(split)) %>%
+  p <- nightowl_named_group_split(data, !!rlang::sym(split)) %>%
     purrr::imap(function(.x, .y) {
       if (nightowl::is_dark(colors[[.y]])) {
         .contrast <- "white"

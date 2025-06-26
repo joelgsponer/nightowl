@@ -33,9 +33,9 @@ create_Surv_formula <- function(data, time, event, treatment, covariates = NULL,
   # Remove time and event if present in covariates or strata -------------------
   # Covariates and strata need to have at least two levels ---------------------
   if (!is.null(covariates)) {
-    covariates <- waRRior::pop(covariates, c(time, event))
+    covariates <- nightowl_pop(covariates, c(time, event))
     covariates <- purrr::map(covariates, function(.covariate) {
-      if (waRRior::length_unique(data[[.covariate]]) > 1) {
+      if (nightowl_length_unique(data[[.covariate]]) > 1) {
         return(.covariate)
       } else {
         cli::cli_alert("🦉⛔ Covariate `{(.covariate)}` has only one level. Skipping.")
@@ -45,9 +45,9 @@ create_Surv_formula <- function(data, time, event, treatment, covariates = NULL,
       purrr::compact()
   }
   if (!is.null(strata)) {
-    strata <- waRRior::pop(strata, c(time, event))
+    strata <- nightowl_pop(strata, c(time, event))
     strata <- purrr::map(strata, function(.stratum) {
-      if (waRRior::length_unique(data[[.stratum]]) > 1) {
+      if (nightowl_length_unique(data[[.stratum]]) > 1) {
         return(.stratum)
       } else {
         cli::cli_alert("🦉⛔ Stratum `{.stratum}` has only one level. Skipping.")

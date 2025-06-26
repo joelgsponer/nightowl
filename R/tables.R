@@ -102,7 +102,7 @@ render_reactable <- function(.tbl,
       ;
     }
   "
-  .groups <- waRRior::get_groups(.tbl)
+  .groups <- nightowl_get_groups(.tbl)
   # Infer column types
   col_NightowlPlots <- names(.tbl)[purrr::map_lgl(.tbl, ~ inherits(.x, "NightowlPlots"))]
   col_HTML <- names(.tbl)[purrr::map_lgl(.tbl, ~ inherits(.x, "html"))]
@@ -126,7 +126,7 @@ render_reactable <- function(.tbl,
     .old
   }, .init = col_def)
   # Prepare data
-  .tbl <- dplyr::select_at(.tbl, c(.groups, waRRior::pop(names(.tbl), .groups)))
+  .tbl <- dplyr::select_at(.tbl, c(.groups, nightowl_pop(names(.tbl), .groups)))
   .tbl <- dplyr::ungroup(.tbl)
   # if (add_scale) .tbl <- nightowl::add_scale(.tbl)
   .tbl <- dplyr::mutate_if(.tbl, is.numeric, function(x) round(x, digits))

@@ -40,8 +40,8 @@ render_svg <- function(g,
       } else {
         print(g)
       }
-      svg <- waRRior::regex_replace_element_parameter(svg(), "width", element_width) %>%
-        waRRior::regex_replace_element_parameter("height", element_height) %>%
+      svg <- nightowl_regex_replace_element_parameter(svg(), "width", element_width) %>%
+        nightowl_regex_replace_element_parameter("height", element_height) %>%
         fix_font()
       if (add_download_button) {
         svg <- nightowl::add_download_button(svg)

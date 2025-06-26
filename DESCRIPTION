@@ -37,8 +37,7 @@ Imports:
     tibble,
     tidyr,
     tidyselect,
-    vctrs,
-    waRRior
+    vctrs
 Suggests:
     knitr,
     palmerpenguins,

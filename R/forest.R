@@ -6,7 +6,7 @@
 #' @param x Numeric. Point estimate value(s) for the main effect
 #' @param xmin Numeric. Lower confidence limit(s)
 #' @param xmax Numeric. Upper confidence limit(s)
-#' @param xlim Numeric vector of length 2. Plot x-axis limits. If NULL, uses data range
+#' @param x_lim Numeric vector of length 2. Plot x-axis limits. If NULL, uses data range
 #' @param xintercept Numeric. Value for vertical reference line (e.g., null effect). Default NULL
 #' @param height Numeric. Plot height for SVG rendering. Default 0.5
 #' @param xlab String. X-axis label. Default NULL
@@ -21,7 +21,7 @@
 forestplot <- function(x,
                        xmin,
                        xmax,
-                       xlim = NULL,
+                       x_lim = NULL,
                        xintercept = NULL,
                        height = 0.5,
                        xlab = NULL,
@@ -37,10 +37,10 @@ forestplot <- function(x,
   xmax <- validate_numeric(xmax, param_name = "xmax")
   height <- validate_numeric(height, min_value = 0, param_name = "height")
   
-  if (!is.null(xlim)) {
-    xlim <- validate_numeric(xlim, param_name = "xlim")
-    if (length(xlim) != 2) {
-      throw_validation_error("xlim must be a numeric vector of length 2", "xlim", xlim)
+  if (!is.null(x_lim)) {
+    x_lim <- validate_numeric(x_lim, param_name = "x_lim")
+    if (length(x_lim) != 2) {
+      throw_validation_error("x_lim must be a numeric vector of length 2", "x_lim", x_lim)
     }
   }
   if (!is.null(xintercept)) {
@@ -72,12 +72,12 @@ forestplot <- function(x,
   }
 
 
-  if (!is.null(xlim)) {
-    .p <- .p + ggplot2::xlim(xlim[1], xlim[2])
+  if (!is.null(x_lim)) {
+    .p <- .p + ggplot2::xlim(x_lim[1], x_lim[2])
 
-    if (xmin < xlim[1]) {
+    if (xmin < x_lim[1]) {
       .p <- .p + ggplot2::geom_text(
-        mapping = ggplot2::aes(x = xlim[1], label = "<<<"),
+        mapping = ggplot2::aes(x = x_lim[1], label = "<<<"),
         color = nightowl::nightowl_colors("black"),
         hjust = 0.3,
         size = 9
@@ -85,18 +85,18 @@ forestplot <- function(x,
         ggplot2::geom_point(mapping = ggplot2::aes(x = xmax), cex = 8, shape = 108, color = nightowl::nightowl_colors("black"))
     }
 
-    if (xmax > xlim[2]) {
+    if (xmax > x_lim[2]) {
       .p <- .p + ggplot2::geom_text(
-        mapping = ggplot2::aes(x = xlim[2], label = ">>>"),
+        mapping = ggplot2::aes(x = x_lim[2], label = ">>>"),
         color = nightowl::nightowl_colors("black"),
         size = 9
       ) +
         ggplot2::geom_point(mapping = ggplot2::aes(x = xmin), cex = 8, shape = 108, color = nightowl::nightowl_colors("black"))
     }
 
-    if (x < xlim[1]) {
+    if (x < x_lim[1]) {
       .p <- .p + ggplot2::geom_text(
-        mapping = ggplot2::aes(x = xlim[1], label = "<<<"),
+        mapping = ggplot2::aes(x = x_lim[1], label = "<<<"),
         color = nightowl::nightowl_colors("blue"),
         hjust = 0.3,
         size = 9
@@ -104,9 +104,9 @@ forestplot <- function(x,
     }
 
 
-    if (x > xlim[2]) {
+    if (x > x_lim[2]) {
       .p <- .p + ggplot2::geom_text(
-        mapping = ggplot2::aes(x = xlim[2], label = ">>>"),
+        mapping = ggplot2::aes(x = x_lim[2], label = ">>>"),
         color = nightowl::nightowl_colors("blue"),
         size = 9
       )

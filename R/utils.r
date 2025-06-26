@@ -119,16 +119,15 @@ nightowl_get_groups <- function(data) {
   }
 }
 
-#' Remove and return last element from list (compatible with waRRior::pop)
+#' Remove specified elements from vector (compatible with waRRior::pop)
 #'
-#' @param x List or vector
-#' @return Last element of the list/vector
+#' @param x Vector or list
+#' @param remove Elements to remove from x
+#' @return Vector x with elements in remove excluded
 #' @export
-nightowl_pop <- function(x) {
-  if (length(x) == 0) {
-    return(NULL)
-  }
-  return(x[[length(x)]])
+nightowl_pop <- function(x, remove) {
+  # Remove specified elements from x
+  x[!x %in% remove]
 }
 
 #' Get function by name (compatible with waRRior::getfun)
@@ -145,5 +144,171 @@ nightowl_getfun <- function(name, package = NULL) {
   } else {
     # Search in available environments
     return(get(name, mode = "function"))
+  }
+}
+
+#' Tally/count values at specified columns (compatible with waRRior::tally_at)
+#'
+#' @param data Data frame
+#' @param cols Column names to tally
+#' @return Data frame with counts
+#' @export
+nightowl_tally_at <- function(data, cols) {
+  if (length(cols) == 1) {
+    # Single column - simple count
+    data %>%
+      dplyr::count(!!rlang::sym(cols), name = "n")
+  } else {
+    # Multiple columns - count combinations
+    data %>%
+      dplyr::count(!!!rlang::syms(cols), name = "n")
+  }
+}
+
+#' Split data into named groups (compatible with waRRior::named_group_split)
+#'
+#' @param data Data frame to split
+#' @param ... Grouping variables
+#' @return Named list of data frames
+#' @export
+nightowl_named_group_split <- function(data, ...) {
+  # Group the data
+  grouped_data <- dplyr::group_by(data, ...)
+  
+  # Split the data
+  split_data <- dplyr::group_split(grouped_data, .keep = TRUE)
+  
+  # Get group keys to name the list
+  group_keys <- dplyr::group_keys(grouped_data)
+  
+  # Create names for the split data
+  if (ncol(group_keys) == 1) {
+    names(split_data) <- as.character(group_keys[[1]])
+  } else {
+    # Multiple grouping variables - combine names
+    names(split_data) <- apply(group_keys, 1, function(x) paste(x, collapse = " / "))
+  }
+  
+  return(split_data)
+}
+
+#' Split data into named groups at specific values (compatible with waRRior::named_group_split_at)
+#'
+#' @param data Data frame to split
+#' @param group_vars Grouping variable names
+#' @param at Group values to split at (optional)
+#' @param keep Logical, keep grouping variables in output
+#' @param verbose Logical, print progress messages
+#' @return Named list of data frames
+#' @export
+nightowl_named_group_split_at <- function(data, group_vars, at = NULL, keep = FALSE, verbose = FALSE) {
+  # Group the data
+  grouped_data <- dplyr::group_by_at(data, group_vars)
+  
+  # Split the data
+  split_data <- dplyr::group_split(grouped_data, .keep = keep)
+  
+  # Get group keys to name the list
+  group_keys <- dplyr::group_keys(grouped_data)
+  
+  # Create names for the split data
+  if (ncol(group_keys) == 1) {
+    names(split_data) <- as.character(group_keys[[1]])
+  } else {
+    # Multiple grouping variables - combine names
+    names(split_data) <- apply(group_keys, 1, function(x) paste(x, collapse = " / "))
+  }
+  
+  # Filter to only the requested groups if 'at' is specified
+  if (!is.null(at)) {
+    split_data <- split_data[names(split_data) %in% at]
+  }
+  
+  if (verbose) {
+    message("Split data into ", length(split_data), " groups: ", paste(names(split_data), collapse = ", "))
+  }
+  
+  return(split_data)
+}
+
+#' Drop specified columns from data frame (compatible with waRRior::drop_columns)
+#'
+#' @param data Data frame
+#' @param cols Column names to drop
+#' @return Data frame with specified columns removed
+#' @export
+nightowl_drop_columns <- function(data, cols) {
+  # Remove columns that exist in the data
+  cols_to_drop <- cols[cols %in% names(data)]
+  
+  if (length(cols_to_drop) > 0) {
+    data <- dplyr::select(data, -dplyr::all_of(cols_to_drop))
+  }
+  
+  return(data)
+}
+
+#' Drop empty columns from data frame (compatible with waRRior::drop_empty_columns)
+#'
+#' @param data Data frame
+#' @return Data frame with empty columns removed
+#' @export
+nightowl_drop_empty_columns <- function(data) {
+  # Identify columns that are entirely NA or empty strings
+  empty_cols <- sapply(data, function(x) {
+    all(is.na(x) | x == "" | x == " ")
+  })
+  
+  # Remove empty columns
+  data[!empty_cols]
+}
+
+#' Count unique values in a vector (compatible with waRRior::length_unique)
+#'
+#' @param x Vector
+#' @return Number of unique values
+#' @export
+nightowl_length_unique <- function(x) {
+  length(unique(x))
+}
+
+#' Replace element parameter in string using regex (compatible with waRRior::regex_replace_element_parameter)
+#'
+#' @param string Input string
+#' @param parameter Parameter name to replace
+#' @param value New value for the parameter
+#' @return Modified string
+#' @export
+nightowl_regex_replace_element_parameter <- function(string, parameter, value) {
+  # Create pattern to match parameter="old_value" or parameter='old_value'
+  pattern <- paste0(parameter, '\\s*=\\s*["\'][^"\']*["\']')
+  replacement <- paste0(parameter, '="', value, '"')
+  
+  # Replace the parameter value
+  stringr::str_replace(string, pattern, replacement)
+}
+
+#' Collapse top-level list elements (compatible with waRRior::collapse_top_level)
+#'
+#' @param x List with nested structure
+#' @return Flattened list
+#' @export
+nightowl_collapse_top_level <- function(x) {
+  # Flatten one level of list nesting
+  do.call(c, x)
+}
+
+#' Factor levels in lexicographic order (compatible with waRRior::fct_lexicographic)
+#'
+#' @param x Factor or character vector
+#' @return Factor with levels in lexicographic (alphabetical) order
+#' @export
+nightowl_fct_lexicographic <- function(x) {
+  if (is.factor(x)) {
+    # Reorder existing factor levels alphabetically
+    factor(x, levels = sort(levels(x)))
+  } else {
+    # Convert to factor with alphabetically sorted levels
+    factor(x, levels = sort(unique(x)))
   }
 }

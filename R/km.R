@@ -28,7 +28,7 @@ plot_grouped_km <- function(data,
                             ...) {
   .formula <- nightowl::create_Surv_formula(data = data, time = time, event = event, treatment = treatment, covariates = covariates)
   res <- data %>%
-    waRRior::named_group_split_at(split) %>%
+    nightowl_named_group_split_at(data, split) %>%
     purrr::imap(function(data, .split) {
       cli::cli_progress_step(.split)
       data <- droplevels(data)
@@ -383,7 +383,7 @@ km_summary <- function(.formula, data) {
 km_table <- function(fit, what = "n.risk", break_width = 10, kable = T) {
   fit <- nightowl::km_add_0(fit)
   breakpoints <- seq(0, max(fit$time), break_width)
-  risk.table <- waRRior::named_group_split(fit, strata) %>%
+  risk.table <- nightowl_named_group_split(fit, !!rlang::sym(strata)) %>%
     purrr::imap(function(.x, .group) {
       N <- max(.x$n.risk, na.rm = T)
       
@@ -591,7 +591,7 @@ plot_km_covariates <- function(data,
 
 
   cplots <- purrr::map(covariates, function(.covariate) {
-    waRRior::named_group_split_at(data, c(treatment)) %>%
+    nightowl_named_group_split_at(data, treatment) %>%
       purrr::map(purrr::safely(function(.x) {
         times <- .x[[time]] %>% sort() %>% unique()
         
@@ -627,7 +627,7 @@ plot_km_covariates <- function(data,
             unique()
         })
 
-        .res <- waRRior::named_group_split(res, value)
+        .res <- nightowl_named_group_split(res, !!rlang::sym("value"))
         .p <- plotly::plot_ly()
         .treatment <- unique(.x$treatment)
         purrr::reduce(.res, function(.x, .y) {
@@ -645,7 +645,7 @@ plot_km_covariates <- function(data,
       })) %>%
       purrr::map("result")
   }) %>%
-    waRRior::collapse_top_level()
+    nightowl_collapse_top_level()
   l <- length(cplots) + 1
   h <- 0.7 / l
   hh <- c(0.3, rep(h, l - 1))
