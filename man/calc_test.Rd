@@ -2,10 +2,24 @@
 % Please edit documentation in R/tests.R
 \name{calc_test}
 \alias{calc_test}
-\title{MISSING_TITLE}
+\title{Calculate Statistical Test}
 \usage{
-calc_test(.data, y, x = NULL, gracefully = T, ...)
+calc_test(data, y, x = NULL, gracefully = T, ...)
+}
+\arguments{
+\item{data}{Data frame containing the variables to test}
+
+\item{y}{Character string specifying the dependent variable name}
+
+\item{x}{Character string specifying the grouping variable name (optional, uses existing groups if NULL)}
+
+\item{gracefully}{Logical indicating whether to return an error object instead of stopping on error (default: TRUE)}
+
+\item{...}{Additional arguments passed to the test function}
+}
+\value{
+List containing test results with components: test (test object), method (test name), p_value (p-value), and optionally error (if gracefully = TRUE)
 }
 \description{
-MISSING_TITLE
+Automatically selects and performs appropriate statistical test based on variable type
 }

@@ -8,6 +8,8 @@ render_svg(
   g,
   height = 8,
   width = 8,
+  element_width = "75vw",
+  element_height = "75vh",
   scaling = 1,
   add_download_button = T,
   standalone = F,

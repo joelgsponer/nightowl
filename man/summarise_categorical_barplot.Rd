@@ -2,7 +2,7 @@
 % Please edit documentation in R/summaries.R
 \name{summarise_categorical_barplot}
 \alias{summarise_categorical_barplot}
-\title{MISSING_TITLE}
+\title{Configure categorical summaries with barplot visualization}
 \usage{
 summarise_categorical_barplot(
   self,
@@ -13,6 +13,21 @@ summarise_categorical_barplot(
   names_sep = NULL
 )
 }
+\arguments{
+\item{self}{The calling object context}
+
+\item{calculations}{Named list of calculation functions including barplot generation}
+
+\item{parameters}{Named list of parameters for each calculation, especially formatting}
+
+\item{unnest}{Logical. Whether to unnest nested results. Default TRUE}
+
+\item{names_sep}{String. Separator for column names when unnesting. Default NULL}
+}
+\value{
+A list containing calculations and parameters for categorical summaries with barplots
+}
 \description{
-MISSING_TITLE
+Provides calculations and parameters for categorical variable summaries that include
+barplot visualizations alongside counts and frequencies.
 }

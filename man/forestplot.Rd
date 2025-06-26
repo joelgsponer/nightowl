@@ -2,7 +2,7 @@
 % Please edit documentation in R/forest.R
 \name{forestplot}
 \alias{forestplot}
-\title{MISSING_TITLE}
+\title{Create forest plot with confidence intervals}
 \usage{
 forestplot(
   x,
@@ -20,6 +20,37 @@ forestplot(
   theme = ggplot2::theme_void
 )
 }
+\arguments{
+\item{x}{Numeric. Point estimate value(s) for the main effect}
+
+\item{xmin}{Numeric. Lower confidence limit(s)}
+
+\item{xmax}{Numeric. Upper confidence limit(s)}
+
+\item{xlim}{Numeric vector of length 2. Plot x-axis limits. If NULL, uses data range}
+
+\item{xintercept}{Numeric. Value for vertical reference line (e.g., null effect). Default NULL}
+
+\item{height}{Numeric. Plot height for SVG rendering. Default 0.5}
+
+\item{xlab}{String. X-axis label. Default NULL}
+
+\item{ylab}{String. Y-axis label. Default NULL}
+
+\item{hide_y_axis}{Logical. Whether to hide y-axis. Default TRUE}
+
+\item{hide_x_axis}{Logical. Whether to hide x-axis. Default TRUE}
+
+\item{hide_legend}{Logical. Whether to hide legend. Default TRUE}
+
+\item{shape}{Integer. Point shape for main estimates. Default 15 (square)}
+
+\item{theme}{ggplot2 theme function. Default ggplot2::theme_void}
+}
+\value{
+An SVG string containing the rendered forest plot
+}
 \description{
-MISSING_TITLE
+Creates a forest plot visualization showing point estimates with confidence intervals,
+optional reference lines, and out-of-bounds indicators for values exceeding plot limits.
 }

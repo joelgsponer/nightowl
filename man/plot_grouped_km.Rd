@@ -2,7 +2,7 @@
 % Please edit documentation in R/km.R
 \name{plot_grouped_km}
 \alias{plot_grouped_km}
-\title{MISSING_TITLE}
+\title{Plot Grouped Kaplan-Meier Curves}
 \usage{
 plot_grouped_km(
   data,
@@ -25,6 +25,12 @@ plot_grouped_km(
   ...
 )
 }
+\arguments{
+\item{data}{Data frame containing the survival data}
+}
+\value{
+HTML object with arranged Kaplan-Meier plots that can be viewed in a browser
+}
 \description{
-MISSING_TITLE
+Creates multiple Kaplan-Meier survival curves grouped by a splitting variable
 }

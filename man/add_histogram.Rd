@@ -2,10 +2,25 @@
 % Please edit documentation in R/inline_plots.R
 \name{add_histogram}
 \alias{add_histogram}
-\title{MISSING_TITLE}
+\title{Create basic histogram plots for data distribution}
 \usage{
 add_histogram(x, height = 0.8, binwidth = NULL, xlim = NULL, add_scale = F)
 }
+\arguments{
+\item{x}{Numeric vector. Data for histogram creation}
+
+\item{height}{Numeric. Plot height. Default 0.8}
+
+\item{binwidth}{Numeric. Width of histogram bins. Default NULL (automatic)}
+
+\item{xlim}{Numeric vector. X-axis limits. Default NULL}
+
+\item{add_scale}{Logical. Whether to show axis scales. Default FALSE}
+}
+\value{
+An SVG string containing the rendered histogram
+}
 \description{
-MISSING_TITLE
+Creates simple histogram plots showing the frequency distribution of numeric data
+with customizable binning and optional axis scaling.
 }

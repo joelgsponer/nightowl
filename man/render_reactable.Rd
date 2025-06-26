@@ -2,7 +2,7 @@
 % Please edit documentation in R/tables.R
 \name{render_reactable}
 \alias{render_reactable}
-\title{MISSING_TITLE}
+\title{Render Reactable Table}
 \usage{
 render_reactable(
   .tbl,
@@ -18,6 +18,12 @@ render_reactable(
   ...
 )
 }
+\arguments{
+\item{.tbl}{Data frame to render as an interactive table}
+}
+\value{
+Reactable object with nightowl styling and interactive features
+}
 \description{
-MISSING_TITLE
+Creates an interactive table using reactable with nightowl styling and themes
 }

@@ -2,10 +2,18 @@
 % Please edit documentation in R/km.R
 \name{km_summary}
 \alias{km_summary}
-\title{MISSING_TITLE}
+\title{Generate Kaplan-Meier Summary}
 \usage{
 km_summary(.formula, data)
 }
+\arguments{
+\item{.formula}{Survival formula object}
+
+\item{data}{Data frame containing the survival data}
+}
+\value{
+HTML formatted summary of survival differences
+}
 \description{
-MISSING_TITLE
+Creates a formatted summary of survival differences using survdiff
 }

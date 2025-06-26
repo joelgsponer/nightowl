@@ -2,10 +2,21 @@
 % Please edit documentation in R/summaries.R
 \name{calc_percentage}
 \alias{calc_percentage}
-\title{MISSING_TITLE}
+\title{Calculate percentages for factor levels}
 \usage{
 calc_percentage(x, N = length(x), digits = 1)
 }
+\arguments{
+\item{x}{A vector, typically factor or character}
+
+\item{N}{Integer. Total count for percentage calculation. Default is length(x)}
+
+\item{digits}{Integer. Number of decimal places for rounding. Default 1}
+}
+\value{
+A named numeric vector of percentages for each factor level
+}
 \description{
-MISSING_TITLE
+Calculates the percentage distribution of factor levels in a vector,
+handling missing values explicitly.
 }

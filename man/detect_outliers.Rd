@@ -2,10 +2,18 @@
 % Please edit documentation in R/data.R
 \name{detect_outliers}
 \alias{detect_outliers}
-\title{MISSING_TITLE}
+\title{Detect Outliers in Numeric Vector}
 \usage{
 detect_outliers(x, fold = 15)
 }
+\arguments{
+\item{x}{Numeric vector to check for outliers}
+
+\item{fold}{Numeric value for outlier detection threshold (default: 15). Values above fold * upper whisker or below (1/fold) * lower whisker are marked as outliers}
+}
+\value{
+Logical vector indicating which values are outliers (TRUE) or not (FALSE)
+}
 \description{
-MISSING_TITLE
+Identifies outliers in a numeric vector using boxplot statistics and a fold threshold
 }

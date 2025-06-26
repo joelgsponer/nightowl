@@ -2,7 +2,7 @@
 % Please edit documentation in R/tables.R
 \name{reactable_default}
 \alias{reactable_default}
-\title{MISSING_TITLE}
+\title{Default Reactable Configuration (Deprecated)}
 \usage{
 reactable_default(
   x,
@@ -16,6 +16,12 @@ reactable_default(
   ...
 )
 }
+\arguments{
+\item{x}{Data frame to display in the table}
+}
+\value{
+Reactable object with default styling
+}
 \description{
-MISSING_TITLE
+Creates a reactable with default styling options - use render_reactable() instead
 }

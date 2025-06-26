@@ -2,16 +2,27 @@
 % Please edit documentation in R/summaries.R
 \name{summarise_numeric_violin}
 \alias{summarise_numeric_violin}
-\title{MISSING_TITLE}
+\title{Configure numeric summaries with violin plot visualization}
 \usage{
 summarise_numeric_violin(
   self,
   calculations = list(N. = length, Median = function(x) median(x, na.rm = T), Mean =
     nightowl::formated_mean, Violin = nightowl::add_violin),
-  parameters = list(Violin = list(theme = picasso::theme_void, ylim =
+  parameters = list(Violin = list(theme = ggplot2::theme_void, ylim =
     range(self$data[[self$column]], na.rm = T)))
 )
 }
+\arguments{
+\item{self}{The calling object context containing data and column information}
+
+\item{calculations}{Named list including violin plot generation functions}
+
+\item{parameters}{Named list including violin plot parameters (theme, ylim)}
+}
+\value{
+A list containing calculations and parameters for numeric summaries with violin plots
+}
 \description{
-MISSING_TITLE
+Provides calculations for numeric variables that include violin plots
+showing distribution density alongside descriptive statistics.
 }

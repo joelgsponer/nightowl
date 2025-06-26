@@ -2,11 +2,13 @@
 % Please edit documentation in R/tests.R
 \name{Test}
 \alias{Test}
-\title{R6 Class}
+\title{Test R6 Class}
 \description{
-R6 Class
-
-R6 Class
+R6 class for conducting and storing statistical test results
+}
+\details{
+This class provides a convenient interface for performing statistical tests on grouped data,
+automatically selecting the appropriate test based on the variable type and storing all relevant results
 }
 \section{Methods}{
 \subsection{Public methods}{
@@ -20,7 +22,7 @@ R6 Class
 \if{latex}{\out{\hypertarget{method-Test-new}{}}}
 \subsection{Method \code{new()}}{
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Test$new(.data, y, x = NULL, ...)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{Test$new(data, y, x = NULL, ...)}\if{html}{\out{</div>}}
 }
 
 }

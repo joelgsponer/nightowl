@@ -2,7 +2,7 @@
 % Please edit documentation in R/coxph.R
 \name{fit_coxph}
 \alias{fit_coxph}
-\title{MISSING_TITLE}
+\title{Fit Cox Proportional Hazards Model}
 \usage{
 fit_coxph(
   data,
@@ -15,6 +15,26 @@ fit_coxph(
   ...
 )
 }
+\arguments{
+\item{data}{Data frame containing the survival data}
+
+\item{time}{Character string specifying the time variable name}
+
+\item{event}{Character string specifying the event variable name}
+
+\item{treatment}{Character string specifying the treatment variable name}
+
+\item{covariates}{Character vector of covariate variable names (optional)}
+
+\item{strata}{Character vector of stratification variable names (optional)}
+
+\item{exponentiate}{Logical indicating whether to exponentiate coefficients (default: FALSE)}
+
+\item{...}{Additional arguments passed to survival::coxph}
+}
+\value{
+Tidy data frame of model results with attached attributes containing model details
+}
 \description{
-MISSING_TITLE
+Fits a Cox proportional hazards model and returns tidy results with confidence intervals
 }

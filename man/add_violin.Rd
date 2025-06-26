@@ -2,7 +2,7 @@
 % Please edit documentation in R/inline_plots.R
 \name{add_violin}
 \alias{add_violin}
-\title{MISSING_TITLE}
+\title{Create violin plots with summary statistics overlay}
 \usage{
 add_violin(
   x,
@@ -20,6 +20,37 @@ add_violin(
   fun.data = ggplot2::mean_cl_boot
 )
 }
+\arguments{
+\item{x}{Numeric vector. Data for violin plot creation}
+
+\item{ylim}{Numeric vector. Y-axis limits. Default NULL}
+
+\item{height}{Numeric. Plot height. Default 0.3}
+
+\item{width}{Numeric. Plot width. Default 2.5}
+
+\item{scaling}{Numeric. SVG scaling factor. Default 1}
+
+\item{theme}{ggplot2 theme function. Default ggplot2::theme_void}
+
+\item{hide_legend}{Logical. Whether to hide legend. Default TRUE}
+
+\item{hide_x_axis}{Logical. Whether to hide x-axis. Default TRUE}
+
+\item{hide_y_axis}{Logical. Whether to hide y-axis. Default TRUE}
+
+\item{fill}{String. Fill color for violin. Default "#B9B9B8"}
+
+\item{expansion_y}{Numeric. Y-axis expansion factor. Default 10}
+
+\item{add_download_button}{Logical. Whether to add download functionality. Default FALSE}
+
+\item{fun.data}{Function. Summary statistic function. Default ggplot2::mean_cl_boot}
+}
+\value{
+A NightowlPlots object containing the violin plot
+}
 \description{
-MISSING_TITLE
+Creates violin plots showing data distribution density with overlaid
+summary statistics, suitable for compact visualization of numeric distributions.
 }

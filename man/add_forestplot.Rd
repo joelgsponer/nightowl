@@ -2,7 +2,7 @@
 % Please edit documentation in R/inline_plots.R
 \name{add_forestplot}
 \alias{add_forestplot}
-\title{MISSING_TITLE}
+\title{Create forest plot from raw data with confidence intervals}
 \usage{
 add_forestplot(
   x,
@@ -11,6 +11,19 @@ add_forestplot(
   xlim = NULL
 )
 }
+\arguments{
+\item{x}{Numeric vector. Raw data for forest plot calculation}
+
+\item{fun_data}{Function. Statistical function to calculate estimates and CI. Default ggplot2::mean_cl_boot}
+
+\item{xintercept}{Numeric. Value for vertical reference line. Default NULL}
+
+\item{xlim}{Numeric vector of length 2. Plot x-axis limits. If NULL, uses data range}
+}
+\value{
+An SVG string containing the rendered forest plot
+}
 \description{
-MISSING_TITLE
+Generates a forest plot by applying statistical functions to raw data
+to calculate point estimates and confidence intervals automatically.
 }

@@ -2,10 +2,22 @@
 % Please edit documentation in R/correlation_matrix.R
 \name{this_f}
 \alias{this_f}
-\title{MISSING_TITLE}
+\title{Create Histogram for Diagonal of Correlation Matrix}
 \usage{
 this_f(data, mapping, method = "lm", ...)
 }
+\arguments{
+\item{data}{Data frame containing the variables to plot}
+
+\item{mapping}{ggplot2 aesthetic mappings}
+
+\item{method}{Method for fitting (default: "lm")}
+
+\item{...}{Additional arguments passed to styled_plot}
+}
+\value{
+ggplot object for the diagonal panel
+}
 \description{
-MISSING_TITLE
+Generates a styled histogram plot for diagonal panels in ggpairs correlation matrix
 }

@@ -2,10 +2,19 @@
 % Please edit documentation in R/donut_plot.R
 \name{render_donut_plot}
 \alias{render_donut_plot}
-\title{MISSING_TITLE}
+\title{Render donut plot dashboard with headers}
 \usage{
 render_donut_plot(header, ...)
 }
+\arguments{
+\item{header}{Character vector. Column headers for the dashboard}
+
+\item{...}{Plot objects to include in the dashboard}
+}
+\value{
+An HTML div containing the complete dashboard with styling
+}
 \description{
-MISSING_TITLE
+Renders a complete donut plot dashboard with column headers and multiple plot rows,
+applying consistent styling and layout.
 }

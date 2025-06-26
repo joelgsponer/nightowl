@@ -2,10 +2,18 @@
 % Please edit documentation in R/labels.R
 \name{get_labels}
 \alias{get_labels}
-\title{MISSING_TITLE}
+\title{Get Human-Readable Labels for Variables}
 \usage{
 get_labels(x, labels)
 }
+\arguments{
+\item{x}{Character vector of variable names to get labels for}
+
+\item{labels}{Named list where names are variable names and values are their corresponding labels}
+}
+\value{
+Character vector of labels corresponding to the input variable names. Returns the original variable name if no label is found
+}
 \description{
-MISSING_TITLE
+Maps variable names to their human-readable labels using a provided labels list
 }

@@ -2,7 +2,7 @@
 % Please edit documentation in R/summaries.R
 \name{summarise_numeric_forestplot}
 \alias{summarise_numeric_forestplot}
-\title{MISSING_TITLE}
+\title{Configure numeric summaries with forest plot visualization}
 \usage{
 summarise_numeric_forestplot(
   data,
@@ -19,6 +19,21 @@ summarise_numeric_forestplot(
   unnest = TRUE
 )
 }
+\arguments{
+\item{data}{A data frame containing the numeric variable}
+
+\item{column}{String. The name of the numeric column to summarize}
+
+\item{calculations}{Named list of functions including forest plot generation}
+
+\item{parameters}{Named list including forest plot parameters (xlim, xintercept)}
+
+\item{unnest}{Logical. Whether to unnest nested results. Default TRUE}
+}
+\value{
+A list containing calculations and parameters for numeric summaries with forest plots
+}
 \description{
-MISSING_TITLE
+Provides calculations for numeric variables that include forest plot visualizations
+alongside standard descriptive statistics.
 }

@@ -2,7 +2,7 @@
 % Please edit documentation in R/survival.R
 \name{create_Surv_formula}
 \alias{create_Surv_formula}
-\title{MISSING_TITLE}
+\title{Create secure survival analysis formula with validation}
 \usage{
 create_Surv_formula(
   data,
@@ -14,6 +14,25 @@ create_Surv_formula(
   random_effects = NULL
 )
 }
+\arguments{
+\item{data}{A data frame containing all specified variables}
+
+\item{time}{String. Name of the time-to-event variable}
+
+\item{event}{String. Name of the event indicator variable (0/1 or logical)}
+
+\item{treatment}{String. Name of the primary treatment variable}
+
+\item{covariates}{Character vector. Names of covariate variables. Default NULL}
+
+\item{strata}{Character vector. Names of stratification variables. Default NULL}
+
+\item{random_effects}{Character vector. Names of random effect variables. Default NULL}
+}
+\value{
+A formula object for use with survival analysis functions (coxph, survreg)
+}
 \description{
-MISSING_TITLE
+Constructs a survival analysis formula with comprehensive input validation
+and secure handling of variable names to prevent code injection vulnerabilities.
 }

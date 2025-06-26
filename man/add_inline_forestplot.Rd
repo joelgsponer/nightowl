@@ -2,7 +2,7 @@
 % Please edit documentation in R/inline_plots.R
 \name{add_inline_forestplot}
 \alias{add_inline_forestplot}
-\title{MISSING_TITLE}
+\title{Create inline forest plots for embedding in tables}
 \usage{
 add_inline_forestplot(
   x,
@@ -25,6 +25,47 @@ add_inline_forestplot(
   theme = ggplot2::theme_void
 )
 }
+\arguments{
+\item{x}{Numeric. Point estimate value(s) for the main effect}
+
+\item{xmin}{Numeric. Lower confidence limit(s)}
+
+\item{xmax}{Numeric. Upper confidence limit(s)}
+
+\item{xlim}{Numeric vector of length 2. Plot x-axis limits. If NULL, uses data range}
+
+\item{xintercept}{Numeric. Value for vertical reference line. Default NULL}
+
+\item{xlab}{String. X-axis label. Default NULL}
+
+\item{ylab}{String. Y-axis label. Default NULL}
+
+\item{hide_y_axis}{Logical. Whether to hide y-axis. Default TRUE}
+
+\item{hide_x_axis}{Logical. Whether to hide x-axis. Default TRUE}
+
+\item{hide_legend}{Logical. Whether to hide legend. Default TRUE}
+
+\item{height}{Numeric. Plot height for inline display. Default 0.3}
+
+\item{width}{Numeric. Plot width for inline display. Default 3}
+
+\item{scaling}{Numeric. SVG scaling factor. Default 0.8}
+
+\item{shape}{Integer. Point shape for estimates. Default 15}
+
+\item{size}{Numeric. Point size. Default 4}
+
+\item{alpha}{Numeric. Point transparency. Default 0.8}
+
+\item{breaks}{Numeric vector. X-axis breaks. Default seq(-10, 10, 2)}
+
+\item{theme}{ggplot2 theme function. Default ggplot2::theme_void}
+}
+\value{
+A NightowlPlots object containing the inline forest plot
+}
 \description{
-MISSING_TITLE
+Creates compact forest plots suitable for embedding within table cells,
+with customizable confidence intervals and out-of-bounds indicators.
 }

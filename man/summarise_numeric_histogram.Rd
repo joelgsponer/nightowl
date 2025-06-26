@@ -2,7 +2,7 @@
 % Please edit documentation in R/summaries.R
 \name{summarise_numeric_histogram}
 \alias{summarise_numeric_histogram}
-\title{MISSING_TITLE}
+\title{Configure numeric summaries with histogram visualization}
 \usage{
 summarise_numeric_histogram(
   self,
@@ -16,6 +16,23 @@ summarise_numeric_histogram(
   unnest = TRUE
 )
 }
+\arguments{
+\item{self}{The calling object context containing data and column information}
+
+\item{data}{A data frame containing the numeric variable}
+
+\item{column}{String. The name of the numeric column to summarize}
+
+\item{calculations}{Named list including histogram generation functions}
+
+\item{parameters}{Named list including histogram parameters (xlim)}
+
+\item{unnest}{Logical. Whether to unnest nested results. Default TRUE}
+}
+\value{
+A list containing calculations and parameters for numeric summaries with histograms
+}
 \description{
-MISSING_TITLE
+Provides calculations for numeric variables that include histogram visualizations
+showing distribution patterns alongside descriptive statistics.
 }

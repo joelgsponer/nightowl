@@ -2,10 +2,22 @@
 % Please edit documentation in R/tests.R
 \name{calc_test_kruskal}
 \alias{calc_test_kruskal}
-\title{MISSING_TITLE}
+\title{Calculate Kruskal-Wallis Test}
 \usage{
-calc_test_kruskal(.data, y, x = NULL, ...)
+calc_test_kruskal(data, y, x = NULL, ...)
+}
+\arguments{
+\item{data}{Data frame containing the variables to test}
+
+\item{y}{Character string specifying the numeric dependent variable name}
+
+\item{x}{Character string specifying the grouping variable name (optional, uses existing groups if NULL)}
+
+\item{...}{Additional arguments passed to kruskal.test}
+}
+\value{
+List containing test results with components: test (kruskal.test object), method ("Kruskal-Wallis"), p_value (p-value)
 }
 \description{
-MISSING_TITLE
+Performs Kruskal-Wallis rank sum test for numeric variables across groups
 }

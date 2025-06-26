@@ -2,10 +2,16 @@
 % Please edit documentation in R/km.R
 \name{km_add_0}
 \alias{km_add_0}
-\title{MISSING_TITLE}
+\title{Add Time Zero to Kaplan-Meier Fit}
 \usage{
 km_add_0(fit)
 }
+\arguments{
+\item{fit}{Data frame from fit_km containing survival estimates}
+}
+\value{
+Data frame with time zero point added for each stratum
+}
 \description{
-MISSING_TITLE
+Adds time zero point to Kaplan-Meier survival data for complete curves
 }

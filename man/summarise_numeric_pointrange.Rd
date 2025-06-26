@@ -2,7 +2,7 @@
 % Please edit documentation in R/summaries.R
 \name{summarise_numeric_pointrange}
 \alias{summarise_numeric_pointrange}
-\title{MISSING_TITLE}
+\title{Configure numeric summaries with point range visualization}
 \usage{
 summarise_numeric_pointrange(
   data,
@@ -15,6 +15,21 @@ summarise_numeric_pointrange(
   unnest = TRUE
 )
 }
+\arguments{
+\item{data}{A data frame containing the numeric variable}
+
+\item{column}{String. The name of the numeric column to summarize}
+
+\item{calculations}{Named list including point range plot generation functions}
+
+\item{parameters}{Named list including point range parameters (xlim, xintercept, fun_data)}
+
+\item{unnest}{Logical. Whether to unnest nested results. Default TRUE}
+}
+\value{
+A list containing calculations and parameters for numeric summaries with point ranges
+}
 \description{
-MISSING_TITLE
+Provides calculations for numeric variables that include point range plots
+showing confidence intervals alongside descriptive statistics.
 }

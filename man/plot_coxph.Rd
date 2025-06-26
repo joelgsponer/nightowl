@@ -2,7 +2,7 @@
 % Please edit documentation in R/coxph.R
 \name{plot_coxph}
 \alias{plot_coxph}
-\title{MISSING_TITLE}
+\title{Plot Cox Proportional Hazards Model Results}
 \usage{
 plot_coxph(
   data,
@@ -25,6 +25,12 @@ plot_coxph(
   ...
 )
 }
+\arguments{
+\item{data}{Data frame containing the survival data}
+}
+\value{
+Forest plot visualization with hazard ratios and confidence intervals
+}
 \description{
-MISSING_TITLE
+Creates a forest plot visualization of Cox model results with hazard ratios
 }

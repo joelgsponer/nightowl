@@ -2,10 +2,14 @@
 % Please edit documentation in R/donut_plot.R
 \name{css_donut_plot}
 \alias{css_donut_plot}
-\title{MISSING_TITLE}
+\title{Generate CSS styling for donut plot dashboards}
 \usage{
 css_donut_plot()
 }
+\value{
+An HTML style tag containing CSS for donut plot styling
+}
 \description{
-MISSING_TITLE
+Generates comprehensive CSS styling for donut plot dashboards,
+including layout, borders, fonts, and responsive design elements.
 }

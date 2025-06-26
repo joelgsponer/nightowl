@@ -2,7 +2,7 @@
 % Please edit documentation in R/summaries.R
 \name{summarise}
 \alias{summarise}
-\title{MISSING_TITLE}
+\title{Apply calculations to grouped data columns}
 \usage{
 summarise(
   data,
@@ -14,6 +14,25 @@ summarise(
   names_sep = "."
 )
 }
+\arguments{
+\item{data}{A data frame or tibble, possibly grouped}
+
+\item{column}{String. The column name to apply calculations to}
+
+\item{calculations}{Named list of functions to apply. Default is \code{list("N." = length)}}
+
+\item{parameters}{Named list of parameters for each calculation function}
+
+\item{unnest}{Logical. Whether to unnest nested results. Default TRUE}
+
+\item{name_for_column}{String. Name for the variable column. Default "Variable"}
+
+\item{names_sep}{String. Separator for unnested column names. Default "."}
+}
+\value{
+A tibble with applied calculations, maintaining group structure
+}
 \description{
-MISSING_TITLE
+Applies a list of calculations to a specific column across grouped data,
+returning summary statistics with proper grouping structure preserved.
 }

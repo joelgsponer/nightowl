@@ -2,7 +2,7 @@
 % Please edit documentation in R/donut_plot.R
 \name{make_donut_plot_numeric}
 \alias{make_donut_plot_numeric}
-\title{MISSING_TITLE}
+\title{Create violin-box plots for numeric variables}
 \usage{
 make_donut_plot_numeric(
   data,
@@ -15,6 +15,27 @@ make_donut_plot_numeric(
   .range = NULL
 )
 }
+\arguments{
+\item{data}{A data frame containing the numeric variable and grouping variable}
+
+\item{column}{String. Name of the numeric column to visualize}
+
+\item{split}{String. Name of the grouping variable to split plots by}
+
+\item{colors}{Named vector of colors for groups. If NULL, uses brewer palette}
+
+\item{brewer_pal}{String. RColorBrewer palette name. Default "OrRd"}
+
+\item{color_missing}{String. Color for missing values. Default "grey"}
+
+\item{label}{String. Display label for the row header. Default column name}
+
+\item{.range}{Numeric vector of length 2. Y-axis limits. If NULL, uses data range}
+}
+\value{
+An HTML div containing the violin-box plots with median annotations
+}
 \description{
-MISSING_TITLE
+Creates violin-box plot combinations for numeric variables split by groups,
+showing distribution and median reference lines.
 }

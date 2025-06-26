@@ -2,10 +2,17 @@
 % Please edit documentation in R/grouped_chisq.R
 \name{report_results_grouped_chisq}
 \alias{report_results_grouped_chisq}
-\title{MISSING_TITLE}
+\title{Generate interactive table report of chi-square results}
 \usage{
 report_results_grouped_chisq(x)
 }
+\arguments{
+\item{x}{List output from grouped_chisq() containing test results}
+}
+\value{
+An interactive reactable widget displaying the chi-square results
+}
 \description{
-MISSING_TITLE
+Creates an interactive reactable displaying chi-square test results
+from grouped analysis in a user-friendly format.
 }

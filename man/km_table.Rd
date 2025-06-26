@@ -2,10 +2,22 @@
 % Please edit documentation in R/km.R
 \name{km_table}
 \alias{km_table}
-\title{MISSING_TITLE}
+\title{Create Kaplan-Meier Risk Table}
 \usage{
 km_table(fit, what = "n.risk", break_width = 10, kable = T)
 }
+\arguments{
+\item{fit}{Data frame from fit_km containing survival estimates}
+
+\item{what}{Character string specifying what to display (default: "n.risk")}
+
+\item{break_width}{Numeric value for time interval width (default: 10)}
+
+\item{kable}{Logical indicating whether to return formatted kable table (default: TRUE)}
+}
+\value{
+Risk table as kable HTML or data frame
+}
 \description{
-MISSING_TITLE
+Generates a risk table showing number at risk at specified time intervals
 }

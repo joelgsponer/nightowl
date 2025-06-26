@@ -2,10 +2,24 @@
 % Please edit documentation in R/tests.R
 \name{calc_test_chisq}
 \alias{calc_test_chisq}
-\title{MISSING_TITLE}
+\title{Calculate Chi-Square Test}
 \usage{
-calc_test_chisq(.data, y, x = NULL, correct = F, ...)
+calc_test_chisq(data, y, x = NULL, correct = F, ...)
+}
+\arguments{
+\item{data}{Data frame containing the variables to test}
+
+\item{y}{Character string specifying the categorical dependent variable name}
+
+\item{x}{Character string specifying the grouping variable name (optional, uses existing groups if NULL)}
+
+\item{correct}{Logical indicating whether to apply Yates' continuity correction (default: FALSE)}
+
+\item{...}{Additional arguments passed to chisq.test}
+}
+\value{
+List containing test results with components: test (chisq.test object), table (contingency table), method ("Pearson's χ2 test"), p_value (p-value)
 }
 \description{
-MISSING_TITLE
+Performs Pearson's chi-square test for categorical variables across groups
 }

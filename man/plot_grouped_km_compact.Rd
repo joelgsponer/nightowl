@@ -2,7 +2,7 @@
 % Please edit documentation in R/km.R
 \name{plot_grouped_km_compact}
 \alias{plot_grouped_km_compact}
-\title{MISSING_TITLE}
+\title{Plot Compact Grouped Kaplan-Meier Curves}
 \usage{
 plot_grouped_km_compact(
   data,
@@ -18,6 +18,12 @@ plot_grouped_km_compact(
   ...
 )
 }
+\arguments{
+\item{data}{Data frame containing the survival data}
+}
+\value{
+HTML object with compact arranged Kaplan-Meier plots
+}
 \description{
-MISSING_TITLE
+Creates compact multiple Kaplan-Meier curves with minimal styling
 }

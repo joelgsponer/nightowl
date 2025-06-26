@@ -2,10 +2,21 @@
 % Please edit documentation in R/summaries.R
 \name{formated_mean}
 \alias{formated_mean}
-\title{MISSING_TITLE}
+\title{Calculate formatted mean with confidence limits}
 \usage{
 formated_mean(x, fun = Hmisc::smean.cl.boot, digits = 2)
 }
+\arguments{
+\item{x}{Numeric vector to calculate mean and confidence limits for}
+
+\item{fun}{Function for calculating mean and confidence limits. Default Hmisc::smean.cl.boot}
+
+\item{digits}{Integer. Number of decimal places for rounding. Default 2}
+}
+\value{
+A tibble with Mean and CL (confidence limits) columns
+}
 \description{
-MISSING_TITLE
+Calculates the mean with confidence limits using bootstrap methods,
+returning a formatted tibble with mean and confidence interval.
 }

@@ -2,10 +2,17 @@
 % Please edit documentation in R/plot.R
 \name{is_Plot}
 \alias{is_Plot}
-\title{MISSING_TITLE}
+\title{Check if object is a Plot instance}
 \usage{
 is_Plot(x)
 }
+\arguments{
+\item{x}{Any R object to test}
+}
+\value{
+Logical. TRUE if object is a Plot instance, FALSE otherwise
+}
 \description{
-MISSING_TITLE
+Tests whether an object inherits from both the Plot and R6 classes,
+confirming it is a valid Plot object.
 }

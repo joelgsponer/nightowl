@@ -2,7 +2,7 @@
 % Please edit documentation in R/inline_plots.R
 \name{add_density}
 \alias{add_density}
-\title{MISSING_TITLE}
+\title{Create density plots for continuous data visualization}
 \usage{
 add_density(
   x,
@@ -13,11 +13,38 @@ add_density(
   theme = ggplot2::theme_void,
   hide_x_axis = T,
   hide_y_axis = T,
-  fill = picasso_colors("lightblue"),
+  fill = nightowl::nightowl_colors("lightblue"),
   expansion_y = 0,
   add_download_button = FALSE
 )
 }
+\arguments{
+\item{x}{Numeric vector. Data for density plot creation}
+
+\item{ylim}{Numeric vector. Y-axis limits. Default NULL}
+
+\item{height}{Numeric. Plot height. Default 0.8}
+
+\item{width}{Numeric. Plot width. Default 8}
+
+\item{scaling}{Numeric. SVG scaling factor. Default 1}
+
+\item{theme}{ggplot2 theme function. Default ggplot2::theme_void}
+
+\item{hide_x_axis}{Logical. Whether to hide x-axis. Default TRUE}
+
+\item{hide_y_axis}{Logical. Whether to hide y-axis. Default TRUE}
+
+\item{fill}{String. Fill color for density curve}
+
+\item{expansion_y}{Numeric. Y-axis expansion factor. Default 0}
+
+\item{add_download_button}{Logical. Whether to add download functionality. Default FALSE}
+}
+\value{
+An SVG string containing the rendered density plot
+}
 \description{
-MISSING_TITLE
+Creates density plots showing the probability density of continuous data,
+with customizable styling and summary statistics overlay.
 }
