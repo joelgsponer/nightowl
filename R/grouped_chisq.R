@@ -11,12 +11,12 @@
 #' @return A list of safely executed chi-square test results for each group
 #' @export
 grouped_chisq <- function(data, group_by, x, y, ...) {
-  cli::cli_h1("Calculating grouped chisq test")
+  nightowl_h1("Calculating grouped chisq test")
   data %>%
     nightowl_named_group_split_at(data, group_by) %>%
     purrr::imap(purrr::safely({
       function(.df, .split) {
-        cli::cli_progress_step("{.split}")
+        nightowl_progress_step(.split)
         if (is.factor(.df[x])) .df[[x]] <- droplevels(.df[[x]])
         if (is.factor(.df[y])) .df[[y]] <- droplevels(.df[[y]])
         .x <- .df[[x]]
@@ -129,12 +129,12 @@ plot_grouped_chisq <- function(data, group_by, x, y, test = NULL, order_by = "p.
   test <- nightowl_named_group_split_at(test, group_by)
   df_split <- nightowl_named_group_split_at(data, group_by)
   df_split <- df_split[split_order]
-  cli::cli_h1("Plotting grouped chisq")
+  nightowl_h1("Plotting grouped chisq")
 
   .l <- list(data = df_split, info = test, name = names(df_split))
 
   purrr::pmap(.l, function(data, info, name) {
-    cli::cli_progress_step("{name}")
+    nightowl_progress_step(name)
     if (show_info) {
       info <- info %>%
         dplyr::select(N, statistic, `p.value`) %>%
@@ -195,11 +195,11 @@ reactable_grouped_chisq <- function(data, group_by, x, y, test = NULL, order_by 
   test <- nightowl_named_group_split_at(test, group_by)
   df_split <- nightowl_named_group_split_at(data, group_by)
   df_split <- df_split[split_order]
-  cli::cli_h1("Reactable Grouped Chisq")
+  nightowl_h1("Reactable Grouped Chisq")
 
   .l <- list(data = df_split, info = test, name = names(df_split))
   purrr::pmap(.l, function(data, info, name) {
-    cli::cli_progress_step("{name}")
+    nightowl_progress_step(name)
     info <- info %>%
       dplyr::select(N, statistic, `p.value`) %>%
       dplyr::mutate_if(is.numeric, function(x) round(x, 5)) %>%

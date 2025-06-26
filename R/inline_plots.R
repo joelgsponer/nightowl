@@ -248,7 +248,7 @@ add_inline_plot <- function(x,
   } else {
     .ellipsis <- list(...)
     if (!is.null(.ellipsis$svg)) {
-      cli::cli_alter_warning("For inline plots svg paramters should be passed directeley. Ignoring additional svg paramters in plot call.")
+      nightowl_alter_warning("For inline plots svg paramters should be passed directeley. Ignoring additional svg paramters in plot call.")
       .ellipsis$svg <- NULL
     }
     .style <- .ellipsis

@@ -391,7 +391,7 @@ object <span class="citation">@export</span></p>
   n_dev &lt;- length(dev.list())
   tryCatch(
     {
-      cli::cli_progress_step(&quot;Opening SVG device&quot;)
+      nightowl_progress_step(&quot;Opening SVG device&quot;)
       svg &lt;- svglite::svgstring(
         height = height, width = width, scaling = scaling,
         web_fonts = &quot;https://fonts.googleapis.com/css2?family=Lato:wght@100;300;400;700;900&amp;display=swap&quot;,
@@ -419,7 +419,7 @@ object <span class="citation">@export</span></p>
     },
     finally = {
       while (length(dev.list()) &gt; n_dev) {
-        cli::cli_progress_step(&quot;Closing device&quot;)
+        nightowl_progress_step(&quot;Closing device&quot;)
         dev.off()
       }
     }

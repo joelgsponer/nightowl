@@ -23,7 +23,7 @@ render_svg <- function(g,
   n_dev <- length(dev.list())
   tryCatch(
     {
-      cli::cli_progress_step("Opening SVG device")
+      nightowl_progress_step("Opening SVG device")
       svg <- svglite::svgstring(
         height = height, width = width, scaling = scaling,
         web_fonts = "https://fonts.googleapis.com/css2?family=Lato:wght@100;300;400;700;900&display=swap",
@@ -56,7 +56,7 @@ render_svg <- function(g,
     },
     finally = {
       while (length(dev.list()) > n_dev) {
-        cli::cli_progress_step("Closing device")
+        nightowl_progress_step("Closing device")
         dev.off()
       }
     }

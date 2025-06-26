@@ -38,7 +38,7 @@ create_Surv_formula <- function(data, time, event, treatment, covariates = NULL,
       if (nightowl_length_unique(data[[.covariate]]) > 1) {
         return(.covariate)
       } else {
-        cli::cli_alert("🦉⛔ Covariate `{(.covariate)}` has only one level. Skipping.")
+        nightowl_alert(paste("🦉⛔ Covariate", .covariate, "has only one level. Skipping."))
         return(NULL)
       }
     }) %>%
@@ -50,7 +50,7 @@ create_Surv_formula <- function(data, time, event, treatment, covariates = NULL,
       if (nightowl_length_unique(data[[.stratum]]) > 1) {
         return(.stratum)
       } else {
-        cli::cli_alert("🦉⛔ Stratum `{.stratum}` has only one level. Skipping.")
+        nightowl_alert(paste("🦉⛔ Stratum", .stratum, "has only one level. Skipping."))
         return(NULL)
       }
     }) %>%
@@ -102,7 +102,7 @@ create_Surv_formula <- function(data, time, event, treatment, covariates = NULL,
   
   # Display the formula (safely)
   formula_str <- rlang::expr_text(formula_obj)
-  cli::cli_alert("🦉 Formula: `{formula_str}`")
+  nightowl_alert(paste("🦉 Formula:", formula_str))
   
   return(formula_obj)
 }

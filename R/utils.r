@@ -369,3 +369,84 @@ nightowl_fct_inorder <- function(f) {
     factor(f, levels = unique_vals)
   }
 }
+
+# =================================================
+# cli Replacement Functions
+# =================================================
+
+#' Progress step message (compatible with cli::cli_progress_step)
+#'
+#' @param msg Message to display
+#' @export
+nightowl_progress_step <- function(msg) {
+  cat("✔", msg, "\n")
+}
+
+#' Header level 1 (compatible with cli::cli_h1)
+#'
+#' @param msg Header message
+#' @export
+nightowl_h1 <- function(msg) {
+  cat("\n", paste(rep("=", nchar(msg) + 4), collapse = ""), "\n")
+  cat("  ", msg, "\n")
+  cat(paste(rep("=", nchar(msg) + 4), collapse = ""), "\n\n")
+}
+
+#' Header level 2 (compatible with cli::cli_h2)
+#'
+#' @param msg Header message
+#' @export
+nightowl_h2 <- function(msg) {
+  cat("\n", paste(rep("-", nchar(msg) + 4), collapse = ""), "\n")
+  cat("  ", msg, "\n")
+  cat(paste(rep("-", nchar(msg) + 4), collapse = ""), "\n")
+}
+
+#' Header level 3 (compatible with cli::cli_h3)
+#'
+#' @param msg Header message
+#' @export
+nightowl_h3 <- function(msg) {
+  cat("\n", msg, "\n")
+  cat(paste(rep("-", nchar(msg)), collapse = ""), "\n")
+}
+
+#' List item (compatible with cli::cli_li)
+#'
+#' @param msg List item message
+#' @export
+nightowl_li <- function(msg) {
+  cat("•", msg, "\n")
+}
+
+#' Abort with error (compatible with cli::cli_abort)
+#'
+#' @param msg Error message
+#' @export
+nightowl_abort <- function(msg) {
+  stop(msg, call. = FALSE)
+}
+
+#' Alert message (compatible with cli::cli_alert)
+#'
+#' @param msg Alert message
+#' @export
+nightowl_alert <- function(msg) {
+  cat("ℹ", msg, "\n")
+}
+
+#' Information message (compatible with cli::cli_inform)
+#'
+#' @param msg Information message
+#' @export
+nightowl_inform <- function(msg) {
+  message(msg)
+}
+
+#' Warning alteration (compatible with cli::cli_alter_warning)
+#'
+#' @param msg Warning message
+#' @export
+nightowl_alter_warning <- function(msg) {
+  warning(msg, call. = FALSE)
+}

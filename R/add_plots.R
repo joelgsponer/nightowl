@@ -49,7 +49,7 @@ add_geom <- function(geom,
       
       cut_f <- allowed_cut_functions[[func_name]]
     }
-    cli::cli_inform("cutting")
+    nightowl_inform("cutting")
     .group <- do.call(cut_f, c(
       list(x = g$data[[rlang::as_label(g$mapping$x)]]),
       cut_args
@@ -112,7 +112,7 @@ summary <- function(g,
                     dodge = 1,
                     shape = 21,
                     ...) {
-  cli::cli_progress_step("summary.gg")
+  nightowl_progress_step("summary.gg")
   if (!is.null(fun.data) && !is.null(fun)) {
     rlang::abort("Error in summary: Please specify either fun or fun.data, not both")
   }

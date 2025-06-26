@@ -20,18 +20,18 @@ Coxph <- R6::R6Class("Coxph",
     },
     # Print
     print = function() {
-      cli::cli_h1("Coxph Object")
-      cli::cli_h3("Data")
+      nightowl_h1("Coxph Object")
+      nightowl_h3("Data")
       print(self$data)
-      cli::cli_h3("Formula")
+      nightowl_h3("Formula")
       print(self$formula)
-      cli::cli_h3("Variables")
-      purrr::iwalk(self$get_variables(), ~ cli::cli_li("{.y}: {.x}"))
-      cli::cli_h2("Reference")
-      purrr::iwalk(self$get_reference(), ~ cli::cli_li("{.y}: {.x}"))
-      cli::cli_h2("Results")
+      nightowl_h3("Variables")
+      purrr::iwalk(self$get_variables(), ~ nightowl_li(paste(.y, ":", .x)))
+      nightowl_h2("Reference")
+      purrr::iwalk(self$get_reference(), ~ nightowl_li(paste(.y, ":", .x)))
+      nightowl_h2("Results")
       purrr::iwalk(self$results, function(.x, .y) {
-        cli::cli_h3(.y)
+        nightowl_h3(.y)
         print(.x)
       })
     },
@@ -431,7 +431,7 @@ Coxph <- R6::R6Class("Coxph",
 #' @return Tidy data frame of model results with attached attributes containing model details
 #' @export
 fit_coxph <- function(data, time, event, treatment, covariates, strata, exponentiate = FALSE, ...) {
-  cli::cli_h1("🦉 Fitting Cox Proportional Hazard Model")
+  nightowl_h1("🦉 Fitting Cox Proportional Hazard Model")
   require(survival)
   # Select relevant variables --------------------------------------------------
   .data <- data %>%
@@ -496,7 +496,7 @@ fit_coxph <- function(data, time, event, treatment, covariates, strata, exponent
     dplyr::bind_rows()
   res <- dplyr::inner_join(res, .n)
   # Store metainfomation -------------------------------------------------------
-  cli::cli_progress_step("🦉 Storing metainfomation")
+  nightowl_progress_step("🦉 Storing metainfomation")
   attributes(res)$model <- .model
   attributes(res)$formula <- .formula
   attributes(res)$data <- .data
@@ -506,7 +506,7 @@ fit_coxph <- function(data, time, event, treatment, covariates, strata, exponent
   attributes(res)$strata <- strata
   attributes(res)$exponentiate <- exponentiate
   # Return results -------------------------------------------------------------
-  cli::cli_progress_step("🦉 Returning results")
+  nightowl_progress_step("🦉 Returning results")
   res
 }
 # =================================================

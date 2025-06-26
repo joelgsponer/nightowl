@@ -30,7 +30,7 @@ plot_grouped_km <- function(data,
   res <- data %>%
     nightowl_named_group_split_at(data, split) %>%
     purrr::imap(function(data, .split) {
-      cli::cli_progress_step(.split)
+      nightowl_progress_step(.split)
       data <- droplevels(data)
       nightowl::plot_km(data,
         time,
@@ -315,7 +315,7 @@ km_pvalue <- function(.formula, data, html = TRUE) {
 fit_km <- function(data, time, event, treatment, covariates = NULL, landmark = NULL, ...) {
   # Landmark -------------------------------------------------------------------
   if (!is.null(landmark)) {
-    cli::cli_progress_step("Calculating landmark analysis at {landmark}")
+    nightowl_progress_step(paste("Calculating landmark analysis at", landmark))
     data <- data %>%
       dplyr::mutate(!!rlang::sym(time) := !!rlang::sym(time) - landmark) %>%
       dplyr::filter(!!rlang::sym(time) > 0)

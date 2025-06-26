@@ -33,7 +33,7 @@ upperFn <- function(data, mapping, method = "lm", ...) {
     vstep <- 1
   }
   if (is.na(res)) {
-    cli::cli_abort("Computation failed.")
+    nightowl_abort("Computation failed.")
     msg <- "Computation failed"
     return(ggplot2::ggplot() +
       ggplot2::geom_text(ggplot2::aes(
