@@ -2,7 +2,7 @@
 % Please edit documentation in R/inline_plots.R
 \name{add_inline_pointrange}
 \alias{add_inline_pointrange}
-\title{MISSING_TITLE}
+\title{Create inline point range plots with confidence intervals}
 \usage{
 add_inline_pointrange(
   x,
@@ -11,6 +11,19 @@ add_inline_pointrange(
   ...
 )
 }
+\arguments{
+\item{x}{Numeric vector or data frame. Data for point range calculation}
+
+\item{fun_data}{Function. Statistical function for calculating point and range. Default NULL}
+
+\item{mapping}{Named list. Aesthetic mappings. Default list(x = "y", xmin = "ymin", xmax = "ymax", y = NULL)}
+
+\item{...}{Additional arguments passed to add_inline_plot()}
+}
+\value{
+A NightowlPlots object containing the inline point range plot
+}
 \description{
-MISSING_TITLE
+Creates compact point range plots showing point estimates with confidence intervals,
+suitable for embedding in tables to display statistical summaries.
 }

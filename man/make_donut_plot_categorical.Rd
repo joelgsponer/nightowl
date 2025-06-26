@@ -2,7 +2,7 @@
 % Please edit documentation in R/donut_plot.R
 \name{make_donut_plot_categorical}
 \alias{make_donut_plot_categorical}
-\title{MISSING_TITLE}
+\title{Create donut plots for categorical variables}
 \usage{
 make_donut_plot_categorical(
   data,
@@ -16,6 +16,29 @@ make_donut_plot_categorical(
   label = column
 )
 }
+\arguments{
+\item{data}{A data frame containing the categorical variable and grouping variable}
+
+\item{column}{String. Name of the categorical column to visualize}
+
+\item{split}{String. Name of the grouping variable to split plots by}
+
+\item{threshold_levels}{Integer. Minimum levels to apply fraction threshold. Default 3}
+
+\item{threshold_fractions}{Numeric. Minimum fraction for label display. Default 0.089}
+
+\item{colors}{Named vector of colors for categories. If NULL, uses brewer palette}
+
+\item{brewer_pal}{String. RColorBrewer palette name. Default "OrRd"}
+
+\item{color_missing}{String. Color for missing values. Default "#BEBEBE"}
+
+\item{label}{String. Display label for the row header. Default column name}
+}
+\value{
+An HTML div containing the donut plots with legend
+}
 \description{
-MISSING_TITLE
+Creates interactive donut plot visualizations for categorical variables split by groups,
+with automatic color coding and percentage labels.
 }

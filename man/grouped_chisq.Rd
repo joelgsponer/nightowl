@@ -2,10 +2,25 @@
 % Please edit documentation in R/grouped_chisq.R
 \name{grouped_chisq}
 \alias{grouped_chisq}
-\title{MISSING_TITLE}
+\title{Perform chi-square tests across grouped data}
 \usage{
-grouped_chisq(df, split_by, x, y, ...)
+grouped_chisq(data, group_by, x, y, ...)
+}
+\arguments{
+\item{data}{A data frame containing the variables for analysis}
+
+\item{group_by}{String. Name of the grouping variable to split data by}
+
+\item{x}{String. Name of the first categorical variable for the chi-square test}
+
+\item{y}{String. Name of the second categorical variable for the chi-square test}
+
+\item{...}{Additional arguments passed to chisq.test()}
+}
+\value{
+A list of safely executed chi-square test results for each group
 }
 \description{
-MISSING_TITLE
+Conducts chi-square tests of independence between two categorical variables
+for each group defined by a splitting variable, with error handling.
 }

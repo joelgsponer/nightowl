@@ -1,10 +1,8 @@
 # =================================================
-#' @title
-#' MISSING_TITLE
-#' @description
-#' @detail
-#' @param
-#' @return
+#' @title Default Reactable Configuration (Deprecated)
+#' @description Creates a reactable with default styling options - use render_reactable() instead
+#' @param x Data frame to display in the table
+#' @return Reactable object with default styling
 #' @export
 reactable_default <- function(x,
                               filterable = T,
@@ -29,12 +27,10 @@ reactable_default <- function(x,
   )
 }
 # =================================================
-#' @title
-#' MISSING_TITLE
-#' @description
-#' @detail
-#' @param
-#' @return
+#' @title Render Kable Table
+#' @description Creates a styled HTML table using knitr::kable with nightowl formatting
+#' @param .tbl Data frame to render as a table
+#' @return HTML string containing the formatted table
 #' @export
 render_kable <- function(.tbl,
                          caption = NULL,
@@ -88,12 +84,10 @@ render_html <- function(.tbl, html_dependencies = kableExtra:::html_dependency_l
 }
 # s-------------------------------------------------------------------------------
 # =================================================
-#' @title
-#' MISSING_TITLE
-#' @description
-#' @detail
-#' @param
-#' @return
+#' @title Render Reactable Table
+#' @description Creates an interactive table using reactable with nightowl styling and themes
+#' @param .tbl Data frame to render as an interactive table
+#' @return Reactable object with nightowl styling and interactive features
 #' @export
 render_reactable <- function(.tbl,
                              html_columns = NULL,
@@ -149,7 +143,7 @@ render_reactable <- function(.tbl,
     .old
   }, .init = col_def)
   # Prepare data
-  .tbl <- dplyr::select_at(.tbl, c(.groups, waRRior::pop(names(.tbl), .groups)))
+  .tbl <- dplyr::select_at(.tbl, c(.groups, nightowl_pop(names(.tbl), .groups)))
   .tbl <- dplyr::ungroup(.tbl)
   # if (add_scale) .tbl <- nightowl::add_scale(.tbl)
   .tbl <- dplyr::mutate_if(.tbl, is.numeric, function(x) round(x, digits))

@@ -2,10 +2,17 @@
 % Please edit documentation in R/grouped_chisq.R
 \name{extract_errors_grouped_chisq}
 \alias{extract_errors_grouped_chisq}
-\title{missing_title}
+\title{Extract chi-square test errors}
 \usage{
 extract_errors_grouped_chisq(x)
 }
+\arguments{
+\item{x}{List output from grouped_chisq() containing results and errors}
+}
+\value{
+A list of error messages from failed chi-square tests
+}
 \description{
-missing_title
+Extracts error messages from grouped chi-square tests that failed to execute,
+useful for debugging problematic groups.
 }

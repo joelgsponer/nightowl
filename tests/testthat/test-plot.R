@@ -1,4 +1,4 @@
-test_that("multiplication works", {
+test_that("declarative plots execute and render correctly with various configurations", {
   require(magrittr)
   testdata <- ChickWeight %>%
     dplyr::filter(Time < 10)
@@ -16,7 +16,7 @@ test_that("multiplication works", {
 
   a <- nightowl::plot(
     data = testdata,
-    transform = list(x = "waRRior::fct_lexicographic"),
+    transform = list(x = "nightowl::nightowl_fct_lexicographic"),
     mapping = list(
       x = "Time",
       y = "weight",
@@ -46,7 +46,7 @@ test_that("multiplication works", {
 
   nightowl::plot(
     data = testdata,
-    transform = list(x = "waRRior::fct_lexicographic"),
+    transform = list(x = "nightowl::nightowl_fct_lexicographic"),
     mapping = list(
       x = "Time",
       y = "weight",
@@ -64,7 +64,7 @@ test_that("multiplication works", {
 
   .p <- nightowl::plot(
     data = testdata,
-    transform = list(x = "waRRior::fct_lexicographic"),
+    transform = list(x = "nightowl::nightowl_fct_lexicographic"),
     mapping = list(
       x = "Time",
       y = "Chick",
@@ -80,7 +80,7 @@ test_that("multiplication works", {
   plotly::ggplotly(.p)
 
   nightowl::plot(testdata,
-    transform = list(x = "waRRior::fct_lexicographic"),
+    transform = list(x = "nightowl::nightowl_fct_lexicographic"),
     mapping = list(
       x = "Diet",
       y = "weight",
@@ -245,7 +245,7 @@ test_that("multiplication works", {
 
 
   nightowl::plot(palmerpenguins::penguins,
-    transform = list(data = "nightowl::percentage", x = "waRRior::fct_lexicographic"),
+    transform = list(data = "nightowl::percentage", x = "nightowl::nightowl_fct_lexicographic"),
     mapping = list(
       x = "island",
       fill = "species",
@@ -266,7 +266,7 @@ test_that("multiplication works", {
     data = palmerpenguins::penguins,
     transform = list(
       data = "nightowl::percentage",
-      x = "waRRior::fct_lexicographic"
+      x = "nightowl::nightowl_fct_lexicographic"
     ),
     mapping = list(x = "island", fill = "species", facet_row = "sex")
   )

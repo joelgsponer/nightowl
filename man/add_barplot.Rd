@@ -2,16 +2,31 @@
 % Please edit documentation in R/inline_plots.R
 \name{add_barplot}
 \alias{add_barplot}
-\title{MISSING_TITLE}
+\title{Create inline stacked bar plots for categorical data}
 \usage{
 add_barplot(
   x,
   height = 0.3,
   width = 2.5,
   scaling = 1,
-  colors = NightowlOptions$get_colors
+  colors = get_nightowl_options()$get_colors
 )
 }
+\arguments{
+\item{x}{A vector (factor or character) containing categorical data}
+
+\item{height}{Numeric. Plot height for inline display. Default 0.3}
+
+\item{width}{Numeric. Plot width for inline display. Default 2.5}
+
+\item{scaling}{Numeric. SVG scaling factor. Default 1}
+
+\item{colors}{Function. Color palette function for categories}
+}
+\value{
+A NightowlPlots object containing the inline stacked bar plot
+}
 \description{
-MISSING_TITLE
+Creates compact horizontal stacked bar plots showing percentage distributions
+of categorical variables, suitable for embedding in summary tables.
 }

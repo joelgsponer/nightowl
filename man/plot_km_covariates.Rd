@@ -2,7 +2,7 @@
 % Please edit documentation in R/km.R
 \name{plot_km_covariates}
 \alias{plot_km_covariates}
-\title{MISSING_TITLE}
+\title{Plot Kaplan-Meier with Covariate Distribution}
 \usage{
 plot_km_covariates(
   data,
@@ -23,13 +23,19 @@ plot_km_covariates(
   legend_position = "top",
   height = 600,
   width = "100\%",
-  colors = unname(unlist(picasso::roche_colors())),
+  colors = unname(unlist(nightowl::nightowl_colors())),
   lowrider_theme = "print",
   as_ggplot = FALSE,
   note = NULL,
   break_width = (max(data[[time]], na.rm = T)/20)
 )
 }
+\arguments{
+\item{data}{Data frame containing the survival data}
+}
+\value{
+Interactive plot combining survival curves and covariate distributions
+}
 \description{
-MISSING_TITLE
+Creates Kaplan-Meier curves with additional panels showing covariate distributions over time
 }

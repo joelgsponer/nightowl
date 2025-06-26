@@ -2,10 +2,21 @@
 % Please edit documentation in R/inline_plots.R
 \name{add_inline_histogram}
 \alias{add_inline_histogram}
-\title{MISSING_TITLE}
+\title{Create inline histogram plots for distribution visualization}
 \usage{
 add_inline_histogram(x, mapping = list(x = "x", y = NULL), ...)
 }
+\arguments{
+\item{x}{Numeric vector. Data for histogram creation}
+
+\item{mapping}{Named list. Aesthetic mappings. Default list(x = "x", y = NULL)}
+
+\item{...}{Additional arguments passed to add_inline_plot()}
+}
+\value{
+A NightowlPlots object containing the inline histogram
+}
 \description{
-MISSING_TITLE
+Creates compact histogram plots for showing data distributions within tables,
+using predefined styling optimized for inline display.
 }

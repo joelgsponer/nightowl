@@ -2,11 +2,11 @@
 % Please edit documentation in R/grouped_chisq.R
 \name{reactable_grouped_chisq}
 \alias{reactable_grouped_chisq}
-\title{MISSING_TITLE}
+\title{Create reactable visualization for grouped chi-square analysis}
 \usage{
 reactable_grouped_chisq(
-  df,
-  split_by,
+  data,
+  group_by,
   x,
   y,
   test = NULL,
@@ -17,6 +17,31 @@ reactable_grouped_chisq(
   ...
 )
 }
+\arguments{
+\item{data}{A data frame containing the variables for analysis}
+
+\item{group_by}{String. Name of the grouping variable to split analysis by}
+
+\item{x}{String. Name of the first categorical variable}
+
+\item{y}{String. Name of the second categorical variable}
+
+\item{test}{Optional. Pre-computed chi-square test results. If NULL, tests are computed}
+
+\item{order_by}{String. Variable to order results by. Default "p.value"}
+
+\item{pal}{Named vector of colors for the plots. If NULL, uses default colors}
+
+\item{width}{Numeric. Width of embedded plots. Default 3}
+
+\item{height}{Numeric. Height of embedded plots. Default 3}
+
+\item{...}{Additional arguments passed to chi-square testing}
+}
+\value{
+An interactive reactable widget with embedded visualizations
+}
 \description{
-MISSING_TITLE
+Generates an interactive reactable with embedded plots for grouped chi-square analysis,
+combining statistical results with visual representations.
 }

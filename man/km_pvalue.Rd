@@ -2,10 +2,20 @@
 % Please edit documentation in R/km.R
 \name{km_pvalue}
 \alias{km_pvalue}
-\title{MISSING_TITLE}
+\title{Calculate Kaplan-Meier P-value}
 \usage{
 km_pvalue(.formula, data, html = TRUE)
 }
+\arguments{
+\item{.formula}{Survival formula object}
+
+\item{data}{Data frame containing the survival data}
+
+\item{html}{Logical indicating whether to return HTML formatted output (default: TRUE)}
+}
+\value{
+P-value from log-rank test, optionally formatted as HTML
+}
 \description{
-MISSING_TITLE
+Calculates the log-rank test p-value for survival differences
 }

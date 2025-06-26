@@ -2,7 +2,7 @@
 % Please edit documentation in R/km.R
 \name{plot_km}
 \alias{plot_km}
-\title{MISSING_TITLE}
+\title{Plot Kaplan-Meier Survival Curve}
 \usage{
 plot_km(
   data,
@@ -24,13 +24,19 @@ plot_km(
   height = 600,
   table_height_fraction = 0.2,
   width = "100\%",
-  colors = unname(unlist(picasso::roche_colors())),
+  colors = unname(unlist(nightowl::nightowl_colors())),
   lowrider_theme = "print",
   as_ggplot = FALSE,
   note = NULL,
   break_width = (max(data[[time]], na.rm = T)/20)
 )
 }
+\arguments{
+\item{data}{Data frame containing the survival data}
+}
+\value{
+HTML object with interactive Kaplan-Meier plot or ggplot object if as_ggplot = TRUE
+}
 \description{
-MISSING_TITLE
+Creates an interactive Kaplan-Meier survival curve with risk table and statistical tests
 }

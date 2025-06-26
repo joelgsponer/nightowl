@@ -2,10 +2,17 @@
 % Please edit documentation in R/grouped_chisq.R
 \name{extract_results_grouped_chisq}
 \alias{extract_results_grouped_chisq}
-\title{missing_title}
+\title{Extract successful chi-square test results}
 \usage{
 extract_results_grouped_chisq(x)
 }
+\arguments{
+\item{x}{List output from grouped_chisq() containing results and errors}
+}
+\value{
+A tibble with combined chi-square test results sorted by p-value
+}
 \description{
-missing_title
+Extracts and combines successful chi-square test results from grouped analysis,
+excluding any failed tests and sorting by p-value.
 }

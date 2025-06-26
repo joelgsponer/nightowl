@@ -2,10 +2,17 @@
 % Please edit documentation in R/grouped_chisq.R
 \name{report_errors_grouped_chisq}
 \alias{report_errors_grouped_chisq}
-\title{MISSING_TITLE}
+\title{Generate HTML report of chi-square test errors}
 \usage{
 report_errors_grouped_chisq(x)
 }
+\arguments{
+\item{x}{List output from grouped_chisq() containing error information}
+}
+\value{
+An HTML div containing formatted error messages
+}
 \description{
-MISSING_TITLE
+Creates an HTML-formatted report displaying any errors that occurred
+during grouped chi-square testing for troubleshooting.
 }

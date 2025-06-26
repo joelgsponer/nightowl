@@ -2,7 +2,7 @@
 % Please edit documentation in R/tables.R
 \name{render_kable}
 \alias{render_kable}
-\title{MISSING_TITLE}
+\title{Render Kable Table}
 \usage{
 render_kable(
   .tbl,
@@ -18,6 +18,12 @@ render_kable(
   ...
 )
 }
+\arguments{
+\item{.tbl}{Data frame to render as a table}
+}
+\value{
+HTML string containing the formatted table
+}
 \description{
-MISSING_TITLE
+Creates a styled HTML table using knitr::kable with nightowl formatting
 }

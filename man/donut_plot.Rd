@@ -2,10 +2,25 @@
 % Please edit documentation in R/donut_plot.R
 \name{donut_plot}
 \alias{donut_plot}
-\title{MISSING_TITLE}
+\title{Create multi-column donut plot dashboard}
 \usage{
 donut_plot(data, columns, split, labels = NULL, options = NULL)
 }
+\arguments{
+\item{data}{A data frame containing variables to visualize}
+
+\item{columns}{Character vector. Names of columns to create plots for}
+
+\item{split}{String. Name of the grouping variable to split plots by}
+
+\item{labels}{Character vector. Display labels for each column. If NULL, uses column names}
+
+\item{options}{List. Plotting options for each column or by variable type}
+}
+\value{
+An HTML dashboard with headers and multiple donut plots
+}
 \description{
-MISSING_TITLE
+Creates a comprehensive dashboard of donut plots for multiple variables,
+automatically choosing appropriate plot types based on variable types.
 }

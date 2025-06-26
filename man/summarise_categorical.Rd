@@ -2,7 +2,7 @@
 % Please edit documentation in R/summaries.R
 \name{summarise_categorical}
 \alias{summarise_categorical}
-\title{MISSING_TITLE}
+\title{Configure calculations for categorical variable summaries}
 \usage{
 summarise_categorical(
   self,
@@ -10,6 +10,15 @@ summarise_categorical(
   parameters = list(Freq = list(add_colors = FALSE))
 )
 }
+\arguments{
+\item{calculations}{Named list of calculation functions for categorical data}
+
+\item{parameters}{Named list of parameters for each calculation function}
+}
+\value{
+A list containing calculations and parameters for categorical summaries
+}
 \description{
-MISSING_TITLE
+Provides default calculations and parameters for summarizing categorical variables,
+including counts and formatted frequencies.
 }

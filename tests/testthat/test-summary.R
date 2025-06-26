@@ -32,8 +32,9 @@ test_that("summary works", {
     htmltools::browsable()
   nightowl::Summary$new(testdata %>% dplyr::filter(foo == "A"), "qux", "foo", method = nightowl::summarise_categorical_barplot)$kable()
 
-  NightowlOptions$set_colors(picasso::roche_colors() %>% rev())
-  NightowlOptions$set_header_width(10)
+  options <- get_nightowl_options()
+  options$set_colors(nightowl::nightowl_colors() %>% rev())
+  options$set_header_width(10)
   nightowl::Summary$new(testdata, "qux", "foo", method = nightowl::summarise_categorical_barplot)$kable()
 
   nightowl::Summary$new(testdata, "baz", "s1", method = nightowl::summarise_numeric_violin)$raw()
@@ -105,9 +106,9 @@ test_that("summary works", {
   # Groupings
   testdata %>%
     dplyr::group_by(foo) %>%
-    purrr::map_df(c("bar", "baz"), function(col, .data) {
-      nightowl::summarise_numeric_violin(.data, col)
-    }, .data = .) %>%
+    purrr::map_df(c("bar", "baz"), function(col, data) {
+      nightowl::summarise_numeric_violin(data, col)
+    }, data = .) %>%
     nightowl::render_kable()
 
   testdata %>%
@@ -166,7 +167,7 @@ test_that("summary works", {
     ),
     parameters = rlang::expr(list(
       Violin = list(
-        theme = picasso::theme_void,
+        theme = ggplot2::theme_void,
         height = 1.5,
         ylim = range(data[[column]], na.rm = T)
       )
@@ -184,7 +185,7 @@ test_that("summary works", {
     ),
     parameters = rlang::expr(list(
       Violin = list(
-        theme = picasso::theme_void,
+        theme = ggplot2::theme_void,
         height = 1.5,
         ylim = range(data[[column]], na.rm = T)
       )

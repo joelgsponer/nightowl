@@ -1,4 +1,4 @@
-test_that("multiplication works", {
+test_that("forestplot renders and converts to different output formats", {
   a <- nightowl::forestplot(0, -1, 1)
   print(a)
   print(a, browser = F)

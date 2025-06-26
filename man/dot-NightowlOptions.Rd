@@ -26,10 +26,7 @@ R6 Class
 \if{latex}{\out{\hypertarget{method-NightowlOptions-new}{}}}
 \subsection{Method \code{new()}}{
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{.NightowlOptions$new(
-  colors = picasso::roche_colors(),
-  missingColor = picasso::roche_colors()["grey"]
-)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{.NightowlOptions$new(colors = NULL, missingColor = NULL)}\if{html}{\out{</div>}}
 }
 
 }

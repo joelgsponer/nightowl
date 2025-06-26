@@ -2,14 +2,43 @@
 % Please edit documentation in R/plot.R
 \name{DeclarativePlot}
 \alias{DeclarativePlot}
-\title{R6 Class}
+\title{R6 Class for Declarative Plot Construction}
 \description{
-R6 Class
+An advanced R6 class that extends Plot to provide declarative plot construction
+with automatic data processing, transformation, and layered visualization building.
+}
+\details{
+DeclarativePlot enables building complex visualizations through:
+\itemize{
+\item Declarative mapping of data to aesthetics
+\item Automatic data selection and transformation
+\item Layered geometry and scale management
+\item Faceting and theming support
+\item Optimized rendering with memoization
+}
 
-R6 Class
+This class is designed for programmatic plot construction where plot
+specifications are built incrementally through configuration objects.
 }
 \section{Super class}{
 \code{nightowl::Plot} -> \code{DeclarativePlot}
+}
+\section{Public fields}{
+\if{html}{\out{<div class="r6-fields">}}
+\describe{
+\item{\code{data}}{The source data frame for the plot}
+
+\item{\code{mapping}}{List of aesthetic mappings (x, y, color, fill, etc.)}
+
+\item{\code{layers}}{List of plot layers (geometries, statistics)}
+
+\item{\code{scales}}{List of scale specifications}
+
+\item{\code{facets}}{Faceting specification}
+
+\item{\code{theming}}{Theme configuration}
+}
+\if{html}{\out{</div>}}
 }
 \section{Methods}{
 \subsection{Public methods}{
@@ -19,6 +48,13 @@ R6 Class
 \item \href{#method-DeclarativePlot-transform_data}{\code{DeclarativePlot$transform_data()}}
 \item \href{#method-DeclarativePlot-prepare_facets}{\code{DeclarativePlot$prepare_facets()}}
 \item \href{#method-DeclarativePlot-set_plot}{\code{DeclarativePlot$set_plot()}}
+\item \href{#method-DeclarativePlot-invalidate_cache}{\code{DeclarativePlot$invalidate_cache()}}
+\item \href{#method-DeclarativePlot-get_cache_stats}{\code{DeclarativePlot$get_cache_stats()}}
+\item \href{#method-DeclarativePlot-reset_cache_stats}{\code{DeclarativePlot$reset_cache_stats()}}
+\item \href{#method-DeclarativePlot-set_data}{\code{DeclarativePlot$set_data()}}
+\item \href{#method-DeclarativePlot-set_mapping}{\code{DeclarativePlot$set_mapping()}}
+\item \href{#method-DeclarativePlot-set_layers}{\code{DeclarativePlot$set_layers()}}
+\item \href{#method-DeclarativePlot-set_scales}{\code{DeclarativePlot$set_scales()}}
 \item \href{#method-DeclarativePlot-format}{\code{DeclarativePlot$format()}}
 \item \href{#method-DeclarativePlot-clone}{\code{DeclarativePlot$clone()}}
 }
@@ -78,6 +114,69 @@ R6 Class
 \subsection{Method \code{set_plot()}}{
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{DeclarativePlot$set_plot()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DeclarativePlot-invalidate_cache"></a>}}
+\if{latex}{\out{\hypertarget{method-DeclarativePlot-invalidate_cache}{}}}
+\subsection{Method \code{invalidate_cache()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DeclarativePlot$invalidate_cache()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DeclarativePlot-get_cache_stats"></a>}}
+\if{latex}{\out{\hypertarget{method-DeclarativePlot-get_cache_stats}{}}}
+\subsection{Method \code{get_cache_stats()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DeclarativePlot$get_cache_stats()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DeclarativePlot-reset_cache_stats"></a>}}
+\if{latex}{\out{\hypertarget{method-DeclarativePlot-reset_cache_stats}{}}}
+\subsection{Method \code{reset_cache_stats()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DeclarativePlot$reset_cache_stats()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DeclarativePlot-set_data"></a>}}
+\if{latex}{\out{\hypertarget{method-DeclarativePlot-set_data}{}}}
+\subsection{Method \code{set_data()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DeclarativePlot$set_data(value)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DeclarativePlot-set_mapping"></a>}}
+\if{latex}{\out{\hypertarget{method-DeclarativePlot-set_mapping}{}}}
+\subsection{Method \code{set_mapping()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DeclarativePlot$set_mapping(value)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DeclarativePlot-set_layers"></a>}}
+\if{latex}{\out{\hypertarget{method-DeclarativePlot-set_layers}{}}}
+\subsection{Method \code{set_layers()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DeclarativePlot$set_layers(value)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DeclarativePlot-set_scales"></a>}}
+\if{latex}{\out{\hypertarget{method-DeclarativePlot-set_scales}{}}}
+\subsection{Method \code{set_scales()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DeclarativePlot$set_scales(value)}\if{html}{\out{</div>}}
 }
 
 }

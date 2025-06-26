@@ -2,15 +2,33 @@
 % Please edit documentation in R/plot.R
 \name{Plot}
 \alias{Plot}
-\title{R6 Class}
+\title{R6 Class for Plot Objects}
 \description{
-R6 Class
-
-R6 Class
+A comprehensive R6 class for creating, managing, and rendering plot objects.
+Supports ggplot2 objects with SVG rendering, HTML output, and customizable styling.
+}
+\details{
+The Plot class provides a flexible interface for plot objects with:
+\itemize{
+\item SVG rendering with customizable dimensions
+\item HTML output with CSS styling support
+\item Automatic resizing capabilities
+\item Memoized rendering for performance
+}
 }
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}
 \describe{
+\item{\code{plot}}{The underlying plot object (typically ggplot2)}
+
+\item{\code{type}}{String identifier for the plot type}
+
+\item{\code{options_svg}}{List of SVG rendering options (width, height, scaling)}
+
+\item{\code{css}}{List of CSS styling options (class, style)}
+
+\item{\code{resize}}{Logical indicating if plots should auto-resize}
+
 \item{\code{ggplot}}{object, potentially other plot types possible (base does not work)}
 }
 \if{html}{\out{</div>}}

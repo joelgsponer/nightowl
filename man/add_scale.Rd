@@ -2,10 +2,23 @@
 % Please edit documentation in R/inline_plots.R
 \name{add_scale}
 \alias{add_scale}
-\title{MISSING_TITLE}
+\title{Add axis scales to NightowlPlots objects}
 \usage{
 add_scale(obj, text_size = 1.5, line_size = 1, legend_position = "none")
 }
+\arguments{
+\item{obj}{A data frame containing NightowlPlots objects in columns}
+
+\item{text_size}{Numeric. Relative size of axis text. Default 1.5}
+
+\item{line_size}{Numeric. Relative thickness of axis lines. Default 1}
+
+\item{legend_position}{String. Position of legend. Default "none"}
+}
+\value{
+A data frame with an additional scale row appended
+}
 \description{
-MISSING_TITLE
+Adds axis scale information as a separate row to tables containing NightowlPlots,
+providing reference scales for embedded visualizations.
 }

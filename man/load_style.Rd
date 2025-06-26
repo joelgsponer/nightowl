@@ -2,10 +2,16 @@
 % Please edit documentation in R/styles.R
 \name{load_style}
 \alias{load_style}
-\title{MISSING_TITLE}
+\title{Load Plot Style Configuration}
 \usage{
 load_style(x)
 }
+\arguments{
+\item{x}{Character string specifying the style name (without .yaml extension)}
+}
+\value{
+List containing the style configuration parameters loaded from the YAML file
+}
 \description{
-MISSING_TITLE
+Loads a predefined plot style configuration from the package's styles directory
 }

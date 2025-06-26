@@ -12,7 +12,7 @@ lowerFn <- function(data, mapping, method = "lm", ...) {
   ggplot2::ggplot(data = data, mapping = mapping) +
     ggplot2::geom_point(alpha = alpha_points) +
     ggplot2::geom_smooth(method = method, alpha = alpha_lines, se = FALSE, ...) +
-    picasso::theme_picasso()
+    nightowl::theme_nightowl()
 }
 # ===============================================================================
 #' Function for the upper (diagnonal) triangle of the correlation matrix
@@ -24,7 +24,7 @@ upperFn <- function(data, mapping, method = "lm", ...) {
     show_se <- FALSE
     alpha <- 0
     size <- 0
-    l <- waRRior::length_unique(dplyr::pull(data, !!mapping$group))
+    l <- nightowl_length_unique(dplyr::pull(data, !!mapping$group))
     vstep <- 1 / l
   } else {
     show_se <- TRUE
@@ -33,8 +33,8 @@ upperFn <- function(data, mapping, method = "lm", ...) {
     vstep <- 1
   }
   if (is.na(res)) {
-    cli::cli_alert_danger("Computation failed for x: {mapping$x} and y: {mapping$y}")
-    msg <- "X"
+    nightowl_abort("Computation failed.")
+    msg <- "Computation failed"
     return(ggplot2::ggplot() +
       ggplot2::geom_text(ggplot2::aes(
         x = 1,
@@ -43,9 +43,9 @@ upperFn <- function(data, mapping, method = "lm", ...) {
       ), col = "red", dodge = ggplot2::position_dodge()) +
       ggplot2::theme_void())
   }
-  if (res == 0) col <- picasso::roche_color("black", alpha = 0.1)
-  if (res < 0) col <- picasso::roche_color("red", alpha = 1)
-  if (res > 0) col <- picasso::roche_color("green", alpha = 1)
+  if (res == 0) col <- nightowl::nightowl_color("black", alpha = 0.1)
+  if (res < 0) col <- nightowl::nightowl_color("red", alpha = 1)
+  if (res > 0) col <- nightowl::nightowl_color("green", alpha = 1)
   p <- ggplot2::ggplot(data = data, mapping = mapping) +
     ggplot2::geom_smooth(
       method = method,
@@ -66,11 +66,11 @@ diagFn <- function(data, mapping, method = "lm", ...) {
   if (!is.null(mapping$group)) {
     fill <- NA
   } else {
-    fill <- picasso::roche_color("blue")
+    fill <- nightowl::nightowl_color("blue")
   }
   p <- ggplot2::ggplot(data = data, mapping = mapping) +
     ggplot2::geom_density(fill = fill, alpha = 0.4) +
-    picasso::theme_picasso()
+    nightowl::theme_nightowl()
   p
 }
 # ===============================================================================
@@ -137,14 +137,15 @@ ggpairs <- function(DATA,
   #*******************************************************************************
   # Transformations
   if (!is.null(transform)) {
-    purrr::iwalk(transform, function(.f, .var) {
-      .f <- match.fun(.f)
-      .var <- mapping[[.var]]
+    DATA <- purrr::reduce(names(transform), function(DATA, .var_name) {
+      .f <- match.fun(transform[[.var_name]])
+      .var <- mapping[[.var_name]]
       if (!is.null(.var)) {
-        DATA <<- DATA %>%
+        DATA <- DATA %>%
           dplyr::mutate(!!rlang::sym(.var) := .f(!!rlang::sym(.var)))
       }
-    })
+      return(DATA)
+    }, .init = DATA)
   }
   #*******************************************************************************
   # Spread data
@@ -154,7 +155,7 @@ ggpairs <- function(DATA,
   DATA <- nightowl::text_wraping(DATA, width = label_width)
   #****************************************************************************
   # Setup Plot
-  .aes <- mapping[waRRior::pop(names(mapping), c("key", "value", "id"))] %>%
+  .aes <- mapping[nightowl_pop(names(mapping), c("key", "value", "id"))] %>%
     nightowl:::aes()
   if (!is.null(mapping$color) || !is.null(mapping$fill)) {
     legend <- 1
@@ -182,8 +183,13 @@ ggpairs <- function(DATA,
 }
 # ===============================================================================
 # =================================================
-#' @title
-#' MISSING_TITLE
+#' @title Create Histogram for Diagonal of Correlation Matrix
+#' @description Generates a styled histogram plot for diagonal panels in ggpairs correlation matrix
+#' @param data Data frame containing the variables to plot
+#' @param mapping ggplot2 aesthetic mappings
+#' @param method Method for fitting (default: "lm")
+#' @param ... Additional arguments passed to styled_plot
+#' @return ggplot object for the diagonal panel
 #' @export
 this_f <- function(data, mapping, method = "lm", ...) {
   .mapping <- purrr::map(mapping, function(.x) {

@@ -2,16 +2,18 @@
 .NightowlOptions <- R6::R6Class("NightowlOptions",
   public = list(
     # Initialize the class ---------------------------------------------------
-    initialize = function(colors = picasso::roche_colors(),
-                          missingColor = picasso::roche_colors()["grey"]) {
-      cli::cli_progress_step("Setting up Nightowl")
+    initialize = function(colors = NULL,
+                          missingColor = NULL) {
+      if (is.null(colors)) colors <- nightowl_colors()
+      if (is.null(missingColor)) missingColor <- nightowl_colors()["grey"]
+      nightowl_progress_step("Setting up Nightowl")
       # Setting values
       self$set_missing_color(missingColor)
       self$set_colors(colors)
     },
     # Color handling -------------------------------------------------------
     set_colors = function(colors) {
-      private$colors <- waRRior::pop(colors, private$missingColor)
+      private$colors <- colors
     },
     get_colors = function(n = NULL, missing = TRUE) {
       colors <- private$colors
@@ -45,3 +47,28 @@
   )
 )
 # ====
+
+#' Get Nightowl Package Options
+#' 
+#' @description Access the global nightowl options instance from package namespace
+#' @return NightowlOptions R6 object instance
+#' @export
+get_nightowl_options <- function() {
+  if (is.null(.pkg_env$nightowl_options)) {
+    .pkg_env$nightowl_options <- .NightowlOptions$new()
+  }
+  return(.pkg_env$nightowl_options)
+}
+
+#' Set Nightowl Package Options  
+#' 
+#' @description Replace the global nightowl options instance
+#' @param options NightowlOptions R6 object instance
+#' @export
+set_nightowl_options <- function(options) {
+  if (!inherits(options, "NightowlOptions")) {
+    stop("options must be a NightowlOptions object")
+  }
+  .pkg_env$nightowl_options <- options
+  invisible(options)
+}

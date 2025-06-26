@@ -2,10 +2,20 @@
 % Please edit documentation in R/styles.R
 \name{styled_plot}
 \alias{styled_plot}
-\title{MISSING_TITLE}
+\title{Create Styled Plot}
 \usage{
 styled_plot(data, style, ...)
 }
+\arguments{
+\item{data}{Data frame containing the data to plot}
+
+\item{style}{Either a file path to a YAML style configuration or a style name to load from the package}
+
+\item{...}{Additional mapping arguments passed to the plot function}
+}
+\value{
+A nightowl plot object with the specified style applied
+}
 \description{
-MISSING_TITLE
+Creates a plot with predefined style configuration from a YAML file or style name
 }

@@ -2,10 +2,16 @@
 % Please edit documentation in R/arrangements.R
 \name{arrange_summaries}
 \alias{arrange_summaries}
-\title{MISSING_TITLE}
+\title{Arrange Multiple Summary Tables}
 \usage{
 arrange_summaries(tbls)
 }
+\arguments{
+\item{tbls}{Named list of summary tables to display side by side}
+}
+\value{
+HTML object with arranged summary tables that can be viewed in a browser
+}
 \description{
-MISSING_TITLE
+Creates a responsive layout displaying multiple summary tables in a flexbox container
 }

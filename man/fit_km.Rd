@@ -2,10 +2,28 @@
 % Please edit documentation in R/km.R
 \name{fit_km}
 \alias{fit_km}
-\title{MISSING_TITLE}
+\title{Fit Kaplan-Meier Survival Model}
 \usage{
 fit_km(data, time, event, treatment, covariates = NULL, landmark = NULL, ...)
 }
+\arguments{
+\item{data}{Data frame containing the survival data}
+
+\item{time}{Character string specifying the time variable name}
+
+\item{event}{Character string specifying the event variable name}
+
+\item{treatment}{Character string specifying the treatment/grouping variable name}
+
+\item{covariates}{Character vector of covariate variable names (optional)}
+
+\item{landmark}{Numeric value for landmark analysis time point (optional)}
+
+\item{...}{Additional arguments passed to survfit}
+}
+\value{
+Tidy data frame with survival estimates and confidence intervals
+}
 \description{
-MISSING_TITLE
+Fits a Kaplan-Meier survival model and returns tidy results
 }

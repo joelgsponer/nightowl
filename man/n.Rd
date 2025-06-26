@@ -2,10 +2,16 @@
 % Please edit documentation in R/summaries.R
 \name{n}
 \alias{n}
-\title{MISSING_TITLE}
+\title{Count rows in current group}
 \usage{
 n(...)
 }
+\arguments{
+\item{...}{Additional arguments (currently unused)}
+}
+\value{
+Integer count of rows in current group
+}
 \description{
-MISSING_TITLE
+Wrapper function for dplyr::n() to count the number of rows in the current group.
 }

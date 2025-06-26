@@ -2,11 +2,11 @@
 % Please edit documentation in R/grouped_chisq.R
 \name{plot_grouped_chisq}
 \alias{plot_grouped_chisq}
-\title{MISSING_TITLE}
+\title{Create stacked percentage plots for chi-square results}
 \usage{
 plot_grouped_chisq(
-  df,
-  split_by,
+  data,
+  group_by,
   x,
   y,
   test = NULL,
@@ -20,6 +20,37 @@ plot_grouped_chisq(
   ...
 )
 }
+\arguments{
+\item{data}{A data frame containing the variables for visualization}
+
+\item{group_by}{String. Name of the grouping variable to split plots by}
+
+\item{x}{String. Name of the first categorical variable for plotting}
+
+\item{y}{String. Name of the second categorical variable for plotting}
+
+\item{test}{Optional. Pre-computed chi-square test results. If NULL, tests are computed}
+
+\item{order_by}{String. Variable to order plots by. Default "p.value"}
+
+\item{pal}{Named vector of colors for the plots. If NULL, uses default colors}
+
+\item{width}{Numeric. Width of individual plots. Default 3}
+
+\item{height}{Numeric. Height of individual plots. Default 3}
+
+\item{flex_direction}{String. CSS flex direction for layout. Default "row"}
+
+\item{flex_wrap}{String. CSS flex wrap for layout. Default "wrap"}
+
+\item{show_info}{Logical. Whether to show test statistics. Default TRUE}
+
+\item{...}{Additional arguments passed to chi-square testing}
+}
+\value{
+An HTML div containing interactive plots arranged in a flexible layout
+}
 \description{
-MISSING_TITLE
+Generates interactive stacked percentage plots for each group in chi-square analysis,
+ordered by statistical significance and annotated with test statistics.
 }

@@ -2,19 +2,37 @@
 % Please edit documentation in R/summaries.R
 \name{format_frequencies}
 \alias{format_frequencies}
-\title{MISSING_TITLE}
+\title{Format frequency distributions with optional styling}
 \usage{
 format_frequencies(
   x,
   N = length(x),
   output = "print",
   digits = 1,
-  str_width = NightowlOptions$get_header_width(),
-  add_legend = FALSE,
+  str_width = get_nightowl_options()$get_header_width(),
   add_colors = T,
-  colors = NightowlOptions$get_colors
+  colors = get_nightowl_options()$get_colors
 )
 }
+\arguments{
+\item{x}{A vector to calculate frequencies for}
+
+\item{N}{Integer. Total count for percentage calculation. Default is length(x)}
+
+\item{output}{String. Output format: "print", "counts", or "percent". Default "print"}
+
+\item{digits}{Integer. Decimal places for percentages. Default 1}
+
+\item{str_width}{Integer. Maximum width for text wrapping}
+
+\item{add_colors}{Logical. Whether to add color styling. Default TRUE}
+
+\item{colors}{Function. Color palette function for styling}
+}
+\value{
+A tibble with formatted frequency information
+}
 \description{
-MISSING_TITLE
+Formats frequency distributions as counts, percentages, or styled HTML output
+with optional color coding for visualization.
 }

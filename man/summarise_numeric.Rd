@@ -2,7 +2,7 @@
 % Please edit documentation in R/summaries.R
 \name{summarise_numeric}
 \alias{summarise_numeric}
-\title{MISSING_TITLE}
+\title{Configure calculations for numeric variable summaries}
 \usage{
 summarise_numeric(
   data,
@@ -17,6 +17,21 @@ summarise_numeric(
   unnest = TRUE
 )
 }
+\arguments{
+\item{data}{A data frame containing the numeric variable}
+
+\item{column}{String. The name of the numeric column to summarize}
+
+\item{calculations}{Named list of statistical functions to apply}
+
+\item{parameters}{Named list of parameters for each calculation function}
+
+\item{unnest}{Logical. Whether to unnest nested results. Default TRUE}
+}
+\value{
+A list containing calculations and parameters for numeric summaries
+}
 \description{
-MISSING_TITLE
+Provides default calculations for summarizing numeric variables including
+counts, missing values, outliers, and descriptive statistics.
 }

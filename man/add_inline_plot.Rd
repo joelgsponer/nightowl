@@ -2,7 +2,7 @@
 % Please edit documentation in R/inline_plots.R
 \name{add_inline_plot}
 \alias{add_inline_plot}
-\title{MISSING_TITLE}
+\title{Create flexible inline plots with customizable styling}
 \usage{
 add_inline_plot(
   x,
@@ -20,12 +20,55 @@ add_inline_plot(
   hide_legend = T,
   hide_x_axis = T,
   hide_y_axis = T,
-  fill = picasso::roche_colors("lightblue"),
+  fill = nightowl::nightowl_colors("lightblue"),
   expansion_y = 0,
   add_download_button = FALSE,
   ...
 )
 }
+\arguments{
+\item{x}{Numeric vector or data frame. Data for plotting}
+
+\item{y}{Numeric vector. Y values if x is a vector. Default NULL}
+
+\item{mapping}{Named list. Aesthetic mappings. Default list(x = "x", y = "y")}
+
+\item{style}{String. Predefined style name to load. Default NULL}
+
+\item{xlim}{Numeric vector. X-axis limits. Default NULL}
+
+\item{ylim}{Numeric vector. Y-axis limits. Default NULL}
+
+\item{height}{Numeric. Plot height. Default 0.8}
+
+\item{width}{Numeric. Plot width. Default 8}
+
+\item{scaling}{Numeric. SVG scaling factor. Default 1}
+
+\item{theme}{ggplot2 theme function. Default ggplot2::theme_void}
+
+\item{coord_flip}{Logical. Whether to flip coordinates. Default FALSE}
+
+\item{hide_title}{Logical. Whether to hide plot title. Default TRUE}
+
+\item{hide_legend}{Logical. Whether to hide legend. Default TRUE}
+
+\item{hide_x_axis}{Logical. Whether to hide x-axis. Default TRUE}
+
+\item{hide_y_axis}{Logical. Whether to hide y-axis. Default TRUE}
+
+\item{fill}{String. Fill color for plot elements}
+
+\item{expansion_y}{Numeric. Y-axis expansion factor. Default 0}
+
+\item{add_download_button}{Logical. Whether to add download functionality. Default FALSE}
+
+\item{...}{Additional arguments passed to plot styling}
+}
+\value{
+A NightowlPlots object containing the customized inline plot
+}
 \description{
-MISSING_TITLE
+Creates versatile inline plots that can adapt to different data types and styling
+configurations, supporting both data frames and vectors with extensive customization.
 }

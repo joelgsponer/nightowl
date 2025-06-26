@@ -1,3 +1,4 @@
+/tree
 # History files
 .Rhistory
 .Rapp.history
@@ -37,3 +38,6 @@ vignettes/*.pdf
 
 # R Environment Variables
 .Renviron
+
+# Claude Code settings
+.claude/

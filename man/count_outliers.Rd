@@ -2,10 +2,18 @@
 % Please edit documentation in R/data.R
 \name{count_outliers}
 \alias{count_outliers}
-\title{MISSING_TITLE}
+\title{Count Outliers in Numeric Vector}
 \usage{
 count_outliers(x, fold = 15)
 }
+\arguments{
+\item{x}{Numeric vector to check for outliers}
+
+\item{fold}{Numeric value for outlier detection threshold (default: 15). Values above fold * upper whisker or below (1/fold) * lower whisker are counted as outliers}
+}
+\value{
+Integer count of outliers found in the vector
+}
 \description{
-MISSING_TITLE
+Counts the number of outliers in a numeric vector using boxplot statistics and a fold threshold
 }

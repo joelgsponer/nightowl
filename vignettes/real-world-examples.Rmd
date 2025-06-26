@@ -1,0 +1,1013 @@
+---
+title: "Real-World Examples and Integration"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Real-World Examples and Integration}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.width = 8,
+  fig.height = 6,
+  out.width = "100%",
+  warning = FALSE,
+  message = FALSE
+)
+```
+
+## Introduction
+
+This vignette demonstrates real-world applications of nightowl through complete analysis workflows. We'll explore clinical research scenarios, integration with the tidyverse ecosystem, and practical solutions to common data analysis challenges.
+
+```{r setup}
+library(nightowl)
+library(dplyr)
+library(ggplot2)
+library(survival)
+library(tidyr)
+library(purrr)
+library(stringr)
+```
+
+## Clinical Trial Analysis Workflow
+
+### Complete Phase II Oncology Trial Analysis
+
+Let's analyze a simulated Phase II clinical trial for a new cancer treatment:
+
+```{r clinical-trial-setup}
+# Simulate realistic clinical trial data
+set.seed(123)
+n_patients <- 180
+
+clinical_trial <- tibble(
+  patient_id = paste0("PT", str_pad(1:n_patients, 4, pad = "0")),
+  age = round(rnorm(n_patients, mean = 62, sd = 12)),
+  sex = sample(c("Male", "Female"), n_patients, replace = TRUE, prob = c(0.55, 0.45)),
+  
+  # Stratification factors
+  ecog_status = sample(0:2, n_patients, replace = TRUE, prob = c(0.4, 0.45, 0.15)),
+  tumor_stage = sample(c("IIIA", "IIIB", "IV"), n_patients, replace = TRUE, prob = c(0.25, 0.35, 0.4)),
+  prior_therapy = sample(c("Yes", "No"), n_patients, replace = TRUE, prob = c(0.7, 0.3)),
+  
+  # Treatment assignment (1:1 randomization)
+  treatment_arm = rep(c("Control", "Experimental"), each = n_patients/2),
+  
+  # Biomarker status
+  pdl1_positive = sample(c("Positive", "Negative"), n_patients, replace = TRUE, prob = c(0.35, 0.65)),
+  
+  # Outcomes
+  # Response rates influenced by treatment and biomarker status
+  response_prob = case_when(
+    treatment_arm == "Control" & pdl1_positive == "Positive" ~ 0.25,
+    treatment_arm == "Control" & pdl1_positive == "Negative" ~ 0.15,
+    treatment_arm == "Experimental" & pdl1_positive == "Positive" ~ 0.45,
+    treatment_arm == "Experimental" & pdl1_positive == "Negative" ~ 0.25,
+    TRUE ~ 0.2
+  ),
+  
+  best_response = map_chr(response_prob, ~sample(
+    c("Complete Response", "Partial Response", "Stable Disease", "Progressive Disease"),
+    1, prob = c(.x * 0.1, .x * 0.9, (1-.x) * 0.4, (1-.x) * 0.6)
+  )),
+  
+  # Survival times (influenced by response and treatment)
+  survival_time = case_when(
+    best_response == "Complete Response" ~ rweibull(n(), shape = 1.2, scale = 24),
+    best_response == "Partial Response" ~ rweibull(n(), shape = 1.1, scale = 18),
+    best_response == "Stable Disease" ~ rweibull(n(), shape = 1.0, scale = 12),
+    best_response == "Progressive Disease" ~ rweibull(n(), shape = 0.9, scale = 8),
+    TRUE ~ rweibull(n(), shape = 1.0, scale = 10)
+  ),
+  
+  death_event = rbinom(n_patients, 1, 0.75),
+  
+  # Progression-free survival
+  pfs_time = survival_time * runif(n_patients, 0.6, 0.9),
+  progression_event = rbinom(n_patients, 1, 0.85),
+  
+  # Safety data
+  grade_3_4_toxicity = rbinom(n_patients, 1, ifelse(treatment_arm == "Experimental", 0.35, 0.20))
+) %>%
+  mutate(
+    age_group = case_when(
+      age < 55 ~ "< 55",
+      age >= 55 & age < 70 ~ "55-70", 
+      age >= 70 ~ "≥ 70"
+    ),
+    objective_response = best_response %in% c("Complete Response", "Partial Response")
+  )
+
+print(paste("Clinical trial dataset:", nrow(clinical_trial), "patients"))
+head(clinical_trial)
+```
+
+### Primary Endpoint: Objective Response Rate
+
+```{r primary-endpoint}
+# Primary efficacy analysis
+primary_analysis <- clinical_trial %>%
+  group_by(treatment_arm, pdl1_positive) %>%
+  summarise(
+    n = n(),
+    responses = sum(objective_response),
+    response_rate = mean(objective_response),
+    ci_lower = binom.test(responses, n)$conf.int[1],
+    ci_upper = binom.test(responses, n)$conf.int[2],
+    .groups = "drop"
+  )
+
+# Forest plot of response rates
+response_forest <- primary_analysis %>%
+  forestplot(
+    estimate = response_rate,
+    lower = ci_lower,
+    upper = ci_upper,
+    study_labels = paste(treatment_arm, "-", pdl1_positive),
+    height = 0.6
+  ) +
+  geom_vline(xintercept = 0.2, linetype = "dashed", color = "red", alpha = 0.7) +
+  labs(
+    title = "Objective Response Rate by Treatment and PD-L1 Status",
+    subtitle = "95% Confidence Intervals",
+    x = "Response Rate",
+    caption = "Dashed line represents historical control rate (20%)"
+  ) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(size = 14, face = "bold"),
+    axis.text.y = element_text(size = 11)
+  )
+
+response_forest
+```
+
+### Secondary Endpoint: Survival Analysis
+
+```{r survival-analysis}
+# Overall survival analysis
+os_fit <- survival::survfit(
+  Surv(survival_time, death_event) ~ treatment_arm + pdl1_positive,
+  data = clinical_trial
+)
+
+# Kaplan-Meier plot
+km_plot <- plot_grouped_km(
+  clinical_trial,
+  time = "survival_time",
+  event = "death_event",
+  treatment = "treatment_arm",
+  stratify_by = "pdl1_positive",
+  show_risk_table = TRUE,
+  show_pvalue = TRUE
+) +
+  labs(
+    title = "Overall Survival by Treatment and PD-L1 Status",
+    subtitle = "Kaplan-Meier Curves with Risk Tables",
+    x = "Time (months)",
+    y = "Survival Probability"
+  ) +
+  theme_minimal()
+
+km_plot
+
+# Progression-free survival
+pfs_summary <- clinical_trial %>%
+  group_by(treatment_arm) %>%
+  summarise(
+    median_pfs = median(pfs_time[progression_event == 1]),
+    n_events = sum(progression_event),
+    n_total = n(),
+    .groups = "drop"
+  )
+
+print("Progression-Free Survival Summary:")
+print(pfs_summary)
+```
+
+### Safety Analysis
+
+```{r safety-analysis}
+# Comprehensive safety analysis
+safety_summary <- clinical_trial %>%
+  group_by(treatment_arm) %>%
+  summarise(
+    n = n(),
+    grade_3_4_rate = mean(grade_3_4_toxicity),
+    grade_3_4_count = sum(grade_3_4_toxicity),
+    .groups = "drop"
+  ) %>%
+  mutate(
+    ci_lower = map2_dbl(grade_3_4_count, n, ~binom.test(.x, .y)$conf.int[1]),
+    ci_upper = map2_dbl(grade_3_4_count, n, ~binom.test(.x, .y)$conf.int[2])
+  )
+
+# Safety forest plot
+safety_forest <- safety_summary %>%
+  forestplot(
+    estimate = grade_3_4_rate,
+    lower = ci_lower,
+    upper = ci_upper,
+    study_labels = treatment_arm,
+    height = 0.5
+  ) +
+  labs(
+    title = "Grade 3-4 Toxicity Rate by Treatment Arm",
+    subtitle = "95% Confidence Intervals",
+    x = "Toxicity Rate"
+  ) +
+  theme_minimal()
+
+safety_forest
+
+# Interactive safety table
+safety_table <- render_reactable(
+  safety_summary %>%
+    select(treatment_arm, n, grade_3_4_count, grade_3_4_rate, ci_lower, ci_upper) %>%
+    mutate(
+      grade_3_4_rate = round(grade_3_4_rate * 100, 1),
+      ci_lower = round(ci_lower * 100, 1),
+      ci_upper = round(ci_upper * 100, 1),
+      ci_display = paste0("(", ci_lower, "%, ", ci_upper, "%)")
+    ),
+  columns = list(
+    treatment_arm = colDef(name = "Treatment Arm"),
+    n = colDef(name = "N"),
+    grade_3_4_count = colDef(name = "Grade 3-4 Events"),
+    grade_3_4_rate = colDef(name = "Rate (%)", format = colFormat(suffix = "%")),
+    ci_display = colDef(name = "95% CI")
+  )
+)
+
+safety_table
+```
+
+## Biomarker Analysis Integration
+
+### Predictive Biomarker Analysis
+
+```{r biomarker-analysis}
+# Biomarker-treatment interaction analysis
+biomarker_interaction <- clinical_trial %>%
+  group_by(treatment_arm, pdl1_positive) %>%
+  summarise(
+    n = n(),
+    response_rate = mean(objective_response),
+    median_os = median(survival_time[death_event == 1]),
+    .groups = "drop"
+  ) %>%
+  pivot_wider(
+    names_from = treatment_arm,
+    values_from = c(response_rate, median_os, n),
+    names_sep = "_"
+  ) %>%
+  mutate(
+    response_diff = response_rate_Experimental - response_rate_Control,
+    os_diff = median_os_Experimental - median_os_Control,
+    response_ratio = response_rate_Experimental / response_rate_Control
+  )
+
+print("Biomarker Interaction Analysis:")
+print(biomarker_interaction)
+
+# Visualize biomarker interaction
+interaction_plot <- clinical_trial %>%
+  group_by(treatment_arm, pdl1_positive) %>%
+  summarise(
+    response_rate = mean(objective_response),
+    ci_lower = binom.test(sum(objective_response), n())$conf.int[1],
+    ci_upper = binom.test(sum(objective_response), n())$conf.int[2],
+    .groups = "drop"
+  ) %>%
+  plot(
+    mapping = list(
+      x = "pdl1_positive",
+      y = "response_rate",
+      color = "treatment_arm",
+      ymin = "ci_lower",
+      ymax = "ci_upper"
+    ),
+    layers = list(
+      list(type = "pointrange", size = 1.2, position = position_dodge(0.3)),
+      list(type = "line", aes(group = "treatment_arm"), position = position_dodge(0.3))
+    )
+  ) +
+  labs(
+    title = "Treatment Effect by PD-L1 Status",
+    subtitle = "Objective Response Rate with 95% CI",
+    x = "PD-L1 Status",
+    y = "Response Rate",
+    color = "Treatment Arm"
+  ) +
+  theme_minimal() +
+  scale_y_continuous(labels = scales::percent)
+
+interaction_plot
+```
+
+## Tidyverse Integration Examples
+
+### Complex Data Manipulation with nightowl
+
+```{r tidyverse-integration}
+# Complex analysis pipeline combining tidyverse and nightowl
+comprehensive_analysis <- clinical_trial %>%
+  # Data preparation
+  mutate(
+    age_decade = floor(age / 10) * 10,
+    high_risk = tumor_stage == "IV" | ecog_status >= 2
+  ) %>%
+  
+  # Nested analysis by subgroups
+  group_by(treatment_arm) %>%
+  nest() %>%
+  mutate(
+    # Create summary for each treatment arm
+    summary_stats = map(data, function(df) {
+      Summary$new(
+        data = df,
+        x = "survival_time",
+        by = "pdl1_positive",
+        method = summarise_numeric_pointrange
+      )$raw()
+    }),
+    
+    # Create plots for each treatment arm
+    survival_plots = map2(data, treatment_arm, function(df, arm) {
+      plot(
+        data = df,
+        mapping = list(x = "age", y = "survival_time", color = "best_response"),
+        layers = list(
+          list(type = "scatter", alpha = 0.7),
+          list(type = "smooth", method = "lm", se = TRUE)
+        )
+      ) +
+        labs(title = paste("Survival vs Age -", arm)) +
+        theme_minimal()
+    })
+  )
+
+# Display summary statistics
+comprehensive_analysis %>%
+  select(treatment_arm, summary_stats) %>%
+  unnest(summary_stats) %>%
+  render_reactable()
+
+# Display one of the plots
+comprehensive_analysis$survival_plots[[1]]
+```
+
+### Advanced Data Reshaping and Visualization
+
+```{r advanced-reshaping}
+# Time-to-event analysis across multiple endpoints
+multiple_endpoints <- clinical_trial %>%
+  select(patient_id, treatment_arm, pdl1_positive, survival_time, pfs_time, death_event, progression_event) %>%
+  
+  # Reshape to long format for multiple endpoints
+  pivot_longer(
+    cols = c(survival_time, pfs_time),
+    names_to = "endpoint",
+    values_to = "time"
+  ) %>%
+  mutate(
+    event = case_when(
+      endpoint == "survival_time" ~ death_event,
+      endpoint == "pfs_time" ~ progression_event,
+      TRUE ~ 0
+    ),
+    endpoint_label = case_when(
+      endpoint == "survival_time" ~ "Overall Survival",
+      endpoint == "pfs_time" ~ "Progression-Free Survival",
+      TRUE ~ endpoint
+    )
+  )
+
+# Multi-endpoint survival analysis
+multi_endpoint_summary <- multiple_endpoints %>%
+  group_by(treatment_arm, endpoint_label, pdl1_positive) %>%
+  summarise(
+    n = n(),
+    events = sum(event),
+    median_time = median(time[event == 1]),
+    .groups = "drop"
+  )
+
+# Visualize multiple endpoints
+endpoint_comparison <- multi_endpoint_summary %>%
+  filter(!is.na(median_time)) %>%
+  plot(
+    mapping = list(
+      x = "endpoint_label",
+      y = "median_time",
+      fill = "treatment_arm"
+    ),
+    layers = list(
+      list(type = "col", position = "dodge", alpha = 0.8)
+    )
+  ) +
+  facet_wrap(~pdl1_positive) +
+  labs(
+    title = "Median Time-to-Event by Endpoint and PD-L1 Status",
+    x = "Endpoint",
+    y = "Median Time (months)",
+    fill = "Treatment Arm"
+  ) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+endpoint_comparison
+```
+
+## Integration with Other Packages
+
+### Enhanced Statistical Testing
+
+```{r enhanced-testing}
+# Integration with broom for tidy statistical outputs
+library(broom)
+
+# Multiple regression analysis
+regression_results <- clinical_trial %>%
+  # Prepare variables
+  mutate(
+    treatment_numeric = as.numeric(treatment_arm == "Experimental"),
+    pdl1_numeric = as.numeric(pdl1_positive == "Positive")
+  ) %>%
+  
+  # Fit multiple models
+  {
+    list(
+      response_model = glm(
+        objective_response ~ treatment_numeric * pdl1_numeric + age + ecog_status,
+        data = ., family = "binomial"
+      ),
+      
+      survival_model = coxph(
+        Surv(survival_time, death_event) ~ treatment_numeric * pdl1_numeric + age + ecog_status,
+        data = .
+      )
+    )
+  }
+
+# Tidy model outputs
+response_coefs <- tidy(regression_results$response_model, conf.int = TRUE, exponentiate = TRUE)
+survival_coefs <- tidy(regression_results$survival_model, conf.int = TRUE, exponentiate = TRUE)
+
+# Forest plot of regression results
+model_forest <- bind_rows(
+  response_coefs %>% mutate(model = "Response Model", outcome = "Odds Ratio"),
+  survival_coefs %>% mutate(model = "Survival Model", outcome = "Hazard Ratio")
+) %>%
+  filter(term != "(Intercept)") %>%
+  forestplot(
+    estimate = estimate,
+    lower = conf.low,
+    upper = conf.high,
+    study_labels = paste(model, "-", term),
+    height = 0.5
+  ) +
+  geom_vline(xintercept = 1, linetype = "dashed", color = "red") +
+  facet_wrap(~outcome, scales = "free") +
+  labs(
+    title = "Multivariable Regression Results",
+    subtitle = "Odds Ratios and Hazard Ratios with 95% CI",
+    x = "Effect Size"
+  ) +
+  theme_minimal()
+
+model_forest
+```
+
+### Publication-Ready Tables
+
+```{r publication-tables}
+# Create publication-ready baseline characteristics table
+baseline_table <- clinical_trial %>%
+  select(treatment_arm, age, sex, ecog_status, tumor_stage, prior_therapy, pdl1_positive) %>%
+  
+  # Calculate summary statistics by treatment arm
+  group_by(treatment_arm) %>%
+  summarise(
+    n = n(),
+    
+    # Age statistics
+    age_mean = mean(age),
+    age_sd = sd(age),
+    age_median = median(age),
+    age_q1 = quantile(age, 0.25),
+    age_q3 = quantile(age, 0.75),
+    
+    # Categorical variables
+    male_n = sum(sex == "Male"),
+    male_pct = mean(sex == "Male") * 100,
+    
+    ecog_0_n = sum(ecog_status == 0),
+    ecog_0_pct = mean(ecog_status == 0) * 100,
+    ecog_1_n = sum(ecog_status == 1),
+    ecog_1_pct = mean(ecog_status == 1) * 100,
+    ecog_2_n = sum(ecog_status == 2),
+    ecog_2_pct = mean(ecog_status == 2) * 100,
+    
+    stage_iv_n = sum(tumor_stage == "IV"),
+    stage_iv_pct = mean(tumor_stage == "IV") * 100,
+    
+    prior_therapy_n = sum(prior_therapy == "Yes"),
+    prior_therapy_pct = mean(prior_therapy == "Yes") * 100,
+    
+    pdl1_pos_n = sum(pdl1_positive == "Positive"),
+    pdl1_pos_pct = mean(pdl1_positive == "Positive") * 100,
+    
+    .groups = "drop"
+  ) %>%
+  
+  # Format for presentation
+  mutate(
+    age_summary = paste0(round(age_mean, 1), " (", round(age_sd, 1), ")"),
+    age_median_iqr = paste0(age_median, " (", age_q1, "-", age_q3, ")"),
+    male_summary = paste0(male_n, " (", round(male_pct, 1), "%)"),
+    ecog_0_summary = paste0(ecog_0_n, " (", round(ecog_0_pct, 1), "%)"),
+    ecog_1_summary = paste0(ecog_1_n, " (", round(ecog_1_pct, 1), "%)"),
+    ecog_2_summary = paste0(ecog_2_n, " (", round(ecog_2_pct, 1), "%)"),
+    stage_iv_summary = paste0(stage_iv_n, " (", round(stage_iv_pct, 1), "%)"),
+    prior_therapy_summary = paste0(prior_therapy_n, " (", round(prior_therapy_pct, 1), "%)"),
+    pdl1_pos_summary = paste0(pdl1_pos_n, " (", round(pdl1_pos_pct, 1), "%)")
+  )
+
+# Display formatted baseline table
+baseline_display <- baseline_table %>%
+  select(
+    treatment_arm, n, age_summary, age_median_iqr, male_summary,
+    ecog_0_summary, ecog_1_summary, ecog_2_summary,
+    stage_iv_summary, prior_therapy_summary, pdl1_pos_summary
+  ) %>%
+  pivot_longer(
+    cols = -treatment_arm,
+    names_to = "characteristic",
+    values_to = "value"
+  ) %>%
+  pivot_wider(
+    names_from = treatment_arm,
+    values_from = value
+  ) %>%
+  mutate(
+    characteristic = case_when(
+      characteristic == "n" ~ "N",
+      characteristic == "age_summary" ~ "Age, mean (SD)",
+      characteristic == "age_median_iqr" ~ "Age, median (IQR)",
+      characteristic == "male_summary" ~ "Male sex, n (%)",
+      characteristic == "ecog_0_summary" ~ "ECOG PS 0, n (%)",
+      characteristic == "ecog_1_summary" ~ "ECOG PS 1, n (%)",
+      characteristic == "ecog_2_summary" ~ "ECOG PS 2, n (%)",
+      characteristic == "stage_iv_summary" ~ "Stage IV disease, n (%)",
+      characteristic == "prior_therapy_summary" ~ "Prior therapy, n (%)",
+      characteristic == "pdl1_pos_summary" ~ "PD-L1 positive, n (%)",
+      TRUE ~ characteristic
+    )
+  )
+
+render_reactable(
+  baseline_display,
+  columns = list(
+    characteristic = colDef(name = "Characteristic", minWidth = 200),
+    Control = colDef(name = "Control (N=90)", align = "center"),
+    Experimental = colDef(name = "Experimental (N=90)", align = "center")
+  ),
+  defaultPageSize = 12
+)
+```
+
+## Real-World Data Analysis Patterns
+
+### Longitudinal Data Analysis
+
+```{r longitudinal-analysis}
+# Simulate longitudinal biomarker data
+longitudinal_data <- clinical_trial %>%
+  select(patient_id, treatment_arm, pdl1_positive, best_response) %>%
+  # Create multiple timepoints
+  crossing(
+    timepoint = c("Baseline", "Cycle 2", "Cycle 4", "Cycle 6", "End of Treatment")
+  ) %>%
+  mutate(
+    time_numeric = case_when(
+      timepoint == "Baseline" ~ 0,
+      timepoint == "Cycle 2" ~ 6,
+      timepoint == "Cycle 4" ~ 12,
+      timepoint == "Cycle 6" ~ 18,
+      timepoint == "End of Treatment" ~ 24
+    ),
+    
+    # Simulate biomarker values with response-dependent trajectories
+    biomarker_value = case_when(
+      timepoint == "Baseline" ~ rnorm(n(), 100, 20),
+      best_response %in% c("Complete Response", "Partial Response") ~ 
+        100 - (time_numeric * 2) + rnorm(n(), 0, 15),
+      best_response == "Stable Disease" ~ 
+        100 - (time_numeric * 0.5) + rnorm(n(), 0, 12),
+      TRUE ~ 100 + (time_numeric * 1) + rnorm(n(), 0, 18)
+    )
+  ) %>%
+  filter(!is.na(biomarker_value))
+
+# Longitudinal visualization
+longitudinal_plot <- longitudinal_data %>%
+  plot(
+    mapping = list(
+      x = "time_numeric",
+      y = "biomarker_value",
+      color = "best_response",
+      group = "patient_id"
+    ),
+    layers = list(
+      list(type = "line", alpha = 0.3, size = 0.5),
+      list(type = "generic", geom = "ggplot2::stat_summary",
+           fun = "mean", geom = "line", size = 2, alpha = 0.8),
+      list(type = "generic", geom = "ggplot2::stat_summary",
+           fun.data = "mean_se", geom = "ribbon", alpha = 0.2)
+    )
+  ) +
+  facet_wrap(~treatment_arm) +
+  labs(
+    title = "Biomarker Trajectory by Response and Treatment",
+    subtitle = "Individual patient trajectories with mean ± SE",
+    x = "Time (weeks)",
+    y = "Biomarker Value",
+    color = "Best Response"
+  ) +
+  theme_minimal()
+
+longitudinal_plot
+
+# Summary statistics for longitudinal data
+longitudinal_summary <- longitudinal_data %>%
+  group_by(treatment_arm, timepoint, time_numeric) %>%
+  summarise(
+    n = n(),
+    mean_biomarker = mean(biomarker_value),
+    se_biomarker = sd(biomarker_value) / sqrt(n()),
+    .groups = "drop"
+  )
+
+render_reactable(longitudinal_summary)
+```
+
+### Missing Data Handling
+
+```{r missing-data-handling}
+# Introduce realistic missing data patterns
+clinical_trial_missing <- clinical_trial %>%
+  mutate(
+    # Missing data more likely in advanced disease and experimental arm
+    missing_prob = case_when(
+      tumor_stage == "IV" & treatment_arm == "Experimental" ~ 0.25,
+      tumor_stage == "IV" ~ 0.15,
+      treatment_arm == "Experimental" ~ 0.10,
+      TRUE ~ 0.05
+    ),
+    
+    # Apply missing data
+    survival_time_missing = ifelse(runif(n()) < missing_prob, NA, survival_time),
+    best_response_missing = ifelse(runif(n()) < missing_prob * 0.5, NA, best_response)
+  )
+
+# Analyze missing data patterns
+missing_analysis <- clinical_trial_missing %>%
+  group_by(treatment_arm, tumor_stage) %>%
+  summarise(
+    n = n(),
+    survival_missing = sum(is.na(survival_time_missing)),
+    response_missing = sum(is.na(best_response_missing)),
+    survival_missing_pct = mean(is.na(survival_time_missing)) * 100,
+    response_missing_pct = mean(is.na(best_response_missing)) * 100,
+    .groups = "drop"
+  )
+
+# Visualize missing data patterns
+missing_pattern_plot <- missing_analysis %>%
+  select(treatment_arm, tumor_stage, survival_missing_pct, response_missing_pct) %>%
+  pivot_longer(
+    cols = ends_with("_pct"),
+    names_to = "variable",
+    values_to = "missing_pct"
+  ) %>%
+  mutate(
+    variable = case_when(
+      variable == "survival_missing_pct" ~ "Survival Time",
+      variable == "response_missing_pct" ~ "Response",
+      TRUE ~ variable
+    )
+  ) %>%
+  plot(
+    mapping = list(
+      x = "tumor_stage",
+      y = "missing_pct",
+      fill = "treatment_arm"
+    ),
+    layers = list(
+      list(type = "col", position = "dodge", alpha = 0.8)
+    )
+  ) +
+  facet_wrap(~variable) +
+  labs(
+    title = "Missing Data Patterns by Treatment and Stage",
+    x = "Tumor Stage",
+    y = "Missing Data (%)",
+    fill = "Treatment Arm"
+  ) +
+  theme_minimal()
+
+missing_pattern_plot
+
+# Complete case analysis vs available case analysis
+complete_case_n <- clinical_trial_missing %>%
+  filter(!is.na(survival_time_missing), !is.na(best_response_missing)) %>%
+  nrow()
+
+available_case_n <- clinical_trial_missing %>%
+  filter(!is.na(survival_time_missing) | !is.na(best_response_missing)) %>%
+  nrow()
+
+cat("Complete case analysis N:", complete_case_n, "\n")
+cat("Available case analysis N:", available_case_n, "\n")
+cat("Data loss:", round((1 - complete_case_n/nrow(clinical_trial_missing)) * 100, 1), "%\n")
+```
+
+## Integration with Reporting Workflows
+
+### Automated Report Generation
+
+```{r automated-reporting}
+# Function to generate standardized efficacy summary
+generate_efficacy_summary <- function(data, treatment_var, response_var, time_var, event_var) {
+  
+  # Response rate analysis
+  response_summary <- data %>%
+    group_by(!!sym(treatment_var)) %>%
+    summarise(
+      n = n(),
+      responses = sum(!!sym(response_var), na.rm = TRUE),
+      response_rate = mean(!!sym(response_var), na.rm = TRUE),
+      .groups = "drop"
+    ) %>%
+    mutate(
+      ci_lower = map2_dbl(responses, n, ~binom.test(.x, .y)$conf.int[1]),
+      ci_upper = map2_dbl(responses, n, ~binom.test(.x, .y)$conf.int[2])
+    )
+  
+  # Survival analysis
+  surv_summary <- data %>%
+    group_by(!!sym(treatment_var)) %>%
+    summarise(
+      n = n(),
+      events = sum(!!sym(event_var), na.rm = TRUE),
+      median_time = median(!!sym(time_var)[!!sym(event_var) == 1], na.rm = TRUE),
+      .groups = "drop"
+    )
+  
+  # Combine results
+  combined_summary <- response_summary %>%
+    left_join(surv_summary, by = treatment_var, suffix = c("_response", "_survival"))
+  
+  list(
+    response_summary = response_summary,
+    survival_summary = surv_summary,
+    combined_summary = combined_summary,
+    
+    # Generate plots
+    response_plot = forestplot(
+      response_summary,
+      estimate = response_rate,
+      lower = ci_lower,
+      upper = ci_upper,
+      study_labels = !!sym(treatment_var)
+    ),
+    
+    survival_plot = plot_grouped_km(
+      data,
+      time = time_var,
+      event = event_var,
+      treatment = treatment_var
+    )
+  )
+}
+
+# Generate automated summary
+efficacy_report <- generate_efficacy_summary(
+  data = clinical_trial,
+  treatment_var = "treatment_arm",
+  response_var = "objective_response",
+  time_var = "survival_time",
+  event_var = "death_event"
+)
+
+# Display automated results
+efficacy_report$response_plot +
+  labs(title = "Automated Efficacy Analysis: Response Rates")
+
+print("Automated Combined Summary:")
+print(efficacy_report$combined_summary)
+```
+
+### Integration with R Markdown Workflows
+
+```{r rmarkdown-integration, eval = FALSE}
+# Example of parameterized reporting
+# This would typically be in a separate .Rmd file
+
+# ---
+# title: "Clinical Trial Report"
+# params:
+#   data_file: "clinical_trial.csv"
+#   treatment_var: "treatment_arm"
+#   primary_endpoint: "objective_response"
+# ---
+
+# Function for parameterized analysis
+analyze_trial <- function(data, treatment_var, endpoint) {
+  
+  # Baseline characteristics
+  baseline <- Summary$new(data, "age", treatment_var)$reactable()
+  
+  # Primary analysis
+  if (is.logical(data[[endpoint]])) {
+    # Binary endpoint
+    primary_plot <- data %>%
+      group_by(!!sym(treatment_var)) %>%
+      summarise(
+        rate = mean(!!sym(endpoint), na.rm = TRUE),
+        n = n(),
+        .groups = "drop"
+      ) %>%
+      plot(
+        mapping = list(x = treatment_var, y = "rate"),
+        layers = list(list(type = "col"))
+      )
+  } else {
+    # Continuous endpoint
+    primary_plot <- plot(
+      data,
+      mapping = list(x = treatment_var, y = endpoint),
+      layers = list(list(type = "boxplot"))
+    )
+  }
+  
+  list(
+    baseline = baseline,
+    primary_plot = primary_plot
+  )
+}
+
+# This enables consistent, reproducible reporting across multiple trials
+```
+
+## Best Practices for Production Use
+
+### Error Handling and Validation
+
+```{r production-best-practices}
+# Robust analysis function with comprehensive error handling
+robust_clinical_analysis <- function(data, 
+                                   treatment_col, 
+                                   response_col, 
+                                   time_col, 
+                                   event_col,
+                                   validate_data = TRUE) {
+  
+  # Input validation
+  if (!is.data.frame(data)) {
+    stop("Input must be a data frame")
+  }
+  
+  required_cols <- c(treatment_col, response_col, time_col, event_col)
+  missing_cols <- setdiff(required_cols, names(data))
+  if (length(missing_cols) > 0) {
+    stop("Missing required columns: ", paste(missing_cols, collapse = ", "))
+  }
+  
+  if (validate_data) {
+    # Data validation
+    cat("Performing data validation...\n")
+    
+    # Check for negative survival times
+    if (any(data[[time_col]] <= 0, na.rm = TRUE)) {
+      warning("Non-positive survival times detected")
+    }
+    
+    # Check event coding
+    unique_events <- unique(data[[event_col]][!is.na(data[[event_col]])])
+    if (!all(unique_events %in% c(0, 1))) {
+      warning("Event variable should be coded as 0/1")
+    }
+    
+    # Check for reasonable response rates
+    if (is.logical(data[[response_col]])) {
+      overall_response_rate <- mean(data[[response_col]], na.rm = TRUE)
+      if (overall_response_rate > 0.8 || overall_response_rate < 0.05) {
+        warning("Unusual overall response rate: ", round(overall_response_rate, 3))
+      }
+    }
+    
+    cat("Data validation completed.\n")
+  }
+  
+  # Safe analysis execution
+  tryCatch({
+    
+    # Response analysis
+    response_result <- data %>%
+      group_by(!!sym(treatment_col)) %>%
+      summarise(
+        n = n(),
+        response_rate = mean(!!sym(response_col), na.rm = TRUE),
+        .groups = "drop"
+      )
+    
+    # Survival analysis
+    survival_formula <- as.formula(paste("Surv(", time_col, ",", event_col, ") ~", treatment_col))
+    survival_fit <- survival::survfit(survival_formula, data = data)
+    
+    # Create plots safely
+    response_plot <- tryCatch({
+      forestplot(
+        response_result,
+        estimate = response_rate,
+        lower = response_rate - 0.1,  # Simplified for example
+        upper = response_rate + 0.1,
+        study_labels = !!sym(treatment_col)
+      )
+    }, error = function(e) {
+      warning("Response plot creation failed: ", e$message)
+      NULL
+    })
+    
+    survival_plot <- tryCatch({
+      plot_km(survival_fit)
+    }, error = function(e) {
+      warning("Survival plot creation failed: ", e$message)
+      NULL
+    })
+    
+    list(
+      response_summary = response_result,
+      survival_fit = survival_fit,
+      response_plot = response_plot,
+      survival_plot = survival_plot,
+      success = TRUE
+    )
+    
+  }, error = function(e) {
+    warning("Analysis failed: ", e$message)
+    list(success = FALSE, error = e$message)
+  })
+}
+
+# Example usage with error handling
+analysis_result <- robust_clinical_analysis(
+  data = clinical_trial,
+  treatment_col = "treatment_arm",
+  response_col = "objective_response",
+  time_col = "survival_time",
+  event_col = "death_event"
+)
+
+if (analysis_result$success) {
+  print("Analysis completed successfully")
+  print(analysis_result$response_summary)
+} else {
+  print(paste("Analysis failed:", analysis_result$error))
+}
+```
+
+## Summary
+
+This vignette demonstrated real-world applications of nightowl including:
+
+### Clinical Research Workflows
+- **Complete Phase II trial analysis**: Primary/secondary endpoints, safety analysis
+- **Biomarker integration**: Predictive biomarker analysis and interaction effects
+- **Longitudinal data**: Time-series biomarker trajectories
+- **Missing data handling**: Realistic missing data patterns and analysis strategies
+
+### Integration Patterns
+- **Tidyverse compatibility**: Seamless integration with dplyr, tidyr, purrr
+- **Statistical packages**: Integration with broom, survival, other analysis packages
+- **Publication workflows**: Automated table generation and standardized reporting
+- **Production practices**: Error handling, validation, and robust analysis functions
+
+### Key Benefits
+- **Consistent syntax**: nightowl works naturally with tidyverse workflows
+- **Flexible output**: Easy conversion between plot formats and table types
+- **Production ready**: Built-in validation and error handling capabilities
+- **Reproducible**: Standardized analysis functions for consistent results
+
+For more information:
+- **[Getting Started](getting-started.html)**: Basic nightowl concepts
+- **[Statistical Visualization](statistical-visualization.html)**: Comprehensive plotting guide
+- **[Advanced Features](advanced-features.html)**: R6 classes and customization
+- **[Performance Optimization](performance-optimization.html)**: Large dataset handling
+- **[Troubleshooting](troubleshooting.html)**: Common issues and solutions
