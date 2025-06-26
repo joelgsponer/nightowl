@@ -27,34 +27,15 @@ add_geom <- function(geom,
                      cut_f = ggplot2::cut_interval,
                      cut_args = list(n = 5),
                      ...) {
-  data <- g$data
+  .data <- g$data
   nightowl:::expand_mapping(mapping)
   if (is.numeric(dplyr::pull(g$data, !!g$mapping$x))) {
-    # Safe function lookup - only allow specific cut functions
-    if (is.character(cut_f)) {
-      allowed_cut_functions <- c(
-        "cut_interval" = ggplot2::cut_interval,
-        "cut_number" = ggplot2::cut_number,
-        "cut_width" = ggplot2::cut_width
-      )
-      
-      # Remove any namespace prefix
-      func_name <- sub(".*::", "", cut_f)
-      
-      if (!func_name %in% names(allowed_cut_functions)) {
-        stop(paste("Invalid cut function:", cut_f, 
-                   ". Allowed functions are:", 
-                   paste(names(allowed_cut_functions), collapse = ", ")))
-      }
-      
-      cut_f <- allowed_cut_functions[[func_name]]
-    }
-    nightowl_inform("cutting")
+    if (is.character(cut_f)) cut_f <- eval(parse(text = cut_f))
     .group <- do.call(cut_f, c(
       list(x = g$data[[rlang::as_label(g$mapping$x)]]),
       cut_args
     ))
-    data <- cbind(g$data, .group)
+    .data <- cbind(g$data, .group)
     if (!is.null(g$mapping$fill)) {
       .aes <- ggplot2::aes(group = interaction(!!g$mapping$fill, .group))
     } else {
@@ -64,7 +45,7 @@ add_geom <- function(geom,
     .aes <- do.call(ggplot2::aes, mapping)
   }
   g + geom(
-    data = data,
+    data = .data,
     mapping = .aes,
     position = ggplot2::position_dodge(dodge, preserve = "total"),
     ...
@@ -77,9 +58,12 @@ violin <- function(...) {
   nightowl::add_geom(ggplot2::geom_violin, ...)
 }
 # ===============================================================================
-#' Add Boxplot
+#' @title Add Boxplot Geometry
+#' @description Adds boxplot geometry to nightowl plots with position dodging
+#' @param ... Additional arguments passed to add_geom and geom_boxplot
+#' @return Modified ggplot object with boxplot layer
 #' @export
-boxplot <- function(...) {
+nw_boxplot <- function(...) {
   nightowl::add_geom(ggplot2::geom_boxplot, ...)
 }
 # ===============================================================================
@@ -96,16 +80,30 @@ dotplot <- function(binaxis = "y",
   )
 }
 # ===============================================================================
-#' Add points
+#' @title Add Points Geometry
+#' @description Adds point geometry to nightowl plots with custom aesthetic mapping
+#' @param g ggplot object to add points to
+#' @param mapping Aesthetic mapping list for points
+#' @param ... Additional arguments passed to geom_point
+#' @return Modified ggplot object with points layer
 #' @export
-points <- function(g, mapping = list(), ...) {
+nw_points <- function(g, mapping = list(), ...) {
   .aes <- do.call(ggplot2::aes, mapping)
   g + ggplot2::geom_point(mapping = .aes, ...)
 }
 # ===============================================================================
-#' Add summary
+#' @title Add Summary Statistics Layer
+#' @description Adds statistical summary layer to nightowl plots with customizable functions
+#' @param g ggplot object to add summary to
+#' @param mapping Aesthetic mapping list for summary statistics
+#' @param fun.data Function for computing summary data
+#' @param fun Function for computing single summary statistic
+#' @param dodge Position dodge width
+#' @param shape Point shape for summary statistics
+#' @param ... Additional arguments passed to stat_summary
+#' @return Modified ggplot object with summary statistics layer
 #' @export
-summary <- function(g,
+nw_summary <- function(g,
                     mapping = list(),
                     fun.data = NULL,
                     fun = NULL,
@@ -133,9 +131,17 @@ summary <- function(g,
   g + .f(mapping = .aes, position = ggplot2::position_dodge(dodge, preserve = "total"), shape = shape, fun = fun, fun.data = fun.data, ...)
 }
 # ===============================================================================
-#' Add smooth
+#' @title Add Smooth Trend Line
+#' @description Adds smooth trend line to nightowl plots with customizable methods
+#' @param g ggplot object to add smooth line to
+#' @param mapping Aesthetic mapping list for smooth line
+#' @param dodge Position dodge width
+#' @param method Smoothing method (default: "lm")
+#' @param color Line color
+#' @param ... Additional arguments passed to geom_smooth
+#' @return Modified ggplot object with smooth trend line
 #' @export
-smooth <- function(g,
+nw_smooth <- function(g,
                    mapping = list(),
                    dodge = 0,
                    method = "lm",
@@ -224,9 +230,19 @@ traces <- function(g,
   )
 }
 # ===============================================================================
-#' Apply axis
+#' @title Apply Axis Transformations
+#' @description Applies axis transformations including log scaling and limits to nightowl plots
+#' @param g ggplot object to modify axes for
+#' @param log_x Logical indicating whether to apply log10 transformation to x-axis
+#' @param log_y Logical indicating whether to apply log10 transformation to y-axis
+#' @param xlim Numeric vector of x-axis limits
+#' @param ylim Numeric vector of y-axis limits
+#' @param units_x Units label for x-axis
+#' @param units_y Units label for y-axis
+#' @param ... Additional arguments
+#' @return Modified ggplot object with axis transformations
 #' @export
-axis <- function(g,
+nw_axis <- function(g,
                  log_x = F,
                  log_y = F,
                  xlim = NULL,
@@ -365,14 +381,20 @@ aes <- function(aes) {
   rlang::exec(.fn = "f", !!!aes)
 }
 # ===============================================================================
-#' Define colors
+#' @title Define Color Scales
+#' @description Defines color and fill scales for nightowl plots with automatic legend handling
+#' @param g ggplot object to apply color scales to
+#' @param DATA Data frame containing the variables
+#' @param mapping Aesthetic mapping list containing color/fill variables
+#' @param ... Additional arguments
+#' @return Modified ggplot object with color scales applied
 #' @export
-colors <- function(g, DATA, mapping, ...) {
+nw_colors <- function(g, DATA, mapping, ...) {
   fill <- mapping$fill
   color <- mapping$color
   if (!is.null(fill) && is.factor(DATA[[fill]])) {
     if (length(unique(DATA[[fill]])) <= 10) {
-      g <- g + ggplot2::discrete_scale("fill", "roche", nightowl::nightowl_palette_discrete(1))
+      g <- g + ggplot2::discrete_scale("fill", "roche", picasso::roche_palette_discrete(1))
       g <- g + ggplot2::guides(fill = ggplot2::guide_legend(nrow = 2))
     } else {
       g <- g + ggplot2::guides(fill = "none")
@@ -384,9 +406,9 @@ colors <- function(g, DATA, mapping, ...) {
   }
   if (!is.null(color) && is.factor(DATA[[color]])) {
     if (length(unique(DATA[[color]])) <= 10) {
-      g <- g + ggplot2::discrete_scale("color", "roche", nightowl::nightowl_palette_discrete(1))
+      g <- g + ggplot2::discrete_scale("color", "roche", picasso::roche_palette_discrete(1))
       g <- g + ggplot2::guides(colour = ggplot2::guide_legend(nrow = 2, override.aes = list(
-        size = 2, color = nightowl::nightowl_palette_discrete()(length(unique(DATA[[color]])))
+        size = 2, color = picasso::roche_palette_discrete()(length(unique(DATA[[color]])))
       )))
     } else {
       g <- g + ggplot2::guides(color = "none")
@@ -413,8 +435,8 @@ theme <- function(g, theme = "ggplot2::theme_bw", ...) {
   }
   # Add other elements to theme
   args <- list(...)
-  elements <- purrr::imap(args, function(.x, .y){
-    if(is.character(.x$element)){
+  elements <- purrr::imap(args, function(.x, .y) {
+    if (is.character(.x$element)) {
       .x$element <- nightowl_getfun(.x$element)
     }
     params <- .x[nightowl_pop(names(.x), "element")]

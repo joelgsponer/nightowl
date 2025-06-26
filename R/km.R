@@ -1,8 +1,6 @@
 # =================================================
-#' @title Plot Grouped Kaplan-Meier Curves
-#' @description Creates multiple Kaplan-Meier survival curves grouped by a splitting variable
-#' @param data Data frame containing the survival data
-#' @return HTML object with arranged Kaplan-Meier plots that can be viewed in a browser
+#' @title
+#' MISSING_TITLE
 #' @export
 plot_grouped_km <- function(data,
                             time,
@@ -28,11 +26,11 @@ plot_grouped_km <- function(data,
                             ...) {
   .formula <- nightowl::create_Surv_formula(data = data, time = time, event = event, treatment = treatment, covariates = covariates)
   res <- data %>%
-    nightowl_named_group_split_at(data, split) %>%
-    purrr::imap(function(data, .split) {
-      nightowl_progress_step(.split)
-      data <- droplevels(data)
-      nightowl::plot_km(data,
+    waRRior::named_group_split_at(split) %>%
+    purrr::imap(function(.data, .split) {
+      cli::cli_progress_step(.split)
+      .data <- droplevels(.data)
+      nightowl::plot_km(.data,
         time,
         event = event,
         title = title(),
@@ -69,10 +67,8 @@ plot_grouped_km <- function(data,
 }
 
 # =================================================
-#' @title Plot Kaplan-Meier Survival Curve
-#' @description Creates an interactive Kaplan-Meier survival curve with risk table and statistical tests
-#' @param data Data frame containing the survival data
-#' @return HTML object with interactive Kaplan-Meier plot or ggplot object if as_ggplot = TRUE
+#' @title
+#' MISSING_TITLE
 #' @export
 plot_km <- function(data,
                     time,
@@ -91,14 +87,15 @@ plot_km <- function(data,
                     wrap = NULL,
                     legend_position = "top",
                     height = 600,
+                    table_height_fraction = 0.2,
                     width = "100%",
-                    colors = unname(unlist(nightowl::nightowl_colors())),
+                    colors = unname(unlist(picasso::roche_colors())),
                     lowrider_theme = "print",
                     as_ggplot = FALSE,
                     note = NULL,
                     break_width = (max(data[[time]], na.rm = T) / 20)) {
   .formula <- nightowl::create_Surv_formula(data = data, time = time, event = event, treatment = treatment, covariates = covariates)
-  fit <- nightowl::fit_km(data, time, event, treatment, covariates)
+  fit <- nightowl::fit_km(data = data, time = time, event = event, treatment = treatment, covariates = covariates)
   fit <- nightowl::km_add_0(fit)
 
   .p <- ggplot2::ggplot(
@@ -136,8 +133,8 @@ plot_km <- function(data,
 
   if (add_median) {
     .median <- base::summary(survival::survfit(.formula, data))$table %>%
-      as.data.frame()
-
+      tibble::as_tibble() %>%
+      dplyr::arrange(median)
 
     .p <- .p + ggplot2::geom_vline(
       xintercept = .median$median,
@@ -146,13 +143,13 @@ plot_km <- function(data,
     ) +
       ggplot2::geom_point(
         data = .median,
-        mapping = ggplot2::aes(x = median, y = 0.8, nrisk = NULL, color = NULL),
+        mapping = ggplot2::aes(x = median, y = seq(0.8, 0.8 - 0.03 * (nrow(.median) - 1), -0.03), nrisk = NULL, color = NULL),
         size = 5,
         color = "white"
       ) +
       ggplot2::geom_text(
         data = .median,
-        mapping = ggplot2::aes(x = median, y = 0.8, label = round(median, 2), nrisk = NULL),
+        mapping = ggplot2::aes(x = median, y = seq(0.8, 0.8 - 0.03 * (nrow(.median) - 1), -0.03), label = round(median, 2), nrisk = NULL),
         size = 4,
         color = "black"
       ) +
@@ -222,7 +219,7 @@ plot_km <- function(data,
           gridcolor = "ffff"
         )
       )
-    .img <- plotly::subplot(.img, risk.table.plot, nrows = 2, heights = c(0.8, 0.2))
+    .img <- plotly::subplot(.img, risk.table.plot, nrows = 2, heights = c(1 - table_height_fraction, table_height_fraction))
   }
   shiny::div(
     style = "
@@ -280,12 +277,8 @@ plot_km <- function(data,
     htmltools::browsable()
 }
 # =================================================
-#' @title Calculate Kaplan-Meier P-value
-#' @description Calculates the log-rank test p-value for survival differences
-#' @param .formula Survival formula object
-#' @param data Data frame containing the survival data
-#' @param html Logical indicating whether to return HTML formatted output (default: TRUE)
-#' @return P-value from log-rank test, optionally formatted as HTML
+#' @title
+#' MISSING_TITLE
 #' @export
 km_pvalue <- function(.formula, data, html = TRUE) {
   p <- survival::survdiff(.formula, data = data) %>%
@@ -301,27 +294,19 @@ km_pvalue <- function(.formula, data, html = TRUE) {
   return(p)
 }
 # =================================================
-#' @title Fit Kaplan-Meier Survival Model
-#' @description Fits a Kaplan-Meier survival model and returns tidy results
-#' @param data Data frame containing the survival data
-#' @param time Character string specifying the time variable name
-#' @param event Character string specifying the event variable name
-#' @param treatment Character string specifying the treatment/grouping variable name
-#' @param covariates Character vector of covariate variable names (optional)
-#' @param landmark Numeric value for landmark analysis time point (optional)
-#' @param ... Additional arguments passed to survfit
-#' @return Tidy data frame with survival estimates and confidence intervals
+#' @title
+#' MISSING_TITLE
 #' @export
 fit_km <- function(data, time, event, treatment, covariates = NULL, landmark = NULL, ...) {
   # Landmark -------------------------------------------------------------------
   if (!is.null(landmark)) {
-    nightowl_progress_step(paste("Calculating landmark analysis at", landmark))
+    cli::cli_progress_step("Calculating landmark analysis at {landmark}")
     data <- data %>%
       dplyr::mutate(!!rlang::sym(time) := !!rlang::sym(time) - landmark) %>%
       dplyr::filter(!!rlang::sym(time) > 0)
   }
   # Formula -------------------------------------------------------------------
-  .formula <- nightowl::create_Surv_formula(time = time, event = event, treatment = treatment, covariate = covariates)
+  .formula <- nightowl::create_Surv_formula(data = data, time = time, event = event, treatment = treatment, covariate = covariates)
   # Data ----------------------------------------------------------------------
   data <- droplevels(data)
   # Fit ------------------------------------------------------------------------
@@ -331,10 +316,8 @@ fit_km <- function(data, time, event, treatment, covariates = NULL, landmark = N
     dplyr:::mutate(tooltip = round(estimate, 2))
 }
 # =================================================
-#' @title Add Time Zero to Kaplan-Meier Fit
-#' @description Adds time zero point to Kaplan-Meier survival data for complete curves
-#' @param fit Data frame from fit_km containing survival estimates
-#' @return Data frame with time zero point added for each stratum
+#' @title
+#' MISSING_TITLE
 #' @export
 km_add_0 <- function(fit) {
   fit %>%
@@ -358,11 +341,8 @@ km_add_0 <- function(fit) {
     dplyr::ungroup()
 }
 # =================================================
-#' @title Generate Kaplan-Meier Summary
-#' @description Creates a formatted summary of survival differences using survdiff
-#' @param .formula Survival formula object
-#' @param data Data frame containing the survival data
-#' @return HTML formatted summary of survival differences
+#' @title
+#' MISSING_TITLE
 #' @export
 km_summary <- function(.formula, data) {
   res <- survival::survdiff(.formula, data = data) %>%
@@ -372,42 +352,23 @@ km_summary <- function(.formula, data) {
   shiny::tag("pre", res)
 }
 # =================================================
-#' @title Create Kaplan-Meier Risk Table
-#' @description Generates a risk table showing number at risk at specified time intervals
-#' @param fit Data frame from fit_km containing survival estimates
-#' @param what Character string specifying what to display (default: "n.risk")
-#' @param break_width Numeric value for time interval width (default: 10)
-#' @param kable Logical indicating whether to return formatted kable table (default: TRUE)
-#' @return Risk table as kable HTML or data frame
+#' @title
+#' MISSING_TITLE
 #' @export
 km_table <- function(fit, what = "n.risk", break_width = 10, kable = T) {
   fit <- nightowl::km_add_0(fit)
   breakpoints <- seq(0, max(fit$time), break_width)
-  risk.table <- nightowl_named_group_split(fit, !!rlang::sym(strata)) %>%
+  risk.table <- waRRior::named_group_split(fit, strata) %>%
     purrr::imap(function(.x, .group) {
       N <- max(.x$n.risk, na.rm = T)
-      
-      # Optimize O(n²) to O(n) using cumulative sums instead of repeated filtering
-      .x_sorted <- .x %>% dplyr::arrange(time)
-      
-      # Pre-compute cumulative sums - O(n) operation
-      cum_events <- cumsum(.x_sorted$n.event)
-      cum_censors <- cumsum(.x_sorted$n.censor)
-      
-      # Use vectorized operations with findInterval - O(k log n) instead of O(k*n)
-      # where k is number of breakpoints, much better when k scales with n
-      event_indices <- findInterval(breakpoints, .x_sorted$time, left.open = TRUE)
-      censor_indices <- findInterval(breakpoints, .x_sorted$time, left.open = FALSE)
-      
-      # Handle edge cases where indices are 0
-      event_sums <- ifelse(event_indices == 0, 0, cum_events[event_indices])
-      censor_sums <- ifelse(censor_indices == 0, 0, cum_censors[censor_indices])
-      
-      tibble::tibble(
-        breakpoint = breakpoints,
-        n = N - event_sums - censor_sums,
-        Group = .group
-      )
+      purrr::map(breakpoints, function(.y) {
+        tibble::tibble(
+          breakpoint = .y,
+          n = N - sum(dplyr::filter(.x, time < .y)$n.event) - sum(dplyr::filter(.x, time <= .y)$n.censor)
+        )
+      }) %>%
+        dplyr::bind_rows() %>%
+        dplyr::mutate(Group = .group)
     }) %>%
     dplyr::bind_rows()
   if (kable) {
@@ -429,10 +390,8 @@ km_table <- function(fit, what = "n.risk", break_width = 10, kable = T) {
   }
 }
 # =================================================
-#' @title Plot Compact Grouped Kaplan-Meier Curves
-#' @description Creates compact multiple Kaplan-Meier curves with minimal styling
-#' @param data Data frame containing the survival data
-#' @return HTML object with compact arranged Kaplan-Meier plots
+#' @title
+#' MISSING_TITLE
 #' @export
 plot_grouped_km_compact <- function(data,
                                     time,
@@ -464,10 +423,8 @@ plot_grouped_km_compact <- function(data,
   )
 }
 # =================================================
-#' @title Plot Kaplan-Meier with Covariate Distribution
-#' @description Creates Kaplan-Meier curves with additional panels showing covariate distributions over time
-#' @param data Data frame containing the survival data
-#' @return Interactive plot combining survival curves and covariate distributions
+#' @title
+#' MISSING_TITLE
 #' @export
 plot_km_covariates <- function(data,
                                time,
@@ -487,7 +444,7 @@ plot_km_covariates <- function(data,
                                legend_position = "top",
                                height = 600,
                                width = "100%",
-                               colors = unname(unlist(nightowl::nightowl_colors())),
+                               colors = unname(unlist(picasso::roche_colors())),
                                lowrider_theme = "print",
                                as_ggplot = FALSE,
                                note = NULL,
@@ -533,7 +490,7 @@ plot_km_covariates <- function(data,
     .median <- base::summary(survival::survfit(.formula, data))$table %>%
       as.data.frame()
 
-
+    browser()
     .p <- .p + ggplot2::geom_vline(
       xintercept = .median$median,
       color = colors[1:nrow(.median)],
@@ -541,13 +498,13 @@ plot_km_covariates <- function(data,
     ) +
       ggplot2::geom_point(
         data = .median,
-        mapping = ggplot2::aes(x = median, y = 0.8, nrisk = NULL, color = NULL),
+        mapping = ggplot2::aes(x = median, y = seq(0.8, 0.8 - 0.2 * nrow(.median), 0.2), nrisk = NULL, color = NULL),
         size = 5,
         color = "white"
       ) +
       ggplot2::geom_text(
         data = .median,
-        mapping = ggplot2::aes(x = median, y = 0.8, label = round(median, 2), nrisk = NULL),
+        mapping = ggplot2::aes(x = median, y = seq(0.8, 0.8 - 0.2 * nrow(.median), 0.2), label = round(median, 2), nrisk = NULL),
         size = 4,
         color = "black"
       ) +
@@ -591,32 +548,12 @@ plot_km_covariates <- function(data,
 
 
   cplots <- purrr::map(covariates, function(.covariate) {
-    nightowl_named_group_split_at(data, treatment) %>%
+    waRRior::named_group_split_at(data, c(treatment)) %>%
       purrr::map(purrr::safely(function(.x) {
-        times <- .x[[time]] %>% sort() %>% unique()
-        
-        # Optimize O(n²) to O(n) by avoiding repeated filtering
-        # Pre-sort data once and use vectorized operations
-        .x_sorted <- .x %>% 
-          dplyr::arrange(!!rlang::sym(time)) %>%
-          dplyr::select_at(c(time, .covariate))
-        
-        # Create expanded grid for all time-covariate combinations
-        covariate_data <- .x_sorted %>%
-          dplyr::select_at(.covariate) %>%
-          tidyr::pivot_longer(cols = names(.)) %>%
-          dplyr::distinct()
-        
-        # Use vectorized approach instead of nested loops
+        times <- .x[[time]] %>% sort()
         res <- purrr::map_df(times, function(.y) {
-          # Use binary search approach - much faster than filtering
-          valid_indices <- which(.x_sorted[[time]] >= .y)
-          if (length(valid_indices) == 0) return(tibble::tibble())
-          
-          subset_data <- .x_sorted[valid_indices, ]
-          
-          subset_data %>%
-            dplyr::select_at(.covariate) %>%
+          .data <- .x %>% dplyr::filter(time >= .y)
+          dplyr::select_at(.data, .covariate) %>%
             tidyr::pivot_longer(cols = names(.)) %>%
             dplyr::group_by(name) %>%
             dplyr::add_count() %>%
@@ -627,7 +564,7 @@ plot_km_covariates <- function(data,
             unique()
         })
 
-        .res <- nightowl_named_group_split(res, !!rlang::sym("value"))
+        .res <- waRRior::named_group_split(res, value)
         .p <- plotly::plot_ly()
         .treatment <- unique(.x$treatment)
         purrr::reduce(.res, function(.x, .y) {
@@ -645,7 +582,7 @@ plot_km_covariates <- function(data,
       })) %>%
       purrr::map("result")
   }) %>%
-    nightowl_collapse_top_level()
+    waRRior::collapse_top_level()
   l <- length(cplots) + 1
   h <- 0.7 / l
   hh <- c(0.3, rep(h, l - 1))

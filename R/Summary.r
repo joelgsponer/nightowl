@@ -1,10 +1,5 @@
 # =================================================
-# Shared data environment for memory optimization
-.shared_data_env <- new.env(parent = emptyenv())
-
 #' R6 Class
-#' @description
-#' @detail
 #' @export
 Summary <- R6::R6Class("Summary",
   public = list(
@@ -16,7 +11,7 @@ Summary <- R6::R6Class("Summary",
     options_reactables = list(defaultPageSize = 30),
     options_kable = list(),
     options_test = list(),
-    initialize = function(data, column, group_by = NULL, method = NULL, labels = NULL, debug = F, ...) {
+    initialize = function(.data, column, group_by = NULL, method = NULL, labels = NULL, debug = F, ...) {
       if (debug) browser()
       purrr::imap(list(...), function(.x, .y) {
         if (.y %in% names(self)) {
@@ -25,7 +20,7 @@ Summary <- R6::R6Class("Summary",
       })
       self$column <- column
       self$group_by <- group_by
-      self$set_data(data)
+      self$set_data(.data)
       self$set_labels(labels)
       self$set_type()
       self$set_method(method)
@@ -50,39 +45,24 @@ Summary <- R6::R6Class("Summary",
         rlang::abort(msg)
       }
     },
-    # Data with shared environment optimization --------------------------------
+    # Data ---------------------------------------------------------------------
     data = NULL,
-    data_key = NULL,
     set_data = function(data = self$data) {
       if (!is.null(data)) {
-        # Create unique key for data sharing
-        self$data_key <- digest::digest(data, algo = "xxhash64")
-        
-        # Check if data already exists in shared environment
-        if (exists(self$data_key, envir = .shared_data_env)) {
-          self$data <- get(self$data_key, envir = .shared_data_env)
-        } else {
-          self$data <- data
-          # Store processed data in shared environment for reuse
-          if (is.null(self$data)) rlang::abort("No data provided - use `set_data` method to update")
-          self$check_variables()
-          if (is.null(self$group_by)) self$group_by <- nightowl_get_groups(data)
-          
-          # Process data efficiently
-          processed_data <- data %>%
-            dplyr::ungroup() %>%
-            dplyr::select_at(c(unname(unlist(self$get_variables())))) %>%
-            dplyr::mutate_if(is.character, factor) %>%
-            dplyr::mutate_if(is.factor, nightowl_fct_na_value_to_level) %>%
-            dplyr::group_by_at(self$group_by)
-          
-          # Cache processed data
-          assign(self$data_key, processed_data, envir = .shared_data_env)
-          self$data <- processed_data
-        }
+        self$data <- data
       } else {
         data <- self$data
       }
+      if (is.null(self$data)) rlang::abort("No data provided - use `set_data` method to update")
+      self$check_variables()
+      if (is.null(self$group_by)) self$group_by <- nightowl_get_groups(data)
+      data <- data %>%
+        dplyr::ungroup() %>%
+        dplyr::select_at(c(unname(unlist(self$get_variables())))) %>%
+        dplyr::mutate_if(is.character, factor) %>%
+        dplyr::mutate_if(is.factor, forcats::fct_explicit_na) %>%
+        dplyr::group_by_at(self$group_by)
+      self$data <- data
       invisible(self)
     },
     check_data = function() {
@@ -196,11 +176,11 @@ Summary <- R6::R6Class("Summary",
         name_for_column = self$name_for_column,
         names_sep = self$names_sep
       )
-      res <- dplyr::select(res, Variable, dplyr::everything())
+      res <- dplyr::select(res, Variable, tidyselect::everything())
       res <- self$drop_variable(res)
       res <- self$arrange(res)
       if (!is.null(drop)) {
-        res <- nightowl_drop_columns(res, drop)
+        res <- waRRior::drop_columns(res, drop)
       }
       return(res)
     },
@@ -209,8 +189,9 @@ Summary <- R6::R6Class("Summary",
       do.call(nightowl::render_kable, c(list(.tbl = self$raw(drop = drop), caption = self$caption(), footnote = self$footnote()), self$options_kable))
     },
     # HTML ---------------------------------------------------------------------
-    html = function(drop = NULL) {
-      shiny::HTML(self$kable(drop = drop))
+    html = function(drop = NULL, ...) {
+      dot_args <- list(...)
+      do.call(nightowl::render_html, c(list(.tbl = self$raw(drop = drop), caption = self$caption(), footnote = self$footnote()), self$options_kable, dot_args))
     },
     # Reactables ---------------------------------------------------------------
     reactable = function(drop = NULL, ...) {
@@ -233,18 +214,39 @@ Summary <- R6::R6Class("Summary",
       ) %>%
         htmltools::browsable()
       return(res)
-    },
-    # Memory management --------------------------------------------------------
-    cleanup = function() {
-      # Remove data from shared environment if it exists
-      if (!is.null(self$data_key) && exists(self$data_key, envir = .shared_data_env)) {
-        rm(list = self$data_key, envir = .shared_data_env)
-      }
-      invisible(self)
-    },
-    finalize = function() {
-      # Automatic cleanup when object is garbage collected
-      self$cleanup()
     }
   )
 )
+# =================================================
+#' @title
+#' Summarise
+#' @description
+#' @detail
+#' @param
+#' @return
+#' @export
+new_summary <- function(.data,
+                        column,
+                        group_by = NULL,
+                        method = NULL,
+                        labels = NULL,
+                        debug = F,
+                        ...) {
+  nightowl::Summary$new(
+    .data = .data,
+    column = column,
+    group_by = group_by,
+    method = method,
+    labels = labels,
+    debug = debug,
+    ...
+  )
+}
+# =================================================
+#' @title Summary (Alias)
+#' @description Alias for new_summary function to maintain backward compatibility
+#' @param ... All arguments passed to new_summary
+#' @return A Summary R6 object
+#' @export
+summary <- new_summary
+# =================================================

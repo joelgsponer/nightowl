@@ -41,6 +41,7 @@ render_kable <- function(.tbl,
                          header_above = NULL,
                          htmltable_class = "lightable-minimal",
                          footnote = NULL,
+                         align = "l",
                          ...) {
   if (!is.null(width_header)) {
     html_headers <- stringr::str_detect(names(.tbl), "<div")
@@ -51,19 +52,35 @@ render_kable <- function(.tbl,
   .tbl <- dplyr::mutate_if(.tbl, is.numeric, as.character)
   .tbl <- dplyr::mutate_if(.tbl, nightowl::is_NightowlPlots, as.character)
   .tbl <- dplyr::mutate_all(.tbl, function(x) tidyr::replace_na(x, ""))
-  .tbl <- purrr::map(.tbl, function(.x) nightowl::style_cell(.x, width = "max-content") %>% as.character()) %>%
+  .tbl <- purrr::map(.tbl, function(.x) nightowl::style_cell(.x, width = "max-content", margin = "auto") %>% as.character()) %>%
     tibble::as_tibble()
   .kable <- .tbl %>%
-    knitr::kable("html", escape = FALSE, caption = caption)
+    knitr::kable("html", escape = FALSE, caption = caption, align = align)
   if (!is.null(header_above)) .kable <- kableExtra::add_header_above(.kable, header_above)
   .kable <- kableExtra::kable_styling(.kable, full_width = full_width, htmltable_class = htmltable_class, ...)
   if (!is.null(footnote)) {
-    .kable <- kableExtra::add_footnote(.kable, footnote, notation = "none")
+    .kable <- kableExtra::add_footnote(.kable, footnote, notation = "none", escape = FALSE)
   }
   .kable <- .kable %>%
     stringr::str_replace_all(stringr::fixed("<![CDATA["), "") %>%
     stringr::str_replace_all(stringr::fixed("]]>"), "")
   return(.kable)
+}
+# =================================================
+#' @title
+#' MISSING_TITLE
+#' @description
+#' @detail
+#' @param
+#' @return
+#' @export
+render_html <- function(.tbl, html_dependencies = kableExtra:::html_dependency_lightable, ...) {
+  shiny::div(
+    html_dependencies(),
+    shiny::HTML("<style>body {font-family: Lato, sans-serif;}</style>"),
+    shiny::HTML(nightowl::render_kable(.tbl, ...))
+  ) %>%
+    htmltools::browsable()
 }
 # s-------------------------------------------------------------------------------
 # =================================================

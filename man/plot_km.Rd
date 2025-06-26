@@ -22,6 +22,7 @@ plot_km(
   wrap = NULL,
   legend_position = "top",
   height = 600,
+  table_height_fraction = 0.2,
   width = "100\%",
   colors = unname(unlist(nightowl::nightowl_colors())),
   lowrider_theme = "print",

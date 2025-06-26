@@ -8,7 +8,7 @@ summarise_categorical_barplot(
   self,
   calculations = list(N. = length, Freq = nightowl::format_frequencies, Barplot =
     nightowl::add_barplot),
-  parameters = list(Freq = list(add_colors = TRUE)),
+  parameters = list(Freq = list(add_legend = TRUE, add_colors = TRUE)),
   unnest = TRUE,
   names_sep = NULL
 )

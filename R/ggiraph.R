@@ -1,16 +1,11 @@
 # =================================================
 #' @title
 #' Convert to girafe object
-#' @description
-#'
-#' @detail
-#'
-#' @param
-#' @return
 #' @export
 ggplot_to_girafe <- function(ggobj,
                              width = 10,
-                             height = 20) {
+                             height = 20,
+                             color = "black") {
   ggiraph::girafe(
     ggobj = ggobj,
     width_svg = width,
@@ -20,7 +15,7 @@ ggplot_to_girafe <- function(ggobj,
       ggiraph::opts_tooltip(
         use_fill = TRUE,
         opacity = .8,
-        css = "color:black;padding:2px;border-radius:2px;font-family:'Lato';margin-left:10px;",
+        css = glue::glue("color:{color};padding:2px;border-radius:2px;font-family:'Lato';margin-left:10px;"),
       ),
       ggiraph::opts_hover(css = "fill:red;stroke:black;cursor:pointer;"),
       ggiraph::opts_hover_inv(css = "opacity:0.3;"),
@@ -29,3 +24,30 @@ ggplot_to_girafe <- function(ggobj,
   )
 }
 # =================================================
+#' Use lowRider
+#' Includes required javascript and css files.
+#' @return
+#' @export
+useNightowl <- function() {
+  scripts <- c("d3-bundle.min.js", "d3-lasso.min.js", "flatbush.min.js", "ggiraphjs.min.js", "save-svg-as-png.min.js")
+  htmltools::tagList(
+    htmltools::htmlDependency(
+      name = "ggiraph-assets", version = packageVersion("nightowl"),
+      package = "nightowl",
+      src = "assets/js",
+      script = scripts
+    )
+  )
+}
+# # =================================================
+# inlineGGiraphDependencies <- function(){
+#   scripts <- c("d3-bundle.min.js", "d3-lasso.min.js", "flatbush.min.js", "ggiraphjs.min.js", "save-svg-as-png.min.js")
+#   htmltools::tagList(
+#     htmltools::htmlDependency(
+#       name = "ggiraph-assets", version = packageVersion("nightowl"),
+#       package = "nightowl",
+#       src = "assets",
+#       script = scripts
+#     )
+#   )
+# }

@@ -4,7 +4,8 @@ test_that("svg works", {
     dplyr::filter(Time < 10) %>%
     dplyr::mutate(`thisisareally reallylongvariablename` = Diet)
 
-  .p <- nightowl::plot(testdata,
+  .p <- nightowl::plot(
+    testdata,
     transform = list(x = "factor"),
     mapping = list(
       x = "Time",

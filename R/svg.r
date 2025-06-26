@@ -1,17 +1,80 @@
+# =================================================
+#' @title
+#' MISSING_TITLE
+#' @description
+#' @detail
+#' @param
+#' @return
+#' @export
+render_girafe <- function(code, ggobj = NULL, pointsize = 12,
+                          width_svg = NULL, height_svg = NULL,
+                          options = list(),
+                          fix_rect = TRUE,
+                          ...) {
+  path <- tempfile()
+
+  if (is.null(width_svg)) {
+    width_svg <- 6
+  }
+  if (is.null(height_svg)) {
+    height_svg <- 5
+  }
+
+
+  args <- list(...)
+  args$canvas_id <- args$canvas_id %||% paste("svg", gsub("-", "_", uuid::UUIDgenerate()), sep = "_")
+  args$file <- path
+  args$width <- width_svg
+  args$height <- height_svg
+  args$pointsize <- pointsize
+  args$standalone <- FALSE
+  args$setdims <- FALSE
+  # we need a surface with pointer events
+  if (identical(args$bg, "transparent")) {
+    args$bg <- "#fffffffd"
+  }
+
+  devlength <- length(dev.list())
+  do.call(ggiraph::dsvg, args)
+  tryCatch(
+    {
+      if (!is.null(ggobj)) {
+        if (!inherits(ggobj, "ggplot")) {
+          abort("`ggobj` must be a ggplot2 plot", call = NULL)
+        }
+        print(ggobj)
+      } else {
+        code
+      }
+    },
+    finally = {
+      if (length(dev.list()) > devlength) {
+        dev.off()
+      }
+    }
+  )
+  svg <- waRRior::read_plain_textfile(args$file)
+  if (fix_rect) svg <- stringr::str_replace(svg, stringr::fixed("/>"), "></rect>")
+  svg <- htmltools::HTML(svg)
+  svg <- htmltools::browsable(svg)
+  return(svg)
+}
 # ===============================================================================
 #' Create SVG string
 #' @param g ggplot object
 #' @export
 render_svg <- function(g,
+                       code = NULL,
                        height = 8,
                        width = 8,
-                       element_width = "75vw",
-                       element_height = "75vh",
+                       element_width = "100%",
+                       element_height = "100%",
                        scaling = 1,
                        add_download_button = T,
                        standalone = F,
                        bg = "transparent",
                        font_family = "Lato, sans-serif",
+                       fix_rect = T,
                        ...) {
   fix_font <- function(html, param = "font-family", value = font_family, old_value = "[^;]*") {
     str <- as.character(html)
@@ -46,8 +109,9 @@ render_svg <- function(g,
       if (add_download_button) {
         svg <- nightowl::add_download_button(svg)
       }
-      svg <- as.character(svg) %>%
-        htmltools::HTML()
+      svg <- as.character(svg)
+      if (fix_rect) svg <- stringr::str_replace(svg, stringr::fixed("/>"), "></rect>")
+      svg <- htmltools::HTML(svg)
       svg <- htmltools::browsable(svg)
       return(svg)
     },
@@ -65,10 +129,6 @@ render_svg <- function(g,
 # =================================================
 #' @title
 #' MISSING_TITLE
-#' @description
-#' @detail
-#' @param
-#' @return
 #' @export
 add_download_button <- function(x) {
   shiny::div(
@@ -107,10 +167,6 @@ add_download_button <- function(x) {
 # =================================================
 #' @title
 #' MISSING_TITLE
-#' @description
-#' @detail
-#' @param
-#' @return
 #' @export
 new_NightowlPlots <- function(...) {
   x <- list(...)

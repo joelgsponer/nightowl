@@ -4,7 +4,7 @@
 \alias{ggplot_to_girafe}
 \title{Convert to girafe object}
 \usage{
-ggplot_to_girafe(ggobj, width = 10, height = 20)
+ggplot_to_girafe(ggobj, width = 10, height = 20, color = "black")
 }
 \description{
 Convert to girafe object

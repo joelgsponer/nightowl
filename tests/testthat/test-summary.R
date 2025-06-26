@@ -1,35 +1,35 @@
 test_that("summary works", {
-  testdata <- tibble::tibble(
-    "foo" = c(rep("A", 50), rep("B", 50), rep("C", 50), rep("D", 50)),
-    "bar" = c(rnorm(50, 0, 1), rnorm(50, 1, 2), rnorm(50, 2, 3), rnorm(50, 3, 4)),
-    "baz" = runif(200),
-    "qux" = sample(c("Apple", "Pears", "Banana", "This  is something very long ...."), 200, T),
-    "s1" = sample(c("Morning", "Midday", "Evening"), 200, T)
-  ) %>%
-    dplyr::mutate(qux = dplyr::case_when(
-      foo == "A" & qux == "Apple" ~ "Pears",
-      foo == "B" & qux == "Banana" ~ NA_character_,
-      TRUE ~ qux
-    )) %>%
-    dplyr::mutate(bar = dplyr::case_when(
-      foo == "A" & bar < 0 ~ NA_real_,
-      TRUE ~ bar
-    )) %>%
-    dplyr::mutate(qux = factor(qux))
-  testdata
+  penguins <- palmerpenguins::penguins
 
-  s1 <- nightowl::Summary$new(testdata, "qux", "s1", debug = F)
+  nightowl::summarise(penguins %>% dplyr::group_by(island), "island")
+
+  nightowl::summarise(penguins %>% dplyr::group_by(island), "species", template = nightowl::summarise_categorical()) %>%
+    nightowl::render_reactable()
+
+  nightowl::summarise(penguins %>% dplyr::group_by(island), "species", template = nightowl::summarise_categorical_barplot()) %>%
+    nightowl::render_reactable()
+
+  nightowl::summarise(penguins %>% dplyr::group_by(island), "bill_length_mm", template = nightowl::summarise_numeric_violin)
+
+  nightowl::Summary$new(penguins, "bill_length_mm", "species")$raw()
+  nightowl::Summary$new(penguins %>% dplyr::group_by(species), "bill_length_mm", method = nightowl::summarise_numeric_histogram)$html()
+
+  s1 <- nightowl::summary(penguins, "species", "island", debug = F)
   s1
   s1$calculations
   s1$add_calculation(list(Missing = function(x) sum(is.na(x))))
   s1$raw()
+  s1$html()
+  s1$html(htmltable_class = "lightable-classic")
 
   nightowl::Summary$new(testdata, "qux", "s1")$raw()
   nightowl::Summary$new(testdata, "qux", "s1")$reactable()
 
   nightowl::Summary$new(testdata, "qux", "foo", method = nightowl::summarise_categorical_barplot)$data
 
-  nightowl::Summary$new(testdata, "qux", "foo", method = nightowl::summarise_categorical_barplot)$kable()
+  nightowl::Summary$new(testdata, "qux", "foo", method = nightowl::summarise_categorical_barplot)$kable() %>%
+    shiny::HTML() %>%
+    htmltools::browsable()
   nightowl::Summary$new(testdata %>% dplyr::filter(foo == "A"), "qux", "foo", method = nightowl::summarise_categorical_barplot)$kable()
 
   options <- get_nightowl_options()
@@ -38,7 +38,9 @@ test_that("summary works", {
   nightowl::Summary$new(testdata, "qux", "foo", method = nightowl::summarise_categorical_barplot)$kable()
 
   nightowl::Summary$new(testdata, "baz", "s1", method = nightowl::summarise_numeric_violin)$raw()
-  nightowl::Summary$new(testdata, "baz", "s1", method = nightowl::summarise_numeric_violin)$kable()
+  nightowl::Summary$new(testdata, "baz", "s1", method = nightowl::summarise_numeric_violin)$kable() %>%
+    shiny::HTML() %>%
+    htmltools::browsable()
   nightowl::Summary$new(testdata, "baz", "s1", method = nightowl::summarise_numeric_histogram)$kable()
   nightowl::Summary$new(testdata, "baz", "s1", method = nightowl::summarise_numeric_violin)$reactable()
   nightowl::Summary$new(testdata, "baz", "s1", method = nightowl::summarise_numeric_pointrange)$reactable()
@@ -230,21 +232,22 @@ test_that("summary works", {
 
   nightowl::calc_summary(dplyr::group_by(testdata, foo), "qux", calculations = list(N = nightowl::n, Freq = nightowl::frequencies))
 
-  nightowl::calc_summary(dplyr::group_by(
-    testdata,
-    foo
-  ),
-  column = "qux",
-  calculations = list(
-    N = nightowl::n,
-    Freq = nightowl::frequencies,
-    Bar = function(x) {
-      nightowl::frequencies(x,
-        output = "barplot"
-      )
-    }
-  ),
-  names_sep = NULL
+  nightowl::calc_summary(
+    dplyr::group_by(
+      testdata,
+      foo
+    ),
+    column = "qux",
+    calculations = list(
+      N = nightowl::n,
+      Freq = nightowl::frequencies,
+      Bar = function(x) {
+        nightowl::frequencies(x,
+          output = "barplot"
+        )
+      }
+    ),
+    names_sep = NULL
   ) %>%
     nightowl::render_kable()
 
