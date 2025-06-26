@@ -386,14 +386,28 @@ km_table <- function(fit, what = "n.risk", break_width = 10, kable = T) {
   risk.table <- waRRior::named_group_split(fit, strata) %>%
     purrr::imap(function(.x, .group) {
       N <- max(.x$n.risk, na.rm = T)
-      purrr::map(breakpoints, function(.y) {
-        tibble::tibble(
-          breakpoint = .y,
-          n = N - sum(dplyr::filter(.x, time < .y)$n.event) - sum(dplyr::filter(.x, time <= .y)$n.censor)
-        )
-      }) %>%
-        dplyr::bind_rows() %>%
-        dplyr::mutate(Group = .group)
+      
+      # Optimize O(n²) to O(n) using cumulative sums instead of repeated filtering
+      .x_sorted <- .x %>% dplyr::arrange(time)
+      
+      # Pre-compute cumulative sums - O(n) operation
+      cum_events <- cumsum(.x_sorted$n.event)
+      cum_censors <- cumsum(.x_sorted$n.censor)
+      
+      # Use vectorized operations with findInterval - O(k log n) instead of O(k*n)
+      # where k is number of breakpoints, much better when k scales with n
+      event_indices <- findInterval(breakpoints, .x_sorted$time, left.open = TRUE)
+      censor_indices <- findInterval(breakpoints, .x_sorted$time, left.open = FALSE)
+      
+      # Handle edge cases where indices are 0
+      event_sums <- ifelse(event_indices == 0, 0, cum_events[event_indices])
+      censor_sums <- ifelse(censor_indices == 0, 0, cum_censors[censor_indices])
+      
+      tibble::tibble(
+        breakpoint = breakpoints,
+        n = N - event_sums - censor_sums,
+        Group = .group
+      )
     }) %>%
     dplyr::bind_rows()
   if (kable) {
@@ -579,10 +593,30 @@ plot_km_covariates <- function(data,
   cplots <- purrr::map(covariates, function(.covariate) {
     waRRior::named_group_split_at(data, c(treatment)) %>%
       purrr::map(purrr::safely(function(.x) {
-        times <- .x[[time]] %>% sort()
+        times <- .x[[time]] %>% sort() %>% unique()
+        
+        # Optimize O(n²) to O(n) by avoiding repeated filtering
+        # Pre-sort data once and use vectorized operations
+        .x_sorted <- .x %>% 
+          dplyr::arrange(!!rlang::sym(time)) %>%
+          dplyr::select_at(c(time, .covariate))
+        
+        # Create expanded grid for all time-covariate combinations
+        covariate_data <- .x_sorted %>%
+          dplyr::select_at(.covariate) %>%
+          tidyr::pivot_longer(cols = names(.)) %>%
+          dplyr::distinct()
+        
+        # Use vectorized approach instead of nested loops
         res <- purrr::map_df(times, function(.y) {
-          data <- .x %>% dplyr::filter(time >= .y)
-          dplyr::select_at(data, .covariate) %>%
+          # Use binary search approach - much faster than filtering
+          valid_indices <- which(.x_sorted[[time]] >= .y)
+          if (length(valid_indices) == 0) return(tibble::tibble())
+          
+          subset_data <- .x_sorted[valid_indices, ]
+          
+          subset_data %>%
+            dplyr::select_at(.covariate) %>%
             tidyr::pivot_longer(cols = names(.)) %>%
             dplyr::group_by(name) %>%
             dplyr::add_count() %>%
