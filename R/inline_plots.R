@@ -48,9 +48,9 @@ add_inline_forestplot <- function(x,
     xmin = xmin,
     xmax = xmax
   )) +
-    ggplot2::geom_vline(xintercept = xintercept, color = picasso::roche_colors("red"), linetype = "solid", size = 1) +
+    ggplot2::geom_vline(xintercept = xintercept, color = nightowl::nightowl_colors("red"), linetype = "solid", size = 1) +
     ggplot2::geom_errorbarh() +
-    ggplot2::geom_point(size = size, shape = shape, color = picasso::roche_colors("blue", alpha = alpha)) +
+    ggplot2::geom_point(size = size, shape = shape, color = nightowl::nightowl_colors("blue", alpha = alpha)) +
     theme() +
     ggplot2::xlab(xlab) +
     ggplot2::ylab(ylab)
@@ -59,13 +59,13 @@ add_inline_forestplot <- function(x,
 
 
   if (hide_legend) {
-    .p <- .p + picasso::hide_legend()
+    .p <- .p + nightowl::hide_legend()
   }
   if (hide_x_axis) {
-    .p <- .p + picasso::hide_x_axis()
+    .p <- .p + nightowl::hide_x_axis()
   }
   if (hide_y_axis) {
-    .p <- .p + picasso::hide_y_axis()
+    .p <- .p + nightowl::hide_y_axis()
   }
 
 
@@ -75,26 +75,26 @@ add_inline_forestplot <- function(x,
     if (xmin < xlim[1]) {
       .p <- .p + ggplot2::geom_text(
         mapping = ggplot2::aes(x = xlim[1], label = "<<<"),
-        color = picasso::roche_colors("black"),
+        color = nightowl::nightowl_colors("black"),
         hjust = 0.3,
         size = 9
       ) +
-        ggplot2::geom_point(mapping = ggplot2::aes(x = xmax), cex = 8, shape = 108, color = picasso::roche_colors("black"))
+        ggplot2::geom_point(mapping = ggplot2::aes(x = xmax), cex = 8, shape = 108, color = nightowl::nightowl_colors("black"))
     }
 
     if (xmax > xlim[2]) {
       .p <- .p + ggplot2::geom_text(
         mapping = ggplot2::aes(x = xlim[2], label = ">>>"),
-        color = picasso::roche_colors("black"),
+        color = nightowl::nightowl_colors("black"),
         size = 9
       ) +
-        ggplot2::geom_point(mapping = ggplot2::aes(x = xmin), cex = 8, shape = 108, color = picasso::roche_colors("black"))
+        ggplot2::geom_point(mapping = ggplot2::aes(x = xmin), cex = 8, shape = 108, color = nightowl::nightowl_colors("black"))
     }
 
     if (x < xlim[1]) {
       .p <- .p + ggplot2::geom_text(
         mapping = ggplot2::aes(x = xlim[1], label = "<<<"),
-        color = picasso::roche_colors("blue"),
+        color = nightowl::nightowl_colors("blue"),
         hjust = 0.3,
         size = 9
       )
@@ -102,7 +102,7 @@ add_inline_forestplot <- function(x,
     if (x > xlim[2]) {
       .p <- .p + ggplot2::geom_text(
         mapping = ggplot2::aes(x = xlim[2], label = ">>>"),
-        color = picasso::roche_colors("blue"),
+        color = nightowl::nightowl_colors("blue"),
         size = 9
       )
     }
@@ -228,7 +228,7 @@ add_inline_plot <- function(x,
                             hide_legend = T,
                             hide_x_axis = T,
                             hide_y_axis = T,
-                            fill = picasso::roche_colors("lightblue"),
+                            fill = nightowl::nightowl_colors("lightblue"),
                             expansion_y = 0,
                             add_download_button = FALSE,
                             ...) {
@@ -278,16 +278,16 @@ add_inline_plot <- function(x,
 
   # Hiding stuff
   if (hide_title) {
-    .p <- .p + picasso::hide_title()
+    .p <- .p + nightowl::hide_title()
   }
   if (hide_legend) {
-    .p <- .p + picasso::hide_legend()
+    .p <- .p + nightowl::hide_legend()
   }
   if (hide_x_axis) {
-    .p <- .p + picasso::hide_x_axis()
+    .p <- .p + nightowl::hide_x_axis()
   }
   if (hide_y_axis) {
-    .p <- .p + picasso::hide_y_axis()
+    .p <- .p + nightowl::hide_y_axis()
   }
 
   .p <- .p + ggplot2::theme(plot.margin = ggplot2::margin(t = 0, r = 15, b = 0, l = 15, unit = "pt"))
@@ -372,7 +372,7 @@ add_violin <- function(x,
                        hide_legend = T,
                        hide_x_axis = T,
                        hide_y_axis = T,
-                       fill = "#B9B9B8", # picasso::roche_colors("lightblue"),
+                       fill = "#B9B9B8", # nightowl::nightowl_colors("lightblue"),
                        expansion_y = 10,
                        add_download_button = FALSE,
                        fun.data = ggplot2::mean_cl_boot) {
@@ -389,14 +389,14 @@ add_violin <- function(x,
   }
   .p <- .p + theme()
   if (hide_legend) {
-    .p <- .p + picasso::hide_legend()
+    .p <- .p + nightowl::hide_legend()
     .p <- .p + ggplot2::theme(plot.margin = ggplot2::margin(t = 0, r = 15, b = 0, l = 15, unit = "pt"))
   }
   if (hide_x_axis) {
-    .p <- .p + picasso::hide_x_axis()
+    .p <- .p + nightowl::hide_x_axis()
   }
   if (hide_y_axis) {
-    .p <- .p + picasso::hide_y_axis()
+    .p <- .p + nightowl::hide_y_axis()
   }
   nightowl::Plot$new(
     plot = .p,
@@ -432,7 +432,7 @@ add_density <- function(x,
                         theme = ggplot2::theme_void,
                         hide_x_axis = T,
                         hide_y_axis = T,
-                        fill = picasso_colors("lightblue"),
+                        fill = nightowl::nightowl_colors("lightblue"),
                         expansion_y = 0,
                         add_download_button = FALSE) {
   .data <- tibble::tibble(x = x)
@@ -448,8 +448,8 @@ add_density <- function(x,
   }
   .p <- .p + theme()
   if (!add_scale) {
-    .p <- .p + picasso::hide_y_axis()
-    .p <- .p + picasso::hide_x_axis()
+    .p <- .p + nightowl::hide_y_axis()
+    .p <- .p + nightowl::hide_x_axis()
   }
   nightowl::render_svg(.p,
     height = height,
@@ -479,12 +479,12 @@ add_histogram <- function(x,
   .p <- ggplot2::ggplot(.data,
     mapping = ggplot2::aes(x = x)
   ) +
-    ggplot2::geom_histogram(fill = picasso::roche_colors("lightblue"), binwidth = binwidth, color = "black") +
+    ggplot2::geom_histogram(fill = nightowl::nightowl_colors("lightblue"), binwidth = binwidth, color = "black") +
     ggplot2::theme_void() +
     ggplot2:::scale_x_continuous(expand = ggplot2::expansion(0.1)) +
     ggplot2:::scale_y_continuous(expand = ggplot2::expansion(0.1))
   if (add_scale) {
-    .p <- .p + picasso::add_x_axis()
+    .p <- .p + nightowl::add_x_axis()
   }
   nightowl::render_svg(.p, height = height, add_download_button = FALSE)
 }

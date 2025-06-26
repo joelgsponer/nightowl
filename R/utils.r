@@ -76,3 +76,74 @@ length.R6 <- function(x) x$length()
 format.R6 <- function(x) x$format()
 as.data.frame.R6 <- function(x, ...) x$as.data.frame()
 as.character.R6 <- function(x, ...) x$as.character()
+
+# =================================================
+# waRRior Replacement Functions
+# =================================================
+
+#' Split data at specific groups (compatible with waRRior::named_group_split_at)
+#'
+#' @param data Data frame to split
+#' @param group_var Grouping variable name
+#' @param at Group values to split at
+#' @return Named list of data frames
+#' @export
+nightowl_group_split_at <- function(data, group_var, at) {
+  # Group the data and split
+  grouped_data <- dplyr::group_by(data, !!dplyr::sym(group_var))
+  split_data <- dplyr::group_split(grouped_data, .keep = TRUE)
+  
+  # Get group keys to name the list
+  group_keys <- dplyr::group_keys(grouped_data)
+  names(split_data) <- group_keys[[group_var]]
+  
+  # Filter to only the requested groups if 'at' is specified
+  if (!missing(at)) {
+    split_data <- split_data[names(split_data) %in% at]
+  }
+  
+  return(split_data)
+}
+
+#' Get groups from grouped data (compatible with waRRior::get_groups)
+#'
+#' @param data Grouped data frame
+#' @return Vector of group names
+#' @export
+nightowl_get_groups <- function(data) {
+  if (dplyr::is_grouped_df(data)) {
+    group_vars <- dplyr::group_vars(data)
+    return(group_vars)
+  } else {
+    return(character(0))
+  }
+}
+
+#' Remove and return last element from list (compatible with waRRior::pop)
+#'
+#' @param x List or vector
+#' @return Last element of the list/vector
+#' @export
+nightowl_pop <- function(x) {
+  if (length(x) == 0) {
+    return(NULL)
+  }
+  return(x[[length(x)]])
+}
+
+#' Get function by name (compatible with waRRior::getfun)
+#'
+#' @param name Function name as string
+#' @param package Package name (optional)
+#' @return Function object
+#' @export
+nightowl_getfun <- function(name, package = NULL) {
+  if (!is.null(package)) {
+    # Try to get function from specific package
+    full_name <- paste0(package, "::", name)
+    return(eval(parse(text = full_name)))
+  } else {
+    # Search in available environments
+    return(get(name, mode = "function"))
+  }
+}

@@ -36,7 +36,7 @@ test_that("donut_plot works", {
     columns = c("sex", "bill_length_mm", "species"),
     split = "island",
     labels = c("Sex", "Bill length (mm)", "Species"),
-    options = list(numeric = list(colors = picasso::colors_ibm()), categorical = list(brewer_pal = "YlGnBu"))
+    options = list(numeric = list(colors = nightowl::nightowl_colors()), categorical = list(brewer_pal = "YlGnBu"))
   )
 
   nightowl::donut_plot(

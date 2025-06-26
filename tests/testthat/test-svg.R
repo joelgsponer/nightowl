@@ -21,7 +21,7 @@ test_that("svg works", {
   )
   # ggplot2::guides(colour = ggplot2::guide_legend(nrow = 2))
 
-  .p <- .p + MetBrewer::scale_color_met_d("Demuth")
+  .p <- .p + ggplot2::scale_color_manual(values = c("#D93F0B", "#F5B041", "#2ECC71", "#3498DB"))
 
 
   a <- nightowl::render_svg(.p, height = 4, width = 4, scaling = 0.5)

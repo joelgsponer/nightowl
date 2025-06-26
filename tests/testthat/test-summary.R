@@ -33,7 +33,7 @@ test_that("summary works", {
   nightowl::Summary$new(testdata %>% dplyr::filter(foo == "A"), "qux", "foo", method = nightowl::summarise_categorical_barplot)$kable()
 
   options <- get_nightowl_options()
-  options$set_colors(picasso::roche_colors() %>% rev())
+  options$set_colors(nightowl::nightowl_colors() %>% rev())
   options$set_header_width(10)
   nightowl::Summary$new(testdata, "qux", "foo", method = nightowl::summarise_categorical_barplot)$kable()
 
@@ -165,7 +165,7 @@ test_that("summary works", {
     ),
     parameters = rlang::expr(list(
       Violin = list(
-        theme = picasso::theme_void,
+        theme = ggplot2::theme_void,
         height = 1.5,
         ylim = range(data[[column]], na.rm = T)
       )
@@ -183,7 +183,7 @@ test_that("summary works", {
     ),
     parameters = rlang::expr(list(
       Violin = list(
-        theme = picasso::theme_void,
+        theme = ggplot2::theme_void,
         height = 1.5,
         ylim = range(data[[column]], na.rm = T)
       )

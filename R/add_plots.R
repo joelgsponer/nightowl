@@ -372,7 +372,7 @@ colors <- function(g, DATA, mapping, ...) {
   color <- mapping$color
   if (!is.null(fill) && is.factor(DATA[[fill]])) {
     if (length(unique(DATA[[fill]])) <= 10) {
-      g <- g + ggplot2::discrete_scale("fill", "roche", picasso::roche_palette_discrete(1))
+      g <- g + ggplot2::discrete_scale("fill", "roche", nightowl::nightowl_palette_discrete(1))
       g <- g + ggplot2::guides(fill = ggplot2::guide_legend(nrow = 2))
     } else {
       g <- g + ggplot2::guides(fill = "none")
@@ -384,9 +384,9 @@ colors <- function(g, DATA, mapping, ...) {
   }
   if (!is.null(color) && is.factor(DATA[[color]])) {
     if (length(unique(DATA[[color]])) <= 10) {
-      g <- g + ggplot2::discrete_scale("color", "roche", picasso::roche_palette_discrete(1))
+      g <- g + ggplot2::discrete_scale("color", "roche", nightowl::nightowl_palette_discrete(1))
       g <- g + ggplot2::guides(colour = ggplot2::guide_legend(nrow = 2, override.aes = list(
-        size = 2, color = picasso::roche_palette_discrete()(length(unique(DATA[[color]])))
+        size = 2, color = nightowl::nightowl_palette_discrete()(length(unique(DATA[[color]])))
       )))
     } else {
       g <- g + ggplot2::guides(color = "none")
