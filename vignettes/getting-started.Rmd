@@ -82,7 +82,7 @@ nightowl provides powerful data summarization capabilities through the `Summary`
 ```{r summary-basic}
 # Create a summary of mpg by cylinder count
 summary_obj <- Summary$new(
-  .data = mtcars, 
+  data = mtcars, 
   column = "mpg", 
   group_by = "cyl",
   method = summarise_numeric_violin
@@ -99,7 +99,7 @@ The Summary class can automatically create appropriate visualizations:
 ```{r summary-plot}
 # Create summary with point range visualization
 mpg_summary <- Summary$new(
-  .data = mtcars,
+  data = mtcars,
   column = "mpg", 
   group_by = "cyl",
   method = summarise_numeric_violin
@@ -156,7 +156,7 @@ Let's explore nightowl's clinical research capabilities with a simulated dataset
 ```{r clinical-data}
 # Create simulated clinical trial data
 set.seed(123)
-clinical_data <- tibble(
+clinical_data <- tibble::tibble(
   patient_id = 1:200,
   treatment = sample(c("Control", "Treatment"), 200, replace = TRUE),
   age_group = sample(c("Young", "Middle", "Old"), 200, replace = TRUE),
@@ -174,7 +174,7 @@ head(clinical_data)
 ```{r treatment-response}
 # Analyze treatment response by age group
 response_summary <- Summary$new(
-  .data = clinical_data,
+  data = clinical_data,
   column = "response",
   group_by = "age_group",
   method = summarise_categorical_barplot
