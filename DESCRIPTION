@@ -28,7 +28,6 @@ Imports:
     magrittr,
     memoise,
     patchwork,
-    picasso,
     purrr,
     reactable,
     reactablefmtr,
