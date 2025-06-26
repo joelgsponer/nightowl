@@ -1,0 +1,151 @@
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Release version (e.g., v1.0.0)'
+        required: true
+        type: string
+
+name: Release
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+    
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          use-public-rspm: true
+
+      - name: Cache R packages
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.R_LIBS_USER }}
+          key: ${{ runner.os }}-release-${{ hashFiles('DESCRIPTION') }}
+          restore-keys: |
+            ${{ runner.os }}-release-
+
+      - uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          extra-packages: |
+            any::devtools
+            any::pkgdown
+            any::rcmdcheck
+          needs: check
+
+      - name: Build package
+        run: |
+          cat("📦 Building R package...\n")
+          devtools::build()
+        shell: Rscript {0}
+
+      - name: Run comprehensive checks
+        run: |
+          cat("🔍 Running comprehensive package checks...\n")
+          check_results <- rcmdcheck::rcmdcheck(args = "--no-manual", error_on = "warning")
+          
+          if (length(check_results$errors) > 0 || length(check_results$warnings) > 0) {
+            cat("❌ Package check failed!\n")
+            print(check_results)
+            quit(status = 1)
+          } else {
+            cat("✅ Package checks passed!\n")
+          }
+        shell: Rscript {0}
+
+      - name: Extract version from tag
+        id: version
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            VERSION="${{ github.event.inputs.version }}"
+          else
+            VERSION=${GITHUB_REF#refs/tags/}
+          fi
+          echo "VERSION=${VERSION}" >> $GITHUB_OUTPUT
+          echo "Package version: ${VERSION}"
+
+      - name: Update DESCRIPTION version
+        run: |
+          version <- "${{ steps.version.outputs.VERSION }}"
+          version <- gsub("^v", "", version)  # Remove 'v' prefix if present
+          
+          desc_file <- "DESCRIPTION"
+          desc_content <- readLines(desc_file)
+          desc_content <- gsub("^Version:.*", paste0("Version: ", version), desc_content)
+          writeLines(desc_content, desc_file)
+          
+          cat("📝 Updated DESCRIPTION version to:", version, "\n")
+        shell: Rscript {0}
+
+      - name: Build documentation
+        run: |
+          cat("📚 Building package documentation...\n")
+          pkgdown::build_site(new_process = FALSE)
+        shell: Rscript {0}
+
+      - name: Create release notes
+        id: release_notes
+        run: |
+          VERSION="${{ steps.version.outputs.VERSION }}"
+          
+          # Extract changes from NEWS.md if it exists
+          if [ -f "NEWS.md" ]; then
+            NOTES=$(awk "/^# /{ if(found) exit; if(/^# .*${VERSION}/) found=1; next } found" NEWS.md)
+          else
+            NOTES="Release ${VERSION}"
+          fi
+          
+          # Write to file for GitHub release
+          echo "${NOTES}" > release_notes.md
+          echo "Release notes prepared for ${VERSION}"
+
+      - name: Build source package
+        run: |
+          cat("📦 Building source package...\n")
+          pkg_file <- devtools::build()
+          cat("Built package:", pkg_file, "\n")
+          
+          # Get the built package filename
+          writeLines(pkg_file, "package_file.txt")
+        shell: Rscript {0}
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.version.outputs.VERSION }}
+          name: Release ${{ steps.version.outputs.VERSION }}
+          body_path: release_notes.md
+          files: |
+            *.tar.gz
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Deploy documentation
+        uses: peaceiris/actions-gh-pages@v4
+        if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main'
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./docs
+          
+  notify:
+    needs: release
+    runs-on: ubuntu-latest
+    if: success()
+    
+    steps:
+      - name: Notify release success
+        run: |
+          echo "🎉 Release ${{ needs.release.outputs.version }} completed successfully!"
+          echo "📦 Package is now available for installation"
+          echo "📚 Documentation has been updated"

@@ -19,10 +19,32 @@ jobs:
         with:
           use-public-rspm: true
 
+      - name: Cache R packages
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.R_LIBS_USER }}
+          key: ${{ runner.os }}-coverage-${{ hashFiles('DESCRIPTION') }}
+          restore-keys: |
+            ${{ runner.os }}-coverage-
+
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
-          extra-packages: any::covr
+          extra-packages: any::covr, any::bench, any::ggplot2
           needs: coverage
+
+      - name: Run performance benchmarks
+        run: |
+          cat("⚡ Running performance benchmarks...\n")
+          
+          # Check if performance benchmark tests exist
+          if (file.exists("tests/testthat/test-performance-benchmarks.R")) {
+            # Run performance benchmarks and capture results
+            benchmark_results <- testthat::test_file("tests/testthat/test-performance-benchmarks.R", reporter = "summary")
+            cat("✅ Performance benchmarks completed\n")
+          } else {
+            cat("ℹ️  No performance benchmark tests found\n")
+          }
+        shell: Rscript {0}
 
       - name: Test coverage
         run: |

@@ -1,0 +1,104 @@
+on:
+  push:
+    branches: [main, master, dev]
+  pull_request:
+    branches: [main, master, dev]
+  schedule:
+    # Run security audit weekly on Mondays at 9 AM UTC
+    - cron: '0 9 * * 1'
+
+name: Security Audit
+
+jobs:
+  security-audit:
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+    
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          use-public-rspm: true
+
+      - name: Cache R packages
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.R_LIBS_USER }}
+          key: ${{ runner.os }}-security-${{ hashFiles('DESCRIPTION') }}
+          restore-keys: |
+            ${{ runner.os }}-security-
+
+      - uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          extra-packages: |
+            any::oysteR
+            any::jsonlite
+            local::.
+          needs: check
+
+      - name: Audit R package dependencies
+        run: |
+          cat("🔍 Running security audit on R package dependencies...\n")
+          
+          # Audit dependencies for known vulnerabilities
+          audit_results <- oysteR::audit_deps(".")
+          
+          if (length(audit_results) > 0) {
+            cat("⚠️  Security vulnerabilities found:\n")
+            print(audit_results)
+            
+            # Create detailed report
+            jsonlite::write_json(audit_results, "security-audit-results.json", pretty = TRUE)
+            
+            # Fail the build if critical vulnerabilities found
+            critical_vulns <- audit_results[audit_results$severity == "critical", ]
+            if (nrow(critical_vulns) > 0) {
+              cat("❌ CRITICAL vulnerabilities found. Build failed.\n")
+              quit(status = 1)
+            } else {
+              cat("⚠️  Non-critical vulnerabilities found. Review recommended.\n")
+            }
+          } else {
+            cat("✅ No known security vulnerabilities found in dependencies!\n")
+          }
+        shell: Rscript {0}
+
+      - name: Upload security audit results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: security-audit-results
+          path: security-audit-results.json
+          retention-days: 30
+
+      - name: Comment on PR with security results
+        if: github.event_name == 'pull_request' && always()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            if (fs.existsSync('security-audit-results.json')) {
+              const results = JSON.parse(fs.readFileSync('security-audit-results.json', 'utf8'));
+              const comment = `## 🔒 Security Audit Results
+              
+              Found ${results.length} potential security issues in dependencies.
+              
+              ${results.length > 0 ? '⚠️ Please review the security audit artifacts.' : '✅ No security vulnerabilities detected.'}
+              
+              <details>
+              <summary>View Details</summary>
+              
+              \`\`\`json
+              ${JSON.stringify(results, null, 2)}
+              \`\`\`
+              </details>`;
+              
+              github.rest.issues.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: comment
+              });
+            }
