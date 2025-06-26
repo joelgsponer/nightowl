@@ -6,6 +6,10 @@
 #' @return Logical vector indicating which values are outliers (TRUE) or not (FALSE)
 #' @export
 detect_outliers <- function(x, fold = 15) {
+  # Input validation
+  x <- validate_numeric(x, allow_na = TRUE, param_name = "x")
+  fold <- validate_numeric(fold, min_value = 0, param_name = "fold")
+  
   tmp <- graphics::boxplot(x, plot = FALSE)
   to_keep <- dplyr::if_else(x > fold * tmp$stats[5] | x < (1 / fold) * tmp$stats[1],
     TRUE, FALSE
@@ -21,6 +25,10 @@ detect_outliers <- function(x, fold = 15) {
 #' @return Integer count of outliers found in the vector
 #' @export
 count_outliers <- function(x, fold = 15) {
+  # Input validation
+  x <- validate_numeric(x, allow_na = TRUE, param_name = "x")
+  fold <- validate_numeric(fold, min_value = 0, param_name = "fold")
+  
   tmp <- graphics::boxplot(x, plot = FALSE)
   to_keep <- dplyr::if_else(x > fold * tmp$stats[5] | x < (1 / fold) * tmp$stats[1],
     TRUE, FALSE

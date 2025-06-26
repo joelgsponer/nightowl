@@ -31,6 +31,21 @@ forestplot <- function(x,
                        hide_legend = TRUE,
                        shape = 15,
                        theme = ggplot2::theme_void) {
+  # Input validation
+  x <- validate_numeric(x, param_name = "x")
+  xmin <- validate_numeric(xmin, param_name = "xmin")
+  xmax <- validate_numeric(xmax, param_name = "xmax")
+  height <- validate_numeric(height, min_value = 0, param_name = "height")
+  
+  if (!is.null(xlim)) {
+    xlim <- validate_numeric(xlim, param_name = "xlim")
+    if (length(xlim) != 2) {
+      throw_validation_error("xlim must be a numeric vector of length 2", "xlim", xlim)
+    }
+  }
+  if (!is.null(xintercept)) {
+    xintercept <- validate_numeric(xintercept, param_name = "xintercept")
+  }
   .data <- tibble::tibble(x = x, xmin = xmin, xmax = xmax)
   .p <- ggplot2::ggplot(NULL, ggplot2::aes(
     y = 0,
