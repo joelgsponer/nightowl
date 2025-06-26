@@ -11,7 +11,7 @@ calc_test <- function(.data, y, x = NULL, gracefully = T, ...) {
     {
       stopifnot(y %in% names(.data))
       if (is.null(x)) {
-        .groups <- waRRior::get_groups(.data)
+        .groups <- nightowl_get_groups(.data)
       } else {
         .groups <- x
       }
@@ -44,7 +44,7 @@ calc_test <- function(.data, y, x = NULL, gracefully = T, ...) {
 #' @export
 calc_test_kruskal <- function(.data, y, x = NULL, ...) {
   if (is.null(x)) {
-    .groups <- waRRior::get_groups(.data)
+    .groups <- nightowl_get_groups(.data)
   } else {
     .groups <- x
   }
@@ -68,7 +68,7 @@ calc_test_kruskal <- function(.data, y, x = NULL, ...) {
 #' @export
 calc_test_chisq <- function(.data, y, x = NULL, correct = F, ...) {
   if (is.null(x)) {
-    .groups <- waRRior::get_groups(.data)
+    .groups <- nightowl_get_groups(.data)
   } else {
     .groups <- x
   }
@@ -108,7 +108,7 @@ Test <- R6::R6Class("Test",
     initialize = function(.data, y, x = NULL, ...) {
       if (!inherits(.data, "tbl_df")) .data <- tibble::as_tibble(.data)
       if (is.null(x)) {
-        self$x <- waRRior::get_groups(.data)
+        self$x <- nightowl_get_groups(.data)
         if (is.null(self$x)) stop("No groups found - either provide x variables or group the data beforehand")
       } else {
         self$x <- x

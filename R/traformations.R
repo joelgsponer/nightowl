@@ -20,14 +20,13 @@ percentage <- function(data, mapping) {
   return(list(data = join, mapping = mapping))
 }
 # =================================================
-#' @title
-#' MISSING_TITLE
-#' @description
-#' @detail
-#' @param
-#' @return
+#' @title Calculate frequency transformation for plotting
+#' @description Calculates relative frequencies for categorical data transformation in plots
+#' @param data Data frame containing the variables
+#' @param mapping Aesthetic mapping list containing variable names
+#' @return List containing transformed data and updated mapping
 #' @export
-frequency <- function(data, mapping) {
+calc_frequency <- function(data, mapping) {
   n <- data %>%
     dplyr::group_by_all() %>%
     dplyr::tally()
@@ -42,19 +41,17 @@ frequency <- function(data, mapping) {
 }
 # =================================================
 # =================================================
-#' @title
-#' MISSING_TITLE
-#' @description
-#' @detail
-#' @param
-#' @return
+#' @title Calculate count transformation for plotting  
+#' @description Calculates counts for categorical data transformation in plots
+#' @param data Data frame containing the variables
+#' @param mapping Aesthetic mapping list containing variable names
+#' @return List containing transformed data and updated mapping
 #' @export
-count <- function(data, mapping) {
+calc_count <- function(data, mapping) {
   n <- data %>%
     dplyr::group_by_all() %>%
     dplyr::tally()
   mapping$y <- "n"
-  join[[mapping$y]] <- join$n / join$N * 100
-  return(list(data = join, mapping = mapping))
+  return(list(data = n, mapping = mapping))
 }
 # =================================================

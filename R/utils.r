@@ -82,3 +82,8 @@ length.R6 <- function(x) x$length()
 format.R6 <- function(x) x$format()
 as.data.frame.R6 <- function(x, ...) x$as.data.frame()
 as.character.R6 <- function(x, ...) x$as.character()
+# =================================================
+#' Get group variables from data frame
+nightowl_get_groups <- function(data) {
+  dplyr::group_vars(data)
+}

@@ -9,7 +9,7 @@ R6 Class
 R6 Class
 }
 \section{Super class}{
-\code{\link[nightowl:Plot]{nightowl::Plot}} -> \code{DeclarativePlot}
+\code{nightowl::Plot} -> \code{DeclarativePlot}
 }
 \section{Methods}{
 \subsection{Public methods}{

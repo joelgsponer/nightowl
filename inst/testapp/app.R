@@ -15,7 +15,7 @@ server <- function(input, output, session) {
     promises::future_promise(
       {
         testdata <- palmerpenguins::penguins_raw
-        nightowl::boxplot(testdata,
+        nightowl::nw_boxplot(testdata,
           x = "Sex",
           y = "Culmen Depth (mm)",
           add_violin = T,

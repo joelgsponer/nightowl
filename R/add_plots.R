@@ -5,7 +5,7 @@ generic <- function(geom,
                     mapping = list(),
                     ...) {
   .aes <- do.call(ggplot2::aes, mapping)
-  .f <- waRRior::getfun(geom)
+  .f <- nightowl_getfun(geom)
   g + .f(mapping = .aes, ...)
 }
 #' generic
@@ -13,7 +13,7 @@ generic <- function(geom,
 scales <- function(scale,
                    g,
                    ...) {
-  .f <- waRRior::getfun(scale)
+  .f <- nightowl_getfun(scale)
   g + do.call(.f, list(...))
 }
 # ===============================================================================
@@ -58,9 +58,12 @@ violin <- function(...) {
   nightowl::add_geom(ggplot2::geom_violin, ...)
 }
 # ===============================================================================
-#' Add Boxplot
+#' @title Add Boxplot Geometry
+#' @description Adds boxplot geometry to nightowl plots with position dodging
+#' @param ... Additional arguments passed to add_geom and geom_boxplot
+#' @return Modified ggplot object with boxplot layer
 #' @export
-boxplot <- function(...) {
+nw_boxplot <- function(...) {
   nightowl::add_geom(ggplot2::geom_boxplot, ...)
 }
 # ===============================================================================
@@ -77,23 +80,37 @@ dotplot <- function(binaxis = "y",
   )
 }
 # ===============================================================================
-#' Add points
+#' @title Add Points Geometry
+#' @description Adds point geometry to nightowl plots with custom aesthetic mapping
+#' @param g ggplot object to add points to
+#' @param mapping Aesthetic mapping list for points
+#' @param ... Additional arguments passed to geom_point
+#' @return Modified ggplot object with points layer
 #' @export
-points <- function(g, mapping = list(), ...) {
+nw_points <- function(g, mapping = list(), ...) {
   .aes <- do.call(ggplot2::aes, mapping)
   g + ggplot2::geom_point(mapping = .aes, ...)
 }
 # ===============================================================================
-#' Add summary
+#' @title Add Summary Statistics Layer
+#' @description Adds statistical summary layer to nightowl plots with customizable functions
+#' @param g ggplot object to add summary to
+#' @param mapping Aesthetic mapping list for summary statistics
+#' @param fun.data Function for computing summary data
+#' @param fun Function for computing single summary statistic
+#' @param dodge Position dodge width
+#' @param shape Point shape for summary statistics
+#' @param ... Additional arguments passed to stat_summary
+#' @return Modified ggplot object with summary statistics layer
 #' @export
-summary <- function(g,
+nw_summary <- function(g,
                     mapping = list(),
                     fun.data = NULL,
                     fun = NULL,
                     dodge = 1,
                     shape = 21,
                     ...) {
-  cli::cli_progress_step("summary.gg")
+  nightowl_progress_step("summary.gg")
   if (!is.null(fun.data) && !is.null(fun)) {
     rlang::abort("Error in summary: Please specify either fun or fun.data, not both")
   }
@@ -114,9 +131,17 @@ summary <- function(g,
   g + .f(mapping = .aes, position = ggplot2::position_dodge(dodge, preserve = "total"), shape = shape, fun = fun, fun.data = fun.data, ...)
 }
 # ===============================================================================
-#' Add smooth
+#' @title Add Smooth Trend Line
+#' @description Adds smooth trend line to nightowl plots with customizable methods
+#' @param g ggplot object to add smooth line to
+#' @param mapping Aesthetic mapping list for smooth line
+#' @param dodge Position dodge width
+#' @param method Smoothing method (default: "lm")
+#' @param color Line color
+#' @param ... Additional arguments passed to geom_smooth
+#' @return Modified ggplot object with smooth trend line
 #' @export
-smooth <- function(g,
+nw_smooth <- function(g,
                    mapping = list(),
                    dodge = 0,
                    method = "lm",
@@ -205,9 +230,19 @@ traces <- function(g,
   )
 }
 # ===============================================================================
-#' Apply axis
+#' @title Apply Axis Transformations
+#' @description Applies axis transformations including log scaling and limits to nightowl plots
+#' @param g ggplot object to modify axes for
+#' @param log_x Logical indicating whether to apply log10 transformation to x-axis
+#' @param log_y Logical indicating whether to apply log10 transformation to y-axis
+#' @param xlim Numeric vector of x-axis limits
+#' @param ylim Numeric vector of y-axis limits
+#' @param units_x Units label for x-axis
+#' @param units_y Units label for y-axis
+#' @param ... Additional arguments
+#' @return Modified ggplot object with axis transformations
 #' @export
-axis <- function(g,
+nw_axis <- function(g,
                  log_x = F,
                  log_y = F,
                  xlim = NULL,
@@ -346,9 +381,15 @@ aes <- function(aes) {
   rlang::exec(.fn = "f", !!!aes)
 }
 # ===============================================================================
-#' Define colors
+#' @title Define Color Scales
+#' @description Defines color and fill scales for nightowl plots with automatic legend handling
+#' @param g ggplot object to apply color scales to
+#' @param DATA Data frame containing the variables
+#' @param mapping Aesthetic mapping list containing color/fill variables
+#' @param ... Additional arguments
+#' @return Modified ggplot object with color scales applied
 #' @export
-colors <- function(g, DATA, mapping, ...) {
+nw_colors <- function(g, DATA, mapping, ...) {
   fill <- mapping$fill
   color <- mapping$color
   if (!is.null(fill) && is.factor(DATA[[fill]])) {
@@ -385,7 +426,7 @@ colors <- function(g, DATA, mapping, ...) {
 theme <- function(g, theme = "ggplot2::theme_bw", ...) {
   # Add Theme
   if (is.character(theme)) {
-    .f <- waRRior::getfun(theme)
+    .f <- nightowl_getfun(theme)
     g <- g + .f()
   } else if (is.function(theme)) {
     g <- g + theme()
@@ -396,9 +437,9 @@ theme <- function(g, theme = "ggplot2::theme_bw", ...) {
   args <- list(...)
   elements <- purrr::imap(args, function(.x, .y) {
     if (is.character(.x$element)) {
-      .x$element <- waRRior::getfun(.x$element)
+      .x$element <- nightowl_getfun(.x$element)
     }
-    params <- .x[waRRior::pop(names(.x), "element")]
+    params <- .x[nightowl_pop(names(.x), "element")]
     do.call(.x$element, params)
   })
   g <- g + do.call(ggplot2::theme, elements)

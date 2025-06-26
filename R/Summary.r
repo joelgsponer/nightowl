@@ -55,7 +55,7 @@ Summary <- R6::R6Class("Summary",
       }
       if (is.null(self$data)) rlang::abort("No data provided - use `set_data` method to update")
       self$check_variables()
-      if (is.null(self$group_by)) self$group_by <- waRRior::get_groups(data)
+      if (is.null(self$group_by)) self$group_by <- nightowl_get_groups(data)
       data <- data %>%
         dplyr::ungroup() %>%
         dplyr::select_at(c(unname(unlist(self$get_variables())))) %>%
@@ -242,4 +242,11 @@ new_summary <- function(.data,
     ...
   )
 }
+# =================================================
+#' @title Summary (Alias)
+#' @description Alias for new_summary function to maintain backward compatibility
+#' @param ... All arguments passed to new_summary
+#' @return A Summary R6 object
+#' @export
+summary <- new_summary
 # =================================================

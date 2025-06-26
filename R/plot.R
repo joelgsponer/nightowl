@@ -239,10 +239,10 @@ DeclarativePlot <- R6::R6Class("DeclarativePlot",
         g <- do.call(nightowl::facets, c(list(g = g), self$facets))
         #*******************************************************************************
         # Axis
-        g <- do.call(nightowl::axis, c(list(g = g), self$axis))
+        g <- do.call(nightowl::nw_axis, c(list(g = g), self$axis))
         # #*******************************************************************************
         # Colors and theming
-        g <- do.call(nightowl::colors, c(list(g = g, DATA = self$data, mapping = self$mapping), self$colors))
+        g <- do.call(nightowl::nw_colors, c(list(g = g, DATA = self$data, mapping = self$mapping), self$colors))
         # # Add Theme
         g <- do.call(nightowl::theme, c(list(g = g), self$theming))
         # #*******************************************************************************

@@ -125,7 +125,7 @@ render_reactable <- function(.tbl,
       ;
     }
   "
-  .groups <- waRRior::get_groups(.tbl)
+  .groups <- nightowl_get_groups(.tbl)
   # Infer column types
   col_NightowlPlots <- names(.tbl)[purrr::map_lgl(.tbl, ~ inherits(.x, "NightowlPlots"))]
   col_HTML <- names(.tbl)[purrr::map_lgl(.tbl, ~ inherits(.x, "html"))]
