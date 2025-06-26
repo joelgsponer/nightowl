@@ -312,3 +312,60 @@ nightowl_fct_lexicographic <- function(x) {
     factor(x, levels = sort(unique(x)))
   }
 }
+
+# =================================================
+# forcats Replacement Functions
+# =================================================
+
+#' Convert NA values to a specific factor level (compatible with forcats::fct_na_value_to_level)
+#'
+#' @param f Factor vector
+#' @param level Character string for the level to convert NAs to
+#' @return Factor with NAs converted to the specified level
+#' @export
+nightowl_fct_na_value_to_level <- function(f, level = "(Missing)") {
+  if (!is.factor(f)) {
+    f <- as.factor(f)
+  }
+  
+  # Add the new level if it doesn't exist
+  if (!level %in% levels(f)) {
+    levels(f) <- c(levels(f), level)
+  }
+  
+  # Replace NA values with the specified level
+  f[is.na(f)] <- level
+  
+  return(f)
+}
+
+#' Reverse factor level order (compatible with forcats::fct_rev)
+#'
+#' @param f Factor vector
+#' @return Factor with reversed level order
+#' @export
+nightowl_fct_rev <- function(f) {
+  if (!is.factor(f)) {
+    f <- as.factor(f)
+  }
+  
+  # Reverse the order of levels
+  factor(f, levels = rev(levels(f)))
+}
+
+#' Order factor levels by first appearance (compatible with forcats::fct_inorder)
+#'
+#' @param f Factor or character vector
+#' @return Factor with levels ordered by first appearance
+#' @export
+nightowl_fct_inorder <- function(f) {
+  if (is.factor(f)) {
+    # Get unique values in order of first appearance
+    unique_vals <- unique(as.character(f))
+    factor(f, levels = unique_vals)
+  } else {
+    # Convert to factor with levels in order of first appearance
+    unique_vals <- unique(f[!is.na(f)])
+    factor(f, levels = unique_vals)
+  }
+}

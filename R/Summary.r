@@ -73,7 +73,7 @@ Summary <- R6::R6Class("Summary",
             dplyr::ungroup() %>%
             dplyr::select_at(c(unname(unlist(self$get_variables())))) %>%
             dplyr::mutate_if(is.character, factor) %>%
-            dplyr::mutate_if(is.factor, forcats::fct_na_value_to_level) %>%
+            dplyr::mutate_if(is.factor, nightowl_fct_na_value_to_level) %>%
             dplyr::group_by_at(self$group_by)
           
           # Cache processed data

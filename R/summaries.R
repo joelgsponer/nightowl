@@ -276,7 +276,7 @@ summarise_numeric_histogram <- function(self,
 #' @return A named numeric vector of percentages for each factor level
 #' @export
 calc_percentage <- function(x, N = length(x), digits = 1) {
-  x <- forcats::fct_na_value_to_level(x, level = "(Missing)")
+  x <- nightowl_fct_na_value_to_level(x, level = "(Missing)")
   counts <- base::table(x)
   percent <- counts / N * 100
   percent <- round(percent, digits)
@@ -302,7 +302,7 @@ format_frequencies <- function(x,
                                digits = 1,
                                str_width = get_nightowl_options()$get_header_width(),
                                add_colors = T, colors = get_nightowl_options()$get_colors) {
-  x <- forcats::fct_na_value_to_level(x, level = "(Missing)")
+  x <- nightowl_fct_na_value_to_level(x, level = "(Missing)")
   counts <- base::table(x)
   if (output == "counts") {
     counts %>%

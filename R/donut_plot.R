@@ -27,11 +27,11 @@ make_donut_plot_categorical <- function(data,
   # Make split factor if it is not yet
   if (!is.factor(data[[split]])) {
     data[[split]] <- factor(data[[split]]) %>%
-      forcats::fct_na_value_to_level(level = "(Missing)")
+      nightowl_fct_na_value_to_level(level = "(Missing)")
   }
   # Make column a factor
   data[[column]] <- factor(data[[column]]) %>%
-    forcats::fct_na_value_to_level(level = "(Missing)")
+    nightowl_fct_na_value_to_level(level = "(Missing)")
   # Number of levels
   nl <- nlevels(data[[column]])
   # Prepare colors if not provided
@@ -130,7 +130,7 @@ make_donut_plot_numeric <- function(data,
   # Make split factor if it is not yet
   if (!is.factor(data[[split]])) {
     data[[split]] <- factor(data[[split]]) %>%
-      forcats::fct_na_value_to_level(level = "(Missing)")
+      nightowl_fct_na_value_to_level(level = "(Missing)")
   }
   l <- levels(data[[split]])
   nl <- nlevels(data[[split]])
@@ -212,7 +212,7 @@ donut_plot <- function(data,
   # Make split factor if it is not yet
   if (!is.factor(data[[split]])) {
     data[[split]] <- factor(data[[split]]) %>%
-      forcats::fct_na_value_to_level(level = "(Missing)")
+      nightowl_fct_na_value_to_level(level = "(Missing)")
   }
   columns <- as.list(columns)
   if (is.null(labels)) {

@@ -137,14 +137,14 @@ add_barplot <- function(x,
                         colors = get_nightowl_options()$get_colors) {
   if (!is.factor(x)) {
     x <- factor(x) %>%
-      forcats::fct_na_value_to_level(level = "(Missing)")
+      nightowl_fct_na_value_to_level(level = "(Missing)")
   }
   counts <- base::table(x) / length(x) * 100
   colors <- colors(length(counts), missing = "(Missing)" %in% names(counts)) %>%
     rev()
   .p <- tibble::tibble(fill = names(counts), y = counts) %>%
-    dplyr::mutate(fill = forcats::fct_inorder(fill)) %>%
-    dplyr::mutate(fill = forcats::fct_rev(fill)) %>%
+    dplyr::mutate(fill = nightowl_fct_inorder(fill)) %>%
+    dplyr::mutate(fill = nightowl_fct_rev(fill)) %>%
     ggplot2::ggplot(ggplot2::aes(y = 1, x = y, fill = fill)) +
     ggplot2::geom_col(orientation = "y") +
     ggplot2::scale_fill_manual(values = colors, drop = F) +
