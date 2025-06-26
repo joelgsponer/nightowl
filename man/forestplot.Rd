@@ -8,7 +8,7 @@ forestplot(
   x,
   xmin,
   xmax,
-  xlim = NULL,
+  x_lim = NULL,
   xintercept = NULL,
   height = 0.5,
   xlab = NULL,
@@ -27,7 +27,7 @@ forestplot(
 
 \item{xmax}{Numeric. Upper confidence limit(s)}
 
-\item{xlim}{Numeric vector of length 2. Plot x-axis limits. If NULL, uses data range}
+\item{x_lim}{Numeric vector of length 2. Plot x-axis limits. If NULL, uses data range}
 
 \item{xintercept}{Numeric. Value for vertical reference line (e.g., null effect). Default NULL}
 

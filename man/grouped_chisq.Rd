@@ -4,12 +4,12 @@
 \alias{grouped_chisq}
 \title{Perform chi-square tests across grouped data}
 \usage{
-grouped_chisq(df, split_by, x, y, ...)
+grouped_chisq(data, group_by, x, y, ...)
 }
 \arguments{
-\item{df}{A data frame containing the variables for analysis}
+\item{data}{A data frame containing the variables for analysis}
 
-\item{split_by}{String. Name of the grouping variable to split data by}
+\item{group_by}{String. Name of the grouping variable to split data by}
 
 \item{x}{String. Name of the first categorical variable for the chi-square test}
 

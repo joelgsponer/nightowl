@@ -23,7 +23,7 @@ render_svg <- function(g,
   n_dev <- length(dev.list())
   tryCatch(
     {
-      cli::cli_progress_step("Opening SVG device")
+      nightowl_progress_step("Opening SVG device")
       svg <- svglite::svgstring(
         height = height, width = width, scaling = scaling,
         web_fonts = "https://fonts.googleapis.com/css2?family=Lato:wght@100;300;400;700;900&display=swap",
@@ -40,8 +40,8 @@ render_svg <- function(g,
       } else {
         print(g)
       }
-      svg <- waRRior::regex_replace_element_parameter(svg(), "width", element_width) %>%
-        waRRior::regex_replace_element_parameter("height", element_height) %>%
+      svg <- nightowl_regex_replace_element_parameter(svg(), "width", element_width) %>%
+        nightowl_regex_replace_element_parameter("height", element_height) %>%
         fix_font()
       if (add_download_button) {
         svg <- nightowl::add_download_button(svg)
@@ -56,7 +56,7 @@ render_svg <- function(g,
     },
     finally = {
       while (length(dev.list()) > n_dev) {
-        cli::cli_progress_step("Closing device")
+        nightowl_progress_step("Closing device")
         dev.off()
       }
     }
@@ -115,7 +115,7 @@ add_download_button <- function(x) {
 new_NightowlPlots <- function(...) {
   x <- list(...)
   x <- unclass(x)
-  vctrs::new_vctr(x, class = "NightowlPlots")
+  nightowl_new_vctr(x, class = "NightowlPlots")
 }
 # =================================================
 #' @title

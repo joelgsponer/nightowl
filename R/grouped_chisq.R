@@ -3,20 +3,20 @@
 #' @description
 #' Conducts chi-square tests of independence between two categorical variables
 #' for each group defined by a splitting variable, with error handling.
-#' @param df A data frame containing the variables for analysis
-#' @param split_by String. Name of the grouping variable to split data by
+#' @param data A data frame containing the variables for analysis
+#' @param group_by String. Name of the grouping variable to split data by
 #' @param x String. Name of the first categorical variable for the chi-square test
 #' @param y String. Name of the second categorical variable for the chi-square test
 #' @param ... Additional arguments passed to chisq.test()
 #' @return A list of safely executed chi-square test results for each group
 #' @export
 grouped_chisq <- function(data, group_by, x, y, ...) {
-  cli::cli_h1("Calculating grouped chisq test")
+  nightowl_h1("Calculating grouped chisq test")
   data %>%
     nightowl_named_group_split_at(data, group_by) %>%
     purrr::imap(purrr::safely({
       function(.df, .split) {
-        cli::cli_progress_step("{.split}")
+        nightowl_progress_step(.split)
         if (is.factor(.df[x])) .df[[x]] <- droplevels(.df[[x]])
         if (is.factor(.df[y])) .df[[y]] <- droplevels(.df[[y]])
         .x <- .df[[x]]
@@ -24,10 +24,10 @@ grouped_chisq <- function(data, group_by, x, y, ...) {
         info <- base::table(.x, .y) %>%
           chisq.test(...) %>%
           broom::tidy()
-        info[[split_by]] <- .split
+        info[[group_by]] <- .split
         info$N <- nrow(.df)
         info <- info %>%
-          dplyr::select(!!rlang::sym(split_by), N, statistic, p.value, tidyselect::everything())
+          dplyr::select(!!rlang::sym(group_by), N, statistic, p.value, dplyr::everything())
         info
       }
     }))
@@ -96,8 +96,8 @@ report_errors_grouped_chisq <- function(x) {
 #' @description
 #' Generates interactive stacked percentage plots for each group in chi-square analysis,
 #' ordered by statistical significance and annotated with test statistics.
-#' @param df A data frame containing the variables for visualization
-#' @param split_by String. Name of the grouping variable to split plots by
+#' @param data A data frame containing the variables for visualization
+#' @param group_by String. Name of the grouping variable to split plots by
 #' @param x String. Name of the first categorical variable for plotting
 #' @param y String. Name of the second categorical variable for plotting
 #' @param test Optional. Pre-computed chi-square test results. If NULL, tests are computed
@@ -111,7 +111,7 @@ report_errors_grouped_chisq <- function(x) {
 #' @param ... Additional arguments passed to chi-square testing
 #' @return An HTML div containing interactive plots arranged in a flexible layout
 #' @export
-plot_grouped_chisq <- function(df, split_by, x, y, test = NULL, order_by = "p.value",
+plot_grouped_chisq <- function(data, group_by, x, y, test = NULL, order_by = "p.value",
                                pal = NULL,
                                width = 3,
                                height = 3,
@@ -120,21 +120,21 @@ plot_grouped_chisq <- function(df, split_by, x, y, test = NULL, order_by = "p.va
                                show_info = TRUE,
                                ...) {
   if (is.null(test)) {
-    test <- nightowl::grouped_chisq(df, split_by, x, y) %>%
+    test <- nightowl::grouped_chisq(data, group_by, x, y) %>%
       nightowl::extract_results_grouped_chisq()
   }
   test <- test %>%
     dplyr::arrange(.data[[order_by]])
-  split_order <- test[[split_by]]
-  test <- waRRior::named_group_split_at(test, split_by)
-  df_split <- waRRior::named_group_split_at(df, split_by)
+  split_order <- test[[group_by]]
+  test <- nightowl_named_group_split_at(test, group_by)
+  df_split <- nightowl_named_group_split_at(data, group_by)
   df_split <- df_split[split_order]
-  cli::cli_h1("Plotting grouped chisq")
+  nightowl_h1("Plotting grouped chisq")
 
   .l <- list(data = df_split, info = test, name = names(df_split))
 
   purrr::pmap(.l, function(data, info, name) {
-    cli::cli_progress_step("{name}")
+    nightowl_progress_step(name)
     if (show_info) {
       info <- info %>%
         dplyr::select(N, statistic, `p.value`) %>%
@@ -168,8 +168,8 @@ plot_grouped_chisq <- function(df, split_by, x, y, test = NULL, order_by = "p.va
 #' @description
 #' Generates an interactive reactable with embedded plots for grouped chi-square analysis,
 #' combining statistical results with visual representations.
-#' @param df A data frame containing the variables for analysis
-#' @param split_by String. Name of the grouping variable to split analysis by
+#' @param data A data frame containing the variables for analysis
+#' @param group_by String. Name of the grouping variable to split analysis by
 #' @param x String. Name of the first categorical variable
 #' @param y String. Name of the second categorical variable
 #' @param test Optional. Pre-computed chi-square test results. If NULL, tests are computed
@@ -180,26 +180,26 @@ plot_grouped_chisq <- function(df, split_by, x, y, test = NULL, order_by = "p.va
 #' @param ... Additional arguments passed to chi-square testing
 #' @return An interactive reactable widget with embedded visualizations
 #' @export
-reactable_grouped_chisq <- function(df, split_by, x, y, test = NULL, order_by = "p.value",
+reactable_grouped_chisq <- function(data, group_by, x, y, test = NULL, order_by = "p.value",
                                     pal = NULL,
                                     width = 3,
                                     height = 3,
                                     ...) {
   if (is.null(test)) {
-    test <- nightowl::grouped_chisq(df, split_by, x, y) %>%
+    test <- nightowl::grouped_chisq(data, group_by, x, y) %>%
       nightowl::extract_results_grouped_chisq()
   }
   test <- test %>%
     dplyr::arrange(.data[[order_by]])
-  split_order <- test[[split_by]]
-  test <- waRRior::named_group_split_at(test, split_by)
-  df_split <- waRRior::named_group_split_at(df, split_by)
+  split_order <- test[[group_by]]
+  test <- nightowl_named_group_split_at(test, group_by)
+  df_split <- nightowl_named_group_split_at(data, group_by)
   df_split <- df_split[split_order]
-  cli::cli_h1("Reactable Grouped Chisq")
+  nightowl_h1("Reactable Grouped Chisq")
 
   .l <- list(data = df_split, info = test, name = names(df_split))
   purrr::pmap(.l, function(data, info, name) {
-    cli::cli_progress_step("{name}")
+    nightowl_progress_step(name)
     info <- info %>%
       dplyr::select(N, statistic, `p.value`) %>%
       dplyr::mutate_if(is.numeric, function(x) round(x, 5)) %>%

@@ -27,11 +27,11 @@ make_donut_plot_categorical <- function(data,
   # Make split factor if it is not yet
   if (!is.factor(data[[split]])) {
     data[[split]] <- factor(data[[split]]) %>%
-      forcats::fct_na_value_to_level(level = "(Missing)")
+      nightowl_fct_na_value_to_level(level = "(Missing)")
   }
   # Make column a factor
   data[[column]] <- factor(data[[column]]) %>%
-    forcats::fct_na_value_to_level(level = "(Missing)")
+    nightowl_fct_na_value_to_level(level = "(Missing)")
   # Number of levels
   nl <- nlevels(data[[column]])
   # Prepare colors if not provided
@@ -46,10 +46,10 @@ make_donut_plot_categorical <- function(data,
     try(colors[["(Missing)"]] <- color_missing)
   }
   # Split Data
-  p <- waRRior::named_group_split(data, !!rlang::sym(split)) %>%
+  p <- nightowl_named_group_split(data, !!rlang::sym(split)) %>%
     purrr::imap(function(.x, .y) {
       # Calculate frequencies and prepare labels
-      freq <- waRRior::tally_at(.x, column) %>%
+      freq <- nightowl_tally_at(.x, column) %>%
         dplyr::arrange(!!rlang::sym(column))
       freq$fraction <- freq$n / sum(freq$n)
       freq$ymax <- cumsum(freq$fraction)
@@ -130,7 +130,7 @@ make_donut_plot_numeric <- function(data,
   # Make split factor if it is not yet
   if (!is.factor(data[[split]])) {
     data[[split]] <- factor(data[[split]]) %>%
-      forcats::fct_na_value_to_level(level = "(Missing)")
+      nightowl_fct_na_value_to_level(level = "(Missing)")
   }
   l <- levels(data[[split]])
   nl <- nlevels(data[[split]])
@@ -144,7 +144,7 @@ make_donut_plot_numeric <- function(data,
   }
   try(colors[["(Missing)"]] <- color_missing)
   # Split and plot
-  p <- waRRior::named_group_split(data, !!rlang::sym(split)) %>%
+  p <- nightowl_named_group_split(data, !!rlang::sym(split)) %>%
     purrr::imap(function(.x, .y) {
       if (nightowl::is_dark(colors[[.y]])) {
         .contrast <- "white"
@@ -212,7 +212,7 @@ donut_plot <- function(data,
   # Make split factor if it is not yet
   if (!is.factor(data[[split]])) {
     data[[split]] <- factor(data[[split]]) %>%
-      forcats::fct_na_value_to_level(level = "(Missing)")
+      nightowl_fct_na_value_to_level(level = "(Missing)")
   }
   columns <- as.list(columns)
   if (is.null(labels)) {

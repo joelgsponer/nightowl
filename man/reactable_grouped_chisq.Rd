@@ -5,8 +5,8 @@
 \title{Create reactable visualization for grouped chi-square analysis}
 \usage{
 reactable_grouped_chisq(
-  df,
-  split_by,
+  data,
+  group_by,
   x,
   y,
   test = NULL,
@@ -18,9 +18,9 @@ reactable_grouped_chisq(
 )
 }
 \arguments{
-\item{df}{A data frame containing the variables for analysis}
+\item{data}{A data frame containing the variables for analysis}
 
-\item{split_by}{String. Name of the grouping variable to split analysis by}
+\item{group_by}{String. Name of the grouping variable to split analysis by}
 
 \item{x}{String. Name of the first categorical variable}
 

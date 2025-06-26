@@ -16,7 +16,7 @@ test_that("declarative plots execute and render correctly with various configura
 
   a <- nightowl::plot(
     data = testdata,
-    transform = list(x = "waRRior::fct_lexicographic"),
+    transform = list(x = "nightowl::nightowl_fct_lexicographic"),
     mapping = list(
       x = "Time",
       y = "weight",
@@ -38,7 +38,7 @@ test_that("declarative plots execute and render correctly with various configura
 
   nightowl::plot(
     data = testdata,
-    transform = list(x = "waRRior::fct_lexicographic"),
+    transform = list(x = "nightowl::nightowl_fct_lexicographic"),
     mapping = list(
       x = "Time",
       y = "weight",
@@ -56,7 +56,7 @@ test_that("declarative plots execute and render correctly with various configura
 
   .p <- nightowl::plot(
     data = testdata,
-    transform = list(x = "waRRior::fct_lexicographic"),
+    transform = list(x = "nightowl::nightowl_fct_lexicographic"),
     mapping = list(
       x = "Time",
       y = "Chick",
@@ -72,7 +72,7 @@ test_that("declarative plots execute and render correctly with various configura
   plotly::ggplotly(.p)
 
   nightowl::plot(testdata,
-    transform = list(x = "waRRior::fct_lexicographic"),
+    transform = list(x = "nightowl::nightowl_fct_lexicographic"),
     mapping = list(
       x = "Diet",
       y = "weight",
@@ -237,7 +237,7 @@ test_that("declarative plots execute and render correctly with various configura
 
 
   nightowl::plot(palmerpenguins::penguins,
-    transform = list(data = "nightowl::percentage", x = "waRRior::fct_lexicographic"),
+    transform = list(data = "nightowl::percentage", x = "nightowl::nightowl_fct_lexicographic"),
     mapping = list(
       x = "island",
       fill = "species",
@@ -258,7 +258,7 @@ test_that("declarative plots execute and render correctly with various configura
     data = palmerpenguins::penguins,
     transform = list(
       data = "nightowl::percentage",
-      x = "waRRior::fct_lexicographic"
+      x = "nightowl::nightowl_fct_lexicographic"
     ),
     mapping = list(x = "island", fill = "species", facet_row = "sex")
   )

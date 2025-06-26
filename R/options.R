@@ -8,7 +8,7 @@
                           missingColor = NULL) {
       if (is.null(colors)) colors <- nightowl_colors()
       if (is.null(missingColor)) missingColor <- nightowl_colors()["grey"]
-      cli::cli_progress_step("Setting up Nightowl")
+      nightowl_progress_step("Setting up Nightowl")
       # Setting values
       self$set_missing_color(missingColor)
       self$set_colors(colors)

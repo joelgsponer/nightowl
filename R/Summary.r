@@ -66,14 +66,14 @@ Summary <- R6::R6Class("Summary",
           # Store processed data in shared environment for reuse
           if (is.null(self$data)) rlang::abort("No data provided - use `set_data` method to update")
           self$check_variables()
-          if (is.null(self$group_by)) self$group_by <- waRRior::get_groups(data)
+          if (is.null(self$group_by)) self$group_by <- nightowl_get_groups(data)
           
           # Process data efficiently
           processed_data <- data %>%
             dplyr::ungroup() %>%
             dplyr::select_at(c(unname(unlist(self$get_variables())))) %>%
             dplyr::mutate_if(is.character, factor) %>%
-            dplyr::mutate_if(is.factor, forcats::fct_na_value_to_level) %>%
+            dplyr::mutate_if(is.factor, nightowl_fct_na_value_to_level) %>%
             dplyr::group_by_at(self$group_by)
           
           # Cache processed data
@@ -196,11 +196,11 @@ Summary <- R6::R6Class("Summary",
         name_for_column = self$name_for_column,
         names_sep = self$names_sep
       )
-      res <- dplyr::select(res, Variable, tidyselect::everything())
+      res <- dplyr::select(res, Variable, dplyr::everything())
       res <- self$drop_variable(res)
       res <- self$arrange(res)
       if (!is.null(drop)) {
-        res <- waRRior::drop_columns(res, drop)
+        res <- nightowl_drop_columns(res, drop)
       }
       return(res)
     },

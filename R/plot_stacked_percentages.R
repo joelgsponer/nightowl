@@ -43,7 +43,7 @@ plot_stacked_percentages <- function(DATA,
     dplyr::mutate(!!rlang::sym(y) := as.factor(!!rlang::sym(y))) %>%
     {
       if (explicit_na) {
-        dplyr::mutate_at(., y, function(x) forcats::fct_na_value_to_level(x, level = "(Missing)"))
+        dplyr::mutate_at(., y, function(x) nightowl_fct_na_value_to_level(x, level = "(Missing)"))
       } else {
         dplyr::filter(., !is.na(!!rlang::sym(y)))
       }
@@ -63,7 +63,7 @@ plot_stacked_percentages <- function(DATA,
 
   if (reverse) {
     DATA <- DATA %>%
-      dplyr::mutate_at(y, forcats::fct_rev) %>%
+      dplyr::mutate_at(y, nightowl_fct_rev) %>%
       dplyr::mutate(
         m = 100 - m
       )

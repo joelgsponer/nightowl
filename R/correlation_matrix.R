@@ -24,7 +24,7 @@ upperFn <- function(data, mapping, method = "lm", ...) {
     show_se <- FALSE
     alpha <- 0
     size <- 0
-    l <- waRRior::length_unique(dplyr::pull(data, !!mapping$group))
+    l <- nightowl_length_unique(dplyr::pull(data, !!mapping$group))
     vstep <- 1 / l
   } else {
     show_se <- TRUE
@@ -33,7 +33,7 @@ upperFn <- function(data, mapping, method = "lm", ...) {
     vstep <- 1
   }
   if (is.na(res)) {
-    cli::cli_abort("Computation failed.")
+    nightowl_abort("Computation failed.")
     msg <- "Computation failed"
     return(ggplot2::ggplot() +
       ggplot2::geom_text(ggplot2::aes(
@@ -155,7 +155,7 @@ ggpairs <- function(DATA,
   DATA <- nightowl::text_wraping(DATA, width = label_width)
   #****************************************************************************
   # Setup Plot
-  .aes <- mapping[waRRior::pop(names(mapping), c("key", "value", "id"))] %>%
+  .aes <- mapping[nightowl_pop(names(mapping), c("key", "value", "id"))] %>%
     nightowl:::aes()
   if (!is.null(mapping$color) || !is.null(mapping$fill)) {
     legend <- 1
