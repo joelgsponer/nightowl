@@ -27,7 +27,6 @@ Imports:
     glue,
     magrittr,
     memoise,
-    MetBrewer,
     patchwork,
     picasso,
     purrr,
