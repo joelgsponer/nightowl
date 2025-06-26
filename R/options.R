@@ -4,8 +4,10 @@
 .NightowlOptions <- R6::R6Class("NightowlOptions",
   public = list(
     # Initialize the class ---------------------------------------------------
-    initialize = function(colors = nightowl::nightowl_colors(),
-                          missingColor = nightowl::nightowl_colors()["grey"]) {
+    initialize = function(colors = NULL,
+                          missingColor = NULL) {
+      if (is.null(colors)) colors <- nightowl_colors()
+      if (is.null(missingColor)) missingColor <- nightowl_colors()["grey"]
       cli::cli_progress_step("Setting up Nightowl")
       # Setting values
       self$set_missing_color(missingColor)
@@ -13,7 +15,7 @@
     },
     # Color handling -------------------------------------------------------
     set_colors = function(colors) {
-      private$colors <- waRRior::pop(colors, private$missingColor)
+      private$colors <- colors
     },
     get_colors = function(n = NULL, missing = TRUE) {
       colors <- private$colors
