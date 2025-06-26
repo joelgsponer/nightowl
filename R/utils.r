@@ -450,3 +450,31 @@ nightowl_inform <- function(msg) {
 nightowl_alter_warning <- function(msg) {
   warning(msg, call. = FALSE)
 }
+
+# =================================================
+# vctrs Replacement Functions
+# =================================================
+
+#' Create new vector with class (compatible with vctrs::new_vctr)
+#'
+#' @param x Vector data
+#' @param class Character vector of class names
+#' @return Object with specified class
+#' @export
+nightowl_new_vctr <- function(x, class) {
+  structure(x, class = c(class, "list"))
+}
+
+# =================================================
+# tidyselect Replacement Functions
+# =================================================
+
+#' Select everything (compatible with tidyselect::everything)
+#'
+#' @return Symbol for everything() selection
+#' @export
+nightowl_everything <- function() {
+  # Return a call to dplyr::everything which is the standard way
+  # tidyselect::everything() is just a helper that calls dplyr::everything()
+  dplyr::everything()
+}

@@ -196,7 +196,7 @@ Summary <- R6::R6Class("Summary",
         name_for_column = self$name_for_column,
         names_sep = self$names_sep
       )
-      res <- dplyr::select(res, Variable, tidyselect::everything())
+      res <- dplyr::select(res, Variable, dplyr::everything())
       res <- self$drop_variable(res)
       res <- self$arrange(res)
       if (!is.null(drop)) {

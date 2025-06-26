@@ -115,7 +115,7 @@ add_download_button <- function(x) {
 new_NightowlPlots <- function(...) {
   x <- list(...)
   x <- unclass(x)
-  vctrs::new_vctr(x, class = "NightowlPlots")
+  nightowl_new_vctr(x, class = "NightowlPlots")
 }
 # =================================================
 #' @title

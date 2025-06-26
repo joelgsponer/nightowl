@@ -192,7 +192,7 @@ Coxph <- R6::R6Class("Coxph",
             dplyr::mutate(term = factor(term, c(variables$treatment, unique(nightowl_pop(.$term, variables$treatment))))) %>%
             dplyr::arrange(term) %>%
             dplyr::mutate(reference = purrr::map_chr(as.character(term), ~ self$get_reference()[[.x]])) %>%
-            dplyr::select(Subgroup, term, reference, comparison, estimate, tidyselect::everything())
+            dplyr::select(Subgroup, term, reference, comparison, estimate, dplyr::everything())
         })
     },
     # Errors -------------------------------------------------------------------
@@ -471,7 +471,7 @@ fit_coxph <- function(data, time, event, treatment, covariates, strata, exponent
     dplyr::mutate(term = factor(term, c(treatment, unique(nightowl_pop(.$term, treatment))))) %>%
     dplyr::arrange(term) %>%
     dplyr::mutate(reference = purrr::map_chr(as.character(term), ~ .reference[[.x]])) %>%
-    dplyr::select(variable = term, reference, group, estimate, tidyselect::everything())
+    dplyr::select(variable = term, reference, group, estimate, dplyr::everything())
 
   .n <- purrr::map(c(treatment, covariates, strata), function(.var) {
     if (!is.numeric(data[[.var]])) {

@@ -27,7 +27,7 @@ grouped_chisq <- function(data, group_by, x, y, ...) {
         info[[group_by]] <- .split
         info$N <- nrow(.df)
         info <- info %>%
-          dplyr::select(!!rlang::sym(group_by), N, statistic, p.value, tidyselect::everything())
+          dplyr::select(!!rlang::sym(group_by), N, statistic, p.value, dplyr::everything())
         info
       }
     }))

@@ -33,9 +33,7 @@ Imports:
     stringr,
     survival,
     tibble,
-    tidyr,
-    tidyselect,
-    vctrs
+    tidyr
 Suggests:
     knitr,
     palmerpenguins,
