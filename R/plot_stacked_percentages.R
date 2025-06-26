@@ -38,33 +38,27 @@ plot_stacked_percentages <- function(DATA,
   # Filter DATA and calculate
   DATA %>%
     dplyr::mutate_at(y, as.factor) %>%
-    dplyr::group_by_at(c(facet_col, facet_row, facet_wrap)) %>%
-    dplyr::group_split(.keep = T) %>%
-    purrr::map_df(function(.DATA) {
-      .DATA %>%
-        dplyr::mutate(!!rlang::sym(y) := as.factor(!!rlang::sym(y))) %>%
-        {
-          if (explicit_na) {
-            dplyr::mutate_at(., y, function(x) forcats::fct_na_value_to_level(x, level = "(Missing)"))
-          } else {
-            dplyr::filter(., !is.na(!!rlang::sym(y)))
-          }
-        } %>%
-        dplyr::group_by_at(c(x, y, facet_col, facet_row, facet_wrap)) %>%
-        dplyr::summarise(n = dplyr::n()) %>%
-        # mutate(freq = n / sum(n) * 100) %>%
-        dplyr::ungroup() %>%
-        dplyr::group_by(!!rlang::sym(x)) %>%
-        dplyr::group_split() %>%
-        purrr::map(.f = function(x) {
-          total <- sum(x$n)
-          x <- dplyr::mutate(x, p = n / total * 100)
-          x <- dplyr::mutate(x, t = cumsum(p))
-          x <- dplyr::mutate(x, m = t - (p / 2))
-          return(x)
-        }) %>%
-        dplyr::bind_rows()
-    }) ->
+    # Optimize O(n²) to O(n) by avoiding nested group_split operations
+    # Use window functions instead of repeated group_split + map operations
+    dplyr::mutate(!!rlang::sym(y) := as.factor(!!rlang::sym(y))) %>%
+    {
+      if (explicit_na) {
+        dplyr::mutate_at(., y, function(x) forcats::fct_na_value_to_level(x, level = "(Missing)"))
+      } else {
+        dplyr::filter(., !is.na(!!rlang::sym(y)))
+      }
+    } %>%
+    dplyr::group_by_at(c(x, y, facet_col, facet_row, facet_wrap)) %>%
+    dplyr::summarise(n = dplyr::n(), .groups = "drop") %>%
+    # Use window functions for O(n) complexity instead of group_split + map
+    dplyr::group_by_at(c(x, facet_col, facet_row, facet_wrap)) %>%
+    dplyr::mutate(
+      total = sum(n),
+      p = n / total * 100,
+      t = cumsum(p),
+      m = t - (p / 2)
+    ) %>%
+    dplyr::ungroup() ->
   DATA
 
   if (reverse) {

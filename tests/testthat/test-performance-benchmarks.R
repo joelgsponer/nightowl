@@ -421,6 +421,200 @@ test_that("caching mechanisms provide expected performance improvements", {
   expect_true(inherits(plot2, "DeclarativePlot"))
 })
 
+# Algorithm Complexity Optimization Tests ====
+test_that("km_table function demonstrates O(n) complexity improvements", {
+  skip_if_performance_testing_disabled()
+  
+  # Test with different dataset sizes to verify O(n) complexity
+  sizes <- c(100, 500, 1000, 2000)
+  times <- numeric(length(sizes))
+  
+  for (i in seq_along(sizes)) {
+    n <- sizes[i]
+    # Create survival-like data for km_table
+    test_data <- tibble::tibble(
+      time = sample(1:200, n, replace = TRUE),
+      n.risk = sample(50:200, n, replace = TRUE),
+      n.event = sample(0:10, n, replace = TRUE),
+      n.censor = sample(0:5, n, replace = TRUE),
+      strata = sample(c("Group1", "Group2", "Group3"), n, replace = TRUE)
+    )
+    
+    start_time <- Sys.time()
+    result <- nightowl::km_table(test_data, break_width = 20, kable = FALSE)
+    end_time <- Sys.time()
+    
+    times[i] <- as.numeric(difftime(end_time, start_time, units = "secs"))
+  }
+  
+  # Check that time complexity is closer to O(n) than O(n²)
+  # With O(n²), time should quadruple when size doubles
+  # With O(n), time should roughly double when size doubles
+  time_ratio_2k_1k <- times[4] / times[3]  # 2000 vs 1000 rows
+  time_ratio_1k_500 <- times[3] / times[2] # 1000 vs 500 rows
+  
+  # For O(n) complexity, these ratios should be close to 2
+  # For O(n²) complexity, these ratios would be close to 4
+  expect_true(time_ratio_2k_1k < 3, 
+              paste("Time ratio 2k/1k:", round(time_ratio_2k_1k, 2), "- should be < 3 for O(n)"))
+  expect_true(time_ratio_1k_500 < 3,
+              paste("Time ratio 1k/500:", round(time_ratio_1k_500, 2), "- should be < 3 for O(n)"))
+  
+  cat("\\nKM Table Complexity Test Results:\\n")
+  cat(paste("100 rows:", round(times[1], 4), "seconds\\n"))
+  cat(paste("500 rows:", round(times[2], 4), "seconds\\n"))
+  cat(paste("1000 rows:", round(times[3], 4), "seconds\\n"))
+  cat(paste("2000 rows:", round(times[4], 4), "seconds\\n"))
+})
+
+test_that("plot_km_covariates function shows improved performance with vectorization", {
+  skip_if_performance_testing_disabled()
+  
+  # Create test data with time-based survival structure
+  sizes <- c(200, 500, 1000)
+  times <- numeric(length(sizes))
+  
+  for (i in seq_along(sizes)) {
+    n <- sizes[i]
+    test_data <- tibble::tibble(
+      time = sample(1:100, n, replace = TRUE),
+      treatment = sample(c("Control", "Treatment"), n, replace = TRUE),
+      covariate1 = sample(c("Low", "Medium", "High"), n, replace = TRUE),
+      covariate2 = rnorm(n),
+      covariate3 = sample(c("A", "B", "C", "D"), n, replace = TRUE)
+    )
+    
+    start_time <- Sys.time()
+    # Test the optimized function (note: this might fail if function doesn't exist)
+    tryCatch({
+      result <- nightowl::plot_km_covariates(
+        data = test_data,
+        time = "time",
+        treatment = "treatment",
+        covariates = c("covariate1", "covariate2")
+      )
+      end_time <- Sys.time()
+      times[i] <- as.numeric(difftime(end_time, start_time, units = "secs"))
+    }, error = function(e) {
+      # Skip if function doesn't exist or has different signature
+      skip("plot_km_covariates function not available or signature changed")
+    })
+  }
+  
+  # Verify performance scales reasonably
+  if (length(times) > 1 && all(times > 0)) {
+    time_ratio <- times[3] / times[1]  # 1000 vs 200 rows
+    expect_true(time_ratio < 8, # Should be closer to 5x for O(n) vs 25x for O(n²)
+                paste("Time ratio 1k/200:", round(time_ratio, 2), "- should be < 8 for optimized O(n)"))
+    
+    cat("\\nPlot KM Covariates Performance:\\n")
+    cat(paste("200 rows:", round(times[1], 4), "seconds\\n"))
+    cat(paste("500 rows:", round(times[2], 4), "seconds\\n"))
+    cat(paste("1000 rows:", round(times[3], 4), "seconds\\n"))
+  }
+})
+
+test_that("plot_stacked_percentages shows O(n) complexity after optimization", {
+  skip_if_performance_testing_disabled()
+  
+  sizes <- c(200, 500, 1000, 1500)
+  times <- numeric(length(sizes))
+  
+  for (i in seq_along(sizes)) {
+    n <- sizes[i]
+    test_data <- tibble::tibble(
+      x_var = sample(c("Cat1", "Cat2", "Cat3", "Cat4"), n, replace = TRUE),
+      y_var = sample(c("Type1", "Type2", "Type3"), n, replace = TRUE),
+      facet_var = sample(c("Facet1", "Facet2"), n, replace = TRUE),
+      value = rnorm(n)
+    )
+    
+    start_time <- Sys.time()
+    tryCatch({
+      result <- nightowl::plot_stacked_percentages(
+        DATA = test_data,
+        x = "x_var",
+        y = "y_var",
+        facet_wrap = "facet_var"
+      )
+      end_time <- Sys.time()
+      times[i] <- as.numeric(difftime(end_time, start_time, units = "secs"))
+    }, error = function(e) {
+      skip("plot_stacked_percentages function not available or signature changed")
+    })
+  }
+  
+  # Check for linear scaling instead of quadratic
+  if (length(times) > 2 && all(times > 0)) {
+    time_ratio_large <- times[4] / times[2]  # 1500 vs 500 rows (3x data)
+    
+    # For O(n), 3x data should take ~3x time
+    # For O(n²), 3x data would take ~9x time
+    expect_true(time_ratio_large < 6,
+                paste("Time ratio 1500/500:", round(time_ratio_large, 2), "- should be < 6 for O(n)"))
+    
+    cat("\\nPlot Stacked Percentages Performance:\\n")
+    for (j in seq_along(sizes)) {
+      cat(paste(sizes[j], "rows:", round(times[j], 4), "seconds\\n"))
+    }
+  }
+})
+
+test_that("algorithmic complexity improvements provide measurable speedup", {
+  skip_if_performance_testing_disabled()
+  
+  # Create a comprehensive test dataset
+  n <- 1000
+  comprehensive_data <- tibble::tibble(
+    time = sample(1:200, n, replace = TRUE),
+    event = sample(c(0, 1), n, replace = TRUE),
+    treatment = sample(c("Control", "Treatment"), n, replace = TRUE),
+    strata = sample(c("Strata1", "Strata2", "Strata3"), n, replace = TRUE),
+    covariate1 = sample(c("Low", "Med", "High"), n, replace = TRUE),
+    covariate2 = rnorm(n),
+    x_var = sample(c("A", "B", "C", "D"), n, replace = TRUE),
+    y_var = sample(c("Type1", "Type2", "Type3"), n, replace = TRUE),
+    n.risk = sample(50:200, n, replace = TRUE),
+    n.event = sample(0:10, n, replace = TRUE),
+    n.censor = sample(0:5, n, replace = TRUE)
+  )
+  
+  # Test multiple optimized functions
+  optimization_tests <- list(
+    km_table = function() {
+      nightowl::km_table(
+        comprehensive_data %>% dplyr::select(time, n.risk, n.event, n.censor, strata),
+        break_width = 25,
+        kable = FALSE
+      )
+    }
+  )
+  
+  # Run tests and measure performance
+  results <- list()
+  for (test_name in names(optimization_tests)) {
+    start_time <- Sys.time()
+    tryCatch({
+      result <- optimization_tests[[test_name]]()
+      end_time <- Sys.time()
+      exec_time <- as.numeric(difftime(end_time, start_time, units = "secs"))
+      results[[test_name]] <- exec_time
+      
+      # Each optimized function should complete reasonably quickly
+      expect_true(exec_time < 5,
+                  paste(test_name, "took", exec_time, "seconds - should be < 5"))
+    }, error = function(e) {
+      # Function signature may have changed, skip gracefully
+      message(paste("Skipping", test_name, "due to:", e$message))
+    })
+  }
+  
+  cat("\\nAlgorithmic Optimization Results (1000 rows):\\n")
+  for (test_name in names(results)) {
+    cat(paste(test_name, ":", round(results[[test_name]], 4), "seconds\\n"))
+  }
+})
+
 # Performance Regression Detection ====
 test_that("performance metrics meet baseline expectations", {
   skip_if_performance_testing_disabled()

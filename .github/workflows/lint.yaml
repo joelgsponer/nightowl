@@ -18,13 +18,33 @@ jobs:
         with:
           use-public-rspm: true
 
+      - name: Cache R packages
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.R_LIBS_USER }}
+          key: ${{ runner.os }}-lint-${{ hashFiles('DESCRIPTION') }}
+          restore-keys: |
+            ${{ runner.os }}-lint-
+
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
-          extra-packages: any::lintr, local::.
+          extra-packages: any::lintr, any::goodpractice, local::.
           needs: lint
 
-      - name: Lint
+      - name: Lint with lintr
         run: lintr::lint_package()
         shell: Rscript {0}
         env:
           LINTR_ERROR_ON_LINT: true
+
+      - name: Check R package best practices
+        run: |
+          gp_results <- goodpractice::gp()
+          if (length(goodpractice::failed_checks(gp_results)) > 0) {
+            cat("❌ Failed R package best practice checks:\n")
+            print(goodpractice::failed_checks(gp_results))
+            quit(status = 1)
+          } else {
+            cat("✅ All R package best practice checks passed!\n")
+          }
+        shell: Rscript {0}
