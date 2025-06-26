@@ -32,7 +32,11 @@ render_svg <- function(g,
         ...
       )
       if (inherits(g, "call")) {
-        rlang::eval_tidy(g)
+        # Security fix: prevent arbitrary code execution
+        throw_security_error(
+          "Call objects are not supported for security reasons",
+          operation = "render_svg"
+        )
       } else {
         print(g)
       }

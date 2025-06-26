@@ -19,8 +19,16 @@ load_style <- function(x) {
 #' @return A nightowl plot object with the specified style applied
 #' @export
 styled_plot <- function(data, style, ...) {
+  # Validate inputs
+  data <- validate_data_frame(data, param_name = "data")
+  
   mapping <- list(...)
-  if (file.exists(style)) {
+  
+  if (is.character(style) && file.exists(style)) {
+    # Security fix: validate file path before reading
+    style <- validate_file_path(style, must_exist = TRUE, 
+                               allowed_extensions = c("yaml", "yml"),
+                               param_name = "style")
     style <- yaml::read_yaml(style)
   } else {
     style <- nightowl::load_style(style)
