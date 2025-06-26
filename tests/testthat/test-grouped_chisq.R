@@ -6,13 +6,13 @@ test_that("grouped chisq works", {
   )
   input
 
-  test <- nightowl::grouped_chisq(input, "my_split", "group", "values")
+  test <- nightowl::grouped_chisq(input, group_by = "my_split", x = "group", y = "values")
   nightowl::extract_results_grouped_chisq(test)
   nightowl::report_results_grouped_chisq(test)
 
   nightowl::extract_errors_grouped_chisq(test)
   nightowl::report_errors_grouped_chisq(test)
 
-  nightowl::plot_grouped_chisq(input, "my_split", "group", "values", flex_direction = "column")
-  nightowl::reactable_grouped_chisq(input, "my_split", "group", "values")
+  nightowl::plot_grouped_chisq(input, group_by = "my_split", x = "group", y = "values", flex_direction = "column")
+  nightowl::reactable_grouped_chisq(input, group_by = "my_split", x = "group", y = "values")
 })

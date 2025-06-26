@@ -6,7 +6,7 @@
 #' @param x Numeric. Point estimate value(s) for the main effect
 #' @param xmin Numeric. Lower confidence limit(s)
 #' @param xmax Numeric. Upper confidence limit(s)
-#' @param xlim Numeric vector of length 2. Plot x-axis limits. If NULL, uses data range
+#' @param x_lim Numeric vector of length 2. Plot x-axis limits. If NULL, uses data range
 #' @param xintercept Numeric. Value for vertical reference line. Default NULL
 #' @param xlab String. X-axis label. Default NULL
 #' @param ylab String. Y-axis label. Default NULL
@@ -26,7 +26,7 @@
 add_inline_forestplot <- function(x,
                                   xmin,
                                   xmax,
-                                  xlim = NULL,
+                                  x_lim = NULL,
                                   xintercept = NULL,
                                   xlab = NULL,
                                   ylab = NULL,
@@ -69,12 +69,12 @@ add_inline_forestplot <- function(x,
   }
 
 
-  if (!is.null(xlim)) {
-    .p <- .p + ggplot2:::scale_x_continuous(limits = c(xlim[1], xlim[2]), breaks = breaks)
+  if (!is.null(x_lim)) {
+    .p <- .p + ggplot2:::scale_x_continuous(limits = c(x_lim[1], x_lim[2]), breaks = breaks)
 
-    if (xmin < xlim[1]) {
+    if (xmin < x_lim[1]) {
       .p <- .p + ggplot2::geom_text(
-        mapping = ggplot2::aes(x = xlim[1], label = "<<<"),
+        mapping = ggplot2::aes(x = x_lim[1], label = "<<<"),
         color = nightowl::nightowl_colors("black"),
         hjust = 0.3,
         size = 9
@@ -82,26 +82,26 @@ add_inline_forestplot <- function(x,
         ggplot2::geom_point(mapping = ggplot2::aes(x = xmax), cex = 8, shape = 108, color = nightowl::nightowl_colors("black"))
     }
 
-    if (xmax > xlim[2]) {
+    if (xmax > x_lim[2]) {
       .p <- .p + ggplot2::geom_text(
-        mapping = ggplot2::aes(x = xlim[2], label = ">>>"),
+        mapping = ggplot2::aes(x = x_lim[2], label = ">>>"),
         color = nightowl::nightowl_colors("black"),
         size = 9
       ) +
         ggplot2::geom_point(mapping = ggplot2::aes(x = xmin), cex = 8, shape = 108, color = nightowl::nightowl_colors("black"))
     }
 
-    if (x < xlim[1]) {
+    if (x < x_lim[1]) {
       .p <- .p + ggplot2::geom_text(
-        mapping = ggplot2::aes(x = xlim[1], label = "<<<"),
+        mapping = ggplot2::aes(x = x_lim[1], label = "<<<"),
         color = nightowl::nightowl_colors("blue"),
         hjust = 0.3,
         size = 9
       )
     }
-    if (x > xlim[2]) {
+    if (x > x_lim[2]) {
       .p <- .p + ggplot2::geom_text(
-        mapping = ggplot2::aes(x = xlim[2], label = ">>>"),
+        mapping = ggplot2::aes(x = x_lim[2], label = ">>>"),
         color = nightowl::nightowl_colors("blue"),
         size = 9
       )
@@ -171,20 +171,20 @@ add_barplot <- function(x,
 #' @param x Numeric vector. Raw data for forest plot calculation
 #' @param fun_data Function. Statistical function to calculate estimates and CI. Default ggplot2::mean_cl_boot
 #' @param xintercept Numeric. Value for vertical reference line. Default NULL
-#' @param xlim Numeric vector of length 2. Plot x-axis limits. If NULL, uses data range
+#' @param x_lim Numeric vector of length 2. Plot x-axis limits. If NULL, uses data range
 #' @return An SVG string containing the rendered forest plot
 #' @export
 add_forestplot <- function(x,
                            fun_data = ggplot2::mean_cl_boot,
                            xintercept = NULL,
-                           xlim = NULL) {
+                           x_lim = NULL) {
   vals <- fun_data(x)
   nightowl::forestplot(
     x = vals[[1]],
     xmin = vals[[2]],
     xmax = vals[[3]],
     xintercept = xintercept,
-    xlim = xlim
+    x_lim = x_lim
   )
 }
 # =================================================
