@@ -403,8 +403,8 @@ object <span class="citation">@export</span></p>
       } else {
         print(g)
       }
-      svg &lt;- waRRior::regex_replace_element_parameter(svg(), &quot;width&quot;, &quot;100%&quot;) %&gt;%
-        waRRior::regex_replace_element_parameter(&quot;height&quot;, &quot;100%&quot;) %&gt;%
+      svg &lt;- nightowl_regex_replace_element_parameter(svg(), &quot;width&quot;, &quot;100%&quot;) %&gt;%
+        nightowl_regex_replace_element_parameter(&quot;height&quot;, &quot;100%&quot;) %&gt;%
         fix_font()
       if (add_download_button) {
         svg &lt;- nightowl::add_download_button(svg)

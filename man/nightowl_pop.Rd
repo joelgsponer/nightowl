@@ -2,16 +2,18 @@
 % Please edit documentation in R/utils.r
 \name{nightowl_pop}
 \alias{nightowl_pop}
-\title{Remove and return last element from list (compatible with waRRior::pop)}
+\title{Remove specified elements from vector (compatible with waRRior::pop)}
 \usage{
-nightowl_pop(x)
+nightowl_pop(x, remove)
 }
 \arguments{
-\item{x}{List or vector}
+\item{x}{Vector or list}
+
+\item{remove}{Elements to remove from x}
 }
 \value{
-Last element of the list/vector
+Vector x with elements in remove excluded
 }
 \description{
-Remove and return last element from list (compatible with waRRior::pop)
+Remove specified elements from vector (compatible with waRRior::pop)
 }

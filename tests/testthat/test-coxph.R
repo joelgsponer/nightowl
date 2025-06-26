@@ -86,12 +86,12 @@ test_that("coxph works", {
     conf_range = c(-1, 1)
   )
 
-  nightowl::forestplot(1.5, 0, 2.1, xlim = c(1.1, 2)) %>%
+  nightowl::forestplot(1.5, 0, 2.1, x_lim = c(1.1, 2)) %>%
     htmltools::browsable()
-  nightowl::forestplot(1, 0, 2.1, xlim = c(1.1, 2)) %>%
+  nightowl::forestplot(1, 0, 2.1, x_lim = c(1.1, 2)) %>%
     htmltools::browsable()
-  nightowl::forestplot(1.4, 1.1, 2.1, xlim = c(1.1, 2)) %>%
+  nightowl::forestplot(1.4, 1.1, 2.1, x_lim = c(1.1, 2)) %>%
     htmltools::browsable()
-  nightowl::forestplot(1.4, 1.1, 2.1, xlim = c(1.1, 2), log = T) %>%
+  nightowl::forestplot(1.4, 1.1, 2.1, x_lim = c(1.1, 2), log = T) %>%
     htmltools::browsable()
 })

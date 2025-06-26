@@ -107,7 +107,7 @@ test_that("forestplot validation works", {
   # Invalid inputs should fail
   expect_error(forestplot(x = "not_numeric", xmin = 0.5, xmax = 1.5), "must be numeric")
   expect_error(forestplot(x = 1, xmin = 0.5, xmax = 1.5, height = -1), "must be >= 0")
-  expect_error(forestplot(x = 1, xmin = 0.5, xmax = 1.5, xlim = c(0, 1, 2)), "must be a numeric vector of length 2")
+  expect_error(forestplot(x = 1, xmin = 0.5, xmax = 1.5, x_lim = c(0, 1, 2)), "must be a numeric vector of length 2")
 })
 
 test_that("data function validation works", {

@@ -5,8 +5,8 @@
 \title{Create stacked percentage plots for chi-square results}
 \usage{
 plot_grouped_chisq(
-  df,
-  split_by,
+  data,
+  group_by,
   x,
   y,
   test = NULL,
@@ -21,9 +21,9 @@ plot_grouped_chisq(
 )
 }
 \arguments{
-\item{df}{A data frame containing the variables for visualization}
+\item{data}{A data frame containing the variables for visualization}
 
-\item{split_by}{String. Name of the grouping variable to split plots by}
+\item{group_by}{String. Name of the grouping variable to split plots by}
 
 \item{x}{String. Name of the first categorical variable for plotting}
 
