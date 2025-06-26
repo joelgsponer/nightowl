@@ -37,17 +37,26 @@ git checkout dev && git pull origin dev
 ```
 **Why**: Clean working directory prevents conflicts during branch operations and ensures predictable behavior.
 
-### 1. Get Issue Details
-Fetch issue information from GitHub:
+### 1. Issue Selection and Assignment
+**CRITICAL**: Mark issue as in-progress IMMEDIATELY to prevent conflicts:
 
 ```bash
-# Fetch comprehensive issue information
+# Find oldest open issue not already in progress
+gh issue list --state open --json number,title,createdAt,labels --limit 20 | jq '.[] | select(.labels | map(.name) | contains(["in-progress", "in-review"]) | not) | {number, title, createdAt}' | jq -s 'sort_by(.createdAt) | .[0]'
+
+# Get issue details
+ISSUE_NUMBER=[selected_issue_number]
 gh issue view "$ISSUE_NUMBER" --json title,body,assignees,labels,state
 
-# Get just the title for planning
+# IMMEDIATELY mark as in-progress to prevent conflicts
+gh issue edit "$ISSUE_NUMBER" --add-label "in-progress"
+gh issue comment "$ISSUE_NUMBER" --body "🔄 Starting work on this issue. Will provide updates as implementation progresses."
+
+# Get issue title for branch naming
 ISSUE_TITLE=$(gh issue view "$ISSUE_NUMBER" --json title --jq '.title')
 echo "Working on: $ISSUE_TITLE"
 ```
+**Why**: Prevents multiple agents from working on the same issue simultaneously.
 
 ### 2. Create TodoWrite Plan - MANDATORY TRACKING
 Before any implementation, create comprehensive todo list:
@@ -93,7 +102,14 @@ cd "./tree/$BRANCH_NAME"
 
 ```
 Task tool with prompt: "Search for [pattern/keyword] in the codebase to understand scope of issue #X. 
-Find all functions/files that need modification and provide specific line numbers and context."
+Find all functions/files that need modification and provide specific line numbers and context.
+
+For SECURITY issues specifically:
+- Look for input validation vulnerabilities
+- Check for path traversal possibilities
+- Identify code injection risks
+- Find functions handling user inputs
+- Check existing validation patterns"
 ```
 
 **Why Task tool is superior**:
@@ -101,6 +117,7 @@ Find all functions/files that need modification and provide specific line number
 - Better context understanding  
 - Reduced false positives
 - Comprehensive scope analysis
+- **Security-focused analysis**: Can identify vulnerability patterns that manual grep misses
 
 ### 5. Search Documentation
 Search for relevant documentation if needed:
@@ -108,7 +125,9 @@ Search for relevant documentation if needed:
 #### Search official docs based on issue context
 
 ### 6. Formulate Implementation Plan
-Create a structured plan:
+Create a structured plan.
+Think of you as a product manager with a tendency to micromanage.
+Be detailed. Add examples. Think about tests. Think about useful tests!
 
 ```bash
 PLAN="## Implementation Plan for #$ISSUE_NUMBER
@@ -139,9 +158,29 @@ Post the plan as a comment on the issue:
 gh issue comment "$ISSUE_NUMBER" --body "$PLAN"
 ```
 
-### 8. Add Labels
-Check for available issue labels.
-Add appropriate labels to the issue, create them if they don't exist.
+### 8. Add Labels - AUTO-CREATE MISSING LABELS
+**CRITICAL**: Always create missing labels automatically:
+
+```bash
+# Function to safely add labels, creating them if needed
+safe_add_label() {
+    local issue_number=$1
+    local label_name=$2
+    local label_color=${3:-"0075ca"}  # default blue
+    local label_desc=${4:-""}
+    
+    if ! gh issue edit "$issue_number" --add-label "$label_name" 2>/dev/null; then
+        echo "Creating missing label: $label_name"
+        gh label create "$label_name" --description "$label_desc" --color "$label_color"
+        gh issue edit "$issue_number" --add-label "$label_name"
+    fi
+}
+
+# Add appropriate labels based on issue type
+safe_add_label "$ISSUE_NUMBER" "enhancement" "a2eeef" "New feature or request"
+safe_add_label "$ISSUE_NUMBER" "security" "b60205" "Security-related issue"  # if applicable
+```
+**Why**: Ensures workflow works across repositories with different label configurations.
 
 ### 9. Update Project Status
 List available github projects.
@@ -184,13 +223,37 @@ After changing function signatures, always check and update:
 
 **Pattern**: Search for `.parameter_name =` usage in test files and update to match new signatures.
 
-#### Run tests
+#### CRITICAL: Validate Implementation Before Committing
+**ALWAYS** check existing frameworks and run tests:
+
 ```bash
-# Use project-specific test command
-devtools::test()  # For R packages
-# OR npm test || cargo test || pytest
+# 1. Check for existing similar implementations
+Task tool: "Search for existing validation, security, or input handling frameworks in this codebase"
+
+# 2. Run project-specific tests
+if [[ -f "DESCRIPTION" ]]; then
+    # R package
+    R -e "devtools::test()"
+    # Run specific new tests if created
+    R -e "testthat::test_file('tests/testthat/test-[your-new-tests].R')"
+elif [[ -f "package.json" ]]; then
+    npm test
+elif [[ -f "Cargo.toml" ]]; then
+    cargo test
+elif [[ -f "requirements.txt" ]] || [[ -f "pyproject.toml" ]]; then
+    pytest
+fi
+
+# 3. For security implementations, run security-specific tests
+if [[ "$ISSUE_TITLE" == *"security"* ]] || [[ "$ISSUE_TITLE" == *"validation"* ]]; then
+    echo "Running security validation tests..."
+    # Run any security-specific test suites
+fi
+
+# 4. ONLY proceed if tests pass or issues are resolved
+echo "✅ All tests passing - proceeding with commit"
 ```
-Fix any failed tests.
+**Why**: Prevents committing broken code and ensures new functionality works correctly.
 
 #### Commit changes
 ```bash
@@ -235,10 +298,31 @@ EOF
 )"
 ```
 
-### 13. Update Project Status to Review
-Change issue status to "In Review" in the project
-Add label "done" to github issue.
-Remove label "in-progress"
+### 13. Update Issue Status - ROBUST LABEL MANAGEMENT
+**CRITICAL**: Handle missing labels gracefully:
+
+```bash
+# Function to safely manage labels
+safe_label_management() {
+    local issue_number=$1
+    
+    # Remove in-progress label
+    gh issue edit "$issue_number" --remove-label "in-progress" 2>/dev/null || true
+    
+    # Add done label, creating if it doesn't exist
+    if ! gh issue edit "$issue_number" --add-label "done" 2>/dev/null; then
+        echo "Creating 'done' label..."
+        gh label create "done" --description "Issue completed and ready for review" --color "28a745"
+        gh issue edit "$issue_number" --add-label "done"
+    fi
+    
+    # Update project status if projects exist
+    gh issue edit "$issue_number" --add-assignee "@me" 2>/dev/null || true
+}
+
+safe_label_management "$ISSUE_NUMBER"
+```
+**Why**: Ensures consistent issue tracking across different repository configurations.
 
 ### 14. Return to Main Branch
 Clean up and return to dev:
@@ -259,7 +343,52 @@ git pull origin dev
 - Update the project board status at each stage
 - Test thoroughly before creating the PR
 
-## Session Assessment: Issue #26 "replace .data"
+## Session Assessment: Issue #9 "Implement comprehensive input validation framework"
+
+### What This Session Taught Us
+
+**Issue Complexity**: Security-focused framework implementation with vulnerability fixes - high complexity requiring systematic security analysis.
+
+**Key Success Factors Validated**:
+
+1. **Immediate Issue Assignment**: Marking issue as "in-progress" immediately prevented conflicts with other agents working simultaneously.
+
+2. **Security-First Analysis**: Task tool was excellent for identifying security vulnerabilities (path traversal, code injection) that manual analysis might miss.
+
+3. **Comprehensive Framework Design**: Created complete validation framework with:
+   - Centralized validation utilities
+   - Custom error class hierarchy  
+   - Security-focused path validation
+   - Input sanitization functions
+   - Comprehensive test suite
+
+4. **Actual Vulnerability Fixes**: Fixed real security issues:
+   - Path traversal in `styled_plot()` (R/styles.R:23)
+   - Code injection in `render_svg()` (R/svg.r:34-38)
+
+5. **Auto-Label Creation**: Learned to create missing labels automatically rather than failing workflow.
+
+6. **Robust Testing**: Created comprehensive test suite covering edge cases and security scenarios.
+
+**New Improvements Incorporated**:
+
+- **Immediate issue assignment**: Prevent agent conflicts
+- **Security-focused analysis**: Enhanced Task tool prompts for security issues
+- **Auto-create missing labels**: Robust label management functions
+- **Validation before commit**: Always run tests before committing
+- **Check existing frameworks**: Avoid duplicating existing functionality
+- **Enhanced commit messages**: Better templates for security fixes
+- **Comprehensive testing**: Security-specific test patterns
+
+### Security Implementation Best Practices
+
+1. **Identify Vulnerabilities First**: Always scan for existing security issues before implementing new features
+2. **Fix Critical Issues**: Address path traversal, code injection, and input validation gaps
+3. **Create Comprehensive Framework**: Build reusable, centralized validation utilities
+4. **Test Security Scenarios**: Include tests for attack vectors and edge cases
+5. **Document Security Patterns**: Provide clear examples of secure coding practices
+
+## Previous Session Assessment: Issue #26 "replace .data"
 
 ### What This Session Taught Us
 
@@ -291,3 +420,8 @@ git pull origin dev
 - Never proceed with branch creation until scope analysis is complete
 - Never assume user will resolve conflicts - build autonomous handling
 - Never skip TodoWrite planning for multi-step issues
+- **Never fail on missing labels** - always create them automatically
+- **Never commit without running tests** - validate functionality first
+- **Never ignore existing frameworks** - check for duplicates before implementing
+- **Never rush security fixes** - thoroughly test vulnerability patches
+- **Never forget to mark issues in-progress** - prevents agent conflicts
