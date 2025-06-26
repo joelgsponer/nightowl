@@ -10,10 +10,10 @@
 #' @param ... Additional arguments passed to chisq.test()
 #' @return A list of safely executed chi-square test results for each group
 #' @export
-grouped_chisq <- function(df, split_by, x, y, ...) {
+grouped_chisq <- function(data, group_by, x, y, ...) {
   cli::cli_h1("Calculating grouped chisq test")
-  df %>%
-    waRRior::named_group_split_at(split_by) %>%
+  data %>%
+    nightowl_named_group_split_at(data, group_by) %>%
     purrr::imap(purrr::safely({
       function(.df, .split) {
         cli::cli_progress_step("{.split}")
