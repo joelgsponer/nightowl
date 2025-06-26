@@ -58,6 +58,10 @@ nightowl_color <- function(color = "blue", alpha = 1) {
 #' @param ... Additional arguments passed to ggplot2::scale_color_manual
 #' @return ggplot2 scale object
 #' @export
-nightowl_palette_discrete <- function(...) {
-  ggplot2::scale_color_manual(values = nightowl_colors(), ...)
+nightowl_palette_discrete <- function(n = NULL) {
+  # Return a function that provides colors, compatible with picasso::roche_palette_discrete()
+  function(n_colors = n) {
+    if (is.null(n_colors)) n_colors <- 10
+    nightowl_colors()[1:min(n_colors, length(nightowl_colors()))]
+  }
 }

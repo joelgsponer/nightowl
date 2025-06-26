@@ -12,7 +12,7 @@ lowerFn <- function(data, mapping, method = "lm", ...) {
   ggplot2::ggplot(data = data, mapping = mapping) +
     ggplot2::geom_point(alpha = alpha_points) +
     ggplot2::geom_smooth(method = method, alpha = alpha_lines, se = FALSE, ...) +
-    picasso::theme_picasso()
+    nightowl::theme_nightowl()
 }
 # ===============================================================================
 #' Function for the upper (diagnonal) triangle of the correlation matrix
@@ -43,9 +43,9 @@ upperFn <- function(data, mapping, method = "lm", ...) {
       ), col = "red", dodge = ggplot2::position_dodge()) +
       ggplot2::theme_void())
   }
-  if (res == 0) col <- picasso::roche_color("black", alpha = 0.1)
-  if (res < 0) col <- picasso::roche_color("red", alpha = 1)
-  if (res > 0) col <- picasso::roche_color("green", alpha = 1)
+  if (res == 0) col <- nightowl::nightowl_color("black", alpha = 0.1)
+  if (res < 0) col <- nightowl::nightowl_color("red", alpha = 1)
+  if (res > 0) col <- nightowl::nightowl_color("green", alpha = 1)
   p <- ggplot2::ggplot(data = data, mapping = mapping) +
     ggplot2::geom_smooth(
       method = method,
@@ -66,11 +66,11 @@ diagFn <- function(data, mapping, method = "lm", ...) {
   if (!is.null(mapping$group)) {
     fill <- NA
   } else {
-    fill <- picasso::roche_color("blue")
+    fill <- nightowl::nightowl_color("blue")
   }
   p <- ggplot2::ggplot(data = data, mapping = mapping) +
     ggplot2::geom_density(fill = fill, alpha = 0.4) +
-    picasso::theme_picasso()
+    nightowl::theme_nightowl()
   p
 }
 # ===============================================================================

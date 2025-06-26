@@ -4,8 +4,8 @@
 .NightowlOptions <- R6::R6Class("NightowlOptions",
   public = list(
     # Initialize the class ---------------------------------------------------
-    initialize = function(colors = picasso::roche_colors(),
-                          missingColor = picasso::roche_colors()["grey"]) {
+    initialize = function(colors = nightowl::nightowl_colors(),
+                          missingColor = nightowl::nightowl_colors()["grey"]) {
       cli::cli_progress_step("Setting up Nightowl")
       # Setting values
       self$set_missing_color(missingColor)

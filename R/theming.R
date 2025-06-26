@@ -63,6 +63,25 @@ theme_nightowl <- function(base_size = 11, base_family = "") {
     )
 }
 
+#' Add x-axis to plot (compatible with picasso::add_x_axis)
+#'
+#' @param legend_position String. Legend position. Default "none"
+#' @return ggplot2 theme element
+#' @export
+add_x_axis <- function(legend_position = "none") {
+  ggplot2::theme(
+    legend.position = legend_position,
+    axis.line.x = ggplot2::element_line(colour = "black", size = ggplot2::rel(1)),
+    axis.line.y = ggplot2::element_blank(),
+    axis.text.y = ggplot2::element_blank(),
+    axis.text.x = ggplot2::element_text(size = ggplot2::rel(1)),
+    axis.ticks.y = ggplot2::element_blank(),
+    plot.margin = ggplot2::margin(0, 0, 0, 0, "cm"),
+    axis.title.y = ggplot2::element_blank(),
+    axis.title.x = ggplot2::element_blank()
+  )
+}
+
 #' Check if color is dark
 #'
 #' @param color Color hex code or name

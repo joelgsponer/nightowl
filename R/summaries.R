@@ -228,7 +228,7 @@ summarise_numeric_violin <- function(self,
                                      ),
                                      parameters = list(
                                        Violin = list(
-                                         theme = picasso::theme_void,
+                                         theme = ggplot2::theme_void,
                                          ylim = range(self$data[[self$column]], na.rm = T)
                                        )
                                      )) {
@@ -331,7 +331,7 @@ format_frequencies <- function(x,
     })
     print <- purrr::map2(print, colors, ~ nightowl::style_cell(.x,
       # background_color = ifelse(add_colors, .y, "white"),
-      # color = ifelse(picasso::is_dark(.y) && add_colors, "white", "black"),
+      # color = ifelse(nightowl::is_dark(.y) && add_colors, "white", "black"),
       # border_style = "solid",
       # border_width = "3px",
       # font_weight = ifelse(add_colors, "bold", "normal"),

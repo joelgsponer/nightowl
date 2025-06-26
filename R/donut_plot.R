@@ -146,7 +146,7 @@ make_donut_plot_numeric <- function(data,
   # Split and plot
   p <- waRRior::named_group_split(data, !!rlang::sym(split)) %>%
     purrr::imap(function(.x, .y) {
-      if (picasso::is_dark(colors[[.y]])) {
+      if (nightowl::is_dark(colors[[.y]])) {
         .contrast <- "white"
       } else {
         .contrast <- "black"
@@ -177,7 +177,7 @@ make_donut_plot_numeric <- function(data,
           axis.line.x.bottom = ggplot2::element_blank(),
           plot.margin = grid::unit(c(0.1, 1, 0, 0), "cm")
         ) +
-        picasso::hide_x_axis() +
+        nightowl::hide_x_axis() +
         ggplot2::guides(fill = ggplot2::guide_legend(nrow = 1, byrow = TRUE))
       shiny::div(
         class = "plot",
