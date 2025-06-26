@@ -1,10 +1,6 @@
 # =================================================
-#' @title Check if object is a Plot instance
-#' @description
-#' Tests whether an object inherits from both the Plot and R6 classes,
-#' confirming it is a valid Plot object.
-#' @param x Any R object to test
-#' @return Logical. TRUE if object is a Plot instance, FALSE otherwise
+#' @title
+#' MISSING_TITLE
 #' @export
 is_Plot <- function(x) {
   all(
@@ -13,25 +9,8 @@ is_Plot <- function(x) {
   )
 }
 # ===============================================================================
-#' R6 Class for Plot Objects
+#' R6 Class
 #'
-#' @description
-#' A comprehensive R6 class for creating, managing, and rendering plot objects.
-#' Supports ggplot2 objects with SVG rendering, HTML output, and customizable styling.
-#'
-#' @details
-#' The Plot class provides a flexible interface for plot objects with:
-#' - SVG rendering with customizable dimensions
-#' - HTML output with CSS styling support
-#' - Automatic resizing capabilities
-#' - Memoized rendering for performance
-#' 
-#' @field plot The underlying plot object (typically ggplot2)
-#' @field type String identifier for the plot type
-#' @field options_svg List of SVG rendering options (width, height, scaling)
-#' @field css List of CSS styling options (class, style)
-#' @field resize Logical indicating if plots should auto-resize
-#' 
 #' @export
 Plot <- R6::R6Class("Plot",
   public = list(
@@ -131,36 +110,12 @@ Plot <- R6::R6Class("Plot",
   )
 )
 # ===============================================================================
-#' R6 Class for Declarative Plot Construction
-#'
-#' @description
-#' An advanced R6 class that extends Plot to provide declarative plot construction
-#' with automatic data processing, transformation, and layered visualization building.
-#'
-#' @details
-#' DeclarativePlot enables building complex visualizations through:
-#' - Declarative mapping of data to aesthetics
-#' - Automatic data selection and transformation
-#' - Layered geometry and scale management
-#' - Faceting and theming support
-#' - Optimized rendering with memoization
-#' 
-#' This class is designed for programmatic plot construction where plot
-#' specifications are built incrementally through configuration objects.
-#' 
-#' @field data The source data frame for the plot
-#' @field mapping List of aesthetic mappings (x, y, color, fill, etc.)
-#' @field layers List of plot layers (geometries, statistics)
-#' @field scales List of scale specifications
-#' @field facets Faceting specification
-#' @field theming Theme configuration
-#' 
+#' R6 Class
 #' @export
 DeclarativePlot <- R6::R6Class("DeclarativePlot",
   inherit = nightowl::Plot,
   public = list(
     data = NULL,
-    data_ref = NULL,
     mapping = list(
       x = NULL,
       y = NULL,
@@ -185,10 +140,6 @@ DeclarativePlot <- R6::R6Class("DeclarativePlot",
     # Intitalize ---------------------------------------------------------------
     initialize = function(...) {
       super$initialize()
-      
-      # Initialize memoized plot function once during object creation
-      private$memoized_plot_fn <- memoise::memoise(private$generate_plot)
-      
       args <- list(...)
       purrr::imap(list(...), function(.x, .y) {
         if (.y %in% names(self)) {
@@ -202,51 +153,39 @@ DeclarativePlot <- R6::R6Class("DeclarativePlot",
       self$set_plot()
       return(self)
     },
-    # select data with memory-efficient reference pattern
+    # select data
     select_data = function() {
       cols <- c(
         unlist(unname(self$mapping)),
         purrr::map(self$layers, ~ unlist(unname(.x$mapping))) %>% unlist()
       ) %>%
         unique()
-      
-      # Store data reference instead of copying
       if (inherits(self$data, "data.frame")) {
-        if (!tibble::is_tibble(self$data)) {
-          self$data <- tibble::as_tibble(self$data)
-        }
-        # Use reference-based column selection to avoid full data copy
-        self$data_ref <- list(
-          source = self$data,
-          columns = cols,
-          rows = seq_len(nrow(self$data))
-        )
-        # Only select columns, don't copy entire data
-        self$data <- self$data[cols]
+        .data <- tibble::as_tibble(self$data)
       }
+      self$data <- .data %>%
+        dplyr::select_at(cols)
       if (any(dim(self$data) == 0)) rlang::abort("No data, check mapping")
     },
-    # tranform data with memory-efficient in-place modifications
+    # tranform data (this also potentionally updates the mapping if for example frequencies are calculated)
     transform_data = function() {
       transform <- self$transform
       mapping <- self$mapping
+      .data <- self$data
       if (!is.null(transform)) {
         transform_data <- transform$data
-        transform <- transform[nightowl_pop(names(transform), "data")]
-        
-        # Apply transformations in-place to avoid data copying
-        for (.var_name in names(transform)) {
-          .f <- transform[[.var_name]]
-          if (is.character(.f)) .f <- nightowl_getfun(.f)
-          .var <- mapping[[.var_name]]
+        transform <- transform[waRRior::pop(names(transform), "data")]
+        purrr::iwalk(transform, function(.f, .var) {
+          if (is.character(.f)) .f <- waRRior::getfun(.f)
+          .var <- mapping[[.var]]
           if (!is.null(.var)) {
-            self$data[[.var]] <- .f(self$data[[.var]])
+            .data <<- .data %>%
+              dplyr::mutate(!!rlang::sym(.var) := .f(!!rlang::sym(.var)))
           }
-        }
-        
+        })
         if (!is.null(transform_data)) {
-          if (is.character(transform_data)) .f <- nightowl_getfun(transform_data)
-          res_tranform_data <- .f(self$data, mapping)
+          if (is.character(transform_data)) .f <- waRRior::getfun(transform_data)
+          res_tranform_data <- .f(.data, mapping)
           self$data <- res_tranform_data$data
           self$mapping <- res_tranform_data$mapping
         }
@@ -265,158 +204,59 @@ DeclarativePlot <- R6::R6Class("DeclarativePlot",
       }
       if (!is.null(mapping$facet_col)) facets$column <- mapping$facet_col
       if (!is.null(mapping$facet_row)) facets$row <- mapping$facet_row
-      self$mapping <- mapping[nightowl_pop(names(mapping), c("facet_row", "facet_col"))]
+      self$mapping <- mapping[waRRior::pop(names(mapping), c("facet_row", "facet_col"))]
       self$facets <- facets
     },
     # ggplot ---
     plot = NULL,
     set_plot = function() {
-      # Create memory-efficient cache key using data hash
-      cache_key <- list(
-        data_hash = digest::digest(self$data, algo = "xxhash64"),
-        data_dim = dim(self$data),
-        mapping = self$mapping,
-        layers = self$layers,
-        scales = self$scales,
-        facets = self$facets,
-        axis = self$axis,
-        colors = self$colors,
-        theming = self$theming,
-        annotation = self$annotation,
-        dodge = self$dodge
-      )
-      
-      # Track if this is a cache hit by comparing counters before/after
-      misses_before <- private$cache_misses
-      
-      # Generate plot using pre-initialized memoized function
-      self$plot <- private$memoized_plot_fn(cache_key)
-      
-      # If misses didn't increase, it was a cache hit
-      if (private$cache_misses == misses_before) {
-        private$cache_hits <- private$cache_hits + 1
-      }
+      self$plot <- memoise::memoise(function() {
+        # Setup Plot
+        .aes <- nightowl:::aes(self$mapping)
+        g <- ggplot2::ggplot(self$data, .aes)
+        # Add layers
+        g <- purrr::reduce(self$layers, function(.x, .y) {
+          .y$g <- .x
+          .y <- rev(.y)
+          if (is.null(.y$dodge)) .y$dodge <- self$dodge
+          type <- .y$type
+          .y$type <- NULL
+          .y <- purrr::compact(.y)
+          thiscall <- glue::glue("do.call(nightowl::{type}, .y)")
+          eval(parse(text = thiscall))
+        }, .init = g)
+        # ************************************************************************
+        # Add scales
+        g <- purrr::reduce(self$scales, function(.x, .y) {
+          .y$g <- .x
+          .y <- rev(.y)
+          .y <- purrr::compact(.y)
+          thiscall <- glue::glue("do.call(nightowl::scales, .y)")
+          eval(parse(text = thiscall))
+        }, .init = g)
+        #*******************************************************************************
+        # Facets
+        g <- do.call(nightowl::facets, c(list(g = g), self$facets))
+        #*******************************************************************************
+        # Axis
+        g <- do.call(nightowl::nw_axis, c(list(g = g), self$axis))
+        # #*******************************************************************************
+        # Colors and theming
+        g <- do.call(nightowl::nw_colors, c(list(g = g, DATA = self$data, mapping = self$mapping), self$colors))
+        # # Add Theme
+        g <- do.call(nightowl::theme, c(list(g = g), self$theming))
+        # #*******************************************************************************
+        # # Annotation
+        g <- do.call(nightowl::annotation, c(list(g = g), self$mapping, self$annotation, self$axis))
+        #*******************************************************************************
+        # Finishing up
+        return(g)
+      })()
     },
-    # Cache invalidation methods
-    invalidate_cache = function() {
-      # Clear the memoised cache and recreate the function
-      if (!is.null(private$memoized_plot_fn)) {
-        memoise::forget(private$memoized_plot_fn)
-        private$memoized_plot_fn <- memoise::memoise(private$generate_plot)
-      }
-      invisible(self)
-    },
-    
-    # Cache statistics methods
-    get_cache_stats = function() {
-      list(
-        hits = private$cache_hits,
-        misses = private$cache_misses,
-        hit_rate = if ((private$cache_hits + private$cache_misses) > 0) {
-          private$cache_hits / (private$cache_hits + private$cache_misses)
-        } else {
-          0
-        }
-      )
-    },
-    
-    reset_cache_stats = function() {
-      private$cache_hits <- 0
-      private$cache_misses <- 0
-      invisible(self)
-    },
-    
-    # Override setters to invalidate cache when properties change
-    set_data = function(value) {
-      self$data <- value
-      self$invalidate_cache()
-      invisible(self)
-    },
-    
-    set_mapping = function(value) {
-      self$mapping <- value
-      self$invalidate_cache()
-      invisible(self)
-    },
-    
-    set_layers = function(value) {
-      self$layers <- value
-      self$invalidate_cache()
-      invisible(self)
-    },
-    
-    set_scales = function(value) {
-      self$scales <- value
-      self$invalidate_cache()
-      invisible(self)
-    },
-    
     # Format ---
     type = "<NightowlDeclarativePlot>",
     format = function(...) {
       return(self$type)
-    }
-  ),
-  private = list(
-    memoized_plot_fn = NULL,
-    cache_hits = 0,
-    cache_misses = 0,
-    generate_plot = function(cache_key) {
-      # Increment cache miss counter (only called on actual generation)
-      private$cache_misses <- private$cache_misses + 1
-      
-      # Extract parameters from cache_key
-      data <- cache_key$data
-      mapping <- cache_key$mapping
-      layers <- cache_key$layers
-      scales <- cache_key$scales
-      facets <- cache_key$facets
-      axis <- cache_key$axis
-      colors <- cache_key$colors
-      theming <- cache_key$theming
-      annotation <- cache_key$annotation
-      dodge <- cache_key$dodge
-      
-      # Setup Plot
-      .aes <- nightowl:::aes(mapping)
-      g <- ggplot2::ggplot(data, .aes)
-      # Add layers
-      g <- purrr::reduce(layers, function(.x, .y) {
-        .y$g <- .x
-        .y <- rev(.y)
-        if (is.null(.y$dodge)) .y$dodge <- dodge
-        type <- .y$type
-        .y$type <- NULL
-        .y <- purrr::compact(.y)
-        thiscall <- glue::glue("do.call(nightowl::{type}, .y)")
-        eval(parse(text = thiscall))
-      }, .init = g)
-      # ************************************************************************
-      # Add scales
-      g <- purrr::reduce(scales, function(.x, .y) {
-        .y$g <- .x
-        .y <- rev(.y)
-        .y <- purrr::compact(.y)
-        thiscall <- glue::glue("do.call(nightowl::scales, .y)")
-        eval(parse(text = thiscall))
-      }, .init = g)
-      #*******************************************************************************
-      # Facets
-      g <- do.call(nightowl::facets, c(list(g = g), facets))
-      #*******************************************************************************
-      # Axis
-      g <- do.call(nightowl::axis, c(list(g = g), axis))
-      # #*******************************************************************************
-      # Colors and theming
-      g <- do.call(nightowl::colors, c(list(g = g, DATA = data, mapping = mapping), colors))
-      # # Add Theme
-      g <- do.call(nightowl::theme, c(list(g = g), theming))
-      # #*******************************************************************************
-      # # Annotation
-      g <- do.call(nightowl::annotation, c(list(g = g), mapping, annotation, axis))
-      #*******************************************************************************
-      # Finishing up
-      return(g)
     }
   )
 )

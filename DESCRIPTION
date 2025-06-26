@@ -15,7 +15,6 @@ Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
 Imports: 
     dplyr,
-    furrr,
     GGally,
     ggdist,
     gghalves,
@@ -23,9 +22,15 @@ Imports:
     ggpmisc,
     ggpubr,
     glue,
+    gtools,
+    Hmisc,
     magrittr,
     memoise,
+    MetBrewer,
+    palmerpenguins,
     patchwork,
+    picasso,
+    pillar,
     purrr,
     reactable,
     reactablefmtr,
@@ -33,7 +38,10 @@ Imports:
     stringr,
     survival,
     tibble,
-    tidyr
+    tidyr,
+    uuid,
+    vctrs,
+    waRRior
 Suggests:
     knitr,
     palmerpenguins,

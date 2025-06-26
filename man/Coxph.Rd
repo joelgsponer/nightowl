@@ -8,6 +8,36 @@ R6 Class
 
 R6 Class
 }
+\section{Public fields}{
+\if{html}{\out{<div class="r6-fields">}}
+\describe{
+\item{\code{Reference}}{levels to be compared againsts}
+
+\item{\code{Formula}}{to be used in the model}
+
+\item{\code{Parameters}}{to be passed to \code{meta::rmetagen}}
+
+\item{\code{options}}{to be passed to \code{nightowl::render_kable()}}
+
+\item{\code{options}}{to be passed to \code{nightowl::render_reactable()}}
+}
+\if{html}{\out{</div>}}
+}
+\section{Active bindings}{
+\if{html}{\out{<div class="r6-active-bindings">}}
+\describe{
+\item{\code{Reference}}{levels to be compared againsts}
+
+\item{\code{Formula}}{to be used in the model}
+
+\item{\code{Parameters}}{to be passed to \code{meta::rmetagen}}
+
+\item{\code{options}}{to be passed to \code{nightowl::render_kable()}}
+
+\item{\code{options}}{to be passed to \code{nightowl::render_reactable()}}
+}
+\if{html}{\out{</div>}}
+}
 \section{Methods}{
 \subsection{Public methods}{
 \itemize{
@@ -17,6 +47,9 @@ R6 Class
 \item \href{#method-Coxph-check_event}{\code{Coxph$check_event()}}
 \item \href{#method-Coxph-check_treatment}{\code{Coxph$check_treatment()}}
 \item \href{#method-Coxph-get_variables}{\code{Coxph$get_variables()}}
+\item \href{#method-Coxph-unpack_interactions}{\code{Coxph$unpack_interactions()}}
+\item \href{#method-Coxph-build_reference_for_interaction_term}{\code{Coxph$build_reference_for_interaction_term()}}
+\item \href{#method-Coxph-build_comparison_for_interaction_term}{\code{Coxph$build_comparison_for_interaction_term()}}
 \item \href{#method-Coxph-check_variables}{\code{Coxph$check_variables()}}
 \item \href{#method-Coxph-set_data}{\code{Coxph$set_data()}}
 \item \href{#method-Coxph-check_data}{\code{Coxph$check_data()}}
@@ -33,8 +66,21 @@ R6 Class
 \item \href{#method-Coxph-set_labels}{\code{Coxph$set_labels()}}
 \item \href{#method-Coxph-arrange}{\code{Coxph$arrange()}}
 \item \href{#method-Coxph-raw}{\code{Coxph$raw()}}
+\item \href{#method-Coxph-coefficients}{\code{Coxph$coefficients()}}
+\item \href{#method-Coxph-se}{\code{Coxph$se()}}
+\item \href{#method-Coxph-TE}{\code{Coxph$TE()}}
+\item \href{#method-Coxph-seTE}{\code{Coxph$seTE()}}
+\item \href{#method-Coxph-metagen}{\code{Coxph$metagen()}}
+\item \href{#method-Coxph-metagen_results}{\code{Coxph$metagen_results()}}
+\item \href{#method-Coxph-metagen_errors}{\code{Coxph$metagen_errors()}}
+\item \href{#method-Coxph-metagen_summarise}{\code{Coxph$metagen_summarise()}}
+\item \href{#method-Coxph-metagen_raw}{\code{Coxph$metagen_raw()}}
+\item \href{#method-Coxph-metagen_kable}{\code{Coxph$metagen_kable()}}
+\item \href{#method-Coxph-metagen_html}{\code{Coxph$metagen_html()}}
+\item \href{#method-Coxph-metagen_output}{\code{Coxph$metagen_output()}}
 \item \href{#method-Coxph-kable}{\code{Coxph$kable()}}
 \item \href{#method-Coxph-html}{\code{Coxph$html()}}
+\item \href{#method-Coxph-output}{\code{Coxph$output()}}
 \item \href{#method-Coxph-reactable}{\code{Coxph$reactable()}}
 \item \href{#method-Coxph-clone}{\code{Coxph$clone()}}
 }
@@ -94,6 +140,33 @@ R6 Class
 
 }
 \if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-Coxph-unpack_interactions"></a>}}
+\if{latex}{\out{\hypertarget{method-Coxph-unpack_interactions}{}}}
+\subsection{Method \code{unpack_interactions()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Coxph$unpack_interactions(vars = self$get_variables())}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-Coxph-build_reference_for_interaction_term"></a>}}
+\if{latex}{\out{\hypertarget{method-Coxph-build_reference_for_interaction_term}{}}}
+\subsection{Method \code{build_reference_for_interaction_term()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Coxph$build_reference_for_interaction_term(x)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-Coxph-build_comparison_for_interaction_term"></a>}}
+\if{latex}{\out{\hypertarget{method-Coxph-build_comparison_for_interaction_term}{}}}
+\subsection{Method \code{build_comparison_for_interaction_term()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Coxph$build_comparison_for_interaction_term(x)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-Coxph-check_variables"></a>}}
 \if{latex}{\out{\hypertarget{method-Coxph-check_variables}{}}}
 \subsection{Method \code{check_variables()}}{
@@ -124,6 +197,7 @@ R6 Class
 \if{html}{\out{<a id="method-Coxph-set_reference"></a>}}
 \if{latex}{\out{\hypertarget{method-Coxph-set_reference}{}}}
 \subsection{Method \code{set_reference()}}{
+Set reference levels
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Coxph$set_reference(data = self$data)}\if{html}{\out{</div>}}
 }
@@ -133,8 +207,9 @@ R6 Class
 \if{html}{\out{<a id="method-Coxph-get_reference"></a>}}
 \if{latex}{\out{\hypertarget{method-Coxph-get_reference}{}}}
 \subsection{Method \code{get_reference()}}{
+Get reference levels
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Coxph$get_reference()}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{Coxph$get_reference(x = self$get_variables())}\if{html}{\out{</div>}}
 }
 
 }
@@ -142,6 +217,7 @@ R6 Class
 \if{html}{\out{<a id="method-Coxph-set_formula"></a>}}
 \if{latex}{\out{\hypertarget{method-Coxph-set_formula}{}}}
 \subsection{Method \code{set_formula()}}{
+Creates and set the formula to be used in the model
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Coxph$set_formula()}\if{html}{\out{</div>}}
 }
@@ -151,6 +227,7 @@ R6 Class
 \if{html}{\out{<a id="method-Coxph-check_formula"></a>}}
 \if{latex}{\out{\hypertarget{method-Coxph-check_formula}{}}}
 \subsection{Method \code{check_formula()}}{
+Checks if the formula is present
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Coxph$check_formula()}\if{html}{\out{</div>}}
 }
@@ -170,7 +247,7 @@ R6 Class
 \if{latex}{\out{\hypertarget{method-Coxph-results}{}}}
 \subsection{Method \code{results()}}{
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Coxph$results()}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{Coxph$results(exponentiate = self$exponentiate, log_x = self$log_x)}\if{html}{\out{</div>}}
 }
 
 }
@@ -233,7 +310,132 @@ R6 Class
 \if{latex}{\out{\hypertarget{method-Coxph-raw}{}}}
 \subsection{Method \code{raw()}}{
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Coxph$raw(drop = NULL, keep_only_treatment = TRUE)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{Coxph$raw(
+  drop = NULL,
+  keep_only_treatment = TRUE,
+  term = NULL,
+  term2 = NULL,
+  comparison = NULL
+)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-Coxph-coefficients"></a>}}
+\if{latex}{\out{\hypertarget{method-Coxph-coefficients}{}}}
+\subsection{Method \code{coefficients()}}{
+Extract estimates of treament effect
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Coxph$coefficients()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-Coxph-se"></a>}}
+\if{latex}{\out{\hypertarget{method-Coxph-se}{}}}
+\subsection{Method \code{se()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Coxph$se()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-Coxph-TE"></a>}}
+\if{latex}{\out{\hypertarget{method-Coxph-TE}{}}}
+\subsection{Method \code{TE()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Coxph$TE(term = self$get_variables()$treatment)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-Coxph-seTE"></a>}}
+\if{latex}{\out{\hypertarget{method-Coxph-seTE}{}}}
+\subsection{Method \code{seTE()}}{
+Extract standard errors of treament effect
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Coxph$seTE(term = self$get_variables()$treatment)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-Coxph-metagen"></a>}}
+\if{latex}{\out{\hypertarget{method-Coxph-metagen}{}}}
+\subsection{Method \code{metagen()}}{
+Run metaanalysis
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Coxph$metagen(term = self$get_variables()$treatment, term2 = NULL, title = var)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-Coxph-metagen_results"></a>}}
+\if{latex}{\out{\hypertarget{method-Coxph-metagen_results}{}}}
+\subsection{Method \code{metagen_results()}}{
+Extract metaanalysis results
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Coxph$metagen_results(...)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-Coxph-metagen_errors"></a>}}
+\if{latex}{\out{\hypertarget{method-Coxph-metagen_errors}{}}}
+\subsection{Method \code{metagen_errors()}}{
+Extract metaanalysis errors
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Coxph$metagen_errors(...)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-Coxph-metagen_summarise"></a>}}
+\if{latex}{\out{\hypertarget{method-Coxph-metagen_summarise}{}}}
+\subsection{Method \code{metagen_summarise()}}{
+Summarise metaanalysis results
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Coxph$metagen_summarise(...)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-Coxph-metagen_raw"></a>}}
+\if{latex}{\out{\hypertarget{method-Coxph-metagen_raw}{}}}
+\subsection{Method \code{metagen_raw()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Coxph$metagen_raw(
+  term = self$get_variables()$treatment,
+  term2 = NULL,
+  comparison = NULL,
+  ...
+)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-Coxph-metagen_kable"></a>}}
+\if{latex}{\out{\hypertarget{method-Coxph-metagen_kable}{}}}
+\subsection{Method \code{metagen_kable()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Coxph$metagen_kable(...)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-Coxph-metagen_html"></a>}}
+\if{latex}{\out{\hypertarget{method-Coxph-metagen_html}{}}}
+\subsection{Method \code{metagen_html()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Coxph$metagen_html(...)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-Coxph-metagen_output"></a>}}
+\if{latex}{\out{\hypertarget{method-Coxph-metagen_output}{}}}
+\subsection{Method \code{metagen_output()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Coxph$metagen_output(...)}\if{html}{\out{</div>}}
 }
 
 }
@@ -241,17 +443,38 @@ R6 Class
 \if{html}{\out{<a id="method-Coxph-kable"></a>}}
 \if{latex}{\out{\hypertarget{method-Coxph-kable}{}}}
 \subsection{Method \code{kable()}}{
+Renders a kable table
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Coxph$kable(drop = NULL, keep_only_treatment = TRUE)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{drop}}{A character vector of columns to drop}
+
+\item{\code{keep_only_treatment}}{A logical indicating whether to keep only the treatment effect estimates}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-Coxph-html"></a>}}
 \if{latex}{\out{\hypertarget{method-Coxph-html}{}}}
 \subsection{Method \code{html()}}{
+Returns output as HTML to be used in e.g. a Shiny app
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Coxph$html(drop = NULL)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{Coxph$html(drop = NULL, keep_only_treatment = TRUE)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-Coxph-output"></a>}}
+\if{latex}{\out{\hypertarget{method-Coxph-output}{}}}
+\subsection{Method \code{output()}}{
+Opens a styled HTML report in the browser
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Coxph$output(drop = NULL, keep_only_treatment = TRUE)}\if{html}{\out{</div>}}
 }
 
 }
@@ -259,6 +482,7 @@ R6 Class
 \if{html}{\out{<a id="method-Coxph-reactable"></a>}}
 \if{latex}{\out{\hypertarget{method-Coxph-reactable}{}}}
 \subsection{Method \code{reactable()}}{
+Renders a reactable table
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Coxph$reactable(drop = NULL, keep_only_treatment = FALSE, ...)}\if{html}{\out{</div>}}
 }

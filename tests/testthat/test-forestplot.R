@@ -39,4 +39,13 @@ test_that("forestplot renders and converts to different output formats", {
     htmltools::HTML(ggiraph:::read_file(tmp))
   ) %>%
     htmltools::browsable()
+
+  nightowl::forestplot(1.5, 0, 2.1, xlim = c(1.1, 2)) %>%
+    htmltools::browsable()
+  nightowl::forestplot(1, 0, 2.1, xlim = c(1.1, 2)) %>%
+    htmltools::browsable()
+  nightowl::forestplot(1.4, 1.1, 2.1, xlim = c(1.1, 2)) %>%
+    htmltools::browsable()
+  nightowl::forestplot(1.4, 1.1, 2.1, xlim = c(1.1, 2), log = T) %>%
+    htmltools::browsable()
 })

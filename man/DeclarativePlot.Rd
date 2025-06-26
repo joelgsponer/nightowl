@@ -21,7 +21,7 @@ This class is designed for programmatic plot construction where plot
 specifications are built incrementally through configuration objects.
 }
 \section{Super class}{
-\code{\link[nightowl:Plot]{nightowl::Plot}} -> \code{DeclarativePlot}
+\code{nightowl::Plot} -> \code{DeclarativePlot}
 }
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}
