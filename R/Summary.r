@@ -12,7 +12,7 @@ Summary <- R6::R6Class("Summary",
     options_kable = list(),
     options_test = list(),
     initialize = function(.data, column, group_by = NULL, method = NULL, labels = NULL, debug = F, ...) {
-      if (debug) browser()
+      # Debug mode available but browser() removed for CRAN compliance
       purrr::imap(list(...), function(.x, .y) {
         if (.y %in% names(self)) {
           self[[.y]] <- .x
