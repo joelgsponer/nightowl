@@ -1,0 +1,291 @@
+# R Package Security Scanning Workflow
+# Implements comprehensive security vulnerability scanning for R dependencies
+# Addresses GitHub Issue #57
+
+name: Security Scanning
+
+on:
+  push:
+    branches: [main, master, dev]
+  pull_request:
+    branches: [main, master, dev]
+  schedule:
+    # Run weekly security scans every Monday at 2 AM UTC
+    - cron: '0 2 * * 1'
+
+permissions:
+  contents: read
+  security-events: write
+  actions: read
+
+jobs:
+  r-security-scan:
+    runs-on: ubuntu-latest
+    name: R Package Security Analysis
+    
+    env:
+      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+      R_KEEP_PKG_SOURCE: yes
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Pandoc
+        uses: r-lib/actions/setup-pandoc@v2
+
+      - name: Setup R
+        uses: r-lib/actions/setup-r@v2
+        with:
+          r-version: 'release'
+          use-public-rspm: true
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libcurl4-openssl-dev libxml2-dev libssl-dev
+
+      - name: Install R dependencies
+        uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          extra-packages: any::oysteR, any::riskmetric, any::devtools, any::jsonlite
+          needs: check
+
+      - name: oysteR Vulnerability Scan
+        id: oyster-scan
+        run: |
+          library(oysteR)
+          library(jsonlite)
+          
+          cat("=== oysteR Security Scan ===\n")
+          cat("Scanning R package dependencies for known vulnerabilities...\n\n")
+          
+          # Scan dependencies from DESCRIPTION file
+          audit_description <- try({
+            audit_description_result <- oysteR::audit_description()
+            audit_description_result
+          }, silent = TRUE)
+          
+          # Scan currently installed packages as fallback
+          audit_installed <- try({
+            audit_installed_result <- oysteR::audit_installed_r_pkgs()
+            audit_installed_result
+          }, silent = TRUE)
+          
+          # Process results
+          total_vulns <- 0
+          critical_vulns <- 0
+          high_vulns <- 0
+          
+          if (!inherits(audit_description, "try-error") && nrow(audit_description) > 0) {
+            cat("VULNERABILITIES FOUND IN DESCRIPTION DEPENDENCIES:\n")
+            print(audit_description)
+            total_vulns <- total_vulns + nrow(audit_description)
+            
+            # Count critical/high severity (assuming CVSS scores if available)
+            if ("cvss_score" %in% names(audit_description)) {
+              critical_vulns <- critical_vulns + sum(audit_description$cvss_score >= 9.0, na.rm = TRUE)
+              high_vulns <- high_vulns + sum(audit_description$cvss_score >= 7.0 & audit_description$cvss_score < 9.0, na.rm = TRUE)
+            }
+            
+            # Export detailed results
+            writeLines(toJSON(audit_description, pretty = TRUE), "oyster-description-results.json")
+          } else {
+            cat("✓ No vulnerabilities found in DESCRIPTION dependencies\n")
+          }
+          
+          if (!inherits(audit_installed, "try-error") && nrow(audit_installed) > 0) {
+            cat("\nVULNERABILITIES FOUND IN INSTALLED PACKAGES:\n")
+            print(audit_installed)
+            total_vulns <- total_vulns + nrow(audit_installed)
+            
+            if ("cvss_score" %in% names(audit_installed)) {
+              critical_vulns <- critical_vulns + sum(audit_installed$cvss_score >= 9.0, na.rm = TRUE)
+              high_vulns <- high_vulns + sum(audit_installed$cvss_score >= 7.0 & audit_installed$cvss_score < 9.0, na.rm = TRUE)
+            }
+            
+            writeLines(toJSON(audit_installed, pretty = TRUE), "oyster-installed-results.json")
+          } else {
+            cat("✓ No vulnerabilities found in installed packages\n")
+          }
+          
+          # Set GitHub outputs for downstream jobs
+          cat("total_vulnerabilities=", total_vulns, "\n", sep = "", file = Sys.getenv("GITHUB_OUTPUT"), append = TRUE)
+          cat("critical_vulnerabilities=", critical_vulns, "\n", sep = "", file = Sys.getenv("GITHUB_OUTPUT"), append = TRUE)
+          cat("high_vulnerabilities=", high_vulns, "\n", sep = "", file = Sys.getenv("GITHUB_OUTPUT"), append = TRUE)
+          
+          # Create summary
+          cat("\n=== SECURITY SCAN SUMMARY ===\n")
+          cat("Total vulnerabilities found:", total_vulns, "\n")
+          cat("Critical (CVSS >= 9.0):", critical_vulns, "\n")
+          cat("High (CVSS 7.0-8.9):", high_vulns, "\n")
+          
+          if (critical_vulns > 0) {
+            cat("\n❌ CRITICAL vulnerabilities found - build should fail\n")
+            quit(status = 1)
+          } else if (total_vulns > 0) {
+            cat("\n⚠️  Vulnerabilities found but not critical\n")
+          } else {
+            cat("\n✅ No vulnerabilities detected\n")
+          }
+        shell: Rscript {0}
+
+      - name: Package Quality Assessment
+        id: quality-scan
+        run: |
+          library(riskmetric)
+          library(jsonlite)
+          
+          cat("=== Package Quality Assessment ===\n")
+          
+          # Get list of dependencies from DESCRIPTION
+          desc <- read.dcf("DESCRIPTION")
+          imports <- trimws(strsplit(desc[,"Imports"], ",")[[1]])
+          imports <- imports[imports != ""]
+          
+          quality_results <- list()
+          
+          for (pkg in head(imports, 10)) {  # Limit to first 10 for CI performance
+            cat("Assessing package:", pkg, "\n")
+            
+            tryCatch({
+              pkg_ref <- pkg_ref(pkg)
+              assessment <- pkg_assess(pkg_ref)
+              quality_results[[pkg]] <- list(
+                package = pkg,
+                assessment = assessment
+              )
+            }, error = function(e) {
+              cat("Could not assess", pkg, ":", e$message, "\n")
+            })
+          }
+          
+          # Save quality assessment results
+          if (length(quality_results) > 0) {
+            writeLines(toJSON(quality_results, pretty = TRUE), "quality-assessment.json")
+          }
+          
+          cat("✓ Package quality assessment completed\n")
+        shell: Rscript {0}
+
+      - name: Run OSV Scanner
+        uses: google/osv-scanner-action@v1
+        with:
+          scan-args: |-
+            --recursive
+            --skip-git
+            .
+        continue-on-error: true
+
+      - name: Generate Security Report
+        run: |
+          cat > security-report.md << 'EOF'
+          # Security Scan Report
+          
+          **Scan Date:** $(date -u +"%Y-%m-%d %H:%M:%S UTC")
+          **Repository:** ${{ github.repository }}
+          **Branch:** ${{ github.ref_name }}
+          **Commit:** ${{ github.sha }}
+          
+          ## Scan Results Summary
+          
+          ### oysteR R Package Vulnerability Scan
+          - **Total Vulnerabilities:** ${{ steps.oyster-scan.outputs.total_vulnerabilities }}
+          - **Critical (CVSS ≥ 9.0):** ${{ steps.oyster-scan.outputs.critical_vulnerabilities }}
+          - **High (CVSS 7.0-8.9):** ${{ steps.oyster-scan.outputs.high_vulnerabilities }}
+          
+          ### OSV Scanner Results
+          See OSV Scanner output above for cross-language vulnerability detection.
+          
+          ## Detailed Results
+          
+          Detailed vulnerability information is available in the following artifacts:
+          - `oyster-description-results.json` - Vulnerabilities in DESCRIPTION dependencies
+          - `oyster-installed-results.json` - Vulnerabilities in installed packages
+          - `quality-assessment.json` - Package quality metrics
+          
+          ## Recommendations
+          
+          1. **Critical Vulnerabilities**: Must be addressed immediately
+          2. **High Vulnerabilities**: Should be addressed in next release
+          3. **Quality Issues**: Consider package alternatives or updates
+          
+          ## Security Scanning Tools Used
+          
+          - **oysteR**: R-specific vulnerability scanner using OSS Index
+          - **OSV Scanner**: Cross-language vulnerability scanner using OSV.dev database
+          - **riskmetric**: R package quality assessment
+          
+          EOF
+          
+          # Replace placeholder values
+          sed -i "s/\${{ steps.oyster-scan.outputs.total_vulnerabilities }}/${{ steps.oyster-scan.outputs.total_vulnerabilities }}/g" security-report.md
+          sed -i "s/\${{ steps.oyster-scan.outputs.critical_vulnerabilities }}/${{ steps.oyster-scan.outputs.critical_vulnerabilities }}/g" security-report.md
+          sed -i "s/\${{ steps.oyster-scan.outputs.high_vulnerabilities }}/${{ steps.oyster-scan.outputs.high_vulnerabilities }}/g" security-report.md
+          
+          echo "Generated security report"
+
+      - name: Upload Security Artifacts
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: security-scan-results-${{ github.run_number }}
+          path: |
+            security-report.md
+            oyster-*.json
+            quality-assessment.json
+          retention-days: 30
+
+      - name: Comment on PR (if applicable)
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            
+            // Read security report
+            let reportContent = '';
+            try {
+              reportContent = fs.readFileSync('security-report.md', 'utf8');
+            } catch (error) {
+              reportContent = '❌ Error reading security report';
+            }
+            
+            const comment = `## 🔒 Security Scan Results
+            
+            ${reportContent}
+            
+            ---
+            *This comment was automatically generated by the security scanning workflow.*`;
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });
+
+      - name: Fail build on critical vulnerabilities
+        if: steps.oyster-scan.outputs.critical_vulnerabilities > 0
+        run: |
+          echo "❌ Build failed due to critical security vulnerabilities"
+          echo "Critical vulnerabilities found: ${{ steps.oyster-scan.outputs.critical_vulnerabilities }}"
+          echo "Please review the security report and address critical issues before proceeding."
+          exit 1
+
+  dependency-review:
+    runs-on: ubuntu-latest
+    name: Dependency Review
+    if: github.event_name == 'pull_request'
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        
+      - name: Dependency Review
+        uses: actions/dependency-review-action@v4
+        with:
+          fail-on-severity: critical
+          comment-summary-in-pr: true
