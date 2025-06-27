@@ -22,11 +22,11 @@ The documentation site includes:
 ## Installation
 
 ```r
-remotes::install_github(
-  repo = "federerj/nightowl",
-  host = "https://github.roche.com/api/v3",
-  update = "never"
-)
+# Install from GitHub
+remotes::install_github("joelgsponer/nightowl")
+
+# Development version
+remotes::install_github("joelgsponer/nightowl@dev")
 ```
 
 ## Security
