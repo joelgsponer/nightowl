@@ -1,0 +1,276 @@
+# Workflow derived from https://github.com/r-lib/actions/tree/v2/examples
+# Need help debugging build failures? Start at https://github.com/r-lib/actions#where-to-find-help
+on:
+  push:
+    branches: [main, master, dev]
+  pull_request:
+    branches: [main, master, dev]
+  release:
+    types: [published]
+  workflow_dispatch:
+
+name: pkgdown
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
+# However, do NOT cancel in-progress runs as we want to allow these production deployments to complete.
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  pkgdown:
+    runs-on: ubuntu-latest
+    # Only restrict concurrency for non-PR jobs
+    concurrency:
+      group: pkgdown-${{ github.event_name != 'pull_request' || github.run_id }}
+    env:
+      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: r-lib/actions/setup-pandoc@v2
+
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          use-public-rspm: true
+
+      - name: Cache R packages
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.R_LIBS_USER }}
+          key: ${{ runner.os }}-pkgdown-r-${{ hashFiles('DESCRIPTION') }}
+          restore-keys: |
+            ${{ runner.os }}-pkgdown-r-
+
+      - uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          extra-packages: any::pkgdown, local::.
+          needs: website
+
+      - name: Install additional system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libcurl4-openssl-dev \
+            libssl-dev \
+            libxml2-dev \
+            libfontconfig1-dev \
+            libharfbuzz-dev \
+            libfribidi-dev \
+            libfreetype6-dev \
+            libpng-dev \
+            libtiff5-dev \
+            libjpeg-dev
+
+      - name: Build site
+        run: pkgdown::build_site_github_pages(new_process = FALSE, install = FALSE)
+        shell: Rscript {0}
+
+      - name: Configure Pages
+        if: github.event_name != 'pull_request'
+        uses: actions/configure-pages@v4
+
+      - name: Upload artifact
+        if: github.event_name != 'pull_request'
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: docs
+
+      - name: Deploy to GitHub pages 🚀
+        if: github.event_name != 'pull_request'
+        id: deployment
+        uses: actions/deploy-pages@v4
+
+  # Separate job to validate vignettes build correctly
+  validate-vignettes:
+    runs-on: ubuntu-latest
+    name: Validate Vignettes
+    
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: r-lib/actions/setup-pandoc@v2
+
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          use-public-rspm: true
+
+      - name: Cache R packages
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.R_LIBS_USER }}
+          key: ${{ runner.os }}-vignettes-r-${{ hashFiles('DESCRIPTION') }}
+          restore-keys: |
+            ${{ runner.os }}-vignettes-r-
+
+      - uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          extra-packages: any::knitr, any::rmarkdown, local::.
+          dependencies: '"hard"'
+
+      - name: Install additional system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libcurl4-openssl-dev \
+            libssl-dev \
+            libxml2-dev \
+            libfontconfig1-dev \
+            libharfbuzz-dev \
+            libfribidi-dev \
+            libfreetype6-dev \
+            libpng-dev \
+            libtiff5-dev \
+            libjpeg-dev
+
+      - name: Validate vignette code execution
+        run: |
+          # Check if vignettes directory exists
+          if [ -d "vignettes" ]; then
+            echo "Found vignettes directory, validating code execution..."
+            
+            # Extract and test R code from all vignettes
+            R -e "
+            library(knitr)
+            vignette_files <- list.files('vignettes', pattern = '\\.(Rmd|rmd)$', full.names = TRUE)
+            
+            if (length(vignette_files) == 0) {
+              cat('No vignette files found to validate.\n')
+              quit(status = 0)
+            }
+            
+            cat('Validating', length(vignette_files), 'vignette files...\n')
+            
+            for (vignette_file in vignette_files) {
+              cat('Processing:', basename(vignette_file), '\n')
+              
+              # Extract R code chunks
+              temp_r_file <- tempfile(fileext = '.R')
+              
+              tryCatch({
+                knitr::purl(vignette_file, output = temp_r_file, quiet = TRUE)
+                
+                if (file.exists(temp_r_file) && file.size(temp_r_file) > 0) {
+                  # Test code execution in clean environment
+                  test_env <- new.env()
+                  
+                  # Load required libraries
+                  eval(quote(library(nightowl)), envir = test_env)
+                  eval(quote(library(dplyr)), envir = test_env)
+                  eval(quote(library(ggplot2)), envir = test_env)
+                  
+                  # Source the extracted code
+                  source(temp_r_file, local = test_env)
+                  cat('✓ Code execution successful for', basename(vignette_file), '\n')
+                } else {
+                  cat('ⓘ No executable R code found in', basename(vignette_file), '\n')
+                }
+                
+                # Clean up
+                if (file.exists(temp_r_file)) unlink(temp_r_file)
+                
+              }, error = function(e) {
+                cat('✗ Error in', basename(vignette_file), ':', e$message, '\n')
+                quit(status = 1)
+              })
+            }
+            
+            cat('All vignette code validation completed successfully!\n')
+            "
+          else
+            echo "No vignettes directory found, skipping validation."
+          fi
+        shell: bash
+
+      - name: Build vignettes individually
+        run: |
+          if [ -d "vignettes" ]; then
+            echo "Building individual vignettes..."
+            R -e "
+            library(rmarkdown)
+            vignette_files <- list.files('vignettes', pattern = '\\.(Rmd|rmd)$', full.names = TRUE)
+            
+            for (vignette_file in vignette_files) {
+              cat('Building:', basename(vignette_file), '\n')
+              
+              tryCatch({
+                output_file <- file.path('vignettes', paste0(tools::file_path_sans_ext(basename(vignette_file)), '.html'))
+                rmarkdown::render(vignette_file, output_file = output_file, quiet = TRUE)
+                cat('✓ Successfully built', basename(vignette_file), '\n')
+              }, error = function(e) {
+                cat('✗ Failed to build', basename(vignette_file), ':', e$message, '\n')
+                quit(status = 1)
+              })
+            }
+            
+            cat('All vignettes built successfully!\n')
+            "
+          fi
+        shell: bash
+
+  # Job to run vignette tests from test suite
+  test-vignettes:
+    runs-on: ubuntu-latest
+    name: Test Vignette Integration
+    
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: r-lib/actions/setup-pandoc@v2
+
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          use-public-rspm: true
+
+      - name: Cache R packages
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.R_LIBS_USER }}
+          key: ${{ runner.os }}-test-vignettes-r-${{ hashFiles('DESCRIPTION') }}
+          restore-keys: |
+            ${{ runner.os }}-test-vignettes-r-
+
+      - uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          extra-packages: any::testthat, any::knitr, any::rmarkdown, local::.
+          dependencies: '"hard"'
+
+      - name: Install additional system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libcurl4-openssl-dev \
+            libssl-dev \
+            libxml2-dev \
+            libfontconfig1-dev \
+            libharfbuzz-dev \
+            libfribidi-dev \
+            libfreetype6-dev \
+            libpng-dev \
+            libtiff5-dev \
+            libjpeg-dev
+
+      - name: Run vignette-specific tests
+        run: |
+          R -e "
+          library(testthat)
+          
+          # Run only the vignette tests
+          if (file.exists('tests/testthat/test-vignettes.R')) {
+            cat('Running vignette-specific tests...\n')
+            test_file('tests/testthat/test-vignettes.R')
+            cat('Vignette tests completed successfully!\n')
+          } else {
+            cat('No vignette test file found, skipping.\n')
+          }
+          "
+        shell: bash
