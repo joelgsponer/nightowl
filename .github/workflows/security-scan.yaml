@@ -42,6 +42,23 @@ jobs:
           r-version: 'release'
           use-public-rspm: true
 
+      - name: Cache R packages (Security Tools)
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.R_LIBS_USER }}
+          key: ${{ runner.os }}-security-${{ hashFiles('DESCRIPTION') }}-${{ hashFiles('.github/workflows/security-scan.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-security-${{ hashFiles('DESCRIPTION') }}-
+            ${{ runner.os }}-security-
+
+      - name: Cache system dependencies (Linux)
+        uses: actions/cache@v4
+        with:
+          path: /var/cache/apt
+          key: ${{ runner.os }}-security-apt-${{ hashFiles('.github/workflows/security-scan.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-security-apt-
+
       - name: Install system dependencies
         run: |
           sudo apt-get update
@@ -52,6 +69,7 @@ jobs:
         with:
           extra-packages: any::oysteR, any::riskmetric, any::devtools, any::jsonlite
           needs: check
+          cache-version: 2
 
       - name: oysteR Vulnerability Scan
         id: oyster-scan
