@@ -36,16 +36,44 @@ jobs:
           http-user-agent: ${{ matrix.config.http-user-agent }}
           use-public-rspm: true
           
+      - name: Cache R packages
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.R_LIBS_USER }}
+          key: ${{ runner.os }}-${{ matrix.config.r }}-${{ hashFiles('DESCRIPTION') }}-${{ hashFiles('renv.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-${{ matrix.config.r }}-${{ hashFiles('DESCRIPTION') }}-
+            ${{ runner.os }}-${{ matrix.config.r }}-
+          
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
           extra-packages: any::rcmdcheck
           needs: check
+          cache-version: 2
           
+      - name: Cache system dependencies (Linux)
+        if: runner.os == 'Linux'
+        uses: actions/cache@v4
+        with:
+          path: /var/cache/apt
+          key: ${{ runner.os }}-apt-${{ hashFiles('.github/workflows/R-CMD-check.yml') }}
+          restore-keys: |
+            ${{ runner.os }}-apt-
+            
       - name: Install system dependencies (Linux)
         if: runner.os == 'Linux'
         run: |
           sudo apt-get update
-          sudo apt-get install -y libcurl4-openssl-dev libxml2-dev libssl-dev libfontconfig1-dev libcairo2-dev
+          sudo apt-get install -y \
+            libcurl4-openssl-dev \
+            libxml2-dev \
+            libssl-dev \
+            libfontconfig1-dev \
+            libcairo2-dev \
+            libfreetype6-dev \
+            libpng-dev \
+            libtiff5-dev \
+            libjpeg-dev
           
       - name: Document package
         run: |

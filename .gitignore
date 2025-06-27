@@ -143,3 +143,5 @@ TODO.md
 NOTES.md
 .notes/# Ignore git worktrees directory
 worktrees/
+.claude/
+worktrees/

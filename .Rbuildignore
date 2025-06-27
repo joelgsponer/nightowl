@@ -20,3 +20,7 @@
 ^.*-vulnerabilities\.json$
 ^scan-summary\.json$
 ^security-report\.md$
+^cache-.*\.md$
+^dependency-summary\.md$
+^baseline_.*\.log$
+^.*-cache-.*$
