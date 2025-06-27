@@ -142,3 +142,10 @@ tmp/
 TODO.md
 NOTES.md
 .notes/
+
+# Baseline files
+.baseline_*
+baseline*
+
+# Ignore git worktrees directory
+worktrees/
