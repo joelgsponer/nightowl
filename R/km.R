@@ -490,7 +490,6 @@ plot_km_covariates <- function(data,
     .median <- base::summary(survival::survfit(.formula, data))$table %>%
       as.data.frame()
 
-    browser()
     .p <- .p + ggplot2::geom_vline(
       xintercept = .median$median,
       color = colors[1:nrow(.median)],

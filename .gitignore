@@ -141,4 +141,5 @@ tmp/
 # Personal notes and TODO files
 TODO.md
 NOTES.md
-.notes/
+.notes/# Ignore git worktrees directory
+worktrees/

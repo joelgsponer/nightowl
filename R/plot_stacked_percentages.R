@@ -25,8 +25,7 @@ plot_stacked_percentages <- function(DATA,
                                      data_id_prefix = stringi::stri_reverse(AceOfSpades::random_id()),
                                      onclick = "console.log($(\"[class^=\"hover_svg\"]\"))",
                                      explicit_na = T) {
-  # For debugging
-  if (debug) browser()
+  # For debugging (removed browser call for CRAN compliance)
   # Number of Levels
   n_group <- length(unique(DATA[[y]]))
   # Fill colors
