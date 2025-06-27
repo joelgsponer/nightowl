@@ -16,3 +16,7 @@
 ^docs$
 ^pkgdown$
 ^\.baseline_metrics$
+^security-output$
+^.*-vulnerabilities\.json$
+^scan-summary\.json$
+^security-report\.md$
