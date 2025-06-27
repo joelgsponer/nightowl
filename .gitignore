@@ -1,33 +1,46 @@
-# History files
+# =============================================================================
+# R Package .gitignore
+# =============================================================================
+
+# R History and Session Files
+# -----------------------------------------------------------------------------
 .Rhistory
 .Rapp.history
-
-# Session Data files
 .RData
-
-# User-specific files
 .Ruserdata
 
-# Example code in package build process
-*-Ex.R
+# R Environment Variables
+# -----------------------------------------------------------------------------
+.Renviron
+.Rprofile
 
+# R Package Build Files
+# -----------------------------------------------------------------------------
 # Output files from R CMD build
 /*.tar.gz
 
 # Output files from R CMD check
 /*.Rcheck/
+..Rcheck/
 
-# RStudio files
-.Rproj.user/
+# Example code in package build process
+*-Ex.R
 
-# produced vignettes
-vignettes/*.html
-vignettes/*.pdf
+# R Package Development Files
+# -----------------------------------------------------------------------------
+# pkgdown site
+docs/
+doc/
+Meta/
 
-# OAuth2 token, see https://github.com/hadley/httr/releases/tag/v0.3
-.httr-oauth
+# Package development files
+_pkgdown.yml
+NEWS.md
+Makefile
 
-# knitr and R markdown default cache directories
+# R Package Cache
+# -----------------------------------------------------------------------------
+# knitr and R markdown cache directories
 *_cache/
 /cache/
 
@@ -35,5 +48,97 @@ vignettes/*.pdf
 *.utf8.md
 *.knit.md
 
-# R Environment Variables
-.Renviron
+# Vignettes
+# -----------------------------------------------------------------------------
+vignettes/*.html
+vignettes/*.pdf
+
+# IDE and Editor Files
+# -----------------------------------------------------------------------------
+# RStudio files
+.Rproj.user/
+*.Rproj
+
+# Visual Studio Code
+.vscode/
+
+# Emacs
+*~
+\#*\#
+.\#*
+
+# Vim
+*.swp
+*.swo
+*~
+
+# Slime R files
+.slime_r
+
+# Development Tools
+# -----------------------------------------------------------------------------
+# Claude Code files
+.claude/
+
+# revdep checks
+revdep/
+
+# OAuth2 token
+.httr-oauth
+
+# pkgdown temporary files
+pkgdown/
+
+# Log Files
+# -----------------------------------------------------------------------------
+log/
+logs/
+*.log
+
+# System Files
+# -----------------------------------------------------------------------------
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+*.tmp
+*.temp
+Desktop.ini
+$RECYCLE.BIN/
+
+# Linux
+*~
+
+# Testing and Coverage
+# -----------------------------------------------------------------------------
+# testthat snapshots that shouldn't be committed
+tests/testthat/_snaps/*/
+# testthat problem files
+tests/testthat/testthat-problems.rds
+covr-report.html
+
+# Temporary Development Files
+# -----------------------------------------------------------------------------
+# Temporary R objects
+.RDataTmp*
+
+# Backup files
+*.bak
+*.backup
+
+# Working directories and scratch files
+scratch/
+temp/
+tmp/
+
+# Personal notes and TODO files
+TODO.md
+NOTES.md
+.notes/

@@ -1,1 +1,0 @@
-  nightowl::Summary$new(penguins %>% dplyr::group_by(species), "bill_length_mm", method = nightowl::summarise_numeric_histogram)$html()
