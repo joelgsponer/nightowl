@@ -34,8 +34,6 @@ doc/
 Meta/
 
 # Package development files
-_pkgdown.yml
-NEWS.md
 Makefile
 
 # R Package Cache
