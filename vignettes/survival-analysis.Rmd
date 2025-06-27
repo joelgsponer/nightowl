@@ -1,0 +1,322 @@
+---
+title: "Survival Analysis with nightowl"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Survival Analysis with nightowl}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  eval = FALSE  # Set to FALSE to avoid dependency issues during pkgdown build
+)
+```
+
+```{r setup}
+library(nightowl)
+library(survival)
+library(dplyr)
+```
+
+# Survival Analysis
+
+The nightowl package provides comprehensive survival analysis capabilities, including Kaplan-Meier curves, Cox proportional hazards modeling, and forest plot generation. These tools are specifically designed for clinical research applications.
+
+## Kaplan-Meier Analysis
+
+### Basic Kaplan-Meier Curves
+
+```{r}
+# Create survival object
+surv_data <- data.frame(
+  time = rexp(100, 0.1),
+  status = rbinom(100, 1, 0.7),
+  treatment = sample(c("A", "B"), 100, replace = TRUE)
+)
+
+# Generate Kaplan-Meier curve
+km_plot <- plot_km(
+  data = surv_data,
+  time = "time",
+  event = "status",
+  group_by = "treatment"
+)
+
+km_plot$output()
+```
+
+### Advanced Kaplan-Meier Features
+
+```{r}
+# Grouped Kaplan-Meier with risk tables
+plot_grouped_km(
+  data = surv_data,
+  time = "time", 
+  event = "status",
+  group_by = "treatment",
+  split_by = "gender",
+  add_risk_table = TRUE,
+  add_pvalue = TRUE
+)
+
+# Compact Kaplan-Meier for small multiples
+plot_grouped_km_compact(
+  data = surv_data,
+  time = "time",
+  event = "status", 
+  group_by = "treatment",
+  ncol = 2
+)
+```
+
+### Survival Statistics
+
+```{r}
+# Calculate survival statistics
+km_summary(
+  data = surv_data,
+  time = "time",
+  event = "status",
+  group_by = "treatment"
+)
+
+# Risk table generation
+km_table(
+  data = surv_data,
+  time = "time", 
+  event = "status",
+  group_by = "treatment",
+  times = c(0, 6, 12, 18, 24)
+)
+
+# Log-rank test p-value
+km_pvalue(
+  data = surv_data,
+  time = "time",
+  event = "status", 
+  group_by = "treatment"
+)
+```
+
+## Cox Proportional Hazards Models
+
+### Basic Cox Regression
+
+```{r}
+# Create Cox model using Coxph class
+cox_model <- Coxph$new(data = surv_data)
+
+# Add variables to the model
+cox_model$add_variable("treatment")
+cox_model$add_variable("age")
+cox_model$add_variable("gender")
+
+# Generate results
+cox_model$output()
+```
+
+### Forest Plots from Cox Models
+
+```{r}
+# Generate forest plot
+cox_model$forestplot(
+  reference_line = 1,
+  title = "Hazard Ratios for Treatment Effect"
+)
+
+# Subgroup analysis
+cox_subgroup <- Coxph$new(data = surv_data)
+cox_subgroup$add_subgroup("treatment", by = "gender")
+cox_subgroup$forestplot()
+```
+
+### Survival Formula Creation
+
+```{r}
+# Automatic survival formula generation
+surv_formula <- create_Surv_formula(
+  data = surv_data,
+  time = "time",
+  event = "status"
+)
+
+# Use in Cox model
+cox_fit <- survival::coxph(surv_formula ~ treatment + age, data = surv_data)
+```
+
+## Advanced Survival Workflows
+
+### Covariates in Kaplan-Meier
+
+```{r}
+# Kaplan-Meier with covariate adjustment
+plot_km_covariates(
+  data = surv_data,
+  time = "time",
+  event = "status",
+  group_by = "treatment", 
+  covariates = c("age", "gender"),
+  adjust_method = "direct"
+)
+```
+
+### Multiple Endpoint Analysis
+
+```{r}
+# Analyze multiple time-to-event endpoints
+endpoints <- c("time_to_progression", "time_to_response", "overall_survival")
+
+endpoint_results <- map(endpoints, function(endpoint) {
+  Coxph$new(data = clinical_data)$
+    add_variable("treatment")$
+    set_endpoint(endpoint)$
+    results()
+})
+
+# Combine results for meta-analysis
+combine_cox_results(endpoint_results)
+```
+
+## Clinical Trial Applications
+
+### Treatment Effect Analysis
+
+```{r}
+# Standard clinical trial analysis
+trial_analysis <- function(data, treatment_var, time_var, event_var) {
+  
+  # Kaplan-Meier analysis
+  km_result <- plot_km(
+    data = data,
+    time = time_var,
+    event = event_var, 
+    group_by = treatment_var
+  )
+  
+  # Cox regression
+  cox_result <- Coxph$new(data = data)$
+    add_variable(treatment_var)$
+    output()
+  
+  # Summary statistics
+  summary_stats <- km_summary(
+    data = data,
+    time = time_var,
+    event = event_var,
+    group_by = treatment_var
+  )
+  
+  list(
+    km_plot = km_result,
+    cox_analysis = cox_result,
+    summary = summary_stats
+  )
+}
+
+# Apply to trial data
+trial_results <- trial_analysis(
+  data = trial_data,
+  treatment_var = "arm", 
+  time_var = "os_months",
+  event_var = "os_event"
+)
+```
+
+### Biomarker Subgroup Analysis
+
+```{r}
+# Biomarker-defined subgroup analysis
+biomarker_analysis <- Coxph$new(data = biomarker_data)
+
+# Add treatment effect
+biomarker_analysis$add_variable("treatment")
+
+# Add biomarker subgroups
+biomarker_analysis$add_subgroup("treatment", by = "biomarker_high")
+biomarker_analysis$add_subgroup("treatment", by = "mutation_status")
+
+# Generate forest plot
+biomarker_analysis$forestplot(
+  title = "Treatment Effect by Biomarker Status"
+)
+```
+
+## Visualization Customization
+
+### Custom Kaplan-Meier Styling
+
+```{r}
+# Customize Kaplan-Meier appearance
+km_custom <- plot_km(
+  data = surv_data,
+  time = "time",
+  event = "status",
+  group_by = "treatment"
+) %>%
+  add_theme("clinical") %>%
+  add_colors(c("#E74C3C", "#3498DB")) %>%
+  add_labels(
+    title = "Overall Survival",
+    x = "Time (months)",
+    y = "Survival Probability"
+  )
+```
+
+### Interactive Survival Plots
+
+```{r}
+# Create interactive survival plot
+km_interactive <- plot_km(
+  data = surv_data,
+  time = "time", 
+  event = "status",
+  group_by = "treatment"
+) %>%
+  render_girafe(
+    tooltip_columns = c("treatment", "time", "status")
+  )
+```
+
+## Statistical Considerations
+
+### Model Assumptions
+
+```{r}
+# Check proportional hazards assumption
+cox_model <- Coxph$new(data = surv_data)
+cox_model$add_variable("treatment")
+cox_model$check_assumptions()
+
+# Schoenfeld residuals test
+cox_model$schoenfeld_test()
+```
+
+### Sample Size and Power
+
+```{r}
+# Sample size calculations for survival studies
+power_analysis <- survival_power(
+  hazard_ratio = 0.7,
+  alpha = 0.05,
+  power = 0.8,
+  recruitment_time = 12,
+  followup_time = 24
+)
+```
+
+## Best Practices
+
+1. **Data Preparation**: Ensure proper time and event coding
+2. **Model Building**: Start with univariate, build to multivariate
+3. **Assumption Checking**: Always validate proportional hazards
+4. **Visualization**: Combine plots with summary statistics
+5. **Clinical Interpretation**: Focus on clinically meaningful differences
+
+## See Also
+
+- [Getting Started](getting-started.html) for basic package usage
+- [Statistical Summaries](statistical-summaries.html) for general analysis workflows  
+- [Function Reference](../reference/index.html) for complete API documentation
