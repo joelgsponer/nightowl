@@ -1,0 +1,140 @@
+url: https://joelgsponer.github.io/nightowl/
+template:
+  bootstrap: 5
+  
+home:
+  title: nightowl • Statistical Visualization for Clinical Research
+  description: >
+    A declarative plotting system built on ggplot2 with R6 classes, 
+    survival analysis capabilities, and interactive visualizations for 
+    clinical research applications.
+
+navbar:
+  title: nightowl
+  type: default
+  left:
+    - icon: fa-home fa-lg
+      href: index.html
+    - text: Reference
+      href: reference/
+    - text: Articles
+      menu:
+      - text: Getting Started
+        href: articles/getting-started.html
+      - text: Statistical Summaries
+        href: articles/statistical-summaries.html
+      - text: Survival Analysis
+        href: articles/survival-analysis.html
+    - text: Changelog
+      href: news/
+  right:
+    - icon: fab fa-github fa-lg
+      href: https://github.com/joelgsponer/nightowl
+      aria-label: GitHub
+
+reference:
+  - title: Core Classes
+    desc: Main R6 classes for plotting and analysis
+    contents:
+    - Plot
+    - Summary 
+    - Coxph
+  
+  - title: Plotting Functions
+    desc: Functions for creating various plot types
+    contents:
+    - plot
+    - boxplot
+    - dotplot
+    - violin
+    - forestplot
+    - donut_plot
+    - plot_stacked_percentages
+    
+  - title: Statistical Summaries
+    desc: Functions for statistical analysis and summaries
+    contents:
+    - summarise
+    - summarise_categorical
+    - summarise_numeric
+    - starts_with("summarise_")
+    
+  - title: Survival Analysis
+    desc: Kaplan-Meier curves and Cox regression functions
+    contents:
+    - plot_km
+    - plot_grouped_km
+    - km_pvalue
+    - km_summary
+    - km_table
+    - fit_km
+    - create_Surv_formula
+    
+  - title: Interactive Elements
+    desc: Functions for interactive plots and tables
+    contents:
+    - render_girafe
+    - render_reactable
+    - reactable_default
+    - add_download_button
+    
+  - title: Inline Plots
+    desc: Mini-plots for embedding in tables
+    contents:
+    - add_inline_plot
+    - add_inline_histogram
+    - add_inline_pointrange
+    - add_inline_forestplot
+    
+  - title: Statistical Tests
+    desc: Functions for statistical testing
+    contents:
+    - grouped_chisq
+    - calc_test
+    - calc_test_chisq
+    - calc_test_kruskal
+    
+  - title: Data Manipulation
+    desc: Helper functions for data processing
+    contents:
+    - frequency
+    - percentage
+    - count
+    - spread_data
+    - format_frequencies
+    
+  - title: Styling and Themes
+    desc: Functions for customizing plot appearance
+    contents:
+    - load_style
+    - styled_plot
+    - theme
+    - colors
+    - scales
+    
+  - title: Utilities
+    desc: Helper and utility functions
+    contents:
+    - pipe
+    - useNightowl
+    - format_p_value
+    - text_wraping
+    - get_labels
+
+development:
+  mode: auto
+  
+authors:
+  Joel Sponer:
+    href: https://github.com/joelgsponer
+
+footer:
+  structure:
+    left: [developed_by, built_with]
+    right: [package, version]
+  components:
+    package: |
+      <span class="navbar-brand">
+        <a class="navbar-link" href="index.html">nightowl</a> 
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">{{version}}</span>
+      </span>

@@ -10,6 +10,8 @@ Description: Provides a declarative plotting system built on ggplot2 with R6 cla
     survival analysis capabilities, and interactive visualizations for clinical research 
     applications. Features include Kaplan-Meier curves, Cox proportional hazards modeling, 
     forest plots, and comprehensive statistical summaries with customizable styling.
+URL: https://joelgsponer.github.io/nightowl/
+BugReports: https://github.com/joelgsponer/nightowl/issues
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
