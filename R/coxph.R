@@ -479,7 +479,7 @@ fit_coxph <- function(data, time, event, treatment, covariates, strata, exponent
         nightowl_tally_at(c(.var, event)) %>%
         dplyr::filter(!!rlang::sym(event) == 1) %>%
         dplyr::select_at(c(.var, "n")) %>%
-        dplyr::rename(group = .var) %>%
+        dplyr::rename(group = dplyr::all_of(.var)) %>%
         dplyr::mutate(variable = .var) %>%
         dplyr::rename(`Events/N` = n) %>%
         dplyr::mutate(group = as.character(group))

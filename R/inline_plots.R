@@ -508,7 +508,7 @@ add_scale <- function(obj,
     purrr::compact()
   # Get options_svg from first valid column
   options_svg <- if (length(columns) > 0) {
-    .obj <- obj[[columns[1]]]
+    .obj <- obj[[columns[[1]]]]
     .options_svg <- .obj[[1]]$options_svg
     .options_svg$height <- 0.3
     .options_svg
