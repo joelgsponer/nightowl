@@ -44,3 +44,7 @@ Imports:
     tibble,
     uuid,
     vctrs
+Suggests: 
+    covr,
+    knitr,
+    rmarkdown

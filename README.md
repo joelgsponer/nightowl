@@ -1,5 +1,11 @@
 # nightowl <img src="man/figures/logo.png" align="right" height="104" />
 
+<!-- badges: start -->
+[![R-CMD-check](https://github.com/joelgsponer/nightowl/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/joelgsponer/nightowl/actions/workflows/R-CMD-check.yaml)
+[![Codecov test coverage](https://codecov.io/gh/joelgsponer/nightowl/branch/dev/graph/badge.svg)](https://app.codecov.io/gh/joelgsponer/nightowl?branch=dev)
+[![Security Scan Status](https://github.com/joelgsponer/nightowl/actions/workflows/security-scan.yaml/badge.svg)](https://github.com/joelgsponer/nightowl/actions/workflows/security-scan.yaml)
+<!-- badges: end -->
+
 Statistical visualization and analysis for clinical research applications.
 
 ## Installation
