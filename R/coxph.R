@@ -539,7 +539,7 @@ plot_coxph <- function(data,
     .result <- nightowl::fit_coxph(data, time, event, treatment, covariates, strata, exponentiate = TRUE)
   } else {
     .result <- data %>%
-      nightowl_named_group_split_at(data, split) %>%
+      nightowl_named_group_split_at(split) %>%
       furrr::future_imap(~ nightowl::fit_coxph(.x, time, event, treatment, covariates, strata, exponentiate = TRUE) %>%
         dplyr::mutate(!!rlang::sym(split) := .y)) %>%
       dplyr::bind_rows() %>%
