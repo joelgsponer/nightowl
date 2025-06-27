@@ -1,7 +1,37 @@
 # =================================================
-#' @title
-#' MISSING_TITLE
+#' @title Plot Grouped Kaplan-Meier Survival Curves
+#' @description Creates multiple Kaplan-Meier survival curves grouped by a splitting variable.
+#'   This function generates a collection of survival plots, one for each level of the
+#'   splitting variable, arranged in a flexible layout for comparative analysis.
+#' @param data A data frame containing survival data
+#' @param time Character string specifying the time-to-event variable name
+#' @param event Character string specifying the event indicator variable name (0/1 or FALSE/TRUE)
+#' @param treatment Character string specifying the treatment group variable name
+#' @param covariates Character vector of covariate names to include in the model (optional)
+#' @param split Character string specifying the variable to split/group plots by
+#' @param width Character string specifying the width of each plot (default: "95vw")
+#' @param flex_direction Character string specifying flex direction ("column" or "row")
+#' @param as_ggplot Logical indicating whether to return ggplot objects instead of interactive plots
+#' @param title Function to generate plot titles, with access to .split variable
+#' @param subtitle Function to generate plot subtitles
+#' @param note Function to generate plot notes
+#' @param style Character string with CSS styling for plot containers
+#' @param break_width Numeric value for time axis break intervals
+#' @param ... Additional arguments passed to plot_km function
+#' @return If as_ggplot is TRUE, returns a patchwork object combining ggplot objects.
+#'   Otherwise returns an HTML div containing interactive survival curves.
 #' @export
+#' @examples
+#' \dontrun{
+#' # Plot survival curves grouped by study site
+#' plot_grouped_km(
+#'   data = clinical_data,
+#'   time = "survival_time",
+#'   event = "death",
+#'   treatment = "treatment_arm",
+#'   split = "study_site"
+#' )
+#' }
 plot_grouped_km <- function(data,
                             time,
                             event,
@@ -67,9 +97,56 @@ plot_grouped_km <- function(data,
 }
 
 # =================================================
-#' @title
-#' MISSING_TITLE
+#' @title Plot Kaplan-Meier Survival Curves
+#' @description Creates an interactive Kaplan-Meier survival curve with optional risk table,
+#'   confidence intervals, and statistical annotations. This is the core function for
+#'   visualizing time-to-event data in clinical research applications.
+#' @param data A data frame containing survival data
+#' @param time Character string specifying the time-to-event variable name
+#' @param event Character string specifying the event indicator variable name (0/1 or FALSE/TRUE)
+#' @param treatment Character string specifying the treatment group variable name
+#' @param covariates Character vector of covariate names to include in the model (optional)
+#' @param title Character string for plot title (default: event name)
+#' @param subtitle Character string for plot subtitle
+#' @param landmark Numeric value for landmark analysis time point
+#' @param ylab Character string for y-axis label (default: "Survival")
+#' @param xlab Character string for x-axis label (default: "Time (Days)")
+#' @param add_p Logical indicating whether to add log-rank test p-value
+#' @param add_table Logical indicating whether to add numbers-at-risk table
+#' @param add_summary Logical indicating whether to add survival summary
+#' @param add_median Logical indicating whether to add median survival time markers
+#' @param wrap Character string for facet wrapping variable
+#' @param legend_position Character string for legend position ("top", "bottom", "left", "right")
+#' @param height Numeric value for plot height in pixels
+#' @param table_height_fraction Numeric fraction of total height for risk table
+#' @param width Character string specifying plot width
+#' @param colors Character vector of colors for survival curves
+#' @param lowrider_theme Character string specifying theme
+#' @param as_ggplot Logical indicating whether to return ggplot object instead of interactive plot
+#' @param note Character string for plot notes
+#' @param break_width Numeric value for time axis break intervals
+#' @return If as_ggplot is TRUE, returns a ggplot object. Otherwise returns an HTML div
+#'   containing an interactive plotly survival curve with optional risk table.
 #' @export
+#' @examples
+#' \dontrun{
+#' # Basic Kaplan-Meier plot
+#' plot_km(
+#'   data = clinical_data,
+#'   time = "survival_time",
+#'   event = "death",
+#'   treatment = "treatment_arm"
+#' )
+#' 
+#' # With landmark analysis at 30 days
+#' plot_km(
+#'   data = clinical_data,
+#'   time = "survival_time",
+#'   event = "death",
+#'   treatment = "treatment_arm",
+#'   landmark = 30
+#' )
+#' }
 plot_km <- function(data,
                     time,
                     event,
@@ -277,9 +354,27 @@ plot_km <- function(data,
     htmltools::browsable()
 }
 # =================================================
-#' @title
-#' MISSING_TITLE
+#' @title Calculate Log-Rank Test P-Value for Survival Curves
+#' @description Computes the log-rank test p-value for comparing survival curves between groups.
+#'   This test evaluates whether there are statistically significant differences in
+#'   survival distributions between treatment groups.
+#' @param .formula A survival formula object created by create_Surv_formula
+#' @param data A data frame containing survival data
+#' @param html Logical indicating whether to return HTML formatted output
+#' @return If html is TRUE, returns a shiny pre tag with formatted p-value.
+#'   If html is FALSE, returns numeric p-value rounded to 4 decimal places.
 #' @export
+#' @examples
+#' \dontrun{
+#' # Calculate p-value for survival comparison
+#' formula <- create_Surv_formula(
+#'   data = clinical_data,
+#'   time = "survival_time",
+#'   event = "death",
+#'   treatment = "treatment_arm"
+#' )
+#' km_pvalue(formula, clinical_data)
+#' }
 km_pvalue <- function(.formula, data, html = TRUE) {
   p <- survival::survdiff(.formula, data = data) %>%
     {
@@ -294,9 +389,40 @@ km_pvalue <- function(.formula, data, html = TRUE) {
   return(p)
 }
 # =================================================
-#' @title
-#' MISSING_TITLE
+#' @title Fit Kaplan-Meier Survival Model
+#' @description Fits a Kaplan-Meier survival model and returns tidy survival estimates.
+#'   This function handles survival formula creation, optional landmark analysis,
+#'   and returns survival probabilities over time for visualization.
+#' @param data A data frame containing survival data
+#' @param time Character string specifying the time-to-event variable name
+#' @param event Character string specifying the event indicator variable name (0/1 or FALSE/TRUE)
+#' @param treatment Character string specifying the treatment group variable name
+#' @param covariates Character vector of covariate names to include in the model (optional)
+#' @param landmark Numeric value for landmark analysis time point. If specified,
+#'   analysis starts from this time point forward
+#' @param ... Additional arguments passed to survfit function
+#' @return A tidy data frame with survival estimates including time, estimate,
+#'   confidence intervals, and strata information
 #' @export
+#' @examples
+#' \dontrun{
+#' # Fit basic Kaplan-Meier model
+#' km_fit <- fit_km(
+#'   data = clinical_data,
+#'   time = "survival_time",
+#'   event = "death",
+#'   treatment = "treatment_arm"
+#' )
+#' 
+#' # Fit with landmark analysis
+#' km_fit_landmark <- fit_km(
+#'   data = clinical_data,
+#'   time = "survival_time",
+#'   event = "death",
+#'   treatment = "treatment_arm",
+#'   landmark = 90
+#' )
+#' }
 fit_km <- function(data, time, event, treatment, covariates = NULL, landmark = NULL, ...) {
   # Landmark -------------------------------------------------------------------
   if (!is.null(landmark)) {
@@ -316,9 +442,19 @@ fit_km <- function(data, time, event, treatment, covariates = NULL, landmark = N
     dplyr:::mutate(tooltip = round(estimate, 2))
 }
 # =================================================
-#' @title
-#' MISSING_TITLE
+#' @title Add Time Zero to Kaplan-Meier Survival Fit
+#' @description Adds time zero (baseline) to Kaplan-Meier survival estimates with 100% survival
+#'   probability. This ensures survival curves start at (0, 1) for proper visualization.
+#' @param fit A tidy survival fit data frame from fit_km function
+#' @return A data frame with time zero added for each stratum, showing 100% survival
+#'   at baseline with appropriate number at risk
 #' @export
+#' @examples
+#' \dontrun{
+#' # Add time zero to survival fit
+#' km_fit <- fit_km(clinical_data, "survival_time", "death", "treatment_arm")
+#' km_fit_with_zero <- km_add_0(km_fit)
+#' }
 km_add_0 <- function(fit) {
   fit %>%
     dplyr::group_by(strata) %>%
@@ -341,9 +477,24 @@ km_add_0 <- function(fit) {
     dplyr::ungroup()
 }
 # =================================================
-#' @title
-#' MISSING_TITLE
+#' @title Generate Kaplan-Meier Survival Summary
+#' @description Creates a formatted summary of survival differences between groups,
+#'   including the log-rank test results and group comparisons.
+#' @param .formula A survival formula object created by create_Surv_formula
+#' @param data A data frame containing survival data
+#' @return A shiny pre tag containing formatted survival test summary
 #' @export
+#' @examples
+#' \dontrun{
+#' # Generate survival summary
+#' formula <- create_Surv_formula(
+#'   data = clinical_data,
+#'   time = "survival_time",
+#'   event = "death",
+#'   treatment = "treatment_arm"
+#' )
+#' km_summary(formula, clinical_data)
+#' }
 km_summary <- function(.formula, data) {
   res <- survival::survdiff(.formula, data = data) %>%
     shiny::renderPrint() %>%
@@ -352,9 +503,26 @@ km_summary <- function(.formula, data) {
   shiny::tag("pre", res)
 }
 # =================================================
-#' @title
-#' MISSING_TITLE
+#' @title Create Numbers-at-Risk Table for Kaplan-Meier Plots
+#' @description Generates a numbers-at-risk table showing how many subjects remain
+#'   at specified time intervals for each treatment group. Essential for interpreting
+#'   the reliability of survival estimates over time.
+#' @param fit A tidy survival fit data frame from fit_km function
+#' @param what Character string specifying what to display (default: "n.risk")
+#' @param break_width Numeric value for time interval width between table columns
+#' @param kable Logical indicating whether to return formatted kable output
+#' @return If kable is TRUE, returns formatted HTML table with kableExtra styling.
+#'   If kable is FALSE, returns raw data frame with risk table data.
 #' @export
+#' @examples
+#' \dontrun{
+#' # Create risk table
+#' km_fit <- fit_km(clinical_data, "survival_time", "death", "treatment_arm")
+#' risk_table <- km_table(km_fit, break_width = 30)
+#' 
+#' # Get raw risk table data
+#' risk_data <- km_table(km_fit, kable = FALSE)
+#' }
 km_table <- function(fit, what = "n.risk", break_width = 10, kable = T) {
   fit <- nightowl::km_add_0(fit)
   breakpoints <- seq(0, max(fit$time), break_width)
@@ -390,9 +558,35 @@ km_table <- function(fit, what = "n.risk", break_width = 10, kable = T) {
   }
 }
 # =================================================
-#' @title
-#' MISSING_TITLE
+#' @title Plot Compact Grouped Kaplan-Meier Survival Curves
+#' @description Creates compact Kaplan-Meier survival curves arranged horizontally with
+#'   minimal legends and reduced spacing. Optimized for displaying multiple survival
+#'   curves in limited space, such as in reports or dashboards.
+#' @param data A data frame containing survival data
+#' @param time Character string specifying the time-to-event variable name
+#' @param event Character string specifying the event indicator variable name (0/1 or FALSE/TRUE)
+#' @param treatment Character string specifying the treatment group variable name
+#' @param covariates Character vector of covariate names to include in the model (optional)
+#' @param split Character string specifying the variable to split/group plots by
+#' @param width Character string specifying width of each plot (default: "400px")
+#' @param add_table Logical indicating whether to add numbers-at-risk table
+#' @param break_width Numeric value for time axis break intervals (default: max time / 6)
+#' @param add_p Logical indicating whether to add log-rank test p-value
+#' @param ... Additional arguments passed to plot_grouped_km function
+#' @return HTML div containing horizontally arranged compact survival curves
 #' @export
+#' @examples
+#' \dontrun{
+#' # Create compact grouped survival plots
+#' plot_grouped_km_compact(
+#'   data = clinical_data,
+#'   time = "survival_time",
+#'   event = "death",
+#'   treatment = "treatment_arm",
+#'   split = "study_site",
+#'   width = "300px"
+#' )
+#' }
 plot_grouped_km_compact <- function(data,
                                     time,
                                     event,
@@ -423,9 +617,46 @@ plot_grouped_km_compact <- function(data,
   )
 }
 # =================================================
-#' @title
-#' MISSING_TITLE
+#' @title Plot Kaplan-Meier Curves with Covariate Distribution Over Time
+#' @description Creates Kaplan-Meier survival curves with additional panels showing
+#'   how covariate distributions change over time within each treatment group.
+#'   Useful for understanding selection bias and covariate patterns in survival data.
+#' @param data A data frame containing survival data
+#' @param time Character string specifying the time-to-event variable name
+#' @param event Character string specifying the event indicator variable name (0/1 or FALSE/TRUE)
+#' @param treatment Character string specifying the treatment group variable name
+#' @param covariates Character vector of covariate names to display distributions for
+#' @param title Character string for plot title (default: event name)
+#' @param subtitle Character string for plot subtitle
+#' @param landmark Numeric value for landmark analysis time point
+#' @param ylab Character string for y-axis label (default: "Survival")
+#' @param xlab Character string for x-axis label (default: "Time (Days)")
+#' @param add_p Logical indicating whether to add log-rank test p-value
+#' @param add_table Logical indicating whether to add numbers-at-risk table
+#' @param add_summary Logical indicating whether to add survival summary
+#' @param add_median Logical indicating whether to add median survival time markers
+#' @param wrap Character string for facet wrapping variable
+#' @param legend_position Character string for legend position
+#' @param height Numeric value for plot height in pixels
+#' @param width Character string specifying plot width
+#' @param colors Character vector of colors for survival curves
+#' @param lowrider_theme Character string specifying theme
+#' @param as_ggplot Logical indicating whether to return ggplot object
+#' @param note Character string for plot notes
+#' @param break_width Numeric value for time axis break intervals
+#' @return Interactive plotly object with survival curves and covariate distribution panels
 #' @export
+#' @examples
+#' \dontrun{
+#' # Plot survival curves with covariate distributions
+#' plot_km_covariates(
+#'   data = clinical_data,
+#'   time = "survival_time",
+#'   event = "death",
+#'   treatment = "treatment_arm",
+#'   covariates = c("age_group", "gender")
+#' )
+#' }
 plot_km_covariates <- function(data,
                                time,
                                event,

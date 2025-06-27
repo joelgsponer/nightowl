@@ -1,7 +1,19 @@
 # Make some more simple barcharts
 # =================================================
-#' @title
-#' MISSING_TITLE
+#' @title Create Donut Plot for Categorical Data
+#' @description 
+#' Generate donut plots for categorical variables split by a grouping variable.
+#' Creates interactive visualizations with percentage labels and legends.
+#' @param data A data frame containing the categorical variables
+#' @param column Character string specifying the categorical variable to plot
+#' @param split Character string specifying the grouping variable
+#' @param threshold_levels Threshold for number of levels before hiding small labels
+#' @param threshold_fractions Minimum fraction required to display labels
+#' @param colors Optional named vector of colors for categories
+#' @param brewer_pal ColorBrewer palette name for automatic colors
+#' @param color_missing Color for missing values
+#' @param label Display label for the plot
+#' @return A browsable HTML div containing the donut plots
 #' @export
 make_donut_plot_categorical <- function(data,
                                         column,
@@ -87,8 +99,19 @@ make_donut_plot_categorical <- function(data,
 }
 # =================================================
 # =================================================
-#' @title
-#' MISSING_TITLE
+#' @title Create Donut Plot for Numeric Data
+#' @description 
+#' Generate violin-boxplot combinations for numeric variables split by a grouping 
+#' variable. Displays distributions with median reference lines.
+#' @param data A data frame containing the numeric variables
+#' @param column Character string specifying the numeric variable to plot
+#' @param split Character string specifying the grouping variable
+#' @param colors Optional named vector of colors for groups
+#' @param brewer_pal ColorBrewer palette name for automatic colors
+#' @param color_missing Color for missing values
+#' @param label Display label for the plot
+#' @param .range Optional numeric vector specifying y-axis range
+#' @return A browsable HTML div containing the violin-boxplots
 #' @export
 make_donut_plot_numeric <- function(data,
                                     column,
@@ -170,8 +193,16 @@ make_donut_plot_numeric <- function(data,
     htmltools::browsable()
 }
 # =================================================
-#' @title
-#' MISSING_TITLE
+#' @title Create Multi-Variable Donut Plot Dashboard
+#' @description 
+#' Create a comprehensive dashboard of donut plots for multiple variables,
+#' automatically choosing appropriate plot types based on variable types.
+#' @param data A data frame containing the variables to visualize
+#' @param columns Character vector of column names to include in dashboard
+#' @param split Character string specifying the grouping variable
+#' @param labels Optional character vector of custom labels for columns
+#' @param options Optional list of plotting options for each variable type
+#' @return A rendered donut plot dashboard
 #' @export
 donut_plot <- function(data,
                        columns,
@@ -222,8 +253,13 @@ donut_plot <- function(data,
   do.call(nightowl::render_donut_plot, c(list(header = header), p))
 }
 # =================================================
-#' @title
-#' MISSING_TITLE
+#' @title Render Donut Plot Layout
+#' @description 
+#' Render the final HTML layout for donut plot dashboard with headers and styling.
+#' Combines individual plots into a cohesive dashboard format.
+#' @param header Character vector of column headers for the dashboard
+#' @param ... Individual plot elements to include in the dashboard
+#' @return A browsable HTML element containing the complete dashboard
 #' @export
 render_donut_plot <- function(header, ...) {
   plots <- list(...)
@@ -253,8 +289,11 @@ render_donut_plot <- function(header, ...) {
     htmltools::browsable()
 }
 # =================================================
-#' @title
-#' MISSING_TITLE
+#' @title Generate CSS for Donut Plot Dashboard
+#' @description 
+#' Generate the CSS styling required for donut plot dashboard layout,
+#' including flexbox layouts, fonts, and responsive design elements.
+#' @return An HTML element containing CSS styling rules
 #' @export
 css_donut_plot <- function() {
   shiny::HTML("<style>

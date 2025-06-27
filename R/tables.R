@@ -1,11 +1,12 @@
 # =================================================
-#' @title
-#' MISSING_TITLE
-#' @description
-#' @detail
-#' @param
-#' @return
+#' @title Create Default Reactable Table (Deprecated)
+#' @description 
+#' Create a reactable table with default styling and functionality. This function
+#' is deprecated in favor of render_reactable().
+#' @param x A data frame to render as a table
+#' @return A reactable table widget
 #' @export
+#' @keywords internal
 reactable_default <- function(x,
                               filterable = T,
                               style = list(fontFamily = "Work Sans, sans-serif", fontSize = "14px", padding = "10px"),
@@ -29,12 +30,22 @@ reactable_default <- function(x,
   )
 }
 # =================================================
-#' @title
-#' MISSING_TITLE
-#' @description
-#' @detail
-#' @param
-#' @return
+#' @title Render Kable Table
+#' @description 
+#' Create a formatted HTML table using knitr::kable with kableExtra styling.
+#' Provides comprehensive formatting options for clinical research reports.
+#' @param .tbl A data frame to render as a table
+#' @param caption Optional table caption
+#' @param full_width Logical indicating whether table should span full width
+#' @param digits Number of decimal places for numeric values
+#' @param add_scale Logical indicating whether to add scale information
+#' @param width_header Maximum width for header text wrapping
+#' @param header_above Optional named vector for multi-level headers
+#' @param htmltable_class CSS class for table styling
+#' @param footnote Optional footnote text
+#' @param align Column alignment specification
+#' @param ... Additional arguments passed to kable_styling
+#' @return A formatted HTML table
 #' @export
 render_kable <- function(.tbl,
                          caption = NULL,
@@ -71,12 +82,14 @@ render_kable <- function(.tbl,
   return(.kable)
 }
 # =================================================
-#' @title
-#' MISSING_TITLE
-#' @description
-#' @detail
-#' @param
-#' @return
+#' @title Render HTML Table with Dependencies
+#' @description 
+#' Render a table as HTML with required CSS/JavaScript dependencies for proper styling.
+#' Wraps the table in a browsable HTML container.
+#' @param .tbl A data frame to render as an HTML table
+#' @param html_dependencies Function providing HTML dependencies (default: lightable theme)
+#' @param ... Additional arguments passed to render_kable
+#' @return A browsable HTML element containing the styled table
 #' @export
 render_html <- function(.tbl, html_dependencies = kableExtra:::html_dependency_lightable, ...) {
   shiny::div(
@@ -88,12 +101,21 @@ render_html <- function(.tbl, html_dependencies = kableExtra:::html_dependency_l
 }
 # s-------------------------------------------------------------------------------
 # =================================================
-#' @title
-#' MISSING_TITLE
-#' @description
-#' @detail
-#' @param
-#' @return
+#' @title Render Interactive Reactable Table
+#' @description 
+#' Create an interactive reactable table with advanced features like filtering,
+#' sorting, and custom styling. Optimized for nightowl plot integration.
+#' @param .tbl A data frame to render as an interactive table
+#' @param html_columns Optional vector specifying columns containing HTML content
+#' @param theme Function returning reactable theme (default: nytimes centered)
+#' @param digits Number of decimal places for numeric values
+#' @param defaultPageSize Default number of rows to display per page
+#' @param filterable Logical indicating whether to enable column filtering
+#' @param add_scale Logical indicating whether to add scale information
+#' @param defaultColDef List of default column definitions
+#' @param fullWidth Logical indicating whether table should span full width
+#' @param ... Additional arguments passed to reactable
+#' @return A reactable widget with nightowl styling
 #' @export
 render_reactable <- function(.tbl,
                              html_columns = NULL,

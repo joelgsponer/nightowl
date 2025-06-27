@@ -1,10 +1,14 @@
 # =================================================
-#' @title
-#' MISSING_TITLE
-#' @description
-#' @detail
-#' @param
-#' @return
+#' @title Calculate Statistical Test
+#' @description 
+#' Automatically determine and calculate appropriate statistical test based on 
+#' variable types. Uses Kruskal-Wallis for numeric and Chi-square for categorical variables.
+#' @param .data A data frame containing the variables to test
+#' @param y Character string specifying the response variable name
+#' @param x Optional character vector specifying grouping variables
+#' @param gracefully Logical indicating whether to handle errors gracefully
+#' @param ... Additional arguments passed to the specific test functions
+#' @return A list containing test results, method, p-value, and potential errors
 #' @export
 calc_test <- function(.data, y, x = NULL, gracefully = T, ...) {
   tryCatch(
@@ -35,12 +39,15 @@ calc_test <- function(.data, y, x = NULL, gracefully = T, ...) {
   )
 }
 # =================================================
-#' @title
-#' MISSING_TITLE
-#' @description
-#' @detail
-#' @param
-#' @return
+#' @title Calculate Kruskal-Wallis Test
+#' @description 
+#' Perform Kruskal-Wallis test for comparing numeric variables across groups.
+#' Non-parametric alternative to one-way ANOVA.
+#' @param .data A data frame containing the variables to test
+#' @param y Character string specifying the numeric response variable name
+#' @param x Optional character vector specifying grouping variables
+#' @param ... Additional arguments passed to kruskal.test
+#' @return A list containing test results, method name, and p-value
 #' @export
 calc_test_kruskal <- function(.data, y, x = NULL, ...) {
   if (is.null(x)) {
@@ -59,12 +66,16 @@ calc_test_kruskal <- function(.data, y, x = NULL, ...) {
   )
 }
 # =================================================
-#' @title
-#' MISSING_TITLE
-#' @description
-#' @detail
-#' @param
-#' @return
+#' @title Calculate Chi-Square Test
+#' @description 
+#' Perform Pearson's Chi-square test for independence between categorical variables.
+#' Tests association between grouping variables and categorical response.
+#' @param .data A data frame containing the variables to test
+#' @param y Character string specifying the categorical response variable name
+#' @param x Optional character vector specifying grouping variables
+#' @param correct Logical indicating whether to apply continuity correction
+#' @param ... Additional arguments passed to chisq.test
+#' @return A list containing test results, contingency table, method name, and p-value
 #' @export
 calc_test_chisq <- function(.data, y, x = NULL, correct = F, ...) {
   if (is.null(x)) {
