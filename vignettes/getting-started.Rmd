@@ -1,5 +1,7 @@
 ---
 title: "Getting Started with nightowl"
+author: "nightowl Development Team"
+date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Getting Started with nightowl}
@@ -11,75 +13,377 @@ vignette: >
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
-  eval = FALSE  # Set to FALSE to avoid dependency issues during pkgdown build
+  fig.width = 7,
+  fig.height = 5,
+  dpi = 96
 )
+```
+
+# Introduction to nightowl
+
+Welcome to **nightowl**, an R package designed for statistical visualization and analysis with a focus on clinical research applications. The package provides a declarative plotting system built on ggplot2 with R6 classes, survival analysis capabilities, and interactive visualizations.
+
+## Core Philosophy
+
+nightowl is built around three core principles:
+
+1. **Declarative Syntax**: Describe what you want, not how to build it
+2. **Method Chaining**: Fluent interfaces for complex workflows  
+3. **Clinical Focus**: Tools designed for research and healthcare applications
+
+## Installation
+
+```{r eval=FALSE}
+# Install from GitHub
+devtools::install_github("joelgsponer/nightowl")
 ```
 
 ```{r setup}
 library(nightowl)
+library(dplyr)
+library(ggplot2)
+
+# Load example data
+data(ChickWeight)
+testdata <- ChickWeight %>%
+  filter(Time < 10)
 ```
 
-# Introduction
+# Core R6 Classes
 
-**nightowl** is a comprehensive R package for statistical visualization and analysis, specifically designed for clinical research applications. It provides a declarative plotting system built on ggplot2 with R6 classes, survival analysis capabilities, and interactive visualizations.
+The nightowl package is built around three main R6 classes that provide the foundation for all analysis and visualization workflows.
 
-## Key Features
+## Plot Class - Advanced Visualization
 
-- **Declarative Plotting System**: R6-based classes for consistent, reproducible visualizations
-- **Survival Analysis**: Kaplan-Meier curves and Cox proportional hazards modeling  
-- **Interactive Elements**: SVG rendering with hover effects and reactable tables
-- **Statistical Summaries**: Built-in statistical tests and summary functions
-- **Clinical Focus**: Designed specifically for clinical research workflows
+The `Plot` class provides sophisticated plotting capabilities with SVG rendering and interactive features.
 
-## Installation
+### Basic Plot Creation
 
-```{r}
-# Install from GitHub
-remotes::install_github("joelgsponer/nightowl")
+```{r basic-plot}
+# Create a simple ggplot2 plot
+p <- ggplot(testdata, aes(x = Time, y = weight)) +
+  geom_point()
+
+# Wrap in nightowl Plot class for enhanced capabilities
+plot_obj <- Plot$new(plot = p, options_svg = list(height = 4))
+plot_obj
 ```
 
-## Basic Usage
+### Declarative Plotting System
 
-### Creating Plots
+The real power of nightowl comes from its declarative plotting syntax:
 
-The core plotting functionality uses the `Plot` R6 class:
+```{r declarative-plot}
+# Create a complex plot using declarative syntax
+advanced_plot <- plot(
+  data = testdata,
+  mapping = list(
+    x = "Time",
+    y = "weight", 
+    color = "Diet",
+    group = "Diet",
+    id = "Chick"
+  ),
+  layers = list(
+    list(type = "generic", geom = "ggplot2::geom_jitter", alpha = 0.3, width = 0.1),
+    list(type = "traces", geom = "line", alpha = 0.3),
+    list(type = "summary", mapping = list(color = NULL), geom = "line", dodge = 0, size = 1.5)
+  ),
+  theming = list(
+    theme = "ggplot2::theme_bw"
+  )
+)
 
-```{r}
-# Create a basic plot
-p <- Plot$new(data = mtcars)
-p$add_scatter(x = "wt", y = "mpg")
-p$output()
+# Render as SVG with custom dimensions
+advanced_plot$svg(height = 5)
 ```
 
-### Statistical Summaries
+### Layered Visualization
 
-Generate statistical summaries with the `Summary` class:
+nightowl supports sophisticated layering systems:
 
-```{r}
-# Create a summary table
-summary <- Summary$new(data = mtcars, column = "mpg", method = summarise_numeric_pointrange)
-summary$reactable()
+```{r layered-plot}
+# Create a plot with multiple layers and transformations
+layered_plot <- plot(
+  data = testdata,
+  mapping = list(
+    x = "Time",
+    y = "weight",
+    color = "Diet"
+  ),
+  layers = list(
+    list(type = "generic", geom = "ggplot2::geom_point", alpha = 0.6),
+    list(type = "summary", geom = "ggplot2::geom_smooth", method = "lm", se = FALSE)
+  ),
+  scales = list(
+    list(scale = "ggplot2::scale_y_continuous", trans = "log10")
+  ),
+  theming = list(
+    theme = "ggplot2::theme_minimal"
+  )
+)
+
+layered_plot$svg(height = 4)
 ```
 
-### Survival Analysis
+## Summary Class - Statistical Analysis
 
-Perform survival analysis with the `Coxph` class:
+The `Summary` class provides comprehensive statistical summaries with multiple output formats.
 
-```{r}
-# Cox proportional hazards model
-cox_model <- Coxph$new(data = survival_data)
-cox_model$add_variable("treatment")
-cox_model$output()
+### Basic Statistical Summaries
+
+```{r summary-basic}
+# Create a summary of numeric data
+numeric_summary <- Summary$new(
+  data = testdata, 
+  column = "weight", 
+  method = summarise_numeric_pointrange
+)
+
+# Generate reactable output
+numeric_summary$reactable()
 ```
 
-## Next Steps
+### Categorical Data Summaries
 
-- Explore the [Statistical Summaries](statistical-summaries.html) guide for detailed analysis workflows
-- Learn about [Survival Analysis](survival-analysis.html) capabilities
-- Browse the [Function Reference](../reference/index.html) for complete API documentation
+```{r summary-categorical}
+# Summarize categorical data
+categorical_summary <- Summary$new(
+  data = testdata,
+  column = "Diet",
+  method = summarise_categorical
+)
 
-## Getting Help
+categorical_summary$reactable()
+```
 
-- **Documentation**: Complete function reference at https://joelgsponer.github.io/nightowl/
-- **Issues**: Report bugs at https://github.com/joelgsponer/nightowl/issues
-- **Security**: Review security policy at `inst/SECURITY.md`
+### Method Chaining
+
+nightowl supports fluent method chaining for complex workflows:
+
+```{r method-chaining}
+# Chain multiple operations together
+testdata %>%
+  Summary$new("weight", method = summarise_numeric_pointrange) %>%
+  .$reactable()
+```
+
+## Working with Real Data
+
+Let's explore more realistic examples using built-in datasets.
+
+### Palmer Penguins Analysis
+
+```{r penguins-analysis}
+# Load Palmer Penguins data if available
+if (requireNamespace("palmerpenguins", quietly = TRUE)) {
+  data(penguins, package = "palmerpenguins")
+  
+  # Create a comprehensive species comparison
+  species_plot <- plot(
+    data = palmerpenguins::penguins,
+    mapping = list(
+      x = "bill_length_mm",
+      y = "bill_depth_mm",
+      color = "species",
+      shape = "island"
+    ),
+    layers = list(
+      list(type = "generic", geom = "ggplot2::geom_point", size = 3, alpha = 0.7)
+    ),
+    theming = list(
+      theme = "ggplot2::theme_minimal"
+    )
+  )
+  
+  species_plot$svg(height = 4)
+}
+```
+
+### Motor Car Performance Analysis
+
+```{r mtcars-analysis}
+# Analyze motor car performance data
+car_plot <- plot(
+  data = mtcars,
+  mapping = list(
+    x = "wt",
+    y = "mpg",
+    color = "factor(cyl)",
+    size = "hp"
+  ),
+  layers = list(
+    list(type = "generic", geom = "ggplot2::geom_point", alpha = 0.7),
+    list(type = "summary", geom = "ggplot2::geom_smooth", method = "lm", se = TRUE)
+  ),
+  theming = list(
+    theme = "ggplot2::theme_classic"
+  )
+)
+
+car_plot$svg(height = 4)
+```
+
+# Advanced Features
+
+## Interactive Elements
+
+nightowl provides built-in support for interactive visualizations:
+
+```{r interactive-basic, eval=FALSE}
+# Create interactive plots (requires ggiraph)
+interactive_plot <- plot(
+  data = testdata,
+  mapping = list(x = "Time", y = "weight", color = "Diet"),
+  layers = list(
+    list(type = "generic", geom = "ggplot2::geom_point", alpha = 0.7)
+  )
+)
+
+# Render as interactive SVG
+interactive_plot$render_girafe()
+```
+
+## Styling and Customization  
+
+nightowl supports extensive styling through YAML configuration files:
+
+```{r styling-example}
+# Custom theming with detailed control
+styled_plot <- plot(
+  data = testdata,
+  mapping = list(x = "Time", y = "weight", color = "Diet"),
+  layers = list(
+    list(type = "generic", geom = "ggplot2::geom_point", size = 2)
+  ),
+  theming = list(
+    theme = "ggplot2::theme_bw",
+    axis.line = list(
+      element = "ggplot2::element_line",
+      color = "steelblue"
+    ),
+    panel.grid = list(
+      element = "ggplot2::element_blank"
+    )
+  )
+)
+
+styled_plot$svg(height = 4)
+```
+
+# Clinical Research Applications
+
+nightowl is specifically designed for clinical research workflows.
+
+## Patient Data Analysis
+
+```{r clinical-example}
+# Simulate clinical trial data
+clinical_data <- data.frame(
+  patient_id = 1:100,
+  treatment = sample(c("Treatment A", "Treatment B", "Control"), 100, replace = TRUE),
+  response = rnorm(100, mean = 50, sd = 15),
+  adverse_events = sample(0:3, 100, replace = TRUE),
+  age_group = sample(c("18-35", "36-50", "51-65", "65+"), 100, replace = TRUE)
+)
+
+# Visualize treatment response by group
+treatment_plot <- plot(
+  data = clinical_data,
+  mapping = list(
+    x = "treatment",
+    y = "response",
+    color = "age_group"
+  ),
+  layers = list(
+    list(type = "generic", geom = "ggplot2::geom_boxplot", alpha = 0.7),
+    list(type = "generic", geom = "ggplot2::geom_jitter", width = 0.2, alpha = 0.5)
+  ),
+  theming = list(
+    theme = "ggplot2::theme_minimal"
+  )
+)
+
+treatment_plot$svg(height = 5)
+```
+
+## Statistical Summary Tables
+
+```{r clinical-summary}
+# Generate clinical summary tables
+treatment_summary <- Summary$new(
+  data = clinical_data,
+  column = "response",
+  method = summarise_numeric_pointrange
+)
+
+treatment_summary$reactable()
+```
+
+# Best Practices
+
+## Workflow Recommendations
+
+1. **Start Simple**: Begin with basic plots and add complexity incrementally
+2. **Use Method Chaining**: Leverage R6 method chaining for cleaner code
+3. **Leverage Declarative Syntax**: Describe your visualization goals rather than implementation details
+4. **Test Interactively**: Use SVG rendering for quick iteration
+
+## Performance Considerations
+
+```{r performance-tips, eval=FALSE}
+# For large datasets, consider sampling
+large_data_plot <- plot(
+  data = sample_n(large_dataset, 10000),  # Sample for performance
+  mapping = list(x = "variable1", y = "variable2"),
+  layers = list(
+    list(type = "generic", geom = "ggplot2::geom_point", alpha = 0.3)
+  )
+)
+
+# Use appropriate figure dimensions
+large_data_plot$svg(height = 6, width = 8)
+```
+
+## Code Organization
+
+```{r organization-example, eval=FALSE}
+# Organize complex visualizations with clear structure
+create_clinical_plot <- function(data, outcome_var) {
+  plot(
+    data = data,
+    mapping = list(
+      x = "treatment_group",
+      y = outcome_var,
+      color = "study_arm"
+    ),
+    layers = list(
+      list(type = "generic", geom = "ggplot2::geom_boxplot"),
+      list(type = "generic", geom = "ggplot2::geom_jitter", width = 0.2)
+    ),
+    theming = list(
+      theme = "ggplot2::theme_classic"
+    )
+  )
+}
+```
+
+# Next Steps
+
+Now that you've learned the basics of nightowl, explore these advanced features:
+
+- **Statistical Summaries**: Learn about the comprehensive `summarise_*` function family
+- **Survival Analysis**: Discover Kaplan-Meier curves and Cox proportional hazards modeling  
+- **Interactive Features**: Build dynamic visualizations with reactable tables
+- **Styling System**: Master the YAML-based styling configuration
+
+## Additional Resources
+
+- [Statistical Summaries Vignette](statistical-summaries.html): Deep dive into statistical analysis
+- [Survival Analysis Vignette](survival-analysis.html): Clinical survival analysis workflows
+- [Package Reference](../reference/): Complete function documentation
+- [GitHub Repository](https://github.com/joelgsponer/nightowl): Source code and issues
+
+---
+
+*This vignette provides a comprehensive introduction to nightowl. For specific use cases and advanced techniques, please refer to the specialized vignettes and reference documentation.*
