@@ -13,9 +13,7 @@ test_that("package does not pollute global environment", {
   # Filter out objects that might be legitimately added by test framework
   new_objects <- new_objects[!grepl("^test_", new_objects)]
   
-  expect_length(new_objects, 0, 
-    info = paste("Package added objects to global environment:", 
-                 paste(new_objects, collapse = ", ")))
+  expect_length(new_objects, 0)
 })
 
 test_that("nightowl options are properly encapsulated", {

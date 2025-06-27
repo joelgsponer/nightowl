@@ -560,7 +560,7 @@ plot_coxph <- function(data,
         x = .x$estimate,
         xmin = .x$conf.low,
         xmax = .x$conf.high,
-        xlim = conf_range,
+        x_lim = conf_range,
         xintercept = 1
       )
       .x$Visualization <- .p

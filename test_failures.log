@@ -1,0 +1,1767 @@
+
+R version 4.5.0 (2025-04-11) -- "How About a Twenty-Six"
+Copyright (C) 2025 The R Foundation for Statistical Computing
+Platform: aarch64-apple-darwin24.4.0
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> devtools::test()
+ℹ Testing nightowl
+Registered S3 method overwritten by 'GGally':
+  method from   
+  +.gg   ggplot2
+Registered S3 methods overwritten by 'ggpp':
+  method                  from   
+  heightDetails.titleGrob ggplot2
+  widthDetails.titleGrob  ggplot2
+R6Class Summary: finalize() method is public, but it should be private as of R6 2.4.0. This code will continue to work, but in a future version of R6, finalize() will be required to be private.
+✔ Setting up Nightowl 
+✔ | F W  S  OK | Context
+
+⠏ |          0 | ci                                                             
+✔ |          1 | ci
+
+⠏ |          0 | coxph                                                          
+ =========================================== 
+   🦉 Fitting Cox Proportional Hazard Model 
+=========================================== 
+
+ℹ 🦉⛔ Covariate c3 has only one level. Skipping. 
+ℹ 🦉 Formula: survival::Surv(time, event) ~ treatment + n1 + c1 + c2 + strata(s1) + 
+    strata(s2) 
+
+⠋ |   1      0 | coxph                                                          ✔ 🦉 Storing metainfomation 
+✔ 🦉 Returning results 
+
+ =========================================== 
+   🦉 Fitting Cox Proportional Hazard Model 
+=========================================== 
+
+ℹ 🦉⛔ Covariate c3 has only one level. Skipping. 
+ℹ 🦉 Formula: survival::Surv(time, event) ~ treatment + n1 + c1 + c2 
+✔ 🦉 Storing metainfomation 
+✔ 🦉 Returning results 
+
+⠙ | 1 1      0 | coxph                                                          
+✖ | 1 1      0 | coxph
+────────────────────────────────────────────────────────────────────────────────
+Warning ('test-coxph.R:14:3'): coxph works
+Using an external vector in selections was deprecated in tidyselect 1.1.0.
+ℹ Please use `all_of()` or `any_of()` instead.
+  # Was:
+  data %>% select(.var)
+
+  # Now:
+  data %>% select(all_of(.var))
+
+See <https://tidyselect.r-lib.org/reference/faq-external-vector.html>.
+Backtrace:
+     ▆
+  1. ├─nightowl::fit_coxph(...) at test-coxph.R:14:3
+  2. │ ├─... %>% dplyr::bind_rows() at 43-fix-tests/R/coxph.R:476:3
+  3. │ └─purrr::map(...)
+  4. │   └─purrr:::map_("list", .x, .f, ..., .progress = .progress)
+  5. │     ├─purrr:::with_indexed_errors(...)
+  6. │     │ └─base::withCallingHandlers(...)
+  7. │     ├─purrr:::call_with_cleanup(...)
+  8. │     └─nightowl (local) .f(.x[[i]], ...)
+  9. │       └─... %>% dplyr::mutate(group = as.character(group)) at 43-fix-tests/R/coxph.R:478:7
+ 10. ├─dplyr::bind_rows(.)
+ 11. │ └─rlang::list2(...)
+ 12. ├─dplyr::mutate(., group = as.character(group))
+ 13. ├─dplyr::rename(., `Events/N` = n)
+ 14. ├─dplyr::mutate(., variable = .var)
+ 15. ├─dplyr::rename(., group = .var)
+ 16. └─dplyr:::rename.data.frame(., group = .var)
+ 17.   └─tidyselect::eval_rename(expr(c(...)), .data)
+ 18.     └─tidyselect:::rename_impl(...)
+ 19.       └─tidyselect:::eval_select_impl(...)
+ 20.         ├─tidyselect:::with_subscript_errors(...)
+ 21.         │ └─base::withCallingHandlers(...)
+ 22.         └─tidyselect:::vars_select_eval(...)
+ 23.           └─tidyselect:::walk_data_tree(expr, data_mask, context_mask)
+ 24.             └─tidyselect:::eval_c(expr, data_mask, context_mask)
+ 25.               └─tidyselect:::reduce_sels(node, data_mask, context_mask, init = init)
+ 26.                 └─tidyselect:::walk_data_tree(new, data_mask, context_mask)
+ 27.                   └─tidyselect:::eval_sym(expr, data_mask, context_mask)
+
+Error ('test-coxph.R:23:3'): coxph works
+<purrr_error_indexed/rlang_error/error/condition>
+Error in `purrr::map(., function(.x) {
+    .p <- nightowl::add_inline_forestplot(x = .x$estimate, xmin = .x$conf.low, 
+        xmax = .x$conf.high, xlim = conf_range, xintercept = 1)
+    .x$Visualization <- .p
+    .x
+})`: ℹ In index: 1.
+Caused by error in `nightowl::add_inline_forestplot()`:
+! unused argument (xlim = conf_range)
+Backtrace:
+     ▆
+  1. ├─nightowl::plot_coxph(...) at test-coxph.R:23:3
+  2. │ └─... %>% dplyr::bind_rows() at 43-fix-tests/R/coxph.R:555:3
+  3. ├─dplyr::bind_rows(.)
+  4. │ └─rlang::list2(...)
+  5. ├─purrr::map(...)
+  6. │ └─purrr:::map_("list", .x, .f, ..., .progress = .progress)
+  7. │   ├─purrr:::with_indexed_errors(...)
+  8. │   │ └─base::withCallingHandlers(...)
+  9. │   ├─purrr:::call_with_cleanup(...)
+ 10. │   └─nightowl (local) .f(.x[[i]], ...)
+ 11. └─base::.handleSimpleError(...) at 43-fix-tests/R/coxph.R:559:7
+ 12.   └─purrr (local) h(simpleError(msg, call))
+ 13.     └─cli::cli_abort(...)
+ 14.       └─rlang::abort(...)
+────────────────────────────────────────────────────────────────────────────────
+
+⠏ |          0 | cran-compliance                                                ✔ Setting up Nightowl 
+
+✖ | 1        6 | cran-compliance
+────────────────────────────────────────────────────────────────────────────────
+Error ('test-cran-compliance.R:16:3'): package does not pollute global environment
+Error in `expect_length(new_objects, 0, info = paste("Package added objects to global environment:", 
+    paste(new_objects, collapse = ", ")))`: unused argument (info = paste("Package added objects to global environment:", paste(new_objects, collapse = ", ")))
+────────────────────────────────────────────────────────────────────────────────
+
+⠏ |          0 | data                                                           
+✔ |      1   0 | data
+
+⠏ |          0 | donut_plot                                                     ✔ Opening SVG device 
+✔ Closing device 
+✔ Opening SVG device 
+✔ Closing device 
+✔ Opening SVG device 
+✔ Closing device 
+✔ Opening SVG device 
+
+⠋ |   1      0 | donut_plot                                                     ✔ Closing device 
+✔ Opening SVG device 
+
+⠸ |   4      0 | donut_plot                                                     ✔ Closing device 
+✔ Opening SVG device 
+✔ Closing device 
+✔ Opening SVG device 
+
+⠧ |   8      0 | donut_plot                                                     ✔ Closing device 
+✔ Opening SVG device 
+✔ Closing device 
+✔ Opening SVG device 
+
+⠙ |   12      0 | donut_plot                                                    ✔ Closing device 
+✔ Opening SVG device 
+✔ Closing device 
+✔ Opening SVG device 
+✔ Closing device 
+✔ Opening SVG device 
+✔ Closing device 
+✔ Opening SVG device 
+
+⠼ |   15      0 | donut_plot                                                    ✔ Closing device 
+✔ Opening SVG device 
+✔ Closing device 
+✔ Opening SVG device 
+
+⠇ |   19      0 | donut_plot                                                    ✔ Closing device 
+✔ Opening SVG device 
+✔ Closing device 
+✔ Opening SVG device 
+✔ Closing device 
+✔ Opening SVG device 
+✔ Closing device 
+✔ Opening SVG device 
+✔ Closing device 
+✔ Opening SVG device 
+✔ Closing device 
+✔ Opening SVG device 
+✔ Closing device 
+
+⠙ | 1 21      0 | donut_plot                                                    
+✖ | 1 21      0 | donut_plot [1.1s]
+────────────────────────────────────────────────────────────────────────────────
+Warning ('test-donut_plot.R:12:3'): donut_plot works
+Removed 1 row containing non-finite outside the scale range
+(`stat_ydensity()`).
+Backtrace:
+     ▆
+  1. ├─... %>% ... at test-donut_plot.R:12:3
+  2. ├─nightowl::render_donut_plot(., header = levels(palmerpenguins::penguins$island))
+  3. ├─nightowl::make_donut_plot_numeric(...) at 43-fix-tests/R/donut_plot.R:265:3
+  4. │ └─... %>% ... at 43-fix-tests/R/donut_plot.R:147:3
+  5. └─purrr::imap(...)
+  6.   └─purrr::map2(.x, vec_index(.x), .f, ...)
+  7.     └─purrr:::map2_("list", .x, .y, .f, ..., .progress = .progress)
+  8.       ├─purrr:::with_indexed_errors(...)
+  9.       │ └─base::withCallingHandlers(...)
+ 10.       ├─purrr:::call_with_cleanup(...)
+ 11.       └─nightowl (local) .f(.x[[i]], .y[[i]], ...)
+ 12.         ├─shiny::div(...) at 43-fix-tests/R/donut_plot.R:182:7
+ 13.         │ └─rlang::dots_list(...)
+ 14.         └─nightowl::render_svg(.p, height = 6, scaling = 6, add_download_button = FALSE)
+ 15.           ├─base::tryCatch(...) at 43-fix-tests/R/svg.r:24:3
+ 16.           │ └─base (local) tryCatchList(expr, classes, parentenv, handlers)
+ 17.           │   └─base (local) tryCatchOne(expr, names, parentenv, handlers[[1L]])
+ 18.           │     └─base (local) doTryCatch(return(expr), name, parentenv, handler)
+ 19.           ├─base::print(g) at 43-fix-tests/R/svg.r:41:9
+ 20.           └─ggplot2:::print.ggplot(g)
+ 21.             ├─ggplot2::ggplot_build(x)
+ 22.             └─ggplot2:::ggplot_build.ggplot(x)
+ 23.               └─ggplot2:::by_layer(...)
+ 24.                 ├─rlang::try_fetch(...)
+ 25.                 │ ├─base::tryCatch(...)
+ 26.                 │ │ └─base (local) tryCatchList(expr, classes, parentenv, handlers)
+ 27.                 │ │   └─base (local) tryCatchOne(expr, names, parentenv, handlers[[1L]])
+ 28.                 │ │     └─base (local) doTryCatch(return(expr), name, parentenv, handler)
+ 29.                 │ └─base::withCallingHandlers(...)
+ 30.                 └─ggplot2 (local) f(l = layers[[i]], d = data[[i]])
+ 31.                   └─l$compute_statistic(d, layout)
+ 32.                     └─ggplot2 (local) compute_statistic(..., self = self)
+ 33.                       └─self$stat$compute_layer(data, self$computed_stat_params, layout)
+ 34.                         └─ggplot2 (local) compute_layer(..., self = self)
+ 35.                           └─ggplot2::remove_missing(...)
+ 36.                             └─cli::cli_warn(msg)
+
+Warning ('test-donut_plot.R:12:3'): donut_plot works
+Removed 1 row containing non-finite outside the scale range (`stat_boxplot()`).
+Backtrace:
+     ▆
+  1. ├─... %>% ... at test-donut_plot.R:12:3
+  2. ├─nightowl::render_donut_plot(., header = levels(palmerpenguins::penguins$island))
+  3. ├─nightowl::make_donut_plot_numeric(...) at 43-fix-tests/R/donut_plot.R:265:3
+  4. │ └─... %>% ... at 43-fix-tests/R/donut_plot.R:147:3
+  5. └─purrr::imap(...)
+  6.   └─purrr::map2(.x, vec_index(.x), .f, ...)
+  7.     └─purrr:::map2_("list", .x, .y, .f, ..., .progress = .progress)
+  8.       ├─purrr:::with_indexed_errors(...)
+  9.       │ └─base::withCallingHandlers(...)
+ 10.       ├─purrr:::call_with_cleanup(...)
+ 11.       └─nightowl (local) .f(.x[[i]], .y[[i]], ...)
+ 12.         ├─shiny::div(...) at 43-fix-tests/R/donut_plot.R:182:7
+ 13.         │ └─rlang::dots_list(...)
+ 14.         └─nightowl::render_svg(.p, height = 6, scaling = 6, add_download_button = FALSE)
+ 15.           ├─base::tryCatch(...) at 43-fix-tests/R/svg.r:24:3
+ 16.           │ └─base (local) tryCatchList(expr, classes, parentenv, handlers)
+ 17.           │   └─base (local) tryCatchOne(expr, names, parentenv, handlers[[1L]])
+ 18.           │     └─base (local) doTryCatch(return(expr), name, parentenv, handler)
+ 19.           ├─base::print(g) at 43-fix-tests/R/svg.r:41:9
+ 20.           └─ggplot2:::print.ggplot(g)
+ 21.             ├─ggplot2::ggplot_build(x)
+ 22.             └─ggplot2:::ggplot_build.ggplot(x)
+ 23.               └─ggplot2:::by_layer(...)
+ 24.                 ├─rlang::try_fetch(...)
+ 25.                 │ ├─base::tryCatch(...)
+ 26.                 │ │ └─base (local) tryCatchList(expr, classes, parentenv, handlers)
+ 27.                 │ │   └─base (local) tryCatchOne(expr, names, parentenv, handlers[[1L]])
+ 28.                 │ │     └─base (local) doTryCatch(return(expr), name, parentenv, handler)
+ 29.                 │ └─base::withCallingHandlers(...)
+ 30.                 └─ggplot2 (local) f(l = layers[[i]], d = data[[i]])
+ 31.                   └─l$compute_statistic(d, layout)
+ 32.                     └─ggplot2 (local) compute_statistic(..., self = self)
+ 33.                       └─self$stat$compute_layer(data, self$computed_stat_params, layout)
+ 34.                         └─ggplot2 (local) compute_layer(..., self = self)
+ 35.                           └─ggplot2::remove_missing(...)
+ 36.                             └─cli::cli_warn(msg)
+
+Warning ('test-donut_plot.R:12:3'): donut_plot works
+Removed 103 rows containing missing values or values outside the scale range
+(`geom_violin()`).
+Backtrace:
+     ▆
+  1. ├─... %>% ... at test-donut_plot.R:12:3
+  2. ├─nightowl::render_donut_plot(., header = levels(palmerpenguins::penguins$island))
+  3. ├─nightowl::make_donut_plot_numeric(...) at 43-fix-tests/R/donut_plot.R:265:3
+  4. │ └─... %>% ... at 43-fix-tests/R/donut_plot.R:147:3
+  5. └─purrr::imap(...)
+  6.   └─purrr::map2(.x, vec_index(.x), .f, ...)
+  7.     └─purrr:::map2_("list", .x, .y, .f, ..., .progress = .progress)
+  8.       ├─purrr:::with_indexed_errors(...)
+  9.       │ └─base::withCallingHandlers(...)
+ 10.       ├─purrr:::call_with_cleanup(...)
+ 11.       └─nightowl (local) .f(.x[[i]], .y[[i]], ...)
+ 12.         ├─shiny::div(...) at 43-fix-tests/R/donut_plot.R:182:7
+ 13.         │ └─rlang::dots_list(...)
+ 14.         └─nightowl::render_svg(.p, height = 6, scaling = 6, add_download_button = FALSE)
+ 15.           ├─base::tryCatch(...) at 43-fix-tests/R/svg.r:24:3
+ 16.           │ └─base (local) tryCatchList(expr, classes, parentenv, handlers)
+ 17.           │   └─base (local) tryCatchOne(expr, names, parentenv, handlers[[1L]])
+ 18.           │     └─base (local) doTryCatch(return(expr), name, parentenv, handler)
+ 19.           ├─base::print(g) at 43-fix-tests/R/svg.r:41:9
+ 20.           └─ggplot2:::print.ggplot(g)
+ 21.             ├─ggplot2::ggplot_gtable(data)
+ 22.             └─ggplot2:::ggplot_gtable.ggplot_built(data)
+ 23.               └─ggplot2:::by_layer(...)
+ 24.                 ├─rlang::try_fetch(...)
+ 25.                 │ ├─base::tryCatch(...)
+ 26.                 │ │ └─base (local) tryCatchList(expr, classes, parentenv, handlers)
+ 27.                 │ │   └─base (local) tryCatchOne(expr, names, parentenv, handlers[[1L]])
+ 28.                 │ │     └─base (local) doTryCatch(return(expr), name, parentenv, handler)
+ 29.                 │ └─base::withCallingHandlers(...)
+ 30.                 └─ggplot2 (local) f(l = layers[[i]], d = data[[i]])
+ 31.                   └─l$draw_geom(d, layout)
+ 32.                     └─ggplot2 (local) draw_geom(..., self = self)
+ 33.                       └─self$geom$handle_na(data, self$computed_geom_params)
+ 34.                         └─ggplot2 (local) handle_na(..., self = self)
+ 35.                           └─ggplot2::remove_missing(...)
+ 36.                             └─cli::cli_warn(msg)
+
+Warning ('test-donut_plot.R:12:3'): donut_plot works
+Removed 144 rows containing missing values or values outside the scale range
+(`geom_violin()`).
+Backtrace:
+     ▆
+  1. ├─... %>% ... at test-donut_plot.R:12:3
+  2. ├─nightowl::render_donut_plot(., header = levels(palmerpenguins::penguins$island))
+  3. ├─nightowl::make_donut_plot_numeric(...) at 43-fix-tests/R/donut_plot.R:265:3
+  4. │ └─... %>% ... at 43-fix-tests/R/donut_plot.R:147:3
+  5. └─purrr::imap(...)
+  6.   └─purrr::map2(.x, vec_index(.x), .f, ...)
+  7.     └─purrr:::map2_("list", .x, .y, .f, ..., .progress = .progress)
+  8.       ├─purrr:::with_indexed_errors(...)
+  9.       │ └─base::withCallingHandlers(...)
+ 10.       ├─purrr:::call_with_cleanup(...)
+ 11.       └─nightowl (local) .f(.x[[i]], .y[[i]], ...)
+ 12.         ├─shiny::div(...) at 43-fix-tests/R/donut_plot.R:182:7
+ 13.         │ └─rlang::dots_list(...)
+ 14.         └─nightowl::render_svg(.p, height = 6, scaling = 6, add_download_button = FALSE)
+ 15.           ├─base::tryCatch(...) at 43-fix-tests/R/svg.r:24:3
+ 16.           │ └─base (local) tryCatchList(expr, classes, parentenv, handlers)
+ 17.           │   └─base (local) tryCatchOne(expr, names, parentenv, handlers[[1L]])
+ 18.           │     └─base (local) doTryCatch(return(expr), name, parentenv, handler)
+ 19.           ├─base::print(g) at 43-fix-tests/R/svg.r:41:9
+ 20.           └─ggplot2:::print.ggplot(g)
+ 21.             ├─ggplot2::ggplot_gtable(data)
+ 22.             └─ggplot2:::ggplot_gtable.ggplot_built(data)
+ 23.               └─ggplot2:::by_layer(...)
+ 24.                 ├─rlang::try_fetch(...)
+ 25.                 │ ├─base::tryCatch(...)
+ 26.                 │ │ └─base (local) tryCatchList(expr, classes, parentenv, handlers)
+ 27.                 │ │   └─base (local) tryCatchOne(expr, names, parentenv, handlers[[1L]])
+ 28.                 │ │     └─base (local) doTryCatch(return(expr), name, parentenv, handler)
+ 29.                 │ └─base::withCallingHandlers(...)
+ 30.                 └─ggplot2 (local) f(l = layers[[i]], d = data[[i]])
+ 31.                   └─l$draw_geom(d, layout)
+ 32.                     └─ggplot2 (local) draw_geom(..., self = self)
+ 33.                       └─self$geom$handle_na(data, self$computed_geom_params)
+ 34.                         └─ggplot2 (local) handle_na(..., self = self)
+ 35.                           └─ggplot2::remove_missing(...)
+ 36.                             └─cli::cli_warn(msg)
+
+Warning ('test-donut_plot.R:12:3'): donut_plot works
+Removed 1 row containing non-finite outside the scale range
+(`stat_ydensity()`).
+Backtrace:
+     ▆
+  1. ├─... %>% ... at test-donut_plot.R:12:3
+  2. ├─nightowl::render_donut_plot(., header = levels(palmerpenguins::penguins$island))
+  3. ├─nightowl::make_donut_plot_numeric(...) at 43-fix-tests/R/donut_plot.R:265:3
+  4. │ └─... %>% ... at 43-fix-tests/R/donut_plot.R:147:3
+  5. └─purrr::imap(...)
+  6.   └─purrr::map2(.x, vec_index(.x), .f, ...)
+  7.     └─purrr:::map2_("list", .x, .y, .f, ..., .progress = .progress)
+  8.       ├─purrr:::with_indexed_errors(...)
+  9.       │ └─base::withCallingHandlers(...)
+ 10.       ├─purrr:::call_with_cleanup(...)
+ 11.       └─nightowl (local) .f(.x[[i]], .y[[i]], ...)
+ 12.         ├─shiny::div(...) at 43-fix-tests/R/donut_plot.R:182:7
+ 13.         │ └─rlang::dots_list(...)
+ 14.         └─nightowl::render_svg(.p, height = 6, scaling = 6, add_download_button = FALSE)
+ 15.           ├─base::tryCatch(...) at 43-fix-tests/R/svg.r:24:3
+ 16.           │ └─base (local) tryCatchList(expr, classes, parentenv, handlers)
+ 17.           │   └─base (local) tryCatchOne(expr, names, parentenv, handlers[[1L]])
+ 18.           │     └─base (local) doTryCatch(return(expr), name, parentenv, handler)
+ 19.           ├─base::print(g) at 43-fix-tests/R/svg.r:41:9
+ 20.           └─ggplot2:::print.ggplot(g)
+ 21.             ├─ggplot2::ggplot_build(x)
+ 22.             └─ggplot2:::ggplot_build.ggplot(x)
+ 23.               └─ggplot2:::by_layer(...)
+ 24.                 ├─rlang::try_fetch(...)
+ 25.                 │ ├─base::tryCatch(...)
+ 26.                 │ │ └─base (local) tryCatchList(expr, classes, parentenv, handlers)
+ 27.                 │ │   └─base (local) tryCatchOne(expr, names, parentenv, handlers[[1L]])
+ 28.                 │ │     └─base (local) doTryCatch(return(expr), name, parentenv, handler)
+ 29.                 │ └─base::withCallingHandlers(...)
+ 30.                 └─ggplot2 (local) f(l = layers[[i]], d = data[[i]])
+ 31.                   └─l$compute_statistic(d, layout)
+ 32.                     └─ggplot2 (local) compute_statistic(..., self = self)
+ 33.                       └─self$stat$compute_layer(data, self$computed_stat_params, layout)
+ 34.                         └─ggplot2 (local) compute_layer(..., self = self)
+ 35.                           └─ggplot2::remove_missing(...)
+ 36.                             └─cli::cli_warn(msg)
+
+Warning ('test-donut_plot.R:12:3'): donut_plot works
+Removed 1 row containing non-finite outside the scale range (`stat_boxplot()`).
+Backtrace:
+     ▆
+  1. ├─... %>% ... at test-donut_plot.R:12:3
+  2. ├─nightowl::render_donut_plot(., header = levels(palmerpenguins::penguins$island))
+  3. ├─nightowl::make_donut_plot_numeric(...) at 43-fix-tests/R/donut_plot.R:265:3
+  4. │ └─... %>% ... at 43-fix-tests/R/donut_plot.R:147:3
+  5. └─purrr::imap(...)
+  6.   └─purrr::map2(.x, vec_index(.x), .f, ...)
+  7.     └─purrr:::map2_("list", .x, .y, .f, ..., .progress = .progress)
+  8.       ├─purrr:::with_indexed_errors(...)
+  9.       │ └─base::withCallingHandlers(...)
+ 10.       ├─purrr:::call_with_cleanup(...)
+ 11.       └─nightowl (local) .f(.x[[i]], .y[[i]], ...)
+ 12.         ├─shiny::div(...) at 43-fix-tests/R/donut_plot.R:182:7
+ 13.         │ └─rlang::dots_list(...)
+ 14.         └─nightowl::render_svg(.p, height = 6, scaling = 6, add_download_button = FALSE)
+ 15.           ├─base::tryCatch(...) at 43-fix-tests/R/svg.r:24:3
+ 16.           │ └─base (local) tryCatchList(expr, classes, parentenv, handlers)
+ 17.           │   └─base (local) tryCatchOne(expr, names, parentenv, handlers[[1L]])
+ 18.           │     └─base (local) doTryCatch(return(expr), name, parentenv, handler)
+ 19.           ├─base::print(g) at 43-fix-tests/R/svg.r:41:9
+ 20.           └─ggplot2:::print.ggplot(g)
+ 21.             ├─ggplot2::ggplot_build(x)
+ 22.             └─ggplot2:::ggplot_build.ggplot(x)
+ 23.               └─ggplot2:::by_layer(...)
+ 24.                 ├─rlang::try_fetch(...)
+ 25.                 │ ├─base::tryCatch(...)
+ 26.                 │ │ └─base (local) tryCatchList(expr, classes, parentenv, handlers)
+ 27.                 │ │   └─base (local) tryCatchOne(expr, names, parentenv, handlers[[1L]])
+ 28.                 │ │     └─base (local) doTryCatch(return(expr), name, parentenv, handler)
+ 29.                 │ └─base::withCallingHandlers(...)
+ 30.                 └─ggplot2 (local) f(l = layers[[i]], d = data[[i]])
+ 31.                   └─l$compute_statistic(d, layout)
+ 32.                     └─ggplot2 (local) compute_statistic(..., self = self)
+ 33.                       └─self$stat$compute_layer(data, self$computed_stat_params, layout)
+ 34.                         └─ggplot2 (local) compute_layer(..., self = self)
+ 35.                           └─ggplot2::remove_missing(...)
+ 36.                             └─cli::cli_warn(msg)
+
+Warning ('test-donut_plot.R:12:3'): donut_plot works
+Removed 60 rows containing missing values or values outside the scale range
+(`geom_violin()`).
+Backtrace:
+     ▆
+  1. ├─... %>% ... at test-donut_plot.R:12:3
+  2. ├─nightowl::render_donut_plot(., header = levels(palmerpenguins::penguins$island))
+  3. ├─nightowl::make_donut_plot_numeric(...) at 43-fix-tests/R/donut_plot.R:265:3
+  4. │ └─... %>% ... at 43-fix-tests/R/donut_plot.R:147:3
+  5. └─purrr::imap(...)
+  6.   └─purrr::map2(.x, vec_index(.x), .f, ...)
+  7.     └─purrr:::map2_("list", .x, .y, .f, ..., .progress = .progress)
+  8.       ├─purrr:::with_indexed_errors(...)
+  9.       │ └─base::withCallingHandlers(...)
+ 10.       ├─purrr:::call_with_cleanup(...)
+ 11.       └─nightowl (local) .f(.x[[i]], .y[[i]], ...)
+ 12.         ├─shiny::div(...) at 43-fix-tests/R/donut_plot.R:182:7
+ 13.         │ └─rlang::dots_list(...)
+ 14.         └─nightowl::render_svg(.p, height = 6, scaling = 6, add_download_button = FALSE)
+ 15.           ├─base::tryCatch(...) at 43-fix-tests/R/svg.r:24:3
+ 16.           │ └─base (local) tryCatchList(expr, classes, parentenv, handlers)
+ 17.           │   └─base (local) tryCatchOne(expr, names, parentenv, handlers[[1L]])
+ 18.           │     └─base (local) doTryCatch(return(expr), name, parentenv, handler)
+ 19.           ├─base::print(g) at 43-fix-tests/R/svg.r:41:9
+ 20.           └─ggplot2:::print.ggplot(g)
+ 21.             ├─ggplot2::ggplot_gtable(data)
+ 22.             └─ggplot2:::ggplot_gtable.ggplot_built(data)
+ 23.               └─ggplot2:::by_layer(...)
+ 24.                 ├─rlang::try_fetch(...)
+ 25.                 │ ├─base::tryCatch(...)
+ 26.                 │ │ └─base (local) tryCatchList(expr, classes, parentenv, handlers)
+ 27.                 │ │   └─base (local) tryCatchOne(expr, names, parentenv, handlers[[1L]])
+ 28.                 │ │     └─base (local) doTryCatch(return(expr), name, parentenv, handler)
+ 29.                 │ └─base::withCallingHandlers(...)
+ 30.                 └─ggplot2 (local) f(l = layers[[i]], d = data[[i]])
+ 31.                   └─l$draw_geom(d, layout)
+ 32.                     └─ggplot2 (local) draw_geom(..., self = self)
+ 33.                       └─self$geom$handle_na(data, self$computed_geom_params)
+ 34.                         └─ggplot2 (local) handle_na(..., self = self)
+ 35.                           └─ggplot2::remove_missing(...)
+ 36.                             └─cli::cli_warn(msg)
+
+Warning ('test-donut_plot.R:20:3'): donut_plot works
+Removed 1 row containing non-finite outside the scale range
+(`stat_ydensity()`).
+Backtrace:
+     ▆
+  1. ├─nightowl::donut_plot(...) at test-donut_plot.R:20:3
+  2. │ └─purrr::pmap(...) at 43-fix-tests/R/donut_plot.R:245:3
+  3. │   └─purrr:::pmap_("list", .l, .f, ..., .progress = .progress)
+  4. │     ├─purrr:::with_indexed_errors(...)
+  5. │     │ └─base::withCallingHandlers(...)
+  6. │     ├─purrr:::call_with_cleanup(...)
+  7. │     └─nightowl (local) .f(...)
+  8. │       ├─base::do.call(...) at 43-fix-tests/R/donut_plot.R:247:7
+  9. │       └─nightowl (local) `<fn>`(...)
+ 10. │         └─... %>% ... at 43-fix-tests/R/donut_plot.R:147:3
+ 11. └─purrr::imap(...)
+ 12.   └─purrr::map2(.x, vec_index(.x), .f, ...)
+ 13.     └─purrr:::map2_("list", .x, .y, .f, ..., .progress = .progress)
+ 14.       ├─purrr:::with_indexed_errors(...)
+ 15.       │ └─base::withCallingHandlers(...)
+ 16.       ├─purrr:::call_with_cleanup(...)
+ 17.       └─nightowl (local) .f(.x[[i]], .y[[i]], ...)
+ 18.         ├─shiny::div(...) at 43-fix-tests/R/donut_plot.R:182:7
+ 19.         │ └─rlang::dots_list(...)
+ 20.         └─nightowl::render_svg(.p, height = 6, scaling = 6, add_download_button = FALSE)
+ 21.           ├─base::tryCatch(...) at 43-fix-tests/R/svg.r:24:3
+ 22.           │ └─base (local) tryCatchList(expr, classes, parentenv, handlers)
+ 23.           │   └─base (local) tryCatchOne(expr, names, parentenv, handlers[[1L]])
+ 24.           │     └─base (local) doTryCatch(return(expr), name, parentenv, handler)
+ 25.           ├─base::print(g) at 43-fix-tests/R/svg.r:41:9
+ 26.           └─ggplot2:::print.ggplot(g)
+ 27.             ├─ggplot2::ggplot_build(x)
+ 28.             └─ggplot2:::ggplot_build.ggplot(x)
+ 29.               └─ggplot2:::by_layer(...)
+ 30.                 ├─rlang::try_fetch(...)
+ 31.                 │ ├─base::tryCatch(...)
+ 32.                 │ │ └─base (local) tryCatchList(expr, classes, parentenv, handlers)
+ 33.                 │ │   └─base (local) tryCatchOne(expr, names, parentenv, handlers[[1L]])
+ 34.                 │ │     └─base (local) doTryCatch(return(expr), name, parentenv, handler)
+ 35.                 │ └─base::withCallingHandlers(...)
+ 36.                 └─ggplot2 (local) f(l = layers[[i]], d = data[[i]])
+ 37.                   └─l$compute_statistic(d, layout)
+ 38.                     └─ggplot2 (local) compute_statistic(..., self = self)
+ 39.                       └─self$stat$compute_layer(data, self$computed_stat_params, layout)
+ 40.                         └─ggplot2 (local) compute_layer(..., self = self)
+ 41.                           └─ggplot2::remove_missing(...)
+ 42.                             └─cli::cli_warn(msg)
+
+Warning ('test-donut_plot.R:20:3'): donut_plot works
+Removed 1 row containing non-finite outside the scale range (`stat_boxplot()`).
+Backtrace:
+     ▆
+  1. ├─nightowl::donut_plot(...) at test-donut_plot.R:20:3
+  2. │ └─purrr::pmap(...) at 43-fix-tests/R/donut_plot.R:245:3
+  3. │   └─purrr:::pmap_("list", .l, .f, ..., .progress = .progress)
+  4. │     ├─purrr:::with_indexed_errors(...)
+  5. │     │ └─base::withCallingHandlers(...)
+  6. │     ├─purrr:::call_with_cleanup(...)
+  7. │     └─nightowl (local) .f(...)
+  8. │       ├─base::do.call(...) at 43-fix-tests/R/donut_plot.R:247:7
+  9. │       └─nightowl (local) `<fn>`(...)
+ 10. │         └─... %>% ... at 43-fix-tests/R/donut_plot.R:147:3
+ 11. └─purrr::imap(...)
+ 12.   └─purrr::map2(.x, vec_index(.x), .f, ...)
+ 13.     └─purrr:::map2_("list", .x, .y, .f, ..., .progress = .progress)
+ 14.       ├─purrr:::with_indexed_errors(...)
+ 15.       │ └─base::withCallingHandlers(...)
+ 16.       ├─purrr:::call_with_cleanup(...)
+ 17.       └─nightowl (local) .f(.x[[i]], .y[[i]], ...)
+ 18.         ├─shiny::div(...) at 43-fix-tests/R/donut_plot.R:182:7
+ 19.         │ └─rlang::dots_list(...)
+ 20.         └─nightowl::render_svg(.p, height = 6, scaling = 6, add_download_button = FALSE)
+ 21.           ├─base::tryCatch(...) at 43-fix-tests/R/svg.r:24:3
+ 22.           │ └─base (local) tryCatchList(expr, classes, parentenv, handlers)
+ 23.           │   └─base (local) tryCatchOne(expr, names, parentenv, handlers[[1L]])
+ 24.           │     └─base (local) doTryCatch(return(expr), name, parentenv, handler)
+ 25.           ├─base::print(g) at 43-fix-tests/R/svg.r:41:9
+ 26.           └─ggplot2:::print.ggplot(g)
+ 27.             ├─ggplot2::ggplot_build(x)
+ 28.             └─ggplot2:::ggplot_build.ggplot(x)
+ 29.               └─ggplot2:::by_layer(...)
+ 30.                 ├─rlang::try_fetch(...)
+ 31.                 │ ├─base::tryCatch(...)
+ 32.                 │ │ └─base (local) tryCatchList(expr, classes, parentenv, handlers)
+ 33.                 │ │   └─base (local) tryCatchOne(expr, names, parentenv, handlers[[1L]])
+ 34.                 │ │     └─base (local) doTryCatch(return(expr), name, parentenv, handler)
+ 35.                 │ └─base::withCallingHandlers(...)
+ 36.                 └─ggplot2 (local) f(l = layers[[i]], d = data[[i]])
+ 37.                   └─l$compute_statistic(d, layout)
+ 38.                     └─ggplot2 (local) compute_statistic(..., self = self)
+ 39.                       └─self$stat$compute_layer(data, self$computed_stat_params, layout)
+ 40.                         └─ggplot2 (local) compute_layer(..., self = self)
+ 41.                           └─ggplot2::remove_missing(...)
+ 42.                             └─cli::cli_warn(msg)
+
+Warning ('test-donut_plot.R:20:3'): donut_plot works
+Removed 103 rows containing missing values or values outside the scale range
+(`geom_violin()`).
+Backtrace:
+     ▆
+  1. ├─nightowl::donut_plot(...) at test-donut_plot.R:20:3
+  2. │ └─purrr::pmap(...) at 43-fix-tests/R/donut_plot.R:245:3
+  3. │   └─purrr:::pmap_("list", .l, .f, ..., .progress = .progress)
+  4. │     ├─purrr:::with_indexed_errors(...)
+  5. │     │ └─base::withCallingHandlers(...)
+  6. │     ├─purrr:::call_with_cleanup(...)
+  7. │     └─nightowl (local) .f(...)
+  8. │       ├─base::do.call(...) at 43-fix-tests/R/donut_plot.R:247:7
+  9. │       └─nightowl (local) `<fn>`(...)
+ 10. │         └─... %>% ... at 43-fix-tests/R/donut_plot.R:147:3
+ 11. └─purrr::imap(...)
+ 12.   └─purrr::map2(.x, vec_index(.x), .f, ...)
+ 13.     └─purrr:::map2_("list", .x, .y, .f, ..., .progress = .progress)
+ 14.       ├─purrr:::with_indexed_errors(...)
+ 15.       │ └─base::withCallingHandlers(...)
+ 16.       ├─purrr:::call_with_cleanup(...)
+ 17.       └─nightowl (local) .f(.x[[i]], .y[[i]], ...)
+ 18.         ├─shiny::div(...) at 43-fix-tests/R/donut_plot.R:182:7
+ 19.         │ └─rlang::dots_list(...)
+ 20.         └─nightowl::render_svg(.p, height = 6, scaling = 6, add_download_button = FALSE)
+ 21.           ├─base::tryCatch(...) at 43-fix-tests/R/svg.r:24:3
+ 22.           │ └─base (local) tryCatchList(expr, classes, parentenv, handlers)
+ 23.           │   └─base (local) tryCatchOne(expr, names, parentenv, handlers[[1L]])
+ 24.           │     └─base (local) doTryCatch(return(expr), name, parentenv, handler)
+ 25.           ├─base::print(g) at 43-fix-tests/R/svg.r:41:9
+ 26.           └─ggplot2:::print.ggplot(g)
+ 27.             ├─ggplot2::ggplot_gtable(data)
+ 28.             └─ggplot2:::ggplot_gtable.ggplot_built(data)
+ 29.               └─ggplot2:::by_layer(...)
+ 30.                 ├─rlang::try_fetch(...)
+ 31.                 │ ├─base::tryCatch(...)
+ 32.                 │ │ └─base (local) tryCatchList(expr, classes, parentenv, handlers)
+ 33.                 │ │   └─base (local) tryCatchOne(expr, names, parentenv, handlers[[1L]])
+ 34.                 │ │     └─base (local) doTryCatch(return(expr), name, parentenv, handler)
+ 35.                 │ └─base::withCallingHandlers(...)
+ 36.                 └─ggplot2 (local) f(l = layers[[i]], d = data[[i]])
+ 37.                   └─l$draw_geom(d, layout)
+ 38.                     └─ggplot2 (local) draw_geom(..., self = self)
+ 39.                       └─self$geom$handle_na(data, self$computed_geom_params)
+ 40.                         └─ggplot2 (local) handle_na(..., self = self)
+ 41.                           └─ggplot2::remove_missing(...)
+ 42.                             └─cli::cli_warn(msg)
+
+Warning ('test-donut_plot.R:20:3'): donut_plot works
+Removed 144 rows containing missing values or values outside the scale range
+(`geom_violin()`).
+Backtrace:
+     ▆
+  1. ├─nightowl::donut_plot(...) at test-donut_plot.R:20:3
+  2. │ └─purrr::pmap(...) at 43-fix-tests/R/donut_plot.R:245:3
+  3. │   └─purrr:::pmap_("list", .l, .f, ..., .progress = .progress)
+  4. │     ├─purrr:::with_indexed_errors(...)
+  5. │     │ └─base::withCallingHandlers(...)
+  6. │     ├─purrr:::call_with_cleanup(...)
+  7. │     └─nightowl (local) .f(...)
+  8. │       ├─base::do.call(...) at 43-fix-tests/R/donut_plot.R:247:7
+  9. │       └─nightowl (local) `<fn>`(...)
+ 10. │         └─... %>% ... at 43-fix-tests/R/donut_plot.R:147:3
+ 11. └─purrr::imap(...)
+ 12.   └─purrr::map2(.x, vec_index(.x), .f, ...)
+ 13.     └─purrr:::map2_("list", .x, .y, .f, ..., .progress = .progress)
+ 14.       ├─purrr:::with_indexed_errors(...)
+ 15.       │ └─base::withCallingHandlers(...)
+ 16.       ├─purrr:::call_with_cleanup(...)
+ 17.       └─nightowl (local) .f(.x[[i]], .y[[i]], ...)
+ 18.         ├─shiny::div(...) at 43-fix-tests/R/donut_plot.R:182:7
+ 19.         │ └─rlang::dots_list(...)
+ 20.         └─nightowl::render_svg(.p, height = 6, scaling = 6, add_download_button = FALSE)
+ 21.           ├─base::tryCatch(...) at 43-fix-tests/R/svg.r:24:3
+ 22.           │ └─base (local) tryCatchList(expr, classes, parentenv, handlers)
+ 23.           │   └─base (local) tryCatchOne(expr, names, parentenv, handlers[[1L]])
+ 24.           │     └─base (local) doTryCatch(return(expr), name, parentenv, handler)
+ 25.           ├─base::print(g) at 43-fix-tests/R/svg.r:41:9
+ 26.           └─ggplot2:::print.ggplot(g)
+ 27.             ├─ggplot2::ggplot_gtable(data)
+ 28.             └─ggplot2:::ggplot_gtable.ggplot_built(data)
+ 29.               └─ggplot2:::by_layer(...)
+ 30.                 ├─rlang::try_fetch(...)
+ 31.                 │ ├─base::tryCatch(...)
+ 32.                 │ │ └─base (local) tryCatchList(expr, classes, parentenv, handlers)
+ 33.                 │ │   └─base (local) tryCatchOne(expr, names, parentenv, handlers[[1L]])
+ 34.                 │ │     └─base (local) doTryCatch(return(expr), name, parentenv, handler)
+ 35.                 │ └─base::withCallingHandlers(...)
+ 36.                 └─ggplot2 (local) f(l = layers[[i]], d = data[[i]])
+ 37.                   └─l$draw_geom(d, layout)
+ 38.                     └─ggplot2 (local) draw_geom(..., self = self)
+ 39.                       └─self$geom$handle_na(data, self$computed_geom_params)
+ 40.                         └─ggplot2 (local) handle_na(..., self = self)
+ 41.                           └─ggplot2::remove_missing(...)
+ 42.                             └─cli::cli_warn(msg)
+
+Warning ('test-donut_plot.R:20:3'): donut_plot works
+Removed 1 row containing non-finite outside the scale range
+(`stat_ydensity()`).
+Backtrace:
+     ▆
+  1. ├─nightowl::donut_plot(...) at test-donut_plot.R:20:3
+  2. │ └─purrr::pmap(...) at 43-fix-tests/R/donut_plot.R:245:3
+  3. │   └─purrr:::pmap_("list", .l, .f, ..., .progress = .progress)
+  4. │     ├─purrr:::with_indexed_errors(...)
+  5. │     │ └─base::withCallingHandlers(...)
+  6. │     ├─purrr:::call_with_cleanup(...)
+  7. │     └─nightowl (local) .f(...)
+  8. │       ├─base::do.call(...) at 43-fix-tests/R/donut_plot.R:247:7
+  9. │       └─nightowl (local) `<fn>`(...)
+ 10. │         └─... %>% ... at 43-fix-tests/R/donut_plot.R:147:3
+ 11. └─purrr::imap(...)
+ 12.   └─purrr::map2(.x, vec_index(.x), .f, ...)
+ 13.     └─purrr:::map2_("list", .x, .y, .f, ..., .progress = .progress)
+ 14.       ├─purrr:::with_indexed_errors(...)
+ 15.       │ └─base::withCallingHandlers(...)
+ 16.       ├─purrr:::call_with_cleanup(...)
+ 17.       └─nightowl (local) .f(.x[[i]], .y[[i]], ...)
+ 18.         ├─shiny::div(...) at 43-fix-tests/R/donut_plot.R:182:7
+ 19.         │ └─rlang::dots_list(...)
+ 20.         └─nightowl::render_svg(.p, height = 6, scaling = 6, add_download_button = FALSE)
+ 21.           ├─base::tryCatch(...) at 43-fix-tests/R/svg.r:24:3
+ 22.           │ └─base (local) tryCatchList(expr, classes, parentenv, handlers)
+ 23.           │   └─base (local) tryCatchOne(expr, names, parentenv, handlers[[1L]])
+ 24.           │     └─base (local) doTryCatch(return(expr), name, parentenv, handler)
+ 25.           ├─base::print(g) at 43-fix-tests/R/svg.r:41:9
+ 26.           └─ggplot2:::print.ggplot(g)
+ 27.             ├─ggplot2::ggplot_build(x)
+ 28.             └─ggplot2:::ggplot_build.ggplot(x)
+ 29.               └─ggplot2:::by_layer(...)
+ 30.                 ├─rlang::try_fetch(...)
+ 31.                 │ ├─base::tryCatch(...)
+ 32.                 │ │ └─base (local) tryCatchList(expr, classes, parentenv, handlers)
+ 33.                 │ │   └─base (local) tryCatchOne(expr, names, parentenv, handlers[[1L]])
+ 34.                 │ │     └─base (local) doTryCatch(return(expr), name, parentenv, handler)
+ 35.                 │ └─base::withCallingHandlers(...)
+ 36.                 └─ggplot2 (local) f(l = layers[[i]], d = data[[i]])
+ 37.                   └─l$compute_statistic(d, layout)
+ 38.                     └─ggplot2 (local) compute_statistic(..., self = self)
+ 39.                       └─self$stat$compute_layer(data, self$computed_stat_params, layout)
+ 40.                         └─ggplot2 (local) compute_layer(..., self = self)
+ 41.                           └─ggplot2::remove_missing(...)
+ 42.                             └─cli::cli_warn(msg)
+
+Warning ('test-donut_plot.R:20:3'): donut_plot works
+Removed 1 row containing non-finite outside the scale range (`stat_boxplot()`).
+Backtrace:
+     ▆
+  1. ├─nightowl::donut_plot(...) at test-donut_plot.R:20:3
+  2. │ └─purrr::pmap(...) at 43-fix-tests/R/donut_plot.R:245:3
+  3. │   └─purrr:::pmap_("list", .l, .f, ..., .progress = .progress)
+  4. │     ├─purrr:::with_indexed_errors(...)
+  5. │     │ └─base::withCallingHandlers(...)
+  6. │     ├─purrr:::call_with_cleanup(...)
+  7. │     └─nightowl (local) .f(...)
+  8. │       ├─base::do.call(...) at 43-fix-tests/R/donut_plot.R:247:7
+  9. │       └─nightowl (local) `<fn>`(...)
+ 10. │         └─... %>% ... at 43-fix-tests/R/donut_plot.R:147:3
+ 11. └─purrr::imap(...)
+ 12.   └─purrr::map2(.x, vec_index(.x), .f, ...)
+ 13.     └─purrr:::map2_("list", .x, .y, .f, ..., .progress = .progress)
+ 14.       ├─purrr:::with_indexed_errors(...)
+ 15.       │ └─base::withCallingHandlers(...)
+ 16.       ├─purrr:::call_with_cleanup(...)
+ 17.       └─nightowl (local) .f(.x[[i]], .y[[i]], ...)
+ 18.         ├─shiny::div(...) at 43-fix-tests/R/donut_plot.R:182:7
+ 19.         │ └─rlang::dots_list(...)
+ 20.         └─nightowl::render_svg(.p, height = 6, scaling = 6, add_download_button = FALSE)
+ 21.           ├─base::tryCatch(...) at 43-fix-tests/R/svg.r:24:3
+ 22.           │ └─base (local) tryCatchList(expr, classes, parentenv, handlers)
+ 23.           │   └─base (local) tryCatchOne(expr, names, parentenv, handlers[[1L]])
+ 24.           │     └─base (local) doTryCatch(return(expr), name, parentenv, handler)
+ 25.           ├─base::print(g) at 43-fix-tests/R/svg.r:41:9
+ 26.           └─ggplot2:::print.ggplot(g)
+ 27.             ├─ggplot2::ggplot_build(x)
+ 28.             └─ggplot2:::ggplot_build.ggplot(x)
+ 29.               └─ggplot2:::by_layer(...)
+ 30.                 ├─rlang::try_fetch(...)
+ 31.                 │ ├─base::tryCatch(...)
+ 32.                 │ │ └─base (local) tryCatchList(expr, classes, parentenv, handlers)
+ 33.                 │ │   └─base (local) tryCatchOne(expr, names, parentenv, handlers[[1L]])
+ 34.                 │ │     └─base (local) doTryCatch(return(expr), name, parentenv, handler)
+ 35.                 │ └─base::withCallingHandlers(...)
+ 36.                 └─ggplot2 (local) f(l = layers[[i]], d = data[[i]])
+ 37.                   └─l$compute_statistic(d, layout)
+ 38.                     └─ggplot2 (local) compute_statistic(..., self = self)
+ 39.                       └─self$stat$compute_layer(data, self$computed_stat_params, layout)
+ 40.                         └─ggplot2 (local) compute_layer(..., self = self)
+ 41.                           └─ggplot2::remove_missing(...)
+ 42.                             └─cli::cli_warn(msg)
+
+Warning ('test-donut_plot.R:20:3'): donut_plot works
+Removed 60 rows containing missing values or values outside the scale range
+(`geom_violin()`).
+Backtrace:
+     ▆
+  1. ├─nightowl::donut_plot(...) at test-donut_plot.R:20:3
+  2. │ └─purrr::pmap(...) at 43-fix-tests/R/donut_plot.R:245:3
+  3. │   └─purrr:::pmap_("list", .l, .f, ..., .progress = .progress)
+  4. │     ├─purrr:::with_indexed_errors(...)
+  5. │     │ └─base::withCallingHandlers(...)
+  6. │     ├─purrr:::call_with_cleanup(...)
+  7. │     └─nightowl (local) .f(...)
+  8. │       ├─base::do.call(...) at 43-fix-tests/R/donut_plot.R:247:7
+  9. │       └─nightowl (local) `<fn>`(...)
+ 10. │         └─... %>% ... at 43-fix-tests/R/donut_plot.R:147:3
+ 11. └─purrr::imap(...)
+ 12.   └─purrr::map2(.x, vec_index(.x), .f, ...)
+ 13.     └─purrr:::map2_("list", .x, .y, .f, ..., .progress = .progress)
+ 14.       ├─purrr:::with_indexed_errors(...)
+ 15.       │ └─base::withCallingHandlers(...)
+ 16.       ├─purrr:::call_with_cleanup(...)
+ 17.       └─nightowl (local) .f(.x[[i]], .y[[i]], ...)
+ 18.         ├─shiny::div(...) at 43-fix-tests/R/donut_plot.R:182:7
+ 19.         │ └─rlang::dots_list(...)
+ 20.         └─nightowl::render_svg(.p, height = 6, scaling = 6, add_download_button = FALSE)
+ 21.           ├─base::tryCatch(...) at 43-fix-tests/R/svg.r:24:3
+ 22.           │ └─base (local) tryCatchList(expr, classes, parentenv, handlers)
+ 23.           │   └─base (local) tryCatchOne(expr, names, parentenv, handlers[[1L]])
+ 24.           │     └─base (local) doTryCatch(return(expr), name, parentenv, handler)
+ 25.           ├─base::print(g) at 43-fix-tests/R/svg.r:41:9
+ 26.           └─ggplot2:::print.ggplot(g)
+ 27.             ├─ggplot2::ggplot_gtable(data)
+ 28.             └─ggplot2:::ggplot_gtable.ggplot_built(data)
+ 29.               └─ggplot2:::by_layer(...)
+ 30.                 ├─rlang::try_fetch(...)
+ 31.                 │ ├─base::tryCatch(...)
+ 32.                 │ │ └─base (local) tryCatchList(expr, classes, parentenv, handlers)
+ 33.                 │ │   └─base (local) tryCatchOne(expr, names, parentenv, handlers[[1L]])
+ 34.                 │ │     └─base (local) doTryCatch(return(expr), name, parentenv, handler)
+ 35.                 │ └─base::withCallingHandlers(...)
+ 36.                 └─ggplot2 (local) f(l = layers[[i]], d = data[[i]])
+ 37.                   └─l$draw_geom(d, layout)
+ 38.                     └─ggplot2 (local) draw_geom(..., self = self)
+ 39.                       └─self$geom$handle_na(data, self$computed_geom_params)
+ 40.                         └─ggplot2 (local) handle_na(..., self = self)
+ 41.                           └─ggplot2::remove_missing(...)
+ 42.                             └─cli::cli_warn(msg)
+
+Warning ('test-donut_plot.R:26:3'): donut_plot works
+Removed 1 row containing non-finite outside the scale range
+(`stat_ydensity()`).
+Backtrace:
+     ▆
+  1. ├─nightowl::donut_plot(...) at test-donut_plot.R:26:3
+  2. │ └─purrr::pmap(...) at 43-fix-tests/R/donut_plot.R:245:3
+  3. │   └─purrr:::pmap_("list", .l, .f, ..., .progress = .progress)
+  4. │     ├─purrr:::with_indexed_errors(...)
+  5. │     │ └─base::withCallingHandlers(...)
+  6. │     ├─purrr:::call_with_cleanup(...)
+  7. │     └─nightowl (local) .f(...)
+  8. │       ├─base::do.call(...) at 43-fix-tests/R/donut_plot.R:247:7
+  9. │       └─nightowl (local) `<fn>`(...)
+ 10. │         └─... %>% ... at 43-fix-tests/R/donut_plot.R:147:3
+ 11. └─purrr::imap(...)
+ 12.   └─purrr::map2(.x, vec_index(.x), .f, ...)
+ 13.     └─purrr:::map2_("list", .x, .y, .f, ..., .progress = .progress)
+ 14.       ├─purrr:::with_indexed_errors(...)
+ 15.       │ └─base::withCallingHandlers(...)
+ 16.       ├─purrr:::call_with_cleanup(...)
+ 17.       └─nightowl (local) .f(.x[[i]], .y[[i]], ...)
+ 18.         ├─shiny::div(...) at 43-fix-tests/R/donut_plot.R:182:7
+ 19.         │ └─rlang::dots_list(...)
+ 20.         └─nightowl::render_svg(.p, height = 6, scaling = 6, add_download_button = FALSE)
+ 21.           ├─base::tryCatch(...) at 43-fix-tests/R/svg.r:24:3
+ 22.           │ └─base (local) tryCatchList(expr, classes, parentenv, handlers)
+ 23.           │   └─base (local) tryCatchOne(expr, names, parentenv, handlers[[1L]])
+ 24.           │     └─base (local) doTryCatch(return(expr), name, parentenv, handler)
+ 25.           ├─base::print(g) at 43-fix-tests/R/svg.r:41:9
+ 26.           └─ggplot2:::print.ggplot(g)
+ 27.             ├─ggplot2::ggplot_build(x)
+ 28.             └─ggplot2:::ggplot_build.ggplot(x)
+ 29.               └─ggplot2:::by_layer(...)
+ 30.                 ├─rlang::try_fetch(...)
+ 31.                 │ ├─base::tryCatch(...)
+ 32.                 │ │ └─base (local) tryCatchList(expr, classes, parentenv, handlers)
+ 33.                 │ │   └─base (local) tryCatchOne(expr, names, parentenv, handlers[[1L]])
+ 34.                 │ │     └─base (local) doTryCatch(return(expr), name, parentenv, handler)
+ 35.                 │ └─base::withCallingHandlers(...)
+ 36.                 └─ggplot2 (local) f(l = layers[[i]], d = data[[i]])
+ 37.                   └─l$compute_statistic(d, layout)
+ 38.                     └─ggplot2 (local) compute_statistic(..., self = self)
+ 39.                       └─self$stat$compute_layer(data, self$computed_stat_params, layout)
+ 40.                         └─ggplot2 (local) compute_layer(..., self = self)
+ 41.                           └─ggplot2::remove_missing(...)
+ 42.                             └─cli::cli_warn(msg)
+
+Warning ('test-donut_plot.R:26:3'): donut_plot works
+Removed 1 row containing non-finite outside the scale range (`stat_boxplot()`).
+Backtrace:
+     ▆
+  1. ├─nightowl::donut_plot(...) at test-donut_plot.R:26:3
+  2. │ └─purrr::pmap(...) at 43-fix-tests/R/donut_plot.R:245:3
+  3. │   └─purrr:::pmap_("list", .l, .f, ..., .progress = .progress)
+  4. │     ├─purrr:::with_indexed_errors(...)
+  5. │     │ └─base::withCallingHandlers(...)
+  6. │     ├─purrr:::call_with_cleanup(...)
+  7. │     └─nightowl (local) .f(...)
+  8. │       ├─base::do.call(...) at 43-fix-tests/R/donut_plot.R:247:7
+  9. │       └─nightowl (local) `<fn>`(...)
+ 10. │         └─... %>% ... at 43-fix-tests/R/donut_plot.R:147:3
+ 11. └─purrr::imap(...)
+ 12.   └─purrr::map2(.x, vec_index(.x), .f, ...)
+ 13.     └─purrr:::map2_("list", .x, .y, .f, ..., .progress = .progress)
+ 14.       ├─purrr:::with_indexed_errors(...)
+ 15.       │ └─base::withCallingHandlers(...)
+ 16.       ├─purrr:::call_with_cleanup(...)
+ 17.       └─nightowl (local) .f(.x[[i]], .y[[i]], ...)
+ 18.         ├─shiny::div(...) at 43-fix-tests/R/donut_plot.R:182:7
+ 19.         │ └─rlang::dots_list(...)
+ 20.         └─nightowl::render_svg(.p, height = 6, scaling = 6, add_download_button = FALSE)
+ 21.           ├─base::tryCatch(...) at 43-fix-tests/R/svg.r:24:3
+ 22.           │ └─base (local) tryCatchList(expr, classes, parentenv, handlers)
+ 23.           │   └─base (local) tryCatchOne(expr, names, parentenv, handlers[[1L]])
+ 24.           │     └─base (local) doTryCatch(return(expr), name, parentenv, handler)
+ 25.           ├─base::print(g) at 43-fix-tests/R/svg.r:41:9
+ 26.           └─ggplot2:::print.ggplot(g)
+ 27.             ├─ggplot2::ggplot_build(x)
+ 28.             └─ggplot2:::ggplot_build.ggplot(x)
+ 29.               └─ggplot2:::by_layer(...)
+ 30.                 ├─rlang::try_fetch(...)
+ 31.                 │ ├─base::tryCatch(...)
+ 32.                 │ │ └─base (local) tryCatchList(expr, classes, parentenv, handlers)
+ 33.                 │ │   └─base (local) tryCatchOne(expr, names, parentenv, handlers[[1L]])
+ 34.                 │ │     └─base (local) doTryCatch(return(expr), name, parentenv, handler)
+ 35.                 │ └─base::withCallingHandlers(...)
+ 36.                 └─ggplot2 (local) f(l = layers[[i]], d = data[[i]])
+ 37.                   └─l$compute_statistic(d, layout)
+ 38.                     └─ggplot2 (local) compute_statistic(..., self = self)
+ 39.                       └─self$stat$compute_layer(data, self$computed_stat_params, layout)
+ 40.                         └─ggplot2 (local) compute_layer(..., self = self)
+ 41.                           └─ggplot2::remove_missing(...)
+ 42.                             └─cli::cli_warn(msg)
+
+Warning ('test-donut_plot.R:26:3'): donut_plot works
+Removed 103 rows containing missing values or values outside the scale range
+(`geom_violin()`).
+Backtrace:
+     ▆
+  1. ├─nightowl::donut_plot(...) at test-donut_plot.R:26:3
+  2. │ └─purrr::pmap(...) at 43-fix-tests/R/donut_plot.R:245:3
+  3. │   └─purrr:::pmap_("list", .l, .f, ..., .progress = .progress)
+  4. │     ├─purrr:::with_indexed_errors(...)
+  5. │     │ └─base::withCallingHandlers(...)
+  6. │     ├─purrr:::call_with_cleanup(...)
+  7. │     └─nightowl (local) .f(...)
+  8. │       ├─base::do.call(...) at 43-fix-tests/R/donut_plot.R:247:7
+  9. │       └─nightowl (local) `<fn>`(...)
+ 10. │         └─... %>% ... at 43-fix-tests/R/donut_plot.R:147:3
+ 11. └─purrr::imap(...)
+ 12.   └─purrr::map2(.x, vec_index(.x), .f, ...)
+ 13.     └─purrr:::map2_("list", .x, .y, .f, ..., .progress = .progress)
+ 14.       ├─purrr:::with_indexed_errors(...)
+ 15.       │ └─base::withCallingHandlers(...)
+ 16.       ├─purrr:::call_with_cleanup(...)
+ 17.       └─nightowl (local) .f(.x[[i]], .y[[i]], ...)
+ 18.         ├─shiny::div(...) at 43-fix-tests/R/donut_plot.R:182:7
+ 19.         │ └─rlang::dots_list(...)
+ 20.         └─nightowl::render_svg(.p, height = 6, scaling = 6, add_download_button = FALSE)
+ 21.           ├─base::tryCatch(...) at 43-fix-tests/R/svg.r:24:3
+ 22.           │ └─base (local) tryCatchList(expr, classes, parentenv, handlers)
+ 23.           │   └─base (local) tryCatchOne(expr, names, parentenv, handlers[[1L]])
+ 24.           │     └─base (local) doTryCatch(return(expr), name, parentenv, handler)
+ 25.           ├─base::print(g) at 43-fix-tests/R/svg.r:41:9
+ 26.           └─ggplot2:::print.ggplot(g)
+ 27.             ├─ggplot2::ggplot_gtable(data)
+ 28.             └─ggplot2:::ggplot_gtable.ggplot_built(data)
+ 29.               └─ggplot2:::by_layer(...)
+ 30.                 ├─rlang::try_fetch(...)
+ 31.                 │ ├─base::tryCatch(...)
+ 32.                 │ │ └─base (local) tryCatchList(expr, classes, parentenv, handlers)
+ 33.                 │ │   └─base (local) tryCatchOne(expr, names, parentenv, handlers[[1L]])
+ 34.                 │ │     └─base (local) doTryCatch(return(expr), name, parentenv, handler)
+ 35.                 │ └─base::withCallingHandlers(...)
+ 36.                 └─ggplot2 (local) f(l = layers[[i]], d = data[[i]])
+ 37.                   └─l$draw_geom(d, layout)
+ 38.                     └─ggplot2 (local) draw_geom(..., self = self)
+ 39.                       └─self$geom$handle_na(data, self$computed_geom_params)
+ 40.                         └─ggplot2 (local) handle_na(..., self = self)
+ 41.                           └─ggplot2::remove_missing(...)
+ 42.                             └─cli::cli_warn(msg)
+
+Warning ('test-donut_plot.R:26:3'): donut_plot works
+Removed 144 rows containing missing values or values outside the scale range
+(`geom_violin()`).
+Backtrace:
+     ▆
+  1. ├─nightowl::donut_plot(...) at test-donut_plot.R:26:3
+  2. │ └─purrr::pmap(...) at 43-fix-tests/R/donut_plot.R:245:3
+  3. │   └─purrr:::pmap_("list", .l, .f, ..., .progress = .progress)
+  4. │     ├─purrr:::with_indexed_errors(...)
+  5. │     │ └─base::withCallingHandlers(...)
+  6. │     ├─purrr:::call_with_cleanup(...)
+  7. │     └─nightowl (local) .f(...)
+  8. │       ├─base::do.call(...) at 43-fix-tests/R/donut_plot.R:247:7
+  9. │       └─nightowl (local) `<fn>`(...)
+ 10. │         └─... %>% ... at 43-fix-tests/R/donut_plot.R:147:3
+ 11. └─purrr::imap(...)
+ 12.   └─purrr::map2(.x, vec_index(.x), .f, ...)
+ 13.     └─purrr:::map2_("list", .x, .y, .f, ..., .progress = .progress)
+ 14.       ├─purrr:::with_indexed_errors(...)
+ 15.       │ └─base::withCallingHandlers(...)
+ 16.       ├─purrr:::call_with_cleanup(...)
+ 17.       └─nightowl (local) .f(.x[[i]], .y[[i]], ...)
+ 18.         ├─shiny::div(...) at 43-fix-tests/R/donut_plot.R:182:7
+ 19.         │ └─rlang::dots_list(...)
+ 20.         └─nightowl::render_svg(.p, height = 6, scaling = 6, add_download_button = FALSE)
+ 21.           ├─base::tryCatch(...) at 43-fix-tests/R/svg.r:24:3
+ 22.           │ └─base (local) tryCatchList(expr, classes, parentenv, handlers)
+ 23.           │   └─base (local) tryCatchOne(expr, names, parentenv, handlers[[1L]])
+ 24.           │     └─base (local) doTryCatch(return(expr), name, parentenv, handler)
+ 25.           ├─base::print(g) at 43-fix-tests/R/svg.r:41:9
+ 26.           └─ggplot2:::print.ggplot(g)
+ 27.             ├─ggplot2::ggplot_gtable(data)
+ 28.             └─ggplot2:::ggplot_gtable.ggplot_built(data)
+ 29.               └─ggplot2:::by_layer(...)
+ 30.                 ├─rlang::try_fetch(...)
+ 31.                 │ ├─base::tryCatch(...)
+ 32.                 │ │ └─base (local) tryCatchList(expr, classes, parentenv, handlers)
+ 33.                 │ │   └─base (local) tryCatchOne(expr, names, parentenv, handlers[[1L]])
+ 34.                 │ │     └─base (local) doTryCatch(return(expr), name, parentenv, handler)
+ 35.                 │ └─base::withCallingHandlers(...)
+ 36.                 └─ggplot2 (local) f(l = layers[[i]], d = data[[i]])
+ 37.                   └─l$draw_geom(d, layout)
+ 38.                     └─ggplot2 (local) draw_geom(..., self = self)
+ 39.                       └─self$geom$handle_na(data, self$computed_geom_params)
+ 40.                         └─ggplot2 (local) handle_na(..., self = self)
+ 41.                           └─ggplot2::remove_missing(...)
+ 42.                             └─cli::cli_warn(msg)
+
+Warning ('test-donut_plot.R:26:3'): donut_plot works
+Removed 1 row containing non-finite outside the scale range
+(`stat_ydensity()`).
+Backtrace:
+     ▆
+  1. ├─nightowl::donut_plot(...) at test-donut_plot.R:26:3
+  2. │ └─purrr::pmap(...) at 43-fix-tests/R/donut_plot.R:245:3
+  3. │   └─purrr:::pmap_("list", .l, .f, ..., .progress = .progress)
+  4. │     ├─purrr:::with_indexed_errors(...)
+  5. │     │ └─base::withCallingHandlers(...)
+  6. │     ├─purrr:::call_with_cleanup(...)
+  7. │     └─nightowl (local) .f(...)
+  8. │       ├─base::do.call(...) at 43-fix-tests/R/donut_plot.R:247:7
+  9. │       └─nightowl (local) `<fn>`(...)
+ 10. │         └─... %>% ... at 43-fix-tests/R/donut_plot.R:147:3
+ 11. └─purrr::imap(...)
+ 12.   └─purrr::map2(.x, vec_index(.x), .f, ...)
+ 13.     └─purrr:::map2_("list", .x, .y, .f, ..., .progress = .progress)
+ 14.       ├─purrr:::with_indexed_errors(...)
+ 15.       │ └─base::withCallingHandlers(...)
+ 16.       ├─purrr:::call_with_cleanup(...)
+ 17.       └─nightowl (local) .f(.x[[i]], .y[[i]], ...)
+ 18.         ├─shiny::div(...) at 43-fix-tests/R/donut_plot.R:182:7
+ 19.         │ └─rlang::dots_list(...)
+ 20.         └─nightowl::render_svg(.p, height = 6, scaling = 6, add_download_button = FALSE)
+ 21.           ├─base::tryCatch(...) at 43-fix-tests/R/svg.r:24:3
+ 22.           │ └─base (local) tryCatchList(expr, classes, parentenv, handlers)
+ 23.           │   └─base (local) tryCatchOne(expr, names, parentenv, handlers[[1L]])
+ 24.           │     └─base (local) doTryCatch(return(expr), name, parentenv, handler)
+ 25.           ├─base::print(g) at 43-fix-tests/R/svg.r:41:9
+ 26.           └─ggplot2:::print.ggplot(g)
+ 27.             ├─ggplot2::ggplot_build(x)
+ 28.             └─ggplot2:::ggplot_build.ggplot(x)
+ 29.               └─ggplot2:::by_layer(...)
+ 30.                 ├─rlang::try_fetch(...)
+ 31.                 │ ├─base::tryCatch(...)
+ 32.                 │ │ └─base (local) tryCatchList(expr, classes, parentenv, handlers)
+ 33.                 │ │   └─base (local) tryCatchOne(expr, names, parentenv, handlers[[1L]])
+ 34.                 │ │     └─base (local) doTryCatch(return(expr), name, parentenv, handler)
+ 35.                 │ └─base::withCallingHandlers(...)
+ 36.                 └─ggplot2 (local) f(l = layers[[i]], d = data[[i]])
+ 37.                   └─l$compute_statistic(d, layout)
+ 38.                     └─ggplot2 (local) compute_statistic(..., self = self)
+ 39.                       └─self$stat$compute_layer(data, self$computed_stat_params, layout)
+ 40.                         └─ggplot2 (local) compute_layer(..., self = self)
+ 41.                           └─ggplot2::remove_missing(...)
+ 42.                             └─cli::cli_warn(msg)
+
+Warning ('test-donut_plot.R:26:3'): donut_plot works
+Removed 1 row containing non-finite outside the scale range (`stat_boxplot()`).
+Backtrace:
+     ▆
+  1. ├─nightowl::donut_plot(...) at test-donut_plot.R:26:3
+  2. │ └─purrr::pmap(...) at 43-fix-tests/R/donut_plot.R:245:3
+  3. │   └─purrr:::pmap_("list", .l, .f, ..., .progress = .progress)
+  4. │     ├─purrr:::with_indexed_errors(...)
+  5. │     │ └─base::withCallingHandlers(...)
+  6. │     ├─purrr:::call_with_cleanup(...)
+  7. │     └─nightowl (local) .f(...)
+  8. │       ├─base::do.call(...) at 43-fix-tests/R/donut_plot.R:247:7
+  9. │       └─nightowl (local) `<fn>`(...)
+ 10. │         └─... %>% ... at 43-fix-tests/R/donut_plot.R:147:3
+ 11. └─purrr::imap(...)
+ 12.   └─purrr::map2(.x, vec_index(.x), .f, ...)
+ 13.     └─purrr:::map2_("list", .x, .y, .f, ..., .progress = .progress)
+ 14.       ├─purrr:::with_indexed_errors(...)
+ 15.       │ └─base::withCallingHandlers(...)
+ 16.       ├─purrr:::call_with_cleanup(...)
+ 17.       └─nightowl (local) .f(.x[[i]], .y[[i]], ...)
+ 18.         ├─shiny::div(...) at 43-fix-tests/R/donut_plot.R:182:7
+ 19.         │ └─rlang::dots_list(...)
+ 20.         └─nightowl::render_svg(.p, height = 6, scaling = 6, add_download_button = FALSE)
+ 21.           ├─base::tryCatch(...) at 43-fix-tests/R/svg.r:24:3
+ 22.           │ └─base (local) tryCatchList(expr, classes, parentenv, handlers)
+ 23.           │   └─base (local) tryCatchOne(expr, names, parentenv, handlers[[1L]])
+ 24.           │     └─base (local) doTryCatch(return(expr), name, parentenv, handler)
+ 25.           ├─base::print(g) at 43-fix-tests/R/svg.r:41:9
+ 26.           └─ggplot2:::print.ggplot(g)
+ 27.             ├─ggplot2::ggplot_build(x)
+ 28.             └─ggplot2:::ggplot_build.ggplot(x)
+ 29.               └─ggplot2:::by_layer(...)
+ 30.                 ├─rlang::try_fetch(...)
+ 31.                 │ ├─base::tryCatch(...)
+ 32.                 │ │ └─base (local) tryCatchList(expr, classes, parentenv, handlers)
+ 33.                 │ │   └─base (local) tryCatchOne(expr, names, parentenv, handlers[[1L]])
+ 34.                 │ │     └─base (local) doTryCatch(return(expr), name, parentenv, handler)
+ 35.                 │ └─base::withCallingHandlers(...)
+ 36.                 └─ggplot2 (local) f(l = layers[[i]], d = data[[i]])
+ 37.                   └─l$compute_statistic(d, layout)
+ 38.                     └─ggplot2 (local) compute_statistic(..., self = self)
+ 39.                       └─self$stat$compute_layer(data, self$computed_stat_params, layout)
+ 40.                         └─ggplot2 (local) compute_layer(..., self = self)
+ 41.                           └─ggplot2::remove_missing(...)
+ 42.                             └─cli::cli_warn(msg)
+
+Warning ('test-donut_plot.R:26:3'): donut_plot works
+Removed 60 rows containing missing values or values outside the scale range
+(`geom_violin()`).
+Backtrace:
+     ▆
+  1. ├─nightowl::donut_plot(...) at test-donut_plot.R:26:3
+  2. │ └─purrr::pmap(...) at 43-fix-tests/R/donut_plot.R:245:3
+  3. │   └─purrr:::pmap_("list", .l, .f, ..., .progress = .progress)
+  4. │     ├─purrr:::with_indexed_errors(...)
+  5. │     │ └─base::withCallingHandlers(...)
+  6. │     ├─purrr:::call_with_cleanup(...)
+  7. │     └─nightowl (local) .f(...)
+  8. │       ├─base::do.call(...) at 43-fix-tests/R/donut_plot.R:247:7
+  9. │       └─nightowl (local) `<fn>`(...)
+ 10. │         └─... %>% ... at 43-fix-tests/R/donut_plot.R:147:3
+ 11. └─purrr::imap(...)
+ 12.   └─purrr::map2(.x, vec_index(.x), .f, ...)
+ 13.     └─purrr:::map2_("list", .x, .y, .f, ..., .progress = .progress)
+ 14.       ├─purrr:::with_indexed_errors(...)
+ 15.       │ └─base::withCallingHandlers(...)
+ 16.       ├─purrr:::call_with_cleanup(...)
+ 17.       └─nightowl (local) .f(.x[[i]], .y[[i]], ...)
+ 18.         ├─shiny::div(...) at 43-fix-tests/R/donut_plot.R:182:7
+ 19.         │ └─rlang::dots_list(...)
+ 20.         └─nightowl::render_svg(.p, height = 6, scaling = 6, add_download_button = FALSE)
+ 21.           ├─base::tryCatch(...) at 43-fix-tests/R/svg.r:24:3
+ 22.           │ └─base (local) tryCatchList(expr, classes, parentenv, handlers)
+ 23.           │   └─base (local) tryCatchOne(expr, names, parentenv, handlers[[1L]])
+ 24.           │     └─base (local) doTryCatch(return(expr), name, parentenv, handler)
+ 25.           ├─base::print(g) at 43-fix-tests/R/svg.r:41:9
+ 26.           └─ggplot2:::print.ggplot(g)
+ 27.             ├─ggplot2::ggplot_gtable(data)
+ 28.             └─ggplot2:::ggplot_gtable.ggplot_built(data)
+ 29.               └─ggplot2:::by_layer(...)
+ 30.                 ├─rlang::try_fetch(...)
+ 31.                 │ ├─base::tryCatch(...)
+ 32.                 │ │ └─base (local) tryCatchList(expr, classes, parentenv, handlers)
+ 33.                 │ │   └─base (local) tryCatchOne(expr, names, parentenv, handlers[[1L]])
+ 34.                 │ │     └─base (local) doTryCatch(return(expr), name, parentenv, handler)
+ 35.                 │ └─base::withCallingHandlers(...)
+ 36.                 └─ggplot2 (local) f(l = layers[[i]], d = data[[i]])
+ 37.                   └─l$draw_geom(d, layout)
+ 38.                     └─ggplot2 (local) draw_geom(..., self = self)
+ 39.                       └─self$geom$handle_na(data, self$computed_geom_params)
+ 40.                         └─ggplot2 (local) handle_na(..., self = self)
+ 41.                           └─ggplot2::remove_missing(...)
+ 42.                             └─cli::cli_warn(msg)
+
+Error ('test-donut_plot.R:34:3'): donut_plot works
+<purrr_error_indexed/rlang_error/error/condition>
+Error in `purrr::pmap(params, function(data, column, label, options) {
+    if (is.numeric(data[[column]])) {
+        do.call(nightowl::make_donut_plot_numeric, c(list(data = data, 
+            column = column, split = split, label = label), options))
+    }
+    else {
+        do.call(nightowl::make_donut_plot_categorical, c(list(data = data, 
+            column = column, split = split, label = label), options))
+    }
+})`: ℹ In index: 2.
+Caused by error in `map2()`:
+ℹ In index: 1.
+ℹ With name: Biscoe.
+Caused by error in `colors[[.y]]`:
+! subscript out of bounds
+────────────────────────────────────────────────────────────────────────────────
+
+⠏ |          0 | error-handling-comprehensive                                   
+⠹ | 11        2 | error-handling-comprehensive                                  
+ =========================================== 
+   🦉 Fitting Cox Proportional Hazard Model 
+=========================================== 
+
+
+⠙ | 24 1      7 | error-handling-comprehensive                                  
+⠦ | 27 1      9 | error-handling-comprehensive                                  
+✖ | 27 1      9 | error-handling-comprehensive
+────────────────────────────────────────────────────────────────────────────────
+Failure ('test-error-handling-comprehensive.R:23:3'): functions handle invalid data types gracefully
+`nightowl::Summary$new(data = NULL, column = "var", group_by = "group")` did not throw an error.
+
+Failure ('test-error-handling-comprehensive.R:29:3'): functions handle invalid data types gracefully
+`nightowl::Summary$new(...)` threw an error with unexpected message.
+Expected match: ".*data.*"
+Actual message: "no applicable method for 'ungroup' applied to an object of class \"list\""
+Backtrace:
+     ▆
+  1. ├─testthat::expect_error(...) at test-error-handling-comprehensive.R:29:3
+  2. │ └─testthat:::quasi_capture(...)
+  3. │   ├─testthat (local) .capture(...)
+  4. │   │ └─base::withCallingHandlers(...)
+  5. │   └─rlang::eval_bare(quo_get_expr(.quo), quo_get_env(.quo))
+  6. ├─nightowl::Summary$new(...)
+  7. │ └─nightowl (local) initialize(...)
+  8. │   └─self$set_data(data) at 43-fix-tests/R/Summary.r:28:7
+  9. │     └─... %>% dplyr::group_by_at(self$group_by) at 43-fix-tests/R/Summary.r:72:11
+ 10. ├─dplyr::group_by_at(., self$group_by)
+ 11. │ └─dplyr:::manip_at(...)
+ 12. │   └─dplyr:::tbl_at_syms(...)
+ 13. │     └─dplyr:::tbl_at_vars(...)
+ 14. │       └─dplyr::tbl_vars(tbl)
+ 15. │         ├─dplyr:::new_sel_vars(tbl_vars_dispatch(x), group_vars(x))
+ 16. │         │ └─base::structure(...)
+ 17. │         └─dplyr:::tbl_vars_dispatch(x)
+ 18. ├─dplyr::mutate_if(., is.factor, nightowl_fct_na_value_to_level)
+ 19. │ └─dplyr:::check_grouped(.tbl, "mutate", "if")
+ 20. │   └─dplyr::is_grouped_df(tbl)
+ 21. ├─dplyr::mutate_if(., is.character, factor)
+ 22. │ └─dplyr:::check_grouped(.tbl, "mutate", "if")
+ 23. │   └─dplyr::is_grouped_df(tbl)
+ 24. ├─dplyr::select_at(., c(unname(unlist(self$get_variables()))))
+ 25. │ └─dplyr:::tbl_at_vars(.tbl, .vars, .include_group_vars = TRUE)
+ 26. │   └─dplyr::tbl_vars(tbl)
+ 27. │     ├─dplyr:::new_sel_vars(tbl_vars_dispatch(x), group_vars(x))
+ 28. │     │ └─base::structure(...)
+ 29. │     └─dplyr:::tbl_vars_dispatch(x)
+ 30. └─dplyr::ungroup(.)
+
+Failure ('test-error-handling-comprehensive.R:36:3'): functions handle invalid data types gracefully
+`nightowl::Summary$new(data = empty_data, column = "var", group_by = "group")` threw an error with unexpected message.
+Expected match: ".*empty.*|.*column.*"
+Actual message: "`var` not present in data\n• `group` not present in data"
+Backtrace:
+     ▆
+  1. ├─testthat::expect_error(...) at test-error-handling-comprehensive.R:36:3
+  2. │ └─testthat:::quasi_capture(...)
+  3. │   ├─testthat (local) .capture(...)
+  4. │   │ └─base::withCallingHandlers(...)
+  5. │   └─rlang::eval_bare(quo_get_expr(.quo), quo_get_env(.quo))
+  6. └─nightowl::Summary$new(data = empty_data, column = "var", group_by = "group")
+  7.   └─nightowl (local) initialize(...)
+  8.     └─self$set_data(data) at 43-fix-tests/R/Summary.r:28:7
+  9.       └─self$check_variables() at 43-fix-tests/R/Summary.r:68:11
+ 10.         └─rlang::abort(msg) at 43-fix-tests/R/Summary.r:50:9
+
+Failure ('test-error-handling-comprehensive.R:43:3'): functions handle invalid data types gracefully
+`nightowl::Summary$new(data = single_row, column = "x", group_by = "y")` did not produce any warnings.
+
+Failure ('test-error-handling-comprehensive.R:53:3'): functions validate column names and handle non-existent columns
+`nightowl::Summary$new(...)` threw an error with unexpected message.
+Expected match: ".*column.*|.*variable.*"
+Actual message: "`nonexistent` not present in data"
+Backtrace:
+     ▆
+  1. ├─testthat::expect_error(...) at test-error-handling-comprehensive.R:53:3
+  2. │ └─testthat:::quasi_capture(...)
+  3. │   ├─testthat (local) .capture(...)
+  4. │   │ └─base::withCallingHandlers(...)
+  5. │   └─rlang::eval_bare(quo_get_expr(.quo), quo_get_env(.quo))
+  6. └─nightowl::Summary$new(...)
+  7.   └─nightowl (local) initialize(...)
+  8.     └─self$set_data(data) at 43-fix-tests/R/Summary.r:28:7
+  9.       └─self$check_variables() at 43-fix-tests/R/Summary.r:68:11
+ 10.         └─rlang::abort(msg) at 43-fix-tests/R/Summary.r:50:9
+
+Failure ('test-error-handling-comprehensive.R:58:3'): functions validate column names and handle non-existent columns
+`nightowl::Summary$new(...)` threw an error with unexpected message.
+Expected match: ".*column.*|.*variable.*"
+Actual message: "`nonexistent` not present in data"
+Backtrace:
+     ▆
+  1. ├─testthat::expect_error(...) at test-error-handling-comprehensive.R:58:3
+  2. │ └─testthat:::quasi_capture(...)
+  3. │   ├─testthat (local) .capture(...)
+  4. │   │ └─base::withCallingHandlers(...)
+  5. │   └─rlang::eval_bare(quo_get_expr(.quo), quo_get_env(.quo))
+  6. └─nightowl::Summary$new(...)
+  7.   └─nightowl (local) initialize(...)
+  8.     └─self$set_data(data) at 43-fix-tests/R/Summary.r:28:7
+  9.       └─self$check_variables() at 43-fix-tests/R/Summary.r:68:11
+ 10.         └─rlang::abort(msg) at 43-fix-tests/R/Summary.r:50:9
+
+Failure ('test-error-handling-comprehensive.R:64:3'): functions validate column names and handle non-existent columns
+`nightowl::Summary$new(data = test_data, column = "", group_by = "categorical_var")` threw an error with unexpected message.
+Expected match: ".*column.*|.*name.*"
+Actual message: "`` not present in data"
+Backtrace:
+     ▆
+  1. ├─testthat::expect_error(...) at test-error-handling-comprehensive.R:64:3
+  2. │ └─testthat:::quasi_capture(...)
+  3. │   ├─testthat (local) .capture(...)
+  4. │   │ └─base::withCallingHandlers(...)
+  5. │   └─rlang::eval_bare(quo_get_expr(.quo), quo_get_env(.quo))
+  6. └─nightowl::Summary$new(data = test_data, column = "", group_by = "categorical_var")
+  7.   └─nightowl (local) initialize(...)
+  8.     └─self$set_data(data) at 43-fix-tests/R/Summary.r:28:7
+  9.       └─self$check_variables() at 43-fix-tests/R/Summary.r:68:11
+ 10.         └─rlang::abort(msg) at 43-fix-tests/R/Summary.r:50:9
+
+Failure ('test-error-handling-comprehensive.R:84:3'): functions handle special column names correctly
+Expected `nightowl::Summary$new(...)` to run without any errors.
+ℹ Actually got a <rlang_error> with text:
+  `categorical_var` not present in data
+
+Failure ('test-error-handling-comprehensive.R:94:5'): functions handle special column names correctly
+Expected `nightowl::Summary$new(...)` to run without any errors.
+ℹ Actually got a <rlang_error> with text:
+  ``var with spaces`` not present in data
+  • `categorical_var` not present in data
+
+Failure ('test-error-handling-comprehensive.R:112:3'): functions handle missing data appropriately
+`nightowl::Summary$new(...)` did not produce any warnings.
+
+Failure ('test-error-handling-comprehensive.R:125:3'): functions handle missing data appropriately
+`nightowl::Summary$new(...)` did not produce any warnings.
+
+Failure ('test-error-handling-comprehensive.R:156:3'): functions handle extreme numeric values correctly
+`nightowl::Summary$new(...)` did not produce any warnings.
+
+Error ('test-error-handling-comprehensive.R:192:3'): functions handle type mismatches appropriately
+<tibble_error_incompatible_size/tibble_error/rlang_error/error/condition>
+Error in `tibble::tibble(id = 1:n, numeric_var = rnorm(n), categorical_var = sample(c("A", 
+    "B", "C"), n, replace = TRUE), time_var = sample(1:100, n, 
+    replace = TRUE), event_var = sample(c(0, 1), n, replace = TRUE), 
+    missing_data = c(rep(NA, n/2), rnorm(n/2)), extreme_values = c(rep(Inf, 
+        2), rep(-Inf, 2), rnorm(n - 4)), special_chars = paste0("var_", 
+        sample(letters, n, replace = TRUE)))`: Tibble columns must have compatible sizes.
+• Size 25: Existing data.
+• Size 24: Column `missing_data`.
+ℹ Only values of size one are recycled.
+Backtrace:
+    ▆
+ 1. └─nightowl (local) create_test_data(25) at test-error-handling-comprehensive.R:192:3
+ 2.   └─tibble::tibble(...) at test-error-handling-comprehensive.R:8:3
+ 3.     └─tibble:::tibble_quos(xs, .rows, .name_repair)
+ 4.       └─tibble:::vectbl_recycle_rows(...)
+ 5.         └─tibble:::abort_incompatible_size(...)
+ 6.           └─tibble:::tibble_abort(...)
+ 7.             └─rlang::abort(x, class, ..., call = call, parent = parent, use_cli_format = TRUE)
+
+Warning ('test-error-handling-comprehensive.R:237:3'): plot functions handle invalid plot specifications
+`aes_()` was deprecated in ggplot2 3.0.0.
+ℹ Please use tidy evaluation idioms with `aes()`
+Backtrace:
+     ▆
+  1. ├─testthat::expect_error(...) at test-error-handling-comprehensive.R:237:3
+  2. │ └─testthat:::quasi_capture(...)
+  3. │   ├─testthat (local) .capture(...)
+  4. │   │ └─base::withCallingHandlers(...)
+  5. │   └─rlang::eval_bare(quo_get_expr(.quo), quo_get_env(.quo))
+  6. └─nightowl::plot(...)
+  7.   └─nightowl::DeclarativePlot$new(...) at 43-fix-tests/R/legacy-plot.R:6:3
+  8.     └─nightowl (local) initialize(...)
+  9.       └─self$set_plot() at 43-fix-tests/R/plot.R:202:7
+ 10.         ├─private$memoized_plot_fn(cache_key) at 43-fix-tests/R/plot.R:293:7
+ 11.         │ ├─base::withVisible(eval(mc, parent.frame()))
+ 12.         │ └─base::eval(mc, parent.frame())
+ 13.         │   └─base::eval(mc, parent.frame())
+ 14.         └─nightowl (local) `<fn>`(cache_key = cache_key)
+ 15.           └─nightowl:::aes(mapping) at 43-fix-tests/R/plot.R:381:7
+ 16.             ├─rlang::exec(.fn = "f", !!!aes) at 43-fix-tests/R/add_plots.R:365:3
+ 17.             └─ggplot2 (local) f(x = `<fn>`(numeric_var), y = `<fn>`(categorical_var))
+ 18.               └─ggplot2:::deprecate_soft0("3.0.0", "aes_()", details = "Please use tidy evaluation idioms with `aes()`")
+
+Failure ('test-error-handling-comprehensive.R:247:3'): plot functions handle invalid plot specifications
+`nightowl::plot(...)` threw an error with unexpected message.
+Expected match: ".*mapping.*|.*aesthetic.*"
+Actual message: "formal argument \"x\" matched by multiple actual arguments"
+Backtrace:
+     ▆
+  1. ├─testthat::expect_error(...) at test-error-handling-comprehensive.R:247:3
+  2. │ └─testthat:::quasi_capture(...)
+  3. │   ├─testthat (local) .capture(...)
+  4. │   │ └─base::withCallingHandlers(...)
+  5. │   └─rlang::eval_bare(quo_get_expr(.quo), quo_get_env(.quo))
+  6. └─nightowl::plot(...)
+  7.   └─nightowl::DeclarativePlot$new(...) at 43-fix-tests/R/legacy-plot.R:6:3
+  8.     └─nightowl (local) initialize(...)
+  9.       └─self$set_plot() at 43-fix-tests/R/plot.R:202:7
+ 10.         ├─private$memoized_plot_fn(cache_key) at 43-fix-tests/R/plot.R:293:7
+ 11.         │ ├─base::withVisible(eval(mc, parent.frame()))
+ 12.         │ └─base::eval(mc, parent.frame())
+ 13.         │   └─base::eval(mc, parent.frame())
+ 14.         └─nightowl (local) `<fn>`(cache_key = cache_key)
+ 15.           └─nightowl:::aes(mapping) at 43-fix-tests/R/plot.R:381:7
+ 16.             └─rlang::exec(.fn = "f", !!!aes) at 43-fix-tests/R/add_plots.R:365:3
+
+Failure ('test-error-handling-comprehensive.R:272:3'): SVG and HTML generation handles edge cases
+`nightowl::Plot$new(...)` did not produce any warnings.
+
+Failure ('test-error-handling-comprehensive.R:278:3'): SVG and HTML generation handles edge cases
+`nightowl::Plot$new(plot = p, options_svg = list(width = 0, height = 5))` did not throw an error.
+
+Failure ('test-error-handling-comprehensive.R:283:3'): SVG and HTML generation handles edge cases
+`nightowl::Plot$new(plot = p, options_svg = list(width = 5, height = -1))` did not throw an error.
+
+Failure ('test-error-handling-comprehensive.R:289:3'): SVG and HTML generation handles edge cases
+`nightowl::Plot$new(plot = p, options_svg = list(scaling = 0))` did not throw an error.
+
+Failure ('test-error-handling-comprehensive.R:294:3'): SVG and HTML generation handles edge cases
+`nightowl::Plot$new(plot = p, options_svg = list(scaling = "invalid"))` did not throw an error.
+
+Error ('test-error-handling-comprehensive.R:309:3'): survival functions handle edge cases in data
+<evalError/missingArgError/error/condition>
+Error: argument "covariates" is missing, with no default
+Backtrace:
+     ▆
+  1. ├─testthat::expect_warning(...) at test-error-handling-comprehensive.R:309:3
+  2. │ └─testthat:::quasi_capture(...)
+  3. │   ├─testthat (local) .capture(...)
+  4. │   │ └─base::withCallingHandlers(...)
+  5. │   └─rlang::eval_bare(quo_get_expr(.quo), quo_get_env(.quo))
+  6. ├─nightowl::fit_coxph(...)
+  7. │ └─... %>% dplyr::mutate_if(is.character, factor) at 43-fix-tests/R/coxph.R:437:3
+  8. ├─dplyr::mutate_if(., is.character, factor)
+  9. │ └─dplyr:::check_grouped(.tbl, "mutate", "if")
+ 10. │   └─dplyr::is_grouped_df(tbl)
+ 11. └─dplyr::select_at(., c(time, event, treatment, covariates, strata))
+ 12.   └─dplyr:::tbl_at_vars(.tbl, .vars, .include_group_vars = TRUE)
+
+Failure ('test-error-handling-comprehensive.R:376:3'): configuration functions validate settings appropriately
+`options$set_colors(c("not_a_color", "also_not_a_color"))` did not throw an error.
+
+Failure ('test-error-handling-comprehensive.R:381:3'): configuration functions validate settings appropriately
+`options$set_colors(c("#GGGGGG"))` did not throw an error.
+
+Failure ('test-error-handling-comprehensive.R:387:3'): configuration functions validate settings appropriately
+`options$set_header_width(-5)` did not throw an error.
+
+Failure ('test-error-handling-comprehensive.R:392:3'): configuration functions validate settings appropriately
+`options$set_header_width(1000)` did not throw an error.
+
+Failure ('test-error-handling-comprehensive.R:446:3'): multiple function calls handle error propagation correctly
+`{ ... }` threw an error with unexpected message.
+Expected match: ".*column.*|.*variable.*"
+Actual message: "`nonexistent_var` not present in data"
+Backtrace:
+     ▆
+  1. ├─testthat::expect_error(...) at test-error-handling-comprehensive.R:446:3
+  2. │ └─testthat:::quasi_capture(...)
+  3. │   ├─testthat (local) .capture(...)
+  4. │   │ └─base::withCallingHandlers(...)
+  5. │   └─rlang::eval_bare(quo_get_expr(.quo), quo_get_env(.quo))
+  6. └─nightowl::Summary$new(...) at test-error-handling-comprehensive.R:447:5
+  7.   └─nightowl (local) initialize(...)
+  8.     └─self$set_data(data) at 43-fix-tests/R/Summary.r:28:7
+  9.       └─self$check_variables() at 43-fix-tests/R/Summary.r:68:11
+ 10.         └─rlang::abort(msg) at 43-fix-tests/R/Summary.r:50:9
+
+Failure ('test-error-handling-comprehensive.R:464:3'): multiple function calls handle error propagation correctly
+`summary_obj$add_calculation(list(invalid = "not_a_function"))` did not throw an error.
+
+Failure ('test-error-handling-comprehensive.R:470:3'): multiple function calls handle error propagation correctly
+Expected `summary_obj$raw()` to run without any errors.
+ℹ Actually got a <purrr_error_indexed> with text:
+  ℹ In index: 1.
+  Caused by error in `dplyr::mutate()`:
+  ℹ In argument: `invalid = do.call(.y$calculation, c(list(x =
+    .thisgroup[[column]]), .y$params))`.
+  Caused by error in `not_a_function()`:
+  ! could not find function "not_a_function"
+────────────────────────────────────────────────────────────────────────────────
+Maximum number of failures exceeded; quitting at end of file.
+ℹ Increase this number with (e.g.) `testthat::set_max_fails(Inf)` 
+
+══ Results ═════════════════════════════════════════════════════════════════════
+Duration: 5.5 s
+
+── Skipped tests (1) ───────────────────────────────────────────────────────────
+• empty test (1): 'test-data.R:1:1'
+
+── Failed tests ────────────────────────────────────────────────────────────────
+Error ('test-coxph.R:23:3'): coxph works
+<purrr_error_indexed/rlang_error/error/condition>
+Error in `purrr::map(., function(.x) {
+    .p <- nightowl::add_inline_forestplot(x = .x$estimate, xmin = .x$conf.low, 
+        xmax = .x$conf.high, xlim = conf_range, xintercept = 1)
+    .x$Visualization <- .p
+    .x
+})`: ℹ In index: 1.
+Caused by error in `nightowl::add_inline_forestplot()`:
+! unused argument (xlim = conf_range)
+Backtrace:
+     ▆
+  1. ├─nightowl::plot_coxph(...) at test-coxph.R:23:3
+  2. │ └─... %>% dplyr::bind_rows() at 43-fix-tests/R/coxph.R:555:3
+  3. ├─dplyr::bind_rows(.)
+  4. │ └─rlang::list2(...)
+  5. ├─purrr::map(...)
+  6. │ └─purrr:::map_("list", .x, .f, ..., .progress = .progress)
+  7. │   ├─purrr:::with_indexed_errors(...)
+  8. │   │ └─base::withCallingHandlers(...)
+  9. │   ├─purrr:::call_with_cleanup(...)
+ 10. │   └─nightowl (local) .f(.x[[i]], ...)
+ 11. └─base::.handleSimpleError(...) at 43-fix-tests/R/coxph.R:559:7
+ 12.   └─purrr (local) h(simpleError(msg, call))
+ 13.     └─cli::cli_abort(...)
+ 14.       └─rlang::abort(...)
+
+Error ('test-cran-compliance.R:16:3'): package does not pollute global environment
+Error in `expect_length(new_objects, 0, info = paste("Package added objects to global environment:", 
+    paste(new_objects, collapse = ", ")))`: unused argument (info = paste("Package added objects to global environment:", paste(new_objects, collapse = ", ")))
+
+Error ('test-donut_plot.R:34:3'): donut_plot works
+<purrr_error_indexed/rlang_error/error/condition>
+Error in `purrr::pmap(params, function(data, column, label, options) {
+    if (is.numeric(data[[column]])) {
+        do.call(nightowl::make_donut_plot_numeric, c(list(data = data, 
+            column = column, split = split, label = label), options))
+    }
+    else {
+        do.call(nightowl::make_donut_plot_categorical, c(list(data = data, 
+            column = column, split = split, label = label), options))
+    }
+})`: ℹ In index: 2.
+Caused by error in `map2()`:
+ℹ In index: 1.
+ℹ With name: Biscoe.
+Caused by error in `colors[[.y]]`:
+! subscript out of bounds
+
+Failure ('test-error-handling-comprehensive.R:23:3'): functions handle invalid data types gracefully
+`nightowl::Summary$new(data = NULL, column = "var", group_by = "group")` did not throw an error.
+
+Failure ('test-error-handling-comprehensive.R:29:3'): functions handle invalid data types gracefully
+`nightowl::Summary$new(...)` threw an error with unexpected message.
+Expected match: ".*data.*"
+Actual message: "no applicable method for 'ungroup' applied to an object of class \"list\""
+Backtrace:
+     ▆
+  1. ├─testthat::expect_error(...) at test-error-handling-comprehensive.R:29:3
+  2. │ └─testthat:::quasi_capture(...)
+  3. │   ├─testthat (local) .capture(...)
+  4. │   │ └─base::withCallingHandlers(...)
+  5. │   └─rlang::eval_bare(quo_get_expr(.quo), quo_get_env(.quo))
+  6. ├─nightowl::Summary$new(...)
+  7. │ └─nightowl (local) initialize(...)
+  8. │   └─self$set_data(data) at 43-fix-tests/R/Summary.r:28:7
+  9. │     └─... %>% dplyr::group_by_at(self$group_by) at 43-fix-tests/R/Summary.r:72:11
+ 10. ├─dplyr::group_by_at(., self$group_by)
+ 11. │ └─dplyr:::manip_at(...)
+ 12. │   └─dplyr:::tbl_at_syms(...)
+ 13. │     └─dplyr:::tbl_at_vars(...)
+ 14. │       └─dplyr::tbl_vars(tbl)
+ 15. │         ├─dplyr:::new_sel_vars(tbl_vars_dispatch(x), group_vars(x))
+ 16. │         │ └─base::structure(...)
+ 17. │         └─dplyr:::tbl_vars_dispatch(x)
+ 18. ├─dplyr::mutate_if(., is.factor, nightowl_fct_na_value_to_level)
+ 19. │ └─dplyr:::check_grouped(.tbl, "mutate", "if")
+ 20. │   └─dplyr::is_grouped_df(tbl)
+ 21. ├─dplyr::mutate_if(., is.character, factor)
+ 22. │ └─dplyr:::check_grouped(.tbl, "mutate", "if")
+ 23. │   └─dplyr::is_grouped_df(tbl)
+ 24. ├─dplyr::select_at(., c(unname(unlist(self$get_variables()))))
+ 25. │ └─dplyr:::tbl_at_vars(.tbl, .vars, .include_group_vars = TRUE)
+ 26. │   └─dplyr::tbl_vars(tbl)
+ 27. │     ├─dplyr:::new_sel_vars(tbl_vars_dispatch(x), group_vars(x))
+ 28. │     │ └─base::structure(...)
+ 29. │     └─dplyr:::tbl_vars_dispatch(x)
+ 30. └─dplyr::ungroup(.)
+
+Failure ('test-error-handling-comprehensive.R:36:3'): functions handle invalid data types gracefully
+`nightowl::Summary$new(data = empty_data, column = "var", group_by = "group")` threw an error with unexpected message.
+Expected match: ".*empty.*|.*column.*"
+Actual message: "`var` not present in data\n• `group` not present in data"
+Backtrace:
+     ▆
+  1. ├─testthat::expect_error(...) at test-error-handling-comprehensive.R:36:3
+  2. │ └─testthat:::quasi_capture(...)
+  3. │   ├─testthat (local) .capture(...)
+  4. │   │ └─base::withCallingHandlers(...)
+  5. │   └─rlang::eval_bare(quo_get_expr(.quo), quo_get_env(.quo))
+  6. └─nightowl::Summary$new(data = empty_data, column = "var", group_by = "group")
+  7.   └─nightowl (local) initialize(...)
+  8.     └─self$set_data(data) at 43-fix-tests/R/Summary.r:28:7
+  9.       └─self$check_variables() at 43-fix-tests/R/Summary.r:68:11
+ 10.         └─rlang::abort(msg) at 43-fix-tests/R/Summary.r:50:9
+
+Failure ('test-error-handling-comprehensive.R:43:3'): functions handle invalid data types gracefully
+`nightowl::Summary$new(data = single_row, column = "x", group_by = "y")` did not produce any warnings.
+
+Failure ('test-error-handling-comprehensive.R:53:3'): functions validate column names and handle non-existent columns
+`nightowl::Summary$new(...)` threw an error with unexpected message.
+Expected match: ".*column.*|.*variable.*"
+Actual message: "`nonexistent` not present in data"
+Backtrace:
+     ▆
+  1. ├─testthat::expect_error(...) at test-error-handling-comprehensive.R:53:3
+  2. │ └─testthat:::quasi_capture(...)
+  3. │   ├─testthat (local) .capture(...)
+  4. │   │ └─base::withCallingHandlers(...)
+  5. │   └─rlang::eval_bare(quo_get_expr(.quo), quo_get_env(.quo))
+  6. └─nightowl::Summary$new(...)
+  7.   └─nightowl (local) initialize(...)
+  8.     └─self$set_data(data) at 43-fix-tests/R/Summary.r:28:7
+  9.       └─self$check_variables() at 43-fix-tests/R/Summary.r:68:11
+ 10.         └─rlang::abort(msg) at 43-fix-tests/R/Summary.r:50:9
+
+Failure ('test-error-handling-comprehensive.R:58:3'): functions validate column names and handle non-existent columns
+`nightowl::Summary$new(...)` threw an error with unexpected message.
+Expected match: ".*column.*|.*variable.*"
+Actual message: "`nonexistent` not present in data"
+Backtrace:
+     ▆
+  1. ├─testthat::expect_error(...) at test-error-handling-comprehensive.R:58:3
+  2. │ └─testthat:::quasi_capture(...)
+  3. │   ├─testthat (local) .capture(...)
+  4. │   │ └─base::withCallingHandlers(...)
+  5. │   └─rlang::eval_bare(quo_get_expr(.quo), quo_get_env(.quo))
+  6. └─nightowl::Summary$new(...)
+  7.   └─nightowl (local) initialize(...)
+  8.     └─self$set_data(data) at 43-fix-tests/R/Summary.r:28:7
+  9.       └─self$check_variables() at 43-fix-tests/R/Summary.r:68:11
+ 10.         └─rlang::abort(msg) at 43-fix-tests/R/Summary.r:50:9
+
+Failure ('test-error-handling-comprehensive.R:64:3'): functions validate column names and handle non-existent columns
+`nightowl::Summary$new(data = test_data, column = "", group_by = "categorical_var")` threw an error with unexpected message.
+Expected match: ".*column.*|.*name.*"
+Actual message: "`` not present in data"
+Backtrace:
+     ▆
+  1. ├─testthat::expect_error(...) at test-error-handling-comprehensive.R:64:3
+  2. │ └─testthat:::quasi_capture(...)
+  3. │   ├─testthat (local) .capture(...)
+  4. │   │ └─base::withCallingHandlers(...)
+  5. │   └─rlang::eval_bare(quo_get_expr(.quo), quo_get_env(.quo))
+  6. └─nightowl::Summary$new(data = test_data, column = "", group_by = "categorical_var")
+  7.   └─nightowl (local) initialize(...)
+  8.     └─self$set_data(data) at 43-fix-tests/R/Summary.r:28:7
+  9.       └─self$check_variables() at 43-fix-tests/R/Summary.r:68:11
+ 10.         └─rlang::abort(msg) at 43-fix-tests/R/Summary.r:50:9
+
+Failure ('test-error-handling-comprehensive.R:84:3'): functions handle special column names correctly
+Expected `nightowl::Summary$new(...)` to run without any errors.
+ℹ Actually got a <rlang_error> with text:
+  `categorical_var` not present in data
+
+Failure ('test-error-handling-comprehensive.R:94:5'): functions handle special column names correctly
+Expected `nightowl::Summary$new(...)` to run without any errors.
+ℹ Actually got a <rlang_error> with text:
+  ``var with spaces`` not present in data
+  • `categorical_var` not present in data
+
+Failure ('test-error-handling-comprehensive.R:112:3'): functions handle missing data appropriately
+`nightowl::Summary$new(...)` did not produce any warnings.
+
+Failure ('test-error-handling-comprehensive.R:125:3'): functions handle missing data appropriately
+`nightowl::Summary$new(...)` did not produce any warnings.
+
+Failure ('test-error-handling-comprehensive.R:156:3'): functions handle extreme numeric values correctly
+`nightowl::Summary$new(...)` did not produce any warnings.
+
+Error ('test-error-handling-comprehensive.R:192:3'): functions handle type mismatches appropriately
+<tibble_error_incompatible_size/tibble_error/rlang_error/error/condition>
+Error in `tibble::tibble(id = 1:n, numeric_var = rnorm(n), categorical_var = sample(c("A", 
+    "B", "C"), n, replace = TRUE), time_var = sample(1:100, n, 
+    replace = TRUE), event_var = sample(c(0, 1), n, replace = TRUE), 
+    missing_data = c(rep(NA, n/2), rnorm(n/2)), extreme_values = c(rep(Inf, 
+        2), rep(-Inf, 2), rnorm(n - 4)), special_chars = paste0("var_", 
+        sample(letters, n, replace = TRUE)))`: Tibble columns must have compatible sizes.
+• Size 25: Existing data.
+• Size 24: Column `missing_data`.
+ℹ Only values of size one are recycled.
+Backtrace:
+    ▆
+ 1. └─nightowl (local) create_test_data(25) at test-error-handling-comprehensive.R:192:3
+ 2.   └─tibble::tibble(...) at test-error-handling-comprehensive.R:8:3
+ 3.     └─tibble:::tibble_quos(xs, .rows, .name_repair)
+ 4.       └─tibble:::vectbl_recycle_rows(...)
+ 5.         └─tibble:::abort_incompatible_size(...)
+ 6.           └─tibble:::tibble_abort(...)
+ 7.             └─rlang::abort(x, class, ..., call = call, parent = parent, use_cli_format = TRUE)
+
+Failure ('test-error-handling-comprehensive.R:247:3'): plot functions handle invalid plot specifications
+`nightowl::plot(...)` threw an error with unexpected message.
+Expected match: ".*mapping.*|.*aesthetic.*"
+Actual message: "formal argument \"x\" matched by multiple actual arguments"
+Backtrace:
+     ▆
+  1. ├─testthat::expect_error(...) at test-error-handling-comprehensive.R:247:3
+  2. │ └─testthat:::quasi_capture(...)
+  3. │   ├─testthat (local) .capture(...)
+  4. │   │ └─base::withCallingHandlers(...)
+  5. │   └─rlang::eval_bare(quo_get_expr(.quo), quo_get_env(.quo))
+  6. └─nightowl::plot(...)
+  7.   └─nightowl::DeclarativePlot$new(...) at 43-fix-tests/R/legacy-plot.R:6:3
+  8.     └─nightowl (local) initialize(...)
+  9.       └─self$set_plot() at 43-fix-tests/R/plot.R:202:7
+ 10.         ├─private$memoized_plot_fn(cache_key) at 43-fix-tests/R/plot.R:293:7
+ 11.         │ ├─base::withVisible(eval(mc, parent.frame()))
+ 12.         │ └─base::eval(mc, parent.frame())
+ 13.         │   └─base::eval(mc, parent.frame())
+ 14.         └─nightowl (local) `<fn>`(cache_key = cache_key)
+ 15.           └─nightowl:::aes(mapping) at 43-fix-tests/R/plot.R:381:7
+ 16.             └─rlang::exec(.fn = "f", !!!aes) at 43-fix-tests/R/add_plots.R:365:3
+
+Failure ('test-error-handling-comprehensive.R:272:3'): SVG and HTML generation handles edge cases
+`nightowl::Plot$new(...)` did not produce any warnings.
+
+Failure ('test-error-handling-comprehensive.R:278:3'): SVG and HTML generation handles edge cases
+`nightowl::Plot$new(plot = p, options_svg = list(width = 0, height = 5))` did not throw an error.
+
+Failure ('test-error-handling-comprehensive.R:283:3'): SVG and HTML generation handles edge cases
+`nightowl::Plot$new(plot = p, options_svg = list(width = 5, height = -1))` did not throw an error.
+
+Failure ('test-error-handling-comprehensive.R:289:3'): SVG and HTML generation handles edge cases
+`nightowl::Plot$new(plot = p, options_svg = list(scaling = 0))` did not throw an error.
+
+Failure ('test-error-handling-comprehensive.R:294:3'): SVG and HTML generation handles edge cases
+`nightowl::Plot$new(plot = p, options_svg = list(scaling = "invalid"))` did not throw an error.
+
+Error ('test-error-handling-comprehensive.R:309:3'): survival functions handle edge cases in data
+<evalError/missingArgError/error/condition>
+Error: argument "covariates" is missing, with no default
+Backtrace:
+     ▆
+  1. ├─testthat::expect_warning(...) at test-error-handling-comprehensive.R:309:3
+  2. │ └─testthat:::quasi_capture(...)
+  3. │   ├─testthat (local) .capture(...)
+  4. │   │ └─base::withCallingHandlers(...)
+  5. │   └─rlang::eval_bare(quo_get_expr(.quo), quo_get_env(.quo))
+  6. ├─nightowl::fit_coxph(...)
+  7. │ └─... %>% dplyr::mutate_if(is.character, factor) at 43-fix-tests/R/coxph.R:437:3
+  8. ├─dplyr::mutate_if(., is.character, factor)
+  9. │ └─dplyr:::check_grouped(.tbl, "mutate", "if")
+ 10. │   └─dplyr::is_grouped_df(tbl)
+ 11. └─dplyr::select_at(., c(time, event, treatment, covariates, strata))
+ 12.   └─dplyr:::tbl_at_vars(.tbl, .vars, .include_group_vars = TRUE)
+
+Failure ('test-error-handling-comprehensive.R:376:3'): configuration functions validate settings appropriately
+`options$set_colors(c("not_a_color", "also_not_a_color"))` did not throw an error.
+
+Failure ('test-error-handling-comprehensive.R:381:3'): configuration functions validate settings appropriately
+`options$set_colors(c("#GGGGGG"))` did not throw an error.
+
+Failure ('test-error-handling-comprehensive.R:387:3'): configuration functions validate settings appropriately
+`options$set_header_width(-5)` did not throw an error.
+
+Failure ('test-error-handling-comprehensive.R:392:3'): configuration functions validate settings appropriately
+`options$set_header_width(1000)` did not throw an error.
+
+Failure ('test-error-handling-comprehensive.R:446:3'): multiple function calls handle error propagation correctly
+`{ ... }` threw an error with unexpected message.
+Expected match: ".*column.*|.*variable.*"
+Actual message: "`nonexistent_var` not present in data"
+Backtrace:
+     ▆
+  1. ├─testthat::expect_error(...) at test-error-handling-comprehensive.R:446:3
+  2. │ └─testthat:::quasi_capture(...)
+  3. │   ├─testthat (local) .capture(...)
+  4. │   │ └─base::withCallingHandlers(...)
+  5. │   └─rlang::eval_bare(quo_get_expr(.quo), quo_get_env(.quo))
+  6. └─nightowl::Summary$new(...) at test-error-handling-comprehensive.R:447:5
+  7.   └─nightowl (local) initialize(...)
+  8.     └─self$set_data(data) at 43-fix-tests/R/Summary.r:28:7
+  9.       └─self$check_variables() at 43-fix-tests/R/Summary.r:68:11
+ 10.         └─rlang::abort(msg) at 43-fix-tests/R/Summary.r:50:9
+
+Failure ('test-error-handling-comprehensive.R:464:3'): multiple function calls handle error propagation correctly
+`summary_obj$add_calculation(list(invalid = "not_a_function"))` did not throw an error.
+
+Failure ('test-error-handling-comprehensive.R:470:3'): multiple function calls handle error propagation correctly
+Expected `summary_obj$raw()` to run without any errors.
+ℹ Actually got a <purrr_error_indexed> with text:
+  ℹ In index: 1.
+  Caused by error in `dplyr::mutate()`:
+  ℹ In argument: `invalid = do.call(.y$calculation, c(list(x =
+    .thisgroup[[column]]), .y$params))`.
+  Caused by error in `not_a_function()`:
+  ! could not find function "not_a_function"
+
+[ FAIL 30 | WARN 23 | SKIP 1 | PASS 16 ]
+══ Terminated early ════════════════════════════════════════════════════════════
+> 
