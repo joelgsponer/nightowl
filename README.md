@@ -4,9 +4,20 @@
 [![R-CMD-check](https://github.com/joelgsponer/nightowl/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/joelgsponer/nightowl/actions/workflows/R-CMD-check.yaml)
 [![Codecov test coverage](https://codecov.io/gh/joelgsponer/nightowl/branch/dev/graph/badge.svg)](https://app.codecov.io/gh/joelgsponer/nightowl?branch=dev)
 [![Security Scan Status](https://github.com/joelgsponer/nightowl/actions/workflows/security-scan.yaml/badge.svg)](https://github.com/joelgsponer/nightowl/actions/workflows/security-scan.yaml)
+[![pkgdown](https://github.com/joelgsponer/nightowl/actions/workflows/pkgdown.yml/badge.svg)](https://github.com/joelgsponer/nightowl/actions/workflows/pkgdown.yml)
 <!-- badges: end -->
 
 Statistical visualization and analysis for clinical research applications.
+
+## Documentation
+
+Complete documentation is available at: **https://joelgsponer.github.io/nightowl/**
+
+The documentation site includes:
+- **Function reference** with examples and usage details
+- **Getting started guide** for new users
+- **Statistical summaries** and analysis workflows  
+- **Survival analysis** tutorials and examples
 
 ## Installation
 
