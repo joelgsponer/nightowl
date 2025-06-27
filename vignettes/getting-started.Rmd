@@ -1,0 +1,85 @@
+---
+title: "Getting Started with nightowl"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Getting Started with nightowl}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  eval = FALSE  # Set to FALSE to avoid dependency issues during pkgdown build
+)
+```
+
+```{r setup}
+library(nightowl)
+```
+
+# Introduction
+
+**nightowl** is a comprehensive R package for statistical visualization and analysis, specifically designed for clinical research applications. It provides a declarative plotting system built on ggplot2 with R6 classes, survival analysis capabilities, and interactive visualizations.
+
+## Key Features
+
+- **Declarative Plotting System**: R6-based classes for consistent, reproducible visualizations
+- **Survival Analysis**: Kaplan-Meier curves and Cox proportional hazards modeling  
+- **Interactive Elements**: SVG rendering with hover effects and reactable tables
+- **Statistical Summaries**: Built-in statistical tests and summary functions
+- **Clinical Focus**: Designed specifically for clinical research workflows
+
+## Installation
+
+```{r}
+# Install from GitHub
+remotes::install_github("joelgsponer/nightowl")
+```
+
+## Basic Usage
+
+### Creating Plots
+
+The core plotting functionality uses the `Plot` R6 class:
+
+```{r}
+# Create a basic plot
+p <- Plot$new(data = mtcars)
+p$add_scatter(x = "wt", y = "mpg")
+p$output()
+```
+
+### Statistical Summaries
+
+Generate statistical summaries with the `Summary` class:
+
+```{r}
+# Create a summary table
+summary <- Summary$new(data = mtcars, column = "mpg", method = summarise_numeric_pointrange)
+summary$reactable()
+```
+
+### Survival Analysis
+
+Perform survival analysis with the `Coxph` class:
+
+```{r}
+# Cox proportional hazards model
+cox_model <- Coxph$new(data = survival_data)
+cox_model$add_variable("treatment")
+cox_model$output()
+```
+
+## Next Steps
+
+- Explore the [Statistical Summaries](statistical-summaries.html) guide for detailed analysis workflows
+- Learn about [Survival Analysis](survival-analysis.html) capabilities
+- Browse the [Function Reference](../reference/index.html) for complete API documentation
+
+## Getting Help
+
+- **Documentation**: Complete function reference at https://joelgsponer.github.io/nightowl/
+- **Issues**: Report bugs at https://github.com/joelgsponer/nightowl/issues
+- **Security**: Review security policy at `inst/SECURITY.md`

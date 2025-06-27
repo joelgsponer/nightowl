@@ -50,3 +50,4 @@ Suggests:
     knitr,
     pkgdown,
     rmarkdown
+VignetteBuilder: knitr

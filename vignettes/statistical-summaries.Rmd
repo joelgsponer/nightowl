@@ -1,0 +1,179 @@
+---
+title: "Statistical Summaries and Analysis"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Statistical Summaries and Analysis}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  eval = FALSE  # Set to FALSE to avoid dependency issues during pkgdown build
+)
+```
+
+```{r setup}
+library(nightowl)
+library(dplyr)
+```
+
+# Statistical Summaries
+
+The nightowl package provides a comprehensive suite of statistical summary functions designed for clinical research applications. These functions follow a consistent API pattern and integrate seamlessly with the plotting system.
+
+## Summary Function Family
+
+The `summarise_*` family of functions provides modular statistical summaries:
+
+### Numeric Summaries
+
+```{r}
+# Point range summaries (mean ± CI)
+summarise_numeric_pointrange(mtcars, "mpg", group_by = "cyl")
+
+# Forest plot summaries
+summarise_numeric_forestplot(mtcars, "mpg", group_by = "am")
+
+# Histogram summaries
+summarise_numeric_histogram(mtcars, "mpg", group_by = "vs")
+
+# Violin plot summaries  
+summarise_numeric_violin(mtcars, "mpg", group_by = "gear")
+```
+
+### Categorical Summaries
+
+```{r}
+# Frequency tables
+summarise_categorical(mtcars, "cyl", group_by = "am")
+
+# Bar plot summaries
+summarise_categorical_barplot(mtcars, "cyl", group_by = "vs")
+```
+
+## Summary Class
+
+The `Summary` R6 class provides an object-oriented interface to statistical summaries:
+
+```{r}
+# Create a summary object
+summary <- Summary$new(
+  data = mtcars, 
+  column = "mpg", 
+  method = summarise_numeric_pointrange
+)
+
+# Generate interactive table
+summary$reactable()
+
+# Get raw summary data
+summary$data
+```
+
+## Statistical Tests
+
+Built-in statistical testing with automatic method selection:
+
+```{r}
+# Chi-square analysis for grouped data
+grouped_chisq(data = mtcars, x = "cyl", y = "am", group_by = "vs")
+
+# Automatic test selection
+calc_test(mtcars, "mpg", group_by = "cyl")  # ANOVA for numeric
+calc_test(mtcars, "cyl", group_by = "am")   # Chi-square for categorical
+```
+
+## Advanced Workflows
+
+### Arranging Multiple Summaries
+
+```{r}
+# Create multiple summaries
+summaries <- list(
+  summarise_numeric_pointrange(mtcars, "mpg", group_by = "cyl"),
+  summarise_categorical(mtcars, "am", group_by = "cyl"),
+  summarise_numeric_violin(mtcars, "hp", group_by = "cyl")
+)
+
+# Arrange in a structured layout
+arrange_summaries(summaries, ncol = 2)
+```
+
+### Custom Summary Methods
+
+```{r}
+# Define custom summary function
+custom_summary <- function(data, column, ...) {
+  data %>%
+    group_by(...) %>%
+    summarise(
+      n = n(),
+      median = median(.data[[column]], na.rm = TRUE),
+      iqr = IQR(.data[[column]], na.rm = TRUE),
+      .groups = "drop"
+    )
+}
+
+# Use with Summary class
+Summary$new(data = mtcars, column = "mpg", method = custom_summary)
+```
+
+## Integration with Plotting
+
+Statistical summaries integrate seamlessly with the plotting system:
+
+```{r}
+# Create plot with statistical overlay
+p <- Plot$new(data = mtcars)
+p$add_violin(x = "factor(cyl)", y = "mpg")
+p$add_summary(method = summarise_numeric_pointrange, group_by = "cyl")
+p$output()
+```
+
+## Clinical Research Applications
+
+### Treatment Effect Analysis
+
+```{r}
+# Compare treatment groups
+treatment_summary <- summarise_numeric_forestplot(
+  data = clinical_data,
+  column = "response", 
+  group_by = "treatment",
+  reference = "control"
+)
+
+# Generate forest plot
+Plot$new(treatment_summary)$add_forestplot()$output()
+```
+
+### Biomarker Analysis
+
+```{r}
+# Analyze biomarker distributions
+biomarker_summary <- summarise_numeric_violin(
+  data = biomarker_data,
+  column = "biomarker_level",
+  group_by = c("treatment", "timepoint")
+)
+
+# Create grouped visualization
+Summary$new(biomarker_summary)$reactable()
+```
+
+## Best Practices
+
+1. **Consistent Grouping**: Use consistent grouping variables across analyses
+2. **Method Selection**: Choose appropriate summary methods for data types
+3. **Statistical Testing**: Always include appropriate statistical tests
+4. **Visualization**: Combine summaries with plots for comprehensive analysis
+5. **Documentation**: Document custom summary methods for reproducibility
+
+## See Also
+
+- [Getting Started](getting-started.html) for basic usage
+- [Survival Analysis](survival-analysis.html) for time-to-event analysis
+- [Function Reference](../reference/index.html) for complete API documentation
