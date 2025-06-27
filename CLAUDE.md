@@ -1,87 +1,102 @@
 # CLAUDE.md
 
-ALWAYS use package::function notation, e.g. ggplot2::ggplot() not ggplot() 
+ALWAYS use package::function notation, e.g. ggplot2::ggplot() not ggplot(), including the package itself e.g. nightowl::some_function instead of some_function
+The package is called nightowl
+The github repo has a project associated "nightowl" with columns:
+Backlog
+Ready
+In progress
+In review
+Done
+When working with github issues make sure to add them to the project in the correct column.
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-## Package Overview
+## Project Overview
 
-The `nightowl` package is an R statistical visualization and data summary package that provides a declarative approach to creating plots and tables. It focuses on survival analysis, comprehensive data summarization, and statistical testing with extensive plotting capabilities.
+`nightowl` is an R package for statistical visualization and analysis, focused on clinical research applications. It provides a declarative plotting system built on ggplot2 with R6 classes, survival analysis capabilities, and interactive visualizations.
+
+## Core Architecture
+
+### R6 Class System
+The package is built around three main R6 classes:
+- **Plot**: Main plotting class in `R/plot.R` with SVG rendering, HTML output, and options management
+- **Summary**: Statistical summaries in `R/Summary.r` with data aggregation and table generation  
+- **Coxph**: Cox proportional hazards modeling in `R/coxph.R` for survival analysis
+
+### Key Components
+- **Plotting**: Declarative plotting system with layers and customizable styling via YAML files in `inst/styles/`
+- **Statistical Analysis**: Built-in statistical tests and summary functions (`summarise_*` family in `R/summaries.R`)
+- **Survival Analysis**: Kaplan-Meier curves and Cox regression with forest plots
+- **Interactive Elements**: SVG rendering with hover effects and reactable tables
+- **Inline Plots**: Specialized mini-plots for embedding in tables (`R/inline_plots.R`)
 
 ## Development Commands
 
-### Build and Installation
-- `make build` - Complete build pipeline: commits changes, generates documentation, styles code, builds pkgdown site, and installs package
-- `make install` - Simple build and install
-- `devtools::document()` - Generate documentation from roxygen comments
-- `styler::style_dir("R")` - Format R code according to tidyverse style
-- `pkgdown::build_site()` - Build documentation website
+### Testing
+```r
+# Run all tests
+devtools::test()
+
+# Run specific test file
+devtools::test(filter = "test-plot")
+
+# Check package
+devtools::check()
+```
+
+### Building and Documentation
+```r
+# Install package
+devtools::install()
+
+# Update documentation
+devtools::document()
+
+# Build pkgdown site
+pkgdown::build_site()
+```
+
+## File Structure
+
+### Core R Files
+- `R/plot.R` - Main Plot R6 class with SVG/HTML rendering capabilities
+- `R/Summary.r` - Summary R6 class for statistical summaries and table generation
+- `R/coxph.R` - Coxph R6 class for survival analysis
+- `R/summaries.R` - Summary functions (`summarise`, `summarise_*` family)
+- `R/inline_plots.R` - Inline plotting functions for embedding in tables
+- `R/km.R` - Kaplan-Meier survival curve functions
+- `R/forest.R` - Forest plot implementations
+- `R/grouped_chisq.R` - Chi-square test analysis functions
+
+### Configuration and Assets
+- `inst/styles/` - YAML configuration files for plot styling and templates
+- `inst/assets/` - JavaScript libraries (D3, ggiraph) and CSS for interactive elements
+- `inst/testapp/` - Shiny test application
 
 ### Testing
-- `testthat::test_dir("tests/testthat")` - Run all tests
-- `testthat::test_file("tests/testthat/test-<name>.R")` - Run specific test file
-- `devtools::test()` - Run package tests via devtools
+- Tests use `testthat` framework in `tests/testthat/`
+- Comprehensive test coverage including survival analysis, plotting, and statistical functions
 
-## Architecture Overview
+## Dependencies
 
-### Core R6 Classes
-The package uses R6 object-oriented programming with two main classes:
-- `Plot` (`plot.R:1-200+`) - Base plotting class with layered architecture
-- `DeclarativePlot` (`plot.R:200+`) - High-level declarative plotting interface
-- `.NightowlOptions` (`options.R`) - Global configuration singleton initialized in `zzz.R`
+Core dependencies include:
+- **Visualization**: ggplot2, ggpubr, ggdist, GGally
+- **Data**: dplyr, purrr, magrittr, tibble
+- **Statistics**: survival, Hmisc
+- **Interactive**: reactable, ggiraph
+- **Utilities**: stringr, uuid, vctrs
 
-### Key Modules by Function
+## Key Design Patterns
 
-**Plotting System:**
-- `plot.R` - Core R6 plotting classes and layer system
-- `add_plots.R` - Plot type implementations (barplot, violin, histogram, etc.)
-- `styles.R` - YAML-based styling system with 11 built-in templates in `inst/styles/`
-- `donut_plot.R`, `forest.R`, `inline_plots.R` - Specialized plot types
+### Method Chaining
+The R6 classes support method chaining for fluent interfaces:
+```r
+Summary$new(data, "column", method = summarise_numeric_pointrange)$reactable()
+```
 
-**Statistical Analysis:**
-- `summaries.R` - Comprehensive data summarization with integrated plotting
-- `survival.R`, `km.R`, `coxph.R` - Survival analysis and Kaplan-Meier functionality
-- `grouped_chisq.R`, `tests.R`, `ci.R` - Statistical testing and confidence intervals
+### YAML-Driven Styling
+Plot styles are defined in YAML files in `inst/styles/`, allowing declarative configuration of plot appearance and behavior.
 
-**Data Processing:**
-- `data.R` - Core data manipulation (outlier detection, counting)
-- `transformations.R`, `percentage.R` - Data transformation utilities
-- `correlation_matrix.R` - Correlation analysis
-
-### Styling System
-The package uses a YAML-based declarative styling approach:
-- Style templates located in `inst/styles/` directory
-- Styles define color palettes, themes, and plot aesthetics
-- Accessible via the global options system
-
-### Testing Structure
-Uses `testthat` framework with comprehensive coverage:
-- 20+ test files covering all major functionality
-- Tests organized by module (e.g., `test-coxph.R`, `test-donut_plot.R`)
-- Integration tests for plotting and statistical functions
-
-## Dependencies and Integration
-
-The package heavily integrates with:
-- **ggplot2 ecosystem** for core visualization
-- **tidyverse** (dplyr, purrr) for data manipulation and functional programming
-- **Specialized packages**: `ggdist`, `GGally`, `reactable` for enhanced visualizations
-- **Statistical packages**: `Hmisc` for statistical functions
-
-## Development Patterns
-
-### Functional Programming
-- Extensive use of `purrr` for functional operations
-- Pipeline-based data transformations using `%>%`
-- Template-based summarization system
-
-### Declarative Design
-- YAML configuration for styling
-- Mapping-driven data visualization
-- Layer-based plot construction similar to ggplot2
-
-### Modular Architecture
-- Separation of concerns across focused modules
-- Plugin-style layer system for extending plots
-- Extensible styling framework via YAML templates
-
+### Modular Summary Functions
+The `summarise_*` family of functions provides modular statistical summaries that can be combined and customized.
