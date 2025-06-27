@@ -33,6 +33,7 @@ Imports:
     reactablefmtr,
     rtables,
     stringr,
+    survival,
     testthat,
     tibble,
     uuid,
