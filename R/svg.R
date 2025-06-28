@@ -1,10 +1,17 @@
 # =================================================
-#' @title
-#' MISSING_TITLE
+#' @title Render Interactive SVG Plot with ggiraph
 #' @description
-#' @detail
-#' @param
-#' @return
+#' Creates an interactive SVG plot using ggiraph with customizable options for width,
+#' height, and styling. Supports both code evaluation and direct ggplot object rendering.
+#' @param code R code to evaluate for plot generation (alternative to ggobj)
+#' @param ggobj A ggplot2 object to render (alternative to code)
+#' @param pointsize Numeric value for text size in points (default: 12)
+#' @param width_svg Width of the SVG in inches (default: 6)
+#' @param height_svg Height of the SVG in inches (default: 5) 
+#' @param options List of additional options passed to ggiraph
+#' @param fix_rect Logical indicating whether to fix rect elements in SVG (default: TRUE)
+#' @param ... Additional arguments passed to ggiraph::dsvg()
+#' @return HTML object containing the rendered interactive SVG plot
 #' @export
 render_girafe <- function(code, ggobj = NULL, pointsize = 12,
                           width_svg = NULL, height_svg = NULL,
@@ -123,8 +130,13 @@ render_svg <- function(g,
   )
 }
 # =================================================
-#' @title
-#' MISSING_TITLE
+#' @title Add Download Button to SVG Plot
+#' @description
+#' Adds a clickable download button to an SVG plot that allows users to save
+#' the plot as an SVG file. The button includes JavaScript functionality for
+#' client-side file download.
+#' @param x HTML object containing an SVG plot
+#' @return HTML div element containing the original plot with added download functionality
 #' @export
 add_download_button <- function(x) {
   shiny::div(
@@ -161,8 +173,12 @@ add_download_button <- function(x) {
   )
 }
 # =================================================
-#' @title
-#' MISSING_TITLE
+#' @title Create New NightowlPlots Vector
+#' @description
+#' Constructor function for creating a new NightowlPlots vector class that can
+#' hold multiple plot objects with specialized printing and formatting methods.
+#' @param ... Plot objects to include in the NightowlPlots vector
+#' @return A NightowlPlots vector containing the provided plot objects
 #' @export
 new_NightowlPlots <- function(...) {
   x <- list(...)
@@ -170,200 +186,204 @@ new_NightowlPlots <- function(...) {
   vctrs::new_vctr(x, class = "NightowlPlots")
 }
 # =================================================
-#' @title
-#' MISSING_TITLE
+#' @title Check if Object is NightowlPlots
 #' @description
-#' @detail
-#' @param
-#' @return
+#' Tests whether an object inherits from the NightowlPlots or NghtwlPl class.
+#' @param x Object to test
+#' @return Logical value indicating whether the object is a NightowlPlots instance
 #' @export
 is_NightowlPlots <- function(x) {
   inherits(x, "NightowlPlots") || inherits(x, "NghtwlPl")
 }
 # =================================================
-#' @title
-#' MISSING_TITLE
+#' @title Format Method for NightowlPlots
 #' @description
-#' @detail
-#' @param
-#' @return
+#' Applies the format method to each plot object within a NightowlPlots vector,
+#' returning a list of formatted representations.
+#' @param x A NightowlPlots object
+#' @return List containing formatted representations of each plot
 #' @export
 format.NightowlPlots <- function(x) {
   purrr::map(x, ~ .x$format())
 }
 # =================================================
-#' @title
-#' MISSING_TITLE
+#' @title Convert Object to HTML
 #' @description
-#' @detail
-#' @param
-#' @return
+#' Generic function for converting objects to HTML representation.
+#' Methods are defined for specific classes like NightowlPlots.
+#' @param x Object to convert to HTML
+#' @return HTML representation of the object
 #' @export
 as_html <- function(x) {
   UseMethod("as_html")
 }
 # =================================================
-#' @title
-#' MISSING_TITLE
+#' @title Convert NightowlPlots to HTML
 #' @description
-#' @detail
-#' @param
-#' @return
+#' Converts each plot in a NightowlPlots vector to its HTML representation
+#' by calling the html() method on each plot object.
+#' @param x A NightowlPlots object
+#' @return List containing HTML representations of each plot
 #' @export
 as_html.NightowlPlots <- function(x) {
   purrr::map(x, ~ .x$html())
 }
 # =================================================
-#' @title
-#' MISSING_TITLE
+#' @title Convert NightowlPlots to JSON
 #' @description
-#' @detail
-#' @param
-#' @return
+#' Converts each plot in a NightowlPlots vector to JSON format by first
+#' converting to HTML and then serializing with jsonlite.
+#' @param x A NightowlPlots object
+#' @return List containing JSON representations of each plot
 #' @export
 asJSON.NightowlPlots <- function(x) {
   purrr::map(x, ~ jsonlite:::asJSON(.x$html()))
 }
 # =================================================
-#' @title
-#' MISSING_TITLE
+#' @title Extract ggplot Objects
 #' @description
-#' @detail
-#' @param
-#' @return
+#' Generic function for extracting ggplot2 objects from specialized plot classes.
+#' Methods are defined for specific classes like NightowlPlots.
+#' @param x Object containing ggplot objects
+#' @return ggplot2 object(s) extracted from the input
 #' @export
 as_ggplot <- function(x) {
   UseMethod("as_ggplot")
 }
 # =================================================
-#' @title
-#' MISSING_TITLE
+#' @title Extract ggplot Objects from NightowlPlots
 #' @description
-#' @detail
-#' @param
-#' @return
+#' Extracts the underlying ggplot2 objects from each plot in a NightowlPlots vector
+#' by accessing the plot field of each object.
+#' @param x A NightowlPlots object
+#' @return List containing ggplot2 objects from each plot
 #' @export
 as_ggplot.NightowlPlots <- function(x) {
   purrr::map(x, ~ .x$plot)
 }
 # =================================================
-#' @title
-#' MISSING_TITLE
+#' @title Print Method for NightowlPlots
 #' @description
-#' @detail
-#' @param
-#' @return
+#' Prints each plot in a NightowlPlots vector by calling the print method
+#' on each individual plot object.
+#' @param x A NightowlPlots object
+#' @param browser Logical indicating whether to display in browser (default: TRUE)
+#' @return Invisibly returns the input object after printing
 #' @export
 print.NightowlPlots <- function(x, browser = T) {
   purrr::map(x, ~ .x$print())
 }
 # =================================================
-#' @title
-#' MISSING_TITLE
+#' @title Vector Type Abbreviation for NightowlPlots
 #' @description
-#' @detail
-#' @param
-#' @return
+#' Provides the abbreviated type name for NightowlPlots vectors when displayed
+#' in tibbles or other vctrs-aware contexts.
+#' @param x A NightowlPlots object
+#' @return Character string "NghtwlPl" as the abbreviated type name
 #' @export
 vec_ptype_abbr.NightowlPlots <- function(x) {
   "NghtwlPl"
 }
 # =================================================
-#' @title
-#' MISSING_TITLE
+#' @title Convert NightowlPlots to Character
 #' @description
-#' @detail
-#' @param
-#' @return
+#' Converts each plot in a NightowlPlots vector to character representation
+#' by calling the as.character method on each plot object.
+#' @param x A NightowlPlots object
+#' @return Character vector containing string representations of each plot
 #' @export
 as.character.NightowlPlots <- function(x) {
   purrr::map_chr(x, ~ .x$as.character())
 }
 # =================================================
-#' @title
-#' MISSING_TITLE
+#' @title Vector Prototype for NightowlPlots Combination
 #' @description
-#' @detail
-#' @param
-#' @return
+#' Defines the common type when combining two NightowlPlots vectors.
+#' Part of the vctrs framework for type-stable vector operations.
+#' @param x First NightowlPlots object
+#' @param y Second NightowlPlots object
+#' @param ... Additional arguments (unused)
+#' @return The prototype NightowlPlots object
 #' @export
 vec_ptype2.NightowlPlots.NightowlPlots <- function(x, y, ...) {
   x
 }
 # =================================================
-#' @title
-#' MISSING_TITLE
+#' @title Vector Cast for NightowlPlots
 #' @description
-#' @detail
-#' @param
-#' @return
+#' Defines how to cast between NightowlPlots vectors.
+#' Part of the vctrs framework for type-stable vector operations.
+#' @param x NightowlPlots object to cast
+#' @param to Target NightowlPlots type
+#' @param ... Additional arguments (unused)
+#' @return The cast NightowlPlots object
 #' @export
 vec_cast.NightowlPlots.NightowlPlots <- function(x, to, ...) {
   x
 }
 # =================================================
-#' @title
-#' MISSING_TITLE
+#' @title Convert to R6 Object
 #' @description
-#' @detail
-#' @param
-#' @return
+#' Generic function for converting objects to their R6 class representation.
+#' Methods are defined for specific classes like NightowlPlots.
+#' @param x Object to convert to R6
+#' @return R6 object representation
 #' @export
 as_R6 <- function(x) {
   UseMethod("as_R6")
 }
 # =================================================
-#' @title
-#' MISSING_TITLE
+#' @title Convert NightowlPlots to R6 Objects
 #' @description
-#' @detail
-#' @param
-#' @return
+#' Returns the R6 objects contained within a NightowlPlots vector.
+#' Each plot object is already an R6 instance.
+#' @param x A NightowlPlots object
+#' @return List containing the R6 plot objects
 #' @export
 as_R6.NightowlPlots <- function(x) {
   purrr::map(x, ~.x)
 }
 # =================================================
-#' @title
-#' MISSING_TITLE
+#' @title Get Object Width
 #' @description
-#' @detail
-#' @param
-#' @return
+#' Generic function for retrieving the width of plot objects.
+#' Methods are defined for specific classes like NightowlPlots.
+#' @param x Object to get width from
+#' @return Numeric value representing the width
 #' @export
 width <- function(x) {
   UseMethod("width")
 }
 # =================================================
-#' @title
-#' MISSING_TITLE
+#' @title Get Maximum Width from NightowlPlots
 #' @description
-#' @detail
-#' @param
-#' @return
+#' Calculates the maximum width across all plots in a NightowlPlots vector
+#' by calling get_width() on each plot and returning the maximum value.
+#' @param x A NightowlPlots object
+#' @return Numeric value representing the maximum width across all plots
 #' @export
 width.NightowlPlots <- function(x) {
   purrr::map_dbl(x, ~ .x$get_width()) %>%
     max(na.rm = T)
 }
 # =================================================
-#' @title
-#' MISSING_TITLE
+#' @title Get Object Height
 #' @description
-#' @detail
-#' @param
-#' @return
+#' Generic function for retrieving the height of plot objects.
+#' Methods are defined for specific classes like NightowlPlots.
+#' @param x Object to get height from
+#' @return Numeric value representing the height
 #' @export
 height <- function(x) {
   UseMethod("height")
 }
 # =================================================
-#' @title
-#' MISSING_TITLE
+#' @title Get Maximum Height from NightowlPlots
 #' @description
-#' @detail
-#' @param
-#' @return
+#' Calculates the maximum height across all plots in a NightowlPlots vector
+#' by calling get_height() on each plot and returning the maximum value.
+#' @param x A NightowlPlots object
+#' @return Numeric value representing the maximum height across all plots
 #' @export
 height.NightowlPlots <- function(x) {
   purrr::map_dbl(x, ~ .x$get_height()) %>%
