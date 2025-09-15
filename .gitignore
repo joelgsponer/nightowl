@@ -34,8 +34,6 @@ doc/
 Meta/
 
 # Package development files
-_pkgdown.yml
-NEWS.md
 Makefile
 
 # R Package Cache
@@ -142,10 +140,6 @@ tmp/
 TODO.md
 NOTES.md
 .notes/
-
-# Baseline files
-.baseline_*
-baseline*
 
 # Ignore git worktrees directory
 worktrees/

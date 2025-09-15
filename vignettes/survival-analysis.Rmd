@@ -1,0 +1,705 @@
+---
+title: "Survival Analysis with nightowl"
+author: "nightowl Development Team"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Survival Analysis with nightowl}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.width = 8,
+  fig.height = 6,
+  dpi = 96
+)
+```
+
+# Survival Analysis in Clinical Research
+
+The **Coxph** R6 class and survival analysis functions in nightowl provide comprehensive tools for time-to-event analysis in clinical research. This vignette demonstrates the full range of survival analysis capabilities, from Kaplan-Meier curves to Cox proportional hazards modeling and forest plots.
+
+## Setup and Data Preparation
+
+```{r setup}
+library(nightowl)
+library(survival)
+library(dplyr)
+library(ggplot2)
+
+# Create comprehensive clinical survival dataset
+set.seed(123)  # For reproducible examples
+
+# Simulate clinical trial survival data
+clinical_survival <- tibble(
+  patient_id = 1:300,
+  time = rexp(300, rate = 0.02),  # Exponential survival times
+  event = rbinom(300, 1, 0.7),   # 70% event rate
+  treatment = sample(c("Control", "Treatment A", "Treatment B"), 300, replace = TRUE),
+  age = round(rnorm(300, 65, 12)),
+  sex = sample(c("Male", "Female"), 300, replace = TRUE),
+  stage = sample(c("I", "II", "III", "IV"), 300, replace = TRUE, prob = c(0.2, 0.3, 0.3, 0.2)),
+  biomarker_high = sample(c("High", "Low"), 300, replace = TRUE),
+  ecog_status = sample(0:2, 300, replace = TRUE, prob = c(0.4, 0.4, 0.2)),
+  site = sample(c("Site A", "Site B", "Site C", "Site D"), 300, replace = TRUE),
+  risk_group = sample(c("Low", "Intermediate", "High"), 300, replace = TRUE)
+) %>%
+  # Adjust survival times based on treatment effect
+  mutate(
+    time = ifelse(treatment == "Treatment A", time * 1.5, time),  # Treatment benefit
+    time = ifelse(treatment == "Treatment B", time * 1.3, time),  # Moderate benefit
+    time = pmax(time, 0.1)  # Ensure positive times
+  )
+
+# Additional simulated data for examples
+simple_survival <- tibble(
+  time = sample(1:100, size = 100, replace = TRUE),
+  event = sample(c(0, 1), size = 100, replace = TRUE),
+  treatment = sample(c("Control", "Treatment"), size = 100, replace = TRUE),
+  covariate1 = sample(c("No", "Yes"), size = 100, replace = TRUE),
+  covariate2 = sample(c("No", "Yes"), size = 100, replace = TRUE),
+  stratum1 = sample(c("A", "B"), size = 100, replace = TRUE),
+  continuous_var = rnorm(100),
+  site = sample(LETTERS[1:5], size = 100, replace = TRUE)
+)
+```
+
+# Survival Formula Creation
+
+The foundation of survival analysis in nightowl is the `create_Surv_formula()` function, which provides a declarative way to specify complex survival models.
+
+## Basic Survival Formula
+
+```{r formula-basic}
+# Create a basic survival formula
+basic_formula <- create_Surv_formula(
+  data = simple_survival,
+  time = "time",
+  event = "event", 
+  treatment = "treatment"
+)
+
+print(basic_formula)
+
+# Fit basic Cox model
+basic_cox <- survival::coxph(formula = basic_formula, data = simple_survival)
+summary(basic_cox)
+```
+
+## Complex Survival Formula with Covariates
+
+```{r formula-complex}
+# Create complex formula with multiple covariates
+complex_formula <- create_Surv_formula(
+  data = simple_survival,
+  time = "time",
+  event = "event",
+  treatment = "treatment",
+  covariates = c("covariate1", "covariate2", "continuous_var")
+)
+
+print(complex_formula)
+
+# Fit complex Cox model
+complex_cox <- survival::coxph(formula = complex_formula, data = simple_survival)
+summary(complex_cox)
+```
+
+## Stratified Models and Interactions
+
+```{r formula-stratified}
+# Create formula with stratification and interactions
+stratified_formula <- create_Surv_formula(
+  data = simple_survival,
+  time = "time",
+  event = "event",
+  treatment = "treatment",
+  covariates = c("covariate1", "covariate2"),
+  strata = c("stratum1"),
+  interactions = list("treatment:covariate1")
+)
+
+print(stratified_formula)
+
+# Fit stratified Cox model with interactions
+stratified_cox <- survival::coxph(formula = stratified_formula, data = simple_survival)
+summary(stratified_cox)
+```
+
+## Random Effects Models
+
+```{r formula-random}
+# Create formula with random effects (frailty)
+random_formula <- create_Surv_formula(
+  data = simple_survival,
+  time = "time",
+  event = "event", 
+  treatment = "treatment",
+  covariates = c("covariate1"),
+  random_effect = c("site")
+)
+
+print(random_formula)
+
+# Fit Cox model with frailty
+random_cox <- survival::coxph(formula = random_formula, data = simple_survival)
+summary(random_cox)
+```
+
+# Coxph R6 Class
+
+The Coxph R6 class provides an object-oriented interface for Cox proportional hazards modeling with built-in validation and result management.
+
+## Basic Coxph Analysis
+
+```{r coxph-basic}
+# Create Coxph object for clinical trial analysis
+clinical_coxph <- Coxph$new(
+  data = clinical_survival,
+  time = "time",
+  event = "event",
+  treatment = "treatment"
+)
+
+# Display comprehensive results
+clinical_coxph
+```
+
+## Multi-Variable Cox Regression
+
+```{r coxph-multivariable}
+# Comprehensive multivariable analysis
+multivariable_coxph <- Coxph$new(
+  data = clinical_survival,
+  time = "time",
+  event = "event",
+  treatment = "treatment",
+  covariates = c("age", "sex", "stage", "biomarker_high"),
+  reference = list(
+    treatment = "Control",
+    sex = "Male", 
+    stage = "I",
+    biomarker_high = "Low"
+  )
+)
+
+multivariable_coxph
+```
+
+## Stratified Cox Analysis
+
+```{r coxph-stratified}
+# Cox regression stratified by site
+stratified_coxph <- Coxph$new(
+  data = clinical_survival,
+  time = "time",
+  event = "event",
+  treatment = "treatment",
+  covariates = c("age", "sex", "stage"),
+  strata = c("site"),
+  reference = list(
+    treatment = "Control",
+    sex = "Male",
+    stage = "I"
+  )
+)
+
+stratified_coxph
+```
+
+# Kaplan-Meier Survival Curves
+
+nightowl provides sophisticated Kaplan-Meier curve generation with publication-ready styling and statistical testing.
+
+## Basic Kaplan-Meier Curves
+
+```{r km-basic}
+# Create basic Kaplan-Meier curves by treatment
+km_basic <- plot_km(
+  data = clinical_survival,
+  time = "time",
+  event = "event", 
+  group = "treatment"
+)
+
+km_basic$svg(height = 6)
+```
+
+## Grouped Kaplan-Meier Analysis
+
+```{r km-grouped}
+# Create grouped KM curves with risk tables
+km_grouped <- plot_grouped_km(
+  data = clinical_survival,
+  time = "time",
+  event = "event",
+  group = "treatment",
+  facet = "stage"
+)
+
+km_grouped$svg(height = 8)
+```
+
+## Kaplan-Meier with Statistical Testing
+
+```{r km-statistics}
+# KM curves with integrated statistical tests
+km_with_stats <- plot_km(
+  data = clinical_survival,
+  time = "time", 
+  event = "event",
+  group = "treatment",
+  add_pvalue = TRUE,
+  add_risk_table = TRUE
+)
+
+km_with_stats$svg(height = 7)
+
+# Extract p-value for reporting
+km_pvalue <- km_pvalue(
+  data = clinical_survival,
+  time = "time",
+  event = "event",
+  group = "treatment"
+)
+
+print(paste("Log-rank test p-value:", round(km_pvalue, 4)))
+```
+
+## Advanced Kaplan-Meier Customization
+
+```{r km-advanced}
+# Highly customized KM curves
+km_advanced <- plot_km(
+  data = clinical_survival %>% filter(stage %in% c("II", "III")),
+  time = "time",
+  event = "event",
+  group = "treatment",
+  colors = c("Control" = "#E31A1C", "Treatment A" = "#1F78B4", "Treatment B" = "#33A02C"),
+  add_confidence_interval = TRUE,
+  add_risk_table = TRUE,
+  risk_table_height = 0.25
+)
+
+km_advanced$svg(height = 8)
+```
+
+# Forest Plots for Hazard Ratios
+
+Forest plots provide comprehensive visualization of hazard ratios across multiple variables and subgroups.
+
+## Basic Forest Plot
+
+```{r forest-basic}
+# Create forest plot for treatment effects
+treatment_forest <- forestplot(
+  data = clinical_survival,
+  time = "time",
+  event = "event",
+  variables = c("treatment", "age", "sex", "stage"),
+  reference = list(
+    treatment = "Control",
+    sex = "Male",
+    stage = "I"
+  )
+)
+
+treatment_forest$svg(height = 6)
+```
+
+## Subgroup Forest Plot Analysis
+
+```{r forest-subgroup}
+# Forest plot for subgroup analysis
+subgroup_forest <- forestplot(
+  data = clinical_survival,
+  time = "time",
+  event = "event",
+  variables = "treatment",
+  subgroups = c("sex", "stage", "biomarker_high"),
+  reference = list(treatment = "Control")
+)
+
+subgroup_forest$svg(height = 8)
+```
+
+## Publication-Ready Forest Plot
+
+```{r forest-publication}
+# Comprehensive forest plot for publication
+publication_forest <- forestplot(
+  data = clinical_survival,
+  time = "time",
+  event = "event",
+  variables = c("treatment", "age", "sex", "stage", "biomarker_high", "ecog_status"),
+  reference = list(
+    treatment = "Control",
+    sex = "Male", 
+    stage = "I",
+    biomarker_high = "Low"
+  ),
+  x_lim = c(0.1, 5),
+  add_reference_line = TRUE,
+  show_confidence_intervals = TRUE
+)
+
+publication_forest$svg(height = 10)
+```
+
+# Advanced Survival Analysis Workflows
+
+## Comprehensive Clinical Trial Analysis
+
+```{r clinical-workflow}
+# Step 1: Descriptive survival analysis
+cat("## Overall Survival Summary\n")
+km_summary <- km_summary(
+  data = clinical_survival,
+  time = "time",
+  event = "event",
+  group = "treatment"
+)
+print(km_summary)
+
+# Step 2: Treatment effect analysis
+cat("\n## Treatment Effect Analysis\n")
+treatment_coxph <- Coxph$new(
+  data = clinical_survival,
+  time = "time",
+  event = "event",
+  treatment = "treatment", 
+  reference = list(treatment = "Control")
+)
+treatment_coxph
+
+# Step 3: Adjusted analysis
+cat("\n## Adjusted Hazard Ratios\n")
+adjusted_coxph <- Coxph$new(
+  data = clinical_survival,
+  time = "time",
+  event = "event",
+  treatment = "treatment",
+  covariates = c("age", "sex", "stage", "biomarker_high"),
+  reference = list(
+    treatment = "Control",
+    sex = "Male",
+    stage = "I", 
+    biomarker_high = "Low"
+  )
+)
+adjusted_coxph
+```
+
+## Biomarker Stratification Analysis
+
+```{r biomarker-analysis}
+# Analyze treatment effect by biomarker status
+biomarker_km <- plot_grouped_km(
+  data = clinical_survival,
+  time = "time",
+  event = "event",
+  group = "treatment",
+  facet = "biomarker_high"
+)
+
+biomarker_km$svg(height = 6)
+
+# Test for treatment-biomarker interaction
+interaction_coxph <- Coxph$new(
+  data = clinical_survival,
+  time = "time",
+  event = "event",
+  treatment = "treatment",
+  covariates = c("biomarker_high"),
+  interactions = list("treatment:biomarker_high"),
+  reference = list(
+    treatment = "Control",
+    biomarker_high = "Low"
+  )
+)
+
+interaction_coxph
+```
+
+## Time-Dependent Analysis
+
+```{r time-dependent}
+# Create landmark analysis at 12 months
+landmark_data <- clinical_survival %>%
+  mutate(
+    landmark_time = 12,
+    landmark_event = ifelse(time > landmark_time, 1, 0),
+    landmark_survival = pmax(time - landmark_time, 0)
+  ) %>%
+  filter(time > landmark_time)
+
+landmark_km <- plot_km(
+  data = landmark_data,
+  time = "landmark_survival",
+  event = "landmark_event",
+  group = "treatment"
+)
+
+landmark_km$svg(height = 6)
+```
+
+# Quality Assurance and Model Validation
+
+## Proportional Hazards Assumption Testing
+
+```{r model-validation}
+# Test proportional hazards assumption
+ph_test_coxph <- Coxph$new(
+  data = clinical_survival,
+  time = "time",
+  event = "event",
+  treatment = "treatment",
+  covariates = c("age", "sex", "stage")
+)
+
+# Schoenfeld residuals test
+ph_test <- survival::cox.zph(ph_test_coxph$fit)
+print(ph_test)
+
+# Plot Schoenfeld residuals
+plot(ph_test)
+```
+
+## Model Comparison and Selection
+
+```{r model-comparison}
+# Compare different models using AIC
+models_comparison <- list(
+  "Basic" = Coxph$new(
+    data = clinical_survival,
+    time = "time", 
+    event = "event",
+    treatment = "treatment"
+  ),
+  "Adjusted" = Coxph$new(
+    data = clinical_survival,
+    time = "time",
+    event = "event", 
+    treatment = "treatment",
+    covariates = c("age", "sex", "stage")
+  ),
+  "Full" = Coxph$new(
+    data = clinical_survival,
+    time = "time",
+    event = "event",
+    treatment = "treatment",
+    covariates = c("age", "sex", "stage", "biomarker_high", "ecog_status")
+  )
+)
+
+# Extract AIC values for comparison
+aic_values <- sapply(models_comparison, function(model) {
+  AIC(model$fit)
+})
+
+print("Model AIC Comparison:")
+print(aic_values)
+```
+
+# Survival Analysis Reporting
+
+## Automated Survival Report Generation
+
+```{r reporting-automation, eval=FALSE}
+# Create comprehensive survival analysis report
+generate_survival_report <- function(data, time_var, event_var, treatment_var) {
+  # 1. Generate KM curves
+  km_plot <- plot_km(
+    data = data,
+    time = time_var,
+    event = event_var,
+    group = treatment_var,
+    add_risk_table = TRUE
+  )
+  
+  # 2. Fit Cox model
+  cox_model <- Coxph$new(
+    data = data,
+    time = time_var,
+    event = event_var,
+    treatment = treatment_var
+  )
+  
+  # 3. Create forest plot
+  forest_plot <- forestplot(
+    data = data,
+    time = time_var,
+    event = event_var,
+    variables = treatment_var
+  )
+  
+  # Return structured results
+  list(
+    km_plot = km_plot,
+    cox_model = cox_model,
+    forest_plot = forest_plot,
+    summary_stats = km_summary(data, time_var, event_var, treatment_var)
+  )
+}
+
+# Generate report for clinical trial
+clinical_report <- generate_survival_report(
+  data = clinical_survival,
+  time_var = "time",
+  event_var = "event", 
+  treatment_var = "treatment"
+)
+```
+
+## Export for Regulatory Submissions
+
+```{r regulatory-export, eval=FALSE}
+# Export survival analysis results for regulatory submission
+export_survival_results <- function(coxph_object, output_dir = "survival_output") {
+  # Create output directory
+  dir.create(output_dir, showWarnings = FALSE)
+  
+  # Export model results
+  model_summary <- summary(coxph_object$fit)
+  write.csv(data.frame(model_summary$coefficients), 
+           file.path(output_dir, "cox_model_coefficients.csv"))
+  
+  # Export survival curves data
+  km_data <- km_table(
+    data = coxph_object$data,
+    time = coxph_object$time,
+    event = coxph_object$event,
+    group = coxph_object$treatment
+  )
+  write.csv(km_data, file.path(output_dir, "kaplan_meier_data.csv"))
+  
+  # Export plots
+  km_plot <- plot_km(
+    data = coxph_object$data,
+    time = coxph_object$time,
+    event = coxph_object$event,
+    group = coxph_object$treatment
+  )
+  
+  # Save as high-resolution files
+  ggsave(file.path(output_dir, "kaplan_meier_curve.png"), 
+         km_plot$ggplot, dpi = 300, width = 10, height = 8)
+}
+```
+
+# Best Practices for Clinical Survival Analysis
+
+## Data Quality and Validation
+
+1. **Event Definition**: Clearly define and validate event criteria
+2. **Censoring Assessment**: Evaluate censoring mechanisms and patterns
+3. **Follow-up Completeness**: Assess completeness of follow-up data
+4. **Proportional Hazards**: Test and validate model assumptions
+
+## Statistical Considerations
+
+1. **Sample Size**: Ensure adequate power for survival endpoints
+2. **Multiple Comparisons**: Adjust for multiple testing when appropriate
+3. **Interim Analysis**: Plan for interim analyses with appropriate boundaries
+4. **Sensitivity Analysis**: Conduct sensitivity analyses for key assumptions
+
+## Regulatory Guidelines
+
+```{r regulatory-considerations, eval=FALSE}
+# Implement regulatory-compliant survival analysis
+
+# 1. Pre-specified analysis plan
+analysis_plan <- list(
+  primary_endpoint = "overall_survival",
+  primary_analysis = "intention_to_treat",
+  statistical_test = "log_rank",
+  alpha_level = 0.05,
+  adjustment_method = "bonferroni"
+)
+
+# 2. Analysis population definitions
+populations <- list(
+  intention_to_treat = clinical_survival,
+  per_protocol = clinical_survival %>% filter(protocol_deviation == "No"),
+  safety = clinical_survival %>% filter(received_treatment == "Yes")
+)
+
+# 3. Sensitivity analyses
+sensitivity_analyses <- list(
+  "Censoring at progression" = clinical_survival %>% 
+    mutate(event = ifelse(progression == 1 & event == 0, 1, event)),
+  "Excluding early dropouts" = clinical_survival %>% 
+    filter(time > 30)  # Exclude patients with <30 days follow-up
+)
+```
+
+# Performance Optimization
+
+## Large Dataset Handling
+
+```{r performance-optimization, eval=FALSE}
+# Optimize survival analysis for large datasets
+
+# 1. Data preprocessing
+preprocess_survival_data <- function(data) {
+  data %>%
+    # Remove incomplete cases
+    filter(!is.na(time), !is.na(event)) %>%
+    # Convert categorical variables to factors with appropriate levels
+    mutate(across(where(is.character), as.factor)) %>%
+    # Optimize data types
+    mutate(
+      time = as.numeric(time),
+      event = as.integer(event)
+    )
+}
+
+# 2. Parallel processing for multiple analyses
+library(parallel)
+cl <- makeCluster(detectCores() - 1)
+
+# Run multiple survival analyses in parallel
+subgroup_analyses <- parLapply(cl, subgroup_list, function(subgroup) {
+  Coxph$new(
+    data = filter(clinical_survival, subgroup_var == subgroup),
+    time = "time",
+    event = "event",
+    treatment = "treatment"
+  )
+})
+
+stopCluster(cl)
+```
+
+# Conclusion
+
+The nightowl survival analysis framework provides comprehensive tools for clinical research, including:
+
+- **Formula Creation**: Declarative syntax for complex survival models
+- **Coxph R6 Class**: Object-oriented Cox regression with validation
+- **Kaplan-Meier Curves**: Publication-ready survival curve generation
+- **Forest Plots**: Comprehensive hazard ratio visualization
+- **Quality Assurance**: Built-in model validation and assumption testing
+- **Regulatory Compliance**: Tools for regulatory submission requirements
+
+## Key Advantages
+
+1. **Clinical Focus**: Designed specifically for clinical research workflows
+2. **Comprehensive Analysis**: End-to-end survival analysis capabilities
+3. **Publication Ready**: High-quality, customizable visualizations
+4. **Regulatory Compliant**: Meets requirements for regulatory submissions
+5. **Reproducible**: Consistent, documented analysis workflows
+
+## Next Steps
+
+- Explore [Statistical Summaries](statistical-summaries.html) for descriptive analysis
+- Learn about [Advanced Plotting](getting-started.html) for custom visualizations
+- Review the [Package Reference](../reference/) for complete function documentation
+
+---
+
+*This vignette demonstrates the comprehensive survival analysis capabilities of nightowl. For specific clinical applications and regulatory requirements, please refer to the additional vignettes and package documentation.*

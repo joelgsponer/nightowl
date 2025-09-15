@@ -1,40 +1,53 @@
 Package: nightowl
-Title: What the Package Does (One Line, Title Case)
+Title: Statistical Visualization and Analysis for Clinical Research
 Version: 0.0.1.0
 Authors@R: 
-    person(given = "First",
-           family = "Last",
+    person(given = "Joel",
+           family = "Sponer", 
            role = c("aut", "cre"),
-           email = "first.last@example.com",
-           comment = c(ORCID = "YOUR-ORCID-ID"))
-Description: What the package does (one paragraph).
+           email = "joel.sponer@example.com")
+Description: Provides a declarative plotting system built on ggplot2 with R6 classes, 
+    survival analysis capabilities, and interactive visualizations for clinical research 
+    applications. Features include Kaplan-Meier curves, Cox proportional hazards modeling, 
+    forest plots, and comprehensive statistical summaries with customizable styling.
+URL: https://joelgsponer.github.io/nightowl/
+BugReports: https://github.com/joelgsponer/nightowl/issues
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.2.3
 Imports: 
+    cli,
     distributional,
     dplyr,
     GGally,
     ggdist,
+    ggiraph,
     ggplot2,
     ggpmisc,
     ggpubr,
+    glue,
     gtools,
     Hmisc,
+    htmltools,
     magrittr,
     MetBrewer,
     palmerpenguins,
-    picasso,
     pillar,
     purrr,
     reactable,
     reactablefmtr,
+    rlang,
     rtables,
     stringr,
+    survival,
     testthat,
     tibble,
     uuid,
-    vctrs,
-    waRRior
+    vctrs
+Suggests:
+    knitr,
+    pkgdown,
+    rmarkdown
+VignetteBuilder: knitr

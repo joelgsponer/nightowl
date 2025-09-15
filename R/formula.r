@@ -21,9 +21,9 @@ create_Surv_formula <- function(data,
   # Remove time and event if present in covariates or strata -------------------
   # Covariates and strata need to have at least two levels ---------------------
   if (!is.null(covariates)) {
-    covariates <- waRRior::pop(covariates, c(time, event))
+    covariates <- pop(covariates, c(time, event))
     covariates <- purrr::map(covariates, function(.covariate) {
-      if (waRRior::length_unique(data[[.covariate]]) > 1) {
+      if (length_unique(data[[.covariate]]) > 1) {
         return(.covariate)
       } else {
         cli::cli_alert_warning("Covariate `{(.covariate)}` has only one level. Skipping.")
@@ -36,9 +36,9 @@ create_Surv_formula <- function(data,
     # Code to check if interactions are valid
   }
   if (!is.null(strata)) {
-    strata <- waRRior::pop(strata, c(time, event))
+    strata <- pop(strata, c(time, event))
     strata <- purrr::map(strata, function(.stratum) {
-      if (waRRior::length_unique(data[[.stratum]]) > 1) {
+      if (length_unique(data[[.stratum]]) > 1) {
         return(.stratum)
       } else {
         cli::cli_alert_warning(" Stratum `{(.stratum)}` has only one level. Skipping.")
@@ -99,7 +99,7 @@ create_formula <- function(data,
   # Covariates and strata need to have at least two levels ---------------------
   if (!is.null(covariates)) {
     covariates <- purrr::map(covariates, function(.covariate) {
-      if (waRRior::length_unique(data[[.covariate]]) > 1) {
+      if (length_unique(data[[.covariate]]) > 1) {
         return(.covariate)
       } else {
         cli::cli_alert_warning("Covariate `{(.covariate)}` has only one level. Skipping.")
@@ -113,7 +113,7 @@ create_formula <- function(data,
   }
   if (!is.null(strata)) {
     strata <- purrr::map(strata, function(.stratum) {
-      if (waRRior::length_unique(data[[.stratum]]) > 1) {
+      if (length_unique(data[[.stratum]]) > 1) {
         return(.stratum)
       } else {
         cli::cli_alert_warning(" Stratum `{(.stratum)}` has only one level. Skipping.")
