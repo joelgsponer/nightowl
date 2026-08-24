@@ -1,6 +1,10 @@
 # =================================================
-#' @title
-#' MISSING_TITLE
+#' @title Arrange Summary Tables in HTML Layout
+#' @description 
+#' Arrange multiple summary tables in a flexible HTML layout with styled headers 
+#' and borders. Creates a responsive grid display suitable for clinical research reports.
+#' @param tbls A named list of summary tables to arrange
+#' @return An HTML div element containing the arranged tables
 #' @export
 arrange_summaries <- function(tbls) {
   # Full version

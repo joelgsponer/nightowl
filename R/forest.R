@@ -1,6 +1,22 @@
 # =================================================
-#' @title
-#' MISSING_TITLE
+#' @title Create Forest Plot
+#' @description 
+#' Create a forest plot visualization showing point estimates with confidence intervals.
+#' Commonly used in meta-analysis and clinical research to display effect sizes.
+#' @param x Numeric vector of point estimates
+#' @param xmin Numeric vector of lower confidence interval bounds
+#' @param xmax Numeric vector of upper confidence interval bounds  
+#' @param xlim Optional numeric vector of length 2 specifying x-axis limits
+#' @param xintercept Numeric value for vertical reference line (e.g., null effect)
+#' @param height Numeric value specifying plot height (default: 0.5)
+#' @param xlab Character string for x-axis label
+#' @param ylab Character string for y-axis label
+#' @param hide_y_axis Logical indicating whether to hide y-axis (default: TRUE)
+#' @param hide_x_axis Logical indicating whether to hide x-axis (default: TRUE)
+#' @param hide_legend Logical indicating whether to hide legend (default: TRUE)
+#' @param shape Numeric value specifying point shape (default: 15)
+#' @param theme ggplot2 theme function to apply (default: theme_void)
+#' @return An SVG forest plot rendered with nightowl styling
 #' @export
 forestplot <- function(x,
                        xmin,

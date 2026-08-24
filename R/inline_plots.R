@@ -1,7 +1,36 @@
 # =================================================
-#' @title
-#' MISSING_TITLE
+#' @title Create Inline Forest Plot for Table Embedding
+#' @description
+#' Creates a compact forest plot suitable for embedding within tables or reports.
+#' Displays point estimates with confidence intervals, optional reference lines,
+#' and automatic truncation indicators for values outside specified limits.
+#' @param x Numeric value for the point estimate
+#' @param xmin Numeric value for the lower confidence interval bound
+#' @param xmax Numeric value for the upper confidence interval bound
+#' @param xlim Numeric vector of length 2 specifying x-axis limits (default: NULL)
+#' @param xintercept Numeric value for vertical reference line position (default: NULL)
+#' @param xlab Character string for x-axis label (default: NULL)
+#' @param ylab Character string for y-axis label (default: NULL)
+#' @param hide_y_axis Logical indicating whether to hide y-axis (default: TRUE)
+#' @param hide_x_axis Logical indicating whether to hide x-axis (default: TRUE)
+#' @param hide_legend Logical indicating whether to hide legend (default: TRUE)
+#' @param height Numeric value for plot height in inches (default: 0.3)
+#' @param width Numeric value for plot width in inches (default: 3)
+#' @param scaling Numeric scaling factor for plot elements (default: 0.8)
+#' @param shape Numeric shape code for point markers (default: 15)
+#' @param size Numeric size for point markers (default: 4.5)
+#' @param alpha Numeric transparency value (default: 0.8)
+#' @param breaks Numeric vector of axis break positions (default: seq(-10, 10, 0.5))
+#' @param theme ggplot2 theme function (default: ggplot2::theme_void)
+#' @return A NightowlPlots object containing the rendered inline forest plot
 #' @export
+#' @examples
+#' # Basic inline forest plot
+#' add_inline_forestplot(x = 1.2, xmin = 0.8, xmax = 1.6)
+#' 
+#' # Forest plot with reference line and custom limits
+#' add_inline_forestplot(x = 0.9, xmin = 0.6, xmax = 1.3, 
+#'                      xintercept = 1.0, xlim = c(0.5, 2.0))
 add_inline_forestplot <- function(x,
                                   xmin,
                                   xmax,
@@ -97,9 +126,25 @@ add_inline_forestplot <- function(x,
     nightowl::new_NightowlPlots()
 }
 # =================================================
-#' @title
-#' MISSING_TITLE
+#' @title Create Inline Stacked Bar Plot for Categorical Data
+#' @description
+#' Creates a compact horizontal stacked bar plot showing the proportional distribution
+#' of categorical variables. Automatically handles factor conversion and missing value
+#' representation, making it ideal for embedding in summary tables.
+#' @param x Vector of categorical data to visualize
+#' @param height Numeric value for plot height in inches (default: 0.3)
+#' @param width Numeric value for plot width in inches (default: 2.5)
+#' @param scaling Numeric scaling factor for plot elements (default: 1)
+#' @param colors Function to generate color palette (default: NightowlOptions$get_colors)
+#' @return A NightowlPlots object containing the rendered inline bar plot
 #' @export
+#' @examples
+#' # Basic categorical bar plot
+#' add_barplot(c("A", "B", "A", "C", "B", "A"))
+#' 
+#' # Bar plot with missing values
+#' data_with_na <- c("Treatment", "Control", NA, "Treatment", "Control")
+#' add_barplot(data_with_na)
 add_barplot <- function(x,
                         height = 0.3,
                         width = 2.5,
@@ -134,9 +179,23 @@ add_barplot <- function(x,
     nightowl::new_NightowlPlots()
 }
 # =================================================
-#' @title
-#' MISSING_TITLE
+#' @title Create Forest Plot from Raw Data with Statistical Summary
+#' @description
+#' Creates a forest plot by first applying a statistical summary function to raw data,
+#' then rendering the result as an inline forest plot. Commonly used for displaying
+#' confidence intervals derived from bootstrap or other statistical methods.
+#' @param x Numeric vector of raw data values
+#' @param fun_data Function to compute statistical summary (default: ggplot2::mean_cl_boot)
+#' @param xintercept Numeric value for vertical reference line position (default: NULL)
+#' @param xlim Numeric vector of length 2 specifying x-axis limits (default: NULL)
+#' @return A forest plot object with statistical summary applied to the input data
 #' @export
+#' @examples
+#' # Forest plot with bootstrap confidence intervals
+#' add_forestplot(rnorm(100, mean = 1.2, sd = 0.3))
+#' 
+#' # Custom statistical summary function
+#' add_forestplot(rnorm(50), fun_data = ggplot2::mean_cl_normal, xintercept = 0)
 add_forestplot <- function(x,
                            fun_data = ggplot2::mean_cl_boot,
                            xintercept = NULL,
@@ -151,9 +210,42 @@ add_forestplot <- function(x,
   )
 }
 # =================================================
-#' @title
-#' MISSING_TITLE
+#' @title Create General Purpose Inline Plot with Flexible Styling
+#' @description
+#' Creates a flexible inline plot that can be customized using YAML style templates or
+#' direct parameter specification. Supports various plot types and is the foundation
+#' for other specialized inline plotting functions in the package.
+#' @param x Data frame or numeric vector containing plot data
+#' @param y Numeric vector for y-axis data when x is numeric (default: NULL)
+#' @param mapping Named list specifying aesthetic mappings (default: list(x = "x", y = "y"))
+#' @param style Character string specifying style template name (default: NULL)
+#' @param xlim Numeric vector of length 2 for x-axis limits (default: NULL)
+#' @param ylim Numeric vector of length 2 for y-axis limits (default: NULL)
+#' @param height Numeric value for plot height in inches (default: 0.8)
+#' @param width Numeric value for plot width in inches (default: 8)
+#' @param scaling Numeric scaling factor for plot elements (default: 1)
+#' @param theme ggplot2 theme function (default: ggplot2::theme_void)
+#' @param coord_flip Logical indicating whether to flip coordinates (default: FALSE)
+#' @param hide_title Logical indicating whether to hide plot title (default: TRUE)
+#' @param hide_legend Logical indicating whether to hide legend (default: TRUE)
+#' @param hide_x_axis Logical indicating whether to hide x-axis (default: TRUE)
+#' @param hide_y_axis Logical indicating whether to hide y-axis (default: TRUE)
+#' @param fill Character string or color for fill aesthetic (default: picasso::roche_colors("lightblue"))
+#' @param expansion_y Numeric value for y-axis expansion (default: 0)
+#' @param add_download_button Logical indicating whether to add download button (default: FALSE)
+#' @param ... Additional arguments passed to style configuration
+#' @return A NightowlPlots object containing the rendered inline plot
 #' @export
+#' @examples
+#' # Basic scatter plot
+#' add_inline_plot(data.frame(x = 1:10, y = rnorm(10)))
+#' 
+#' # Histogram using style template
+#' add_inline_plot(rnorm(100), style = "Inline-Histogram")
+#' 
+#' # Custom mapping and styling
+#' df <- data.frame(values = rnorm(50), groups = rep(c("A", "B"), 25))
+#' add_inline_plot(df, mapping = list(x = "values", fill = "groups"))
 add_inline_plot <- function(x,
                             y = NULL,
                             mapping = list(x = "x", y = "y"),
@@ -238,9 +330,21 @@ add_inline_plot <- function(x,
     nightowl::new_NightowlPlots()
 }
 # =================================================
-#' @title
-#' MISSING_TITLE
+#' @title Create Inline Histogram for Distribution Visualization
+#' @description
+#' Creates a compact histogram optimized for inline display within tables or reports.
+#' Uses predefined styling optimized for small-scale visualization of data distributions.
+#' @param x Numeric vector of data values to plot
+#' @param mapping Named list specifying aesthetic mappings (default: list(x = "x", y = NULL))
+#' @param ... Additional arguments passed to add_inline_plot function
+#' @return A NightowlPlots object containing the rendered inline histogram
 #' @export
+#' @examples
+#' # Basic inline histogram
+#' add_inline_histogram(rnorm(100))
+#' 
+#' # Histogram with custom width and height
+#' add_inline_histogram(rexp(200), width = 4, height = 0.5)
 add_inline_histogram <- function(x,
                                  mapping = list(x = "x", y = NULL),
                                  ...) {
@@ -251,9 +355,24 @@ add_inline_histogram <- function(x,
   )
 }
 # =================================================
-#' @title
-#' MISSING_TITLE
+#' @title Create Inline Point Range Plot with Confidence Intervals
+#' @description
+#' Creates a compact point range plot showing central tendency with confidence intervals.
+#' Can accept either raw data (with statistical summary function) or pre-computed
+#' summary statistics for inline display in tables.
+#' @param x Numeric vector of data or data frame with pre-computed statistics
+#' @param fun_data Function to compute statistical summary when x is raw data (default: NULL)
+#' @param mapping Named list specifying aesthetic mappings (default: list(x = "y", xmin = "ymin", xmax = "ymax", y = NULL))
+#' @param ... Additional arguments passed to add_inline_plot function
+#' @return A NightowlPlots object containing the rendered inline point range plot
 #' @export
+#' @examples
+#' # Point range from raw data
+#' add_inline_pointrange(rnorm(50), fun_data = ggplot2::mean_cl_boot)
+#' 
+#' # Point range from pre-computed statistics
+#' stats_df <- data.frame(y = 1.2, ymin = 0.8, ymax = 1.6)
+#' add_inline_pointrange(stats_df)
 add_inline_pointrange <- function(x,
                                   fun_data = NULL,
                                   mapping = list(x = "y", xmin = "ymin", xmax = "ymax", y = NULL),
@@ -268,9 +387,32 @@ add_inline_pointrange <- function(x,
   )
 }
 # =================================================
-#' @title
-#' MISSING_TITLE
+#' @title Create Inline Violin Plot for Distribution Visualization
+#' @description
+#' Creates a compact violin plot showing the distribution shape of numeric data
+#' with overlaid summary statistics. Optimized for inline display with minimal
+#' visual elements while preserving distributional information.
+#' @param x Numeric vector of data values to plot
+#' @param ylim Numeric vector of length 2 for y-axis limits (default: NULL)
+#' @param height Numeric value for plot height in inches (default: 0.3)
+#' @param width Numeric value for plot width in inches (default: 2.5)
+#' @param scaling Numeric scaling factor for plot elements (default: 1)
+#' @param theme ggplot2 theme function (default: ggplot2::theme_void)
+#' @param hide_legend Logical indicating whether to hide legend (default: TRUE)
+#' @param hide_x_axis Logical indicating whether to hide x-axis (default: TRUE)
+#' @param hide_y_axis Logical indicating whether to hide y-axis (default: TRUE)
+#' @param fill Character string or color for violin fill (default: "#B9B9B8")
+#' @param expansion_y Numeric value for y-axis expansion factor (default: 10)
+#' @param add_download_button Logical indicating whether to add download button (default: FALSE)
+#' @param fun.data Function for summary statistics overlay (default: ggplot2::mean_cl_boot)
+#' @return A NightowlPlots object containing the rendered inline violin plot
 #' @export
+#' @examples
+#' # Basic inline violin plot
+#' add_violin(rnorm(100))
+#' 
+#' # Violin plot with custom appearance
+#' add_violin(rexp(200), fill = "lightblue", fun.data = ggplot2::mean_cl_normal)
 add_violin <- function(x,
                        ylim = NULL,
                        height = 0.3,
@@ -315,9 +457,30 @@ add_violin <- function(x,
     nightowl::new_NightowlPlots()
 }
 # ===============================================================================
-#' @title
-#' MISSING_TITLE
+#' @title Create Inline Density Plot for Distribution Visualization
+#' @description
+#' Creates a compact density plot using violin geometry to show the distribution
+#' of numeric data. Includes summary statistics overlay and is optimized for
+#' inline display within tables or reports.
+#' @param x Numeric vector of data values to plot
+#' @param ylim Numeric vector of length 2 for y-axis limits (default: NULL)
+#' @param height Numeric value for plot height in inches (default: 0.8)
+#' @param width Numeric value for plot width in inches (default: 8)
+#' @param scaling Numeric scaling factor for plot elements (default: 1)
+#' @param theme ggplot2 theme function (default: ggplot2::theme_void)
+#' @param hide_x_axis Logical indicating whether to hide x-axis (default: TRUE)
+#' @param hide_y_axis Logical indicating whether to hide y-axis (default: TRUE)
+#' @param fill Character string or color for density fill (default: picasso_colors("lightblue"))
+#' @param expansion_y Numeric value for y-axis expansion factor (default: 0)
+#' @param add_download_button Logical indicating whether to add download button (default: FALSE)
+#' @return HTML object containing the rendered inline density plot
 #' @export
+#' @examples
+#' # Basic inline density plot
+#' add_density(rnorm(100))
+#' 
+#' # Density plot with custom styling
+#' add_density(rgamma(200, shape = 2), fill = "coral", width = 6)
 add_density <- function(x,
                         ylim = NULL,
                         height = 0.8,
@@ -353,9 +516,24 @@ add_density <- function(x,
   )
 }
 # =================================================
-#' @title
-#' MISSING_TITLE
+#' @title Create Inline Histogram with Customizable Binning
+#' @description
+#' Creates a compact histogram for displaying data distributions with customizable
+#' bin width and optional axis scaling. Designed for inline embedding in tables
+#' and reports with minimal visual footprint.
+#' @param x Numeric vector of data values to plot
+#' @param height Numeric value for plot height in inches (default: 0.8)
+#' @param binwidth Numeric value for histogram bin width (default: NULL for automatic)
+#' @param xlim Numeric vector of length 2 for x-axis limits (default: NULL)
+#' @param add_scale Logical indicating whether to display x-axis scale (default: FALSE)
+#' @return HTML object containing the rendered inline histogram
 #' @export
+#' @examples
+#' # Basic inline histogram
+#' add_histogram(rnorm(100))
+#' 
+#' # Histogram with custom binning and scale
+#' add_histogram(rexp(200), binwidth = 0.5, add_scale = TRUE)
 add_histogram <- function(x,
                           height = 0.8,
                           binwidth = NULL,
@@ -375,9 +553,26 @@ add_histogram <- function(x,
   nightowl::render_svg(.p, height = height, add_download_button = FALSE)
 }
 # =================================================
-#' @title
-#' MISSING_TITLE
+#' @title Add Axis Scales to Inline Plot Columns
+#' @description
+#' Extracts axis information from NightowlPlots objects within data frame columns
+#' and creates corresponding scale rows showing axis labels and tick marks.
+#' This function is used to add interpretable scales below inline plots in tables.
+#' @param obj Data frame containing columns with NightowlPlots objects
+#' @param text_size Numeric scaling factor for axis text size (default: 1.5)
+#' @param line_size Numeric scaling factor for axis line thickness (default: 1)
+#' @param legend_position Character string for legend position (default: "none")
+#' @return Data frame with original data plus additional scale rows for plot columns
 #' @export
+#' @examples
+#' # Create data frame with inline plots
+#' df <- data.frame(
+#'   group = c("A", "B"),
+#'   plot_col = c(add_histogram(rnorm(50)), add_histogram(rnorm(50)))
+#' )
+#' 
+#' # Add scales below plots
+#' add_scale(df, text_size = 2, line_size = 1.5)
 add_scale <- function(obj,
                       text_size = 1.5,
                       line_size = 1,

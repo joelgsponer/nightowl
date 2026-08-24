@@ -1,6 +1,9 @@
 # =================================================
-#' @title
-#' MISSING_TITLE
+#' @title Check if Object is a Plot
+#' @description 
+#' Test whether an object inherits from both "Plot" and "R6" classes.
+#' @param x An object to test
+#' @return A logical value indicating whether the object is a Plot
 #' @export
 is_Plot <- function(x) {
   all(

@@ -43,13 +43,18 @@ text_wraping <- function(DATA, cols = NULL, width = 30, ...) {
 }
 # =================================================
 # =================================================
-#' @title
-#' MISSING_TITLE
-#' @description
-#' @detail
-#' @param
-#' @return
+#' @title Format P-Values with Significance Indicators
+#' @description 
+#' Format p-values with appropriate number of digits and add significance indicators
+#' (asterisks) based on common statistical thresholds.
+#' @param p A numeric p-value or vector of p-values
+#' @param htmlsafe Logical indicating whether to use HTML-safe less-than symbols
+#' @return A formatted character string with p-value and significance indicator
 #' @export
+#' @examples
+#' format_p_value(0.001)  # Returns "< 0.0001 (***)"
+#' format_p_value(0.03)   # Returns "0.03 (*)"
+#' format_p_value(0.15)   # Returns "0.15 (n.s.)"
 format_p_value <- function(p, htmlsafe = T) {
   try(p <- round(p, digits = 4))
   pval <- base::format.pval(p,

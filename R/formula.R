@@ -1,6 +1,8 @@
 # =================================================
-#' @title
-#' MISSING_TITLE
+#' @title Create Survival Analysis Formula
+#' @description 
+#' Generate a formula for survival analysis using the Surv() function with specified
+#' treatment, covariates, strata, and interaction terms.
 #' @param data A data frame.
 #' @param time `string` the time variable
 #' @param event `string` the event variable
@@ -9,6 +11,7 @@
 #' @param strata `character vector` of strata variables
 #' @param random_effects `character vector` of random effects variables
 #' @param interactions `list` of interaction terms
+#' @return A formula object suitable for use with survival analysis functions
 #' @export
 create_Surv_formula <- function(data,
                                 time,
@@ -78,16 +81,18 @@ create_Surv_formula <- function(data,
   as.formula(base)
 }
 # =================================================
-#' @title
-#' MISSING_TITLE
+#' @title Create General Statistical Formula
+#' @description 
+#' Generate a formula for general statistical modeling with specified response,
+#' treatment, covariates, strata, and interaction terms.
 #' @param data A data frame.
-#' @param time `string` the time variable
-#' @param event `string` the event variable
+#' @param response Character string specifying the response variable
 #' @param treatment `string` the treatment variable
 #' @param covariates `character vector` of covariate variables
 #' @param strata `character vector` of strata variables
 #' @param random_effects `character vector` of random effects variables
 #' @param interactions `list` of interaction terms
+#' @return A formula object suitable for use with statistical modeling functions
 #' @export
 create_formula <- function(data,
                            response,

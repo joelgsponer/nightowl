@@ -1,6 +1,14 @@
 # =================================================
-#' @title
-#' MISSING_TITLE
+#' @title Perform Grouped Chi-Square Tests
+#' @description 
+#' Perform Chi-square tests on subgroups of data split by a specified variable.
+#' Useful for analyzing associations across different strata or subgroups.
+#' @param df A data frame containing the variables to analyze
+#' @param split_by Character string specifying the grouping variable
+#' @param x Character string specifying the first categorical variable
+#' @param y Character string specifying the second categorical variable
+#' @param ... Additional arguments passed to chisq.test
+#' @return A list of test results for each subgroup
 #' @export
 grouped_chisq <- function(df, split_by, x, y, ...) {
   cli::cli_h1("Calculating grouped chisq test")
@@ -25,8 +33,12 @@ grouped_chisq <- function(df, split_by, x, y, ...) {
     }))
 }
 # =================================================
-#' @title
-#' missing_title
+#' @title Extract Results from Grouped Chi-Square Tests
+#' @description 
+#' Extract successful test results from a list of grouped chi-square test results,
+#' combining them into a single data frame sorted by p-value.
+#' @param x A list of grouped chi-square test results
+#' @return A data frame of successful test results sorted by p-value
 #' @export
 extract_results_grouped_chisq <- function(x) {
   purrr::map(x, "result") %>%
@@ -35,24 +47,36 @@ extract_results_grouped_chisq <- function(x) {
     dplyr::arrange(p.value)
 }
 # =================================================
-#' @title
-#' missing_title
+#' @title Extract Errors from Grouped Chi-Square Tests
+#' @description 
+#' Extract error messages from a list of grouped chi-square test results
+#' for debugging and quality assessment.
+#' @param x A list of grouped chi-square test results
+#' @return A list of error messages from failed tests
 #' @export
 extract_errors_grouped_chisq <- function(x) {
   purrr::map(x, "error") %>%
     purrr::compact()
 }
 # =================================================
-#' @title
-#' MISSING_TITLE
+#' @title Generate Report of Grouped Chi-Square Results
+#' @description 
+#' Create an interactive reactable report showing the results of grouped 
+#' chi-square tests with default formatting.
+#' @param x A list of grouped chi-square test results
+#' @return A reactable table displaying the test results
 #' @export
 report_results_grouped_chisq <- function(x) {
   extract_results_grouped_chisq(x) %>%
     nightowl::reactable_default()
 }
 # =================================================
-#' @title
-#' MISSING_TITLE
+#' @title Generate Error Report for Grouped Chi-Square Tests
+#' @description 
+#' Create an HTML report displaying errors encountered during grouped chi-square
+#' testing for troubleshooting and quality control.
+#' @param x A list of grouped chi-square test results
+#' @return A browsable HTML div containing formatted error messages
 #' @export
 report_errors_grouped_chisq <- function(x) {
   shiny::div(
@@ -68,8 +92,24 @@ report_errors_grouped_chisq <- function(x) {
 }
 # =================================================
 # =================================================
-#' @title
-#' MISSING_TITLE
+#' @title Create Plots for Grouped Chi-Square Tests
+#' @description 
+#' Generate interactive stacked percentage plots for each subgroup in grouped 
+#' chi-square analysis with test statistics and p-values.
+#' @param df A data frame containing the variables to analyze
+#' @param split_by Character string specifying the grouping variable
+#' @param x Character string specifying the first categorical variable
+#' @param y Character string specifying the second categorical variable
+#' @param test Optional pre-computed test results (default: NULL)
+#' @param order_by Variable to order results by (default: "p.value")
+#' @param pal Optional color palette for plots
+#' @param width Plot width in inches (default: 3)
+#' @param height Plot height in inches (default: 3)
+#' @param flex_direction CSS flex direction for layout (default: "row")
+#' @param flex_wrap CSS flex wrap setting (default: "wrap")
+#' @param show_info Logical indicating whether to show test statistics
+#' @param ... Additional arguments
+#' @return A browsable HTML div containing the plots
 #' @export
 plot_grouped_chisq <- function(df, split_by, x, y, test = NULL, order_by = "p.value",
                                pal = NULL,
@@ -124,8 +164,21 @@ plot_grouped_chisq <- function(df, split_by, x, y, test = NULL, order_by = "p.va
     htmltools::browsable()
 }
 # =================================================
-#' @title
-#' MISSING_TITLE
+#' @title Create Reactable for Grouped Chi-Square Tests  
+#' @description 
+#' Generate an interactive reactable table display for grouped chi-square analysis
+#' with embedded plots and test statistics.
+#' @param df A data frame containing the variables to analyze
+#' @param split_by Character string specifying the grouping variable
+#' @param x Character string specifying the first categorical variable
+#' @param y Character string specifying the second categorical variable
+#' @param test Optional pre-computed test results (default: NULL)
+#' @param order_by Variable to order results by (default: "p.value")
+#' @param pal Optional color palette for plots
+#' @param width Plot width in inches (default: 3)
+#' @param height Plot height in inches (default: 3)
+#' @param ... Additional arguments
+#' @return A browsable HTML div containing the reactable
 #' @export
 reactable_grouped_chisq <- function(df, split_by, x, y, test = NULL, order_by = "p.value",
                                     pal = NULL,
