@@ -4,7 +4,7 @@ transform:
   x: factor
 layers:
 # Half density layer
-- type: generic
+- type: geom
   geom: ggdist::stat_halfeye
   adjust: 0.5
   width: 0.6
@@ -13,22 +13,21 @@ layers:
   point_colour: "#00000000"
   justification: -0.2
 # Boxplot layer
-- type: generic
+- type: geom
   geom: ggplot2::geom_boxplot
   width: 0.15
   ## transparent color to hide oulier points.
   outlier.color: "#00000000"
 # Point/jitter layer
-- type: generic
-  geom: gghalves::geom_half_point
-  ## draw jitter on the left
-  side: "l"
-  ## control range of jitter
-  range_scale: 0.4
+- type: geom
+  geom: ggplot2::geom_jitter
+  ## narrow horizontal jitter under the slab
+  width: 0.08
+  height: 0
   ## add some transparency
   alpha: 0.3
   ## adjust size of points
-  size: 0.5
+  size: 0.6
 # SVG Options to adjust size of the plot
 svg:
   height: 7

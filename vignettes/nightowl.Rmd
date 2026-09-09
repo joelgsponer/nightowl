@@ -1,0 +1,163 @@
+---
+title: "Plots as data: the nightowl workflow"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Plots as data: the nightowl workflow}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>", fig.width = 7, fig.height = 4.5)
+```
+
+```{r setup}
+library(nightowl)
+```
+
+nightowl has one idea at its centre: a plot is a value. A `Plot` wraps a
+ggplot together with its rendering options and renders itself to SVG on
+demand, once. A `NightowlPlots` vector holds many of them, so a column of a
+data frame can be a column of sparklines. Everything else in the package,
+the declarative plot specification, the YAML styles, the summary tables,
+exists to produce those values and put them in front of a reader.
+
+## Declaring a plot
+
+`DeclarativePlot` builds a ggplot from a specification: data, a mapping of
+aesthetics to column names, and an ordered list of layers. Layer types are
+the names returned by `nightowl_layers()`.
+
+```{r declare}
+p <- DeclarativePlot$new(
+  data = ChickWeight,
+  mapping = list(x = "Time", y = "weight", colour = "Diet", id = "Chick"),
+  layers = list(
+    list(type = "traces", alpha = 0.15),
+    list(type = "summary", fun.data = "mean_se", geom = "line", linewidth = 1),
+    list(type = "summary", fun.data = "mean_se", geom = "pointrange")
+  ),
+  annotation = list(title = "Chick weight by diet", subtitle = "Individual traces and mean ± SE"),
+  svg = list(width = 7, height = 4.5)
+)
+p$plot
+```
+
+The specification is validated before anything is drawn: an unknown field,
+mapping key or layer type is an error naming the offending key. Summary
+methods and axis zooms are recorded in the plot caption, so a figure
+documents how it was made:
+
+```{r captions}
+p$captions
+```
+
+## Styles
+
+A specification can live in a YAML file. The package ships a few:
+
+```{r styles}
+list_styles()
+```
+
+`styled_plot()` applies a style to data with the mapping given as
+arguments. The style decides the layers; you decide the columns.
+
+```{r styled}
+styled_plot(ChickWeight, "Boxplot-SummaryMean", x = "Time", y = "weight", fill = "Diet")$plot
+```
+
+```{r raincloud, eval = requireNamespace("ggdist", quietly = TRUE)}
+styled_plot(iris, "Raincloud", x = "Species", y = "Sepal.Length", fill = "Species")$plot
+```
+
+A style file is a plain description of the layer stack, for example
+`Boxplot-SummaryMean.yaml`:
+
+```{r show-style, echo = FALSE, comment = ""}
+cat(readLines(system.file("styles", "Boxplot-SummaryMean.yaml", package = "nightowl")), sep = "\n")
+```
+
+## Rendering
+
+`$svg()` renders to SVG markup, `$html()` wraps it in a block with the
+package stylesheet attached. Rendering is memoised per object. In R Markdown
+and Shiny the HTML block can be used directly:
+
+```{r html}
+p$html()
+```
+
+## Summary tables with inline plots
+
+`Summary` summarises one column per group with a template of calculations.
+A calculation can return a number, a one-row data frame, or an inline plot.
+The `summarise_*()` templates cover the common cases.
+
+```{r summary}
+s <- Summary$new(mtcars, "mpg", group_by = "cyl", method = summarise_numeric_pointrange)
+s$raw()
+```
+
+The `Pointrange` column is a `NightowlPlots` vector. Table renderers know
+what to do with it:
+
+```{r summary-html}
+s$html()
+```
+
+```{r summary-reactable}
+s$reactable()
+```
+
+Categorical variables get frequencies and a stacked bar:
+
+```{r categorical}
+Summary$new(
+  transform(mtcars, gear = factor(gear)), "gear",
+  group_by = "cyl", method = summarise_categorical_barplot
+)$html()
+```
+
+The underlying engine is `calc_summary()`; any named list of functions is a
+template:
+
+```{r calc}
+calc_summary(
+  dplyr::group_by(iris, Species), "Sepal.Length",
+  calculations = list(N = length, Mean = format_mean_ci, Hist = add_inline_histogram),
+  parameters = list(Hist = list(xlim = range(iris$Sepal.Length)))
+)
+```
+
+## Colours, theme, options
+
+Three colour-blind-safe palettes ship with the package, and every level
+named `"(Missing)"` gets the same grey everywhere.
+
+```{r palettes, fig.height = 2}
+pal <- nightowl_palettes()
+op <- par(mar = c(0, 4, 0, 0))
+plot(NULL, xlim = c(0, 9), ylim = c(0, 3), axes = FALSE, xlab = "", ylab = "")
+for (i in seq_along(pal)) {
+  rect(seq_along(pal[[i]]) - 1, i - 0.9, seq_along(pal[[i]]), i - 0.1, col = pal[[i]], border = NA)
+  mtext(names(pal)[i], side = 2, at = i - 0.5, las = 1)
+}
+par(op)
+```
+
+Defaults are ordinary R options under the `nightowl.` prefix:
+
+```{r options}
+nightowl_options()
+old <- nightowl_options(palette = "muted")
+styled_plot(ChickWeight, "Boxplot", x = "Time", y = "weight", fill = "Diet")$plot
+options(old)
+```
+
+## Testing figures
+
+Because output is SVG, figures can be compared as text. `expect_snapshot_svg()`
+stores a normalised SVG snapshot per operating system and shows changes side
+by side in `testthat::snapshot_review()`. For ggplot objects, `vdiffr` works
+as usual on `$plot`.

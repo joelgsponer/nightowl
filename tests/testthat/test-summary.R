@@ -1,298 +1,92 @@
-test_that("summary works", {
-  penguins <- palmerpenguins::penguins
+test_that("calc_summary spreads data-frame results and keeps plots", {
+  res <- calc_summary(dplyr::group_by(mtcars, cyl), "mpg",
+                      calculations = list(N = length, Mean = format_mean_ci, PR = add_inline_pointrange))
+  expect_s3_class(res, "grouped_df")
+  expect_equal(dplyr::group_vars(res), "cyl")
+  expect_named(res, c("cyl", "Variable", "N", "Mean", "CI", "PR"))
+  expect_equal(res$N, as.vector(table(mtcars$cyl)))
+  expect_true(is_NightowlPlots(res$PR))
+  expect_equal(nrow(res), 3)
+  expect_equal(res$Variable, rep("mpg", 3))
+})
 
-  nightowl::summarise(penguins %>% dplyr::group_by(island), "island")
+test_that("calc_summary respects unnest = FALSE, parameters and templates", {
+  nested <- calc_summary(mtcars, "mpg", calculations = list(Mean = format_mean_ci), unnest = FALSE)
+  expect_type(nested$Mean, "list")
+  expect_s3_class(nested$Mean[[1]], "tbl_df")
+  param <- calc_summary(mtcars, "mpg", calculations = list(Test = function(x, what) what),
+                        parameters = list(Test = list(what = "hi")))
+  expect_equal(param$Test, "hi")
+  tpl <- calc_summary(dplyr::group_by(mtcars, cyl), "mpg", template = summarise_numeric)
+  expect_equal(tpl$Median, as.vector(tapply(mtcars$mpg, mtcars$cyl, median)))
+  expect_message(calc_summary(mtcars, "mpg"), "counting")
+  expect_error(calc_summary(mtcars, "nope"), "not present")
+  expect_error(calc_summary(mtcars, "mpg", calculations = list(function(x) 1)), "named list")
+  expect_error(calc_summary(mtcars, "mpg", calculations = list(Bad = function(x) data.frame(a = 1:2))), "one row")
+  vec <- calc_summary(mtcars, "mpg", calculations = list(R = range))
+  expect_type(vec$R, "list")
+})
 
-  nightowl::summarise(penguins %>% dplyr::group_by(island), "species", template = nightowl::summarise_categorical()) %>%
-    nightowl::render_reactable()
+test_that("templates share axis limits when given a summary", {
+  s <- list(data = mtcars, column = "mpg")
+  tpl <- summarise_numeric_pointrange(s)
+  expect_equal(tpl$parameters$Pointrange$xlim, range(mtcars$mpg))
+  expect_null(summarise_numeric_pointrange()$parameters$Pointrange)
+  over <- summarise_numeric_histogram(s, Histogram = list(height = 2))
+  expect_equal(over$parameters$Histogram$height, 2)
+  expect_true(all(c("N", "Freq", "Barplot") %in% names(summarise_categorical_barplot()$calculations)))
+})
 
-  nightowl::summarise(penguins %>% dplyr::group_by(island), "species", template = nightowl::summarise_categorical_barplot()) %>%
-    nightowl::render_reactable()
+test_that("Summary infers groups, method and test", {
+  s <- Summary$new(dplyr::group_by(mtcars, cyl), "mpg")
+  expect_equal(s$group_by, "cyl")
+  expect_identical(s$method, summarise_numeric)
+  raw <- s$raw()
+  expect_equal(raw$Median, as.vector(tapply(mtcars$mpg, mtcars$cyl, median)))
+  expect_match(s$footnote(), "Kruskal-Wallis")
+  expect_equal(s$test()$p_value, stats::kruskal.test(mpg ~ cyl, mtcars)$p.value)
+  expect_equal(s$caption(), "Summary of mpg")
+  cat_s <- Summary$new(transform(mtcars, am = factor(am)), "am", group_by = "cyl")
+  expect_identical(cat_s$method, summarise_categorical)
+  expect_match(cat_s$footnote(), "chi-squared")
+  expect_named(cat_s$raw(), c("cyl", "Variable", "N", "0", "1"))
+})
 
-  nightowl::summarise(penguins %>% dplyr::group_by(island), "bill_length_mm", template = nightowl::summarise_numeric_violin)
+test_that("Summary options, labels and errors", {
+  expect_error(Summary$new(mtcars, "nope"), "not present")
+  expect_error(Summary$new(mtcars, "mpg", facet = 1), "unused argument")
+  s <- Summary$new(mtcars, "mpg", group_by = "cyl", labels = c(mpg = "Miles per gallon", cyl = "Cylinders"),
+                   add_test = FALSE, keep_variable = FALSE, arrange_by = "Median")
+  raw <- s$raw()
+  expect_null(s$test())
+  expect_null(s$footnote())
+  expect_false("Variable" %in% names(raw))
+  expect_equal(names(raw)[1], "Cylinders")
+  expect_equal(s$caption(), "Summary of Miles per gallon")
+  expect_true(!is.unsorted(raw$Median))
+  ungrouped <- Summary$new(mtcars, "mpg")
+  expect_false(ungrouped$add_test)
+  expect_equal(nrow(ungrouped$raw()), 1)
+  expect_equal(nrow(s$raw(drop = "Min")), 3)
+  expect_false("Min" %in% names(s$raw(drop = "Min")))
+})
 
-  nightowl::Summary$new(penguins, "bill_length_mm", "species")$raw()
-  nightowl::Summary$new(penguins %>% dplyr::group_by(species), "bill_length_mm", method = nightowl::summarise_numeric_histogram)$html()
+test_that("Summary renders to kable, html and reactable", {
+  s <- Summary$new(mtcars, "mpg", group_by = "cyl", method = summarise_numeric_pointrange)
+  k <- s$kable()
+  expect_s3_class(k, "kableExtra")
+  expect_match(k, "<table")
+  expect_match(k, "<svg")
+  h <- s$html()
+  expect_s3_class(h, "shiny.tag")
+  r <- s$reactable()
+  expect_s3_class(r, "shiny.tag")
+  expect_output(print(s), "Summary of mpg")
+})
 
-  s1 <- nightowl::summary(penguins, "species", "island", debug = F)
-  s1
-  s1$calculations
-  s1$add_calculation(list(Missing = function(x) sum(is.na(x))))
-  s1$raw()
-  s1$html()
-  s1$html(htmltable_class = "lightable-classic")
-
-  nightowl::Summary$new(testdata, "qux", "s1")$raw()
-  nightowl::Summary$new(testdata, "qux", "s1")$reactable()
-
-  nightowl::Summary$new(testdata, "qux", "foo", method = nightowl::summarise_categorical_barplot)$data
-
-  nightowl::Summary$new(testdata, "qux", "foo", method = nightowl::summarise_categorical_barplot)$kable() %>%
-    shiny::HTML() %>%
-    htmltools::browsable()
-  nightowl::Summary$new(testdata %>% dplyr::filter(foo == "A"), "qux", "foo", method = nightowl::summarise_categorical_barplot)$kable()
-
-  NightowlOptions$set_colors(picasso::roche_colors() %>% rev())
-  NightowlOptions$set_header_width(10)
-  nightowl::Summary$new(testdata, "qux", "foo", method = nightowl::summarise_categorical_barplot)$kable()
-
-  nightowl::Summary$new(testdata, "baz", "s1", method = nightowl::summarise_numeric_violin)$raw()
-  nightowl::Summary$new(testdata, "baz", "s1", method = nightowl::summarise_numeric_violin)$kable() %>%
-    shiny::HTML() %>%
-    htmltools::browsable()
-  nightowl::Summary$new(testdata, "baz", "s1", method = nightowl::summarise_numeric_histogram)$kable()
-  nightowl::Summary$new(testdata, "baz", "s1", method = nightowl::summarise_numeric_violin)$reactable()
-  nightowl::Summary$new(testdata, "baz", "s1", method = nightowl::summarise_numeric_pointrange)$reactable()
-
-  a <- nightowl::Summary$new(testdata, "baz", "s1", method = nightowl::summarise_numeric_pointrange)$raw()
-
-  purrr::walk(a$Pointrange, function(.x) {
-    .x$options_svg[["width"]] <- 3
-    .x$plot <- .x$plot + ggplot2::xlim(c(0.25, 0.75))
-  })
-
-  purrr::walk2(c("red", "blue", "green"), a$Pointrange, function(.x, .y) {
-    .y$plot <- .y$plot + ggplot2::scale_color_manual(values = .x)
-  })
-
-  nightowl::render_kable(a)
-
-  nightowl::Summary$new(testdata,
-    "baz",
-    "s1",
-    method = nightowl::summarise_numeric_violin
-  )$reactable()
-
-  # Pointrange
-  palmerpenguins::penguins %>%
-    dplyr::group_by(species) %>%
-    dplyr::summarise(mean = ggplot2::mean_cl_boot(bill_length_mm), ) %>%
-    render_kable()
-
-  # Testing memoisation
-  flights <- nightowl::Summary$new(nycflights13::flights, "month", "day")
-  flights$raw()
-
-
-  # Data summary
-  nightowl::data_summary(testdata, "bar", "foo", output = "kable", labels = c(bar = "Bar", foo = "Foo"), keep_y = TRUE)
-  nightowl::data_summary(testdata, "bar", "foo", output = "reactable", labels = c(bar = "Bar", foo = "Foo"))
-  nightowl::data_summary(testdata, "qux", "foo", output = "kable")
-  nightowl::data_summary(testdata, "qux", "foo", output = "reactable")
-  nightowl::data_summary_with_plot(testdata, "bar", "foo", output = "kable", labels = c(bar = "Bar", foo = "Foo"))
-  nightowl::data_summary_with_plot(testdata, "bar", "foo", output = "reactable", labels = c(bar = "Bar", foo = "Foo"))
-  nightowl::data_summary_with_plot(testdata, "qux", "foo", output = "kable")
-
-  # Summarise categorical
-  nightowl::summarise(testdata, "qux")
-  nightowl::summarise_categorical(testdata, "qux") %>% nightowl::render_kable()
-  nightowl::summarise_categorical_barplot(testdata, "qux") %>% nightowl::render_kable()
-
-  # Summarise numeric
-  nightowl::summarise_numeric(testdata, "bar") %>% nightowl::render_kable()
-  nightowl::summarise_numeric_forestplot(testdata, "bar") %>% nightowl::render_kable()
-
-  # Adding scales
-  a <- nightowl::summarise_numeric_forestplot(testdata, "bar")
-  a %>%
-    nightowl::add_scale(height = 0.8, scaling = 3) %>%
-    nightowl::render_kable()
-
-  nightowl::summarise_categorical_barplot(testdata, "qux") %>%
-    nightowl::add_scale() %>%
-    nightowl::render_kable()
-
-  # Groupings
-  testdata %>%
-    dplyr::group_by(foo) %>%
-    purrr::map_df(c("bar", "baz"), function(col, .data) {
-      nightowl::summarise_numeric_violin(.data, col)
-    }, .data = .) %>%
-    nightowl::render_kable()
-
-  testdata %>%
-    dplyr::group_by("foo") %>%
-    nightowl::summarise_numeric_violin("bar") %>%
-    nightowl::render_kable()
-
-  # Some reactables
-  nightowl::summary(testdata, "qux", c("foo", "s1"), output = "kable")
-  nightowl::render_reactable()
-
-  nightowl::summary(testdata, "bar", c("foo", "s1"), output = "raw", calc_p = F) %>%
-    nightowl::render_reactable() %>%
-    as.character()
-
-  nightowl::reactable_summary(testdata,
-    "s1",
-    c("bar", "qux"),
-    "foo",
-    labels = c(bar = "Bar", foo = "Foo", qux = "This variable"),
-    plan = "sequential"
-  )
-
-  nightowl::mean(runif(10))
-
-  nightowl::reactable_summary(testdata,
-    split = NULL,
-    c("bar", "qux"),
-    "foo",
-    labels = c(bar = "Bar", foo = "Foo", qux = "This variable")
-  )
-
-  nightowl::summary(testdata, "bar", "foo", output = "kable")
-  nightowl::summary(testdata, "baz", "foo", output = "kable")
-  nightowl::summary(testdata, "qux", "foo", output = "kable")
-
-  nightowl::forestplot(1, 0, 2)
-
-  testdata %>%
-    dplyr::group_by(foo) %>%
-    attributes()
-
-  nightowl::calc_summary_numeric(testdata, "bar")
-  nightowl::calc_summary_numeric(testdata, "bar") %>% nightowl::render_kable()
-  nightowl::calc_summary_numeric(dplyr::group_by(testdata, foo), "bar") %>% nightowl::render_kable()
-  nightowl::calc_summary_numeric(dplyr::group_by(testdata, foo), "bar") %>% nightowl::render_reactable()
-
-  nightowl::summarise(
-    data = dplyr::group_by(testdata, foo),
-    column = "bar",
-    calculations = list(
-      `N.` = length,
-      Median = function(x) median(x, na.rm = T),
-      Mean = nightowl::formated_mean,
-      Violin = nightowl::add_violin
-    ),
-    parameters = rlang::expr(list(
-      Violin = list(
-        theme = picasso::theme_void,
-        height = 1.5,
-        ylim = range(data[[column]], na.rm = T)
-      )
-    ))
-  ) %>% nightowl::render_kable()
-
-  nightowl::summarise(
-    data = dplyr::group_by(testdata, foo),
-    column = "bar",
-    calculations = list(
-      `N.` = length,
-      Median = function(x) median(x, na.rm = T),
-      Mean = nightowl::formated_mean,
-      Violin = function(x) nightowl::styled_plot(x, )
-    ),
-    parameters = rlang::expr(list(
-      Violin = list(
-        theme = picasso::theme_void,
-        height = 1.5,
-        ylim = range(data[[column]], na.rm = T)
-      )
-    ))
-  ) %>% nightowl::render_kable()
-
-  nightowl::calc_summary_numeric(
-    data = dplyr::group_by(testdata, foo),
-    column = "bar",
-    calculations = list(
-      `N.` = length,
-      Median = function(x) median(x, na.rm = T),
-      Mean = nightowl::formated_mean,
-      Density = nightowl::add_density
-    ),
-    parameters = rlang::expr(list(
-      Density = list(
-        theme = ggplot2::theme_void,
-        height = 1.5,
-        ylim = range(data[[column]], na.rm = T)
-      )
-    ))
-  ) %>% nightowl::render_kable()
-
-  nightowl::calc_summary_numeric(dplyr::group_by(mtcars, cyl), "mpg") %>%
-    nightowl::add_scale("Forestplot")
-
-  nightowl::calc_summary(dplyr::group_by(testdata, foo), "bar")
-
-  nightowl::calc_summary(dplyr::group_by(testdata, foo), "bar", calculations = list(Min = min))
-
-  nightowl::calc_summary_numeric(dplyr::group_by(mtcars, cyl), "mpg") %>%
-    nightowl::add_scale()
-
-
-
-  nightowl::frequencies(testdata$qux)
-  nightowl::frequencies(testdata$qux, "count")
-  nightowl::frequencies(testdata$qux, "percent")
-  nightowl::frequencies(testdata$qux, "print")
-
-  nightowl::frequencies(testdata$qux, "barplot") %>%
-    nightowl::render_kable()
-
-  nightowl::calc_summary(dplyr::group_by(testdata, foo), "qux", calculations = list(N = nightowl::n, Freq = nightowl::frequencies))
-
-  nightowl::calc_summary(
-    dplyr::group_by(
-      testdata,
-      foo
-    ),
-    column = "qux",
-    calculations = list(
-      N = nightowl::n,
-      Freq = nightowl::frequencies,
-      Bar = function(x) {
-        nightowl::frequencies(x,
-          output = "barplot"
-        )
-      }
-    ),
-    names_sep = NULL
-  ) %>%
-    nightowl::render_kable()
-
-  nightowl::frequencies(sample(letters, 100, T))
-
-
-  nightowl::calc_summary(testdata, "qux")
-  nightowl::calc_summary(testdata %>% dplyr::group_by(s1), "qux")
-  nightowl::calc_summary_categorical(testdata, "qux")
-  nightowl::calc_summary_categorical(testdata, "qux") %>% nightowl::render_kable()
-  nightowl::calc_summary_categorical(dplyr::group_by(testdata, foo), "qux") %>% nightowl::render_reactable()
-
-  nightowl::calc_summary(testdata,
-    "bar",
-    calculations = list(Test = function(x, param) {
-      param
-    }),
-    parameters = list(Test = list(param = "test"))
-  )
-
-
-  s <- nightowl::Summary$new(testdata %>% dplyr::group_by(s1), "qux")
-  s
-  s$raw()
-  s$keep_y <- FALSE
-  s$raw()
-  s$reactable()
-
-  s$options_test$correct <- TRUE
-  s$calc_test()$test$footnote
-
-  s <- nightowl::Summary$new(testdata, "bar", "foo", labels = c(bar = "Bar", foo = "Foo"), keep_y = TRUE)
-  s
-  s$kable()
-  s$html()
-  s$reactable()
-
-  s <- nightowl::Summary$new(testdata, "bar", "foo", method = nightowl::summarise_numeric_forestplot, labels = c(bar = "Bar", foo = "Foo"), keep_y = TRUE)
-
-
-  s$reactable(fullWidth = TRUE)
-
-  s$kable()
-
-  s$hash
-  s$is_dirty()
-  s$data <- mtcars
-  s$is_dirty()
+test_that("a failing test is reported, not thrown", {
+  local_mocked_bindings(calc_group_test = function(...) stop("boom"))
+  s <- Summary$new(mtcars, "mpg", group_by = "cyl")
+  expect_true(is.na(s$test()$p_value))
+  expect_match(s$footnote(), "Test failed")
 })

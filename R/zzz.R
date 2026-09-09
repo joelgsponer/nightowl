@@ -1,7 +1,7 @@
-# On Package load it assigns som
 .onLoad <- function(libname, pkgname) {
-  assign("NightowlOptions",
-    nightowl:::.NightowlOptions$new(),
-    env = globalenv()
-  )
+  op <- options()
+  defaults <- nightowl_default_options()
+  unset <- !(names(defaults) %in% names(op))
+  if (any(unset)) options(defaults[unset])
+  invisible()
 }

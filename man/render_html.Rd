@@ -2,14 +2,27 @@
 % Please edit documentation in R/tables.R
 \name{render_html}
 \alias{render_html}
-\title{MISSING_TITLE}
+\title{Render a table as a browsable HTML block}
 \usage{
-render_html(
-  .tbl,
-  html_dependencies = kableExtra:::html_dependency_lightable,
-  ...
-)
+render_html(data, title = NULL, subtitle = NULL, footnote = NULL, ...)
+}
+\arguments{
+\item{data}{A data frame or tibble. Grouping is ignored.}
+
+\item{title, subtitle}{Optional heading above the table.}
+
+\item{footnote}{Optional note below the table; may contain HTML.}
+
+\item{...}{Passed to \code{\link[=render_kable]{render_kable()}}.}
+}
+\value{
+A browsable \link[htmltools:tag]{htmltools::tag}.
 }
 \description{
-MISSING_TITLE
+Wraps \code{\link[=render_kable]{render_kable()}} output in the nightowl card with its CSS attached,
+so it can be printed in the viewer, saved with \code{\link[htmltools:save_html]{htmltools::save_html()}}, or
+embedded in Shiny.
+}
+\examples{
+render_html(head(mtcars[, 1:4]), title = "Cars")
 }

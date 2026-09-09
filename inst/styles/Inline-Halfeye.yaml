@@ -1,6 +1,6 @@
 name: Inline Halfeye
-description: Pontestimates = Median and 0.66 and 0.95 quantiles.
+description: Point estimates = Median and 0.66 and 0.95 quantiles.
 layers:
-- type: generic
+- type: geom
   geom: ggdist::stat_halfeye
 

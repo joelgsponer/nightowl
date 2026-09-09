@@ -116,8 +116,6 @@ $RECYCLE.BIN/
 
 # Testing and Coverage
 # -----------------------------------------------------------------------------
-# testthat snapshots that shouldn't be committed
-tests/testthat/_snaps/*/
 # testthat problem files
 tests/testthat/testthat-problems.rds
 covr-report.html

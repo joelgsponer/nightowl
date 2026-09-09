@@ -2,22 +2,50 @@
 % Please edit documentation in R/tables.R
 \name{render_reactable}
 \alias{render_reactable}
-\title{MISSING_TITLE}
+\title{Render a table with reactable}
 \usage{
 render_reactable(
-  .tbl,
-  html_columns = NULL,
-  theme = function() reactablefmtr::nytimes(centered = TRUE),
+  data,
+  columns = list(),
   digits = 2,
-  defaultPageSize = 10,
-  filterable = T,
-  add_scale = T,
-  defaultColDef = list(header = function(value) gsub(".", " ", value, fixed = TRUE),
-    align = "center", na = "-", html = TRUE),
-  fullWidth = FALSE,
+  scale_row = TRUE,
+  default_col_def = list(align = "center", na = "-", html = TRUE),
+  theme = nightowl_reactable_theme(),
+  page_size = 10,
+  filterable = FALSE,
   ...
 )
 }
+\arguments{
+\item{data}{A data frame or tibble. Grouping is ignored.}
+
+\item{columns}{Named list of \code{\link[reactable:colDef]{reactable::colDef()}} overrides, merged over
+the generated definitions.}
+
+\item{digits}{Decimals for numeric columns.}
+
+\item{scale_row}{Add a row with an axis under every inline-plot column, see
+\code{\link[=add_inline_scale]{add_inline_scale()}}.}
+
+\item{default_col_def}{Arguments to \code{\link[reactable:colDef]{reactable::colDef()}} used as
+\code{defaultColDef}.}
+
+\item{theme}{A \code{\link[reactable:reactableTheme]{reactable::reactableTheme()}}.}
+
+\item{page_size}{Rows per page.}
+
+\item{filterable}{Show column filters.}
+
+\item{...}{Further arguments to \code{\link[reactable:reactable]{reactable::reactable()}}.}
+}
+\value{
+An htmlwidget.
+}
 \description{
-MISSING_TITLE
+An interactive table in the nightowl style. Columns of class
+\link{NightowlPlots} are rendered as inline SVG with a matching width and an
+axis in the footer; grouping columns are pinned to the left.
+}
+\examples{
+render_reactable(head(mtcars[, 1:4]))
 }

@@ -1,13 +1,15 @@
-name: Dotplot - with mean
-description: Dotplot with mean trendline. Please adjust filters to look at other parameters. Grouping can
-  be changed through the <fill> <color> and <group> mappings.
+name: Histogram - simple
+description: Histogram of a numeric variable. Grouping can be changed through the <fill> mapping.
 transform:
   x: as.numeric
   fill: factor
 layers:
-- type: generic
+- type: geom
   geom: geom_histogram
+  mapping:
+    "y": ~
   alpha: 0.8
+  bins: 30
 svg:
   height: 8
   width: 8

@@ -15,7 +15,7 @@ layers:
     id: ~
     color: ~
   geom: line
-  size: 1
+  linewidth: 1
   dodge: 0
 - type: summary
   mapping:

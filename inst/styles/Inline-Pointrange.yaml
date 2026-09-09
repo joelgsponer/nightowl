@@ -1,7 +1,8 @@
 name: Inline Pointrange
 description: Pointrange
 layers:
-- type: generic
+- type: geom
   geom: ggplot2::geom_pointrange
-  size: 1.5
+  size: 0.7
+  linewidth: 0.6
 

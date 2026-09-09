@@ -1,0 +1,20 @@
+test_that("calc_group_test picks the test by type", {
+  num <- calc_group_test(mtcars, "mpg", groups = "cyl")
+  expect_equal(num$method, "Kruskal-Wallis test")
+  expect_equal(num$p_value, stats::kruskal.test(mpg ~ cyl, mtcars)$p.value)
+  expect_match(num$footnote, "^Kruskal-Wallis test: p = ")
+  cat <- calc_group_test(transform(mtcars, am = factor(am)), "am", groups = c("cyl", "gear"))
+  expect_equal(cat$method, "Pearson's chi-squared test")
+  ord <- calc_group_test(data.frame(y = factor(c("a", "b", "a", "b"), ordered = TRUE), g = c(1, 1, 2, 2)), "y", groups = "g")
+  expect_true(is.numeric(ord$p_value))
+  int <- calc_group_test(data.frame(y = 1:6, g = rep(1:2, 3)), "y", groups = "g")
+  expect_equal(int$method, "Kruskal-Wallis test")
+  grouped <- calc_group_test(dplyr::group_by(mtcars, cyl), "mpg")
+  expect_equal(grouped$p_value, num$p_value)
+})
+
+test_that("calc_group_test errors clearly", {
+  expect_error(calc_group_test(mtcars, "mpg"), "not grouped")
+  expect_error(calc_group_test(mtcars, "nope", groups = "cyl"), "not present")
+  expect_error(calc_group_test(data.frame(y = as.Date("2020-01-01") + 0:3, g = c(1, 1, 2, 2)), "y", groups = "g"), "No test available")
+})
