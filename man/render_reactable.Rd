@@ -9,7 +9,8 @@ render_reactable(
   columns = list(),
   digits = 2,
   scale_row = TRUE,
-  default_col_def = list(align = "center", na = "-", html = TRUE),
+  default_col_def = list(align = "center", na = "-", html = TRUE, minWidth = 70, style =
+    list(whiteSpace = "nowrap")),
   theme = nightowl_reactable_theme(),
   page_size = 10,
   filterable = FALSE,

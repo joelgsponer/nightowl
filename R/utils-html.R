@@ -20,9 +20,22 @@ nightowl_dependency <- function() {
   )
 }
 
-#' Wrap rendered content in the nightowl card
-#' @noRd
-html_card <- function(body, title = NULL, subtitle = NULL, footnote = NULL, class = NULL, plain = FALSE) {
+#' Wrap content in the nightowl card
+#'
+#' A titled block with the nightowl stylesheet attached: title, subtitle,
+#' body and footnotes. Used by every renderer in the package and available
+#' for packages building on nightowl.
+#'
+#' @param body An htmltools tag, HTML string or htmlwidget.
+#' @param title,subtitle Optional heading text (may contain HTML).
+#' @param footnote Optional character vector of notes shown below the body.
+#' @param class Extra CSS classes.
+#' @param plain Drop the border and padding.
+#' @return A browsable [htmltools::tag].
+#' @examples
+#' nightowl_card(htmltools::p("Body"), title = "Title", footnote = "Note")
+#' @export
+nightowl_card <- function(body, title = NULL, subtitle = NULL, footnote = NULL, class = NULL, plain = FALSE) {
   footnote <- footnote %||% character(0)
   footnote <- footnote[!is.na(footnote) & nzchar(footnote)]
   card <- htmltools::div(
@@ -58,3 +71,5 @@ forest_header <- function(label = "log(HR)", left = "Comparison better", right =
     htmltools::div(htmltools::HTML(glue::glue("&larr; {left} | {right} &rarr;")))
   ))
 }
+
+html_card <- nightowl_card

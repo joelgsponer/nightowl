@@ -4,7 +4,7 @@
 #' scales to its container, uses the nightowl font stack, and optionally
 #' carries a download button. All nightowl plot output goes through here.
 #'
-#' @param plot A ggplot object.
+#' @param plot A ggplot object (or a patchwork composition).
 #' @param width,height Device size in inches. These define the aspect ratio and
 #'   the `viewBox`; the on-page size is controlled by CSS.
 #' @param scaling Scaling factor for text and lines, see [svglite::svgstring()].
@@ -38,7 +38,7 @@ render_svg <- function(plot,
                        element_height = "100%",
                        filename = "plot.svg",
                        ...) {
-  if (!inherits(plot, "ggplot")) {
+  if (!inherits(plot, "ggplot") && !inherits(plot, "patchwork")) {
     cli::cli_abort("{.arg plot} must be a ggplot object, not {.obj_type_friendly {plot}}.")
   }
   n_dev <- length(dev.list())

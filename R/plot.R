@@ -39,7 +39,7 @@ Plot <- R6::R6Class(
     #' @param resize See the `resize` field.
     #' @param class See the `class` field.
     initialize = function(plot, svg = list(), type = "Plot", resize = TRUE, class = NULL) {
-      if (!inherits(plot, "ggplot")) {
+      if (!inherits(plot, "ggplot") && !inherits(plot, "patchwork")) {
         cli::cli_abort("{.arg plot} must be a ggplot object, not {.obj_type_friendly {plot}}.")
       }
       if (!is.list(svg)) {

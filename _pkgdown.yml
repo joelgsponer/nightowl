@@ -38,6 +38,7 @@ reference:
   - render_reactable
   - add_inline_scale
   - nightowl_reactable_theme
+  - nightowl_card
   - nightowl_dependency
 - title: Formatting
   contents:

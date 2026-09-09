@@ -18,8 +18,8 @@ add_inline_plot(
   layers = NULL,
   xlim = NULL,
   ylim = NULL,
-  height = 0.8,
-  width = 8,
+  height = 0.45,
+  width = 3,
   scaling = 1,
   coord_flip = FALSE,
   type = style \%||\% "InlinePlot",
@@ -76,7 +76,8 @@ add_inline_violin(
 
 \item{xlim, ylim}{Axis limits shared across a column.}
 
-\item{height, width, scaling}{SVG size in inches and text scaling.}
+\item{height, width, scaling}{SVG size in inches and text scaling. Inline plots
+render at their native pixel size (72 px per inch) inside tables.}
 
 \item{coord_flip}{Flip the axes.}
 

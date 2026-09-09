@@ -20,7 +20,7 @@ render_svg(
 )
 }
 \arguments{
-\item{plot}{A ggplot object.}
+\item{plot}{A ggplot object (or a patchwork composition).}
 
 \item{width, height}{Device size in inches. These define the aspect ratio and
 the \code{viewBox}; the on-page size is controlled by CSS.}
