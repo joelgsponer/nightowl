@@ -1,7 +1,7 @@
 name: Inline Violin
-description: Pointestimates = Mean +/- SE
+description: Violin with point estimate = mean +/- SE
 layers:
-- type: generic
+- type: geom
   geom: ggplot2::geom_violin
   fill: "#e0a000"
 - type: summary

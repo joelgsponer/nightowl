@@ -1,4 +1,0 @@
-
-  nightowl::summarise(penguins %>% dplyr::group_by(island), "species", template = nightowl::summarise_categorical_barplot()) %>%
-    nightowl::render_reactable()
-

@@ -2,22 +2,52 @@
 % Please edit documentation in R/tables.R
 \name{render_kable}
 \alias{render_kable}
-\title{MISSING_TITLE}
+\title{Render a table with kableExtra}
 \usage{
 render_kable(
-  .tbl,
+  data,
   caption = NULL,
-  full_width = FALSE,
-  digits = 2,
-  add_scale = T,
-  width_header = 20,
-  header_above = NULL,
-  htmltable_class = "lightable-minimal",
   footnote = NULL,
-  align = "l",
+  digits = 2,
+  header_width = nightowl_option("header_width"),
+  header_above = NULL,
+  scale_row = TRUE,
+  align = NULL,
+  full_width = FALSE,
   ...
 )
 }
+\arguments{
+\item{data}{A data frame or tibble. Grouping is ignored.}
+
+\item{caption, footnote}{Optional caption above and note below the table.
+Both may contain HTML.}
+
+\item{digits}{Decimals for numeric columns.}
+
+\item{header_width}{Wrap width for column headers; \code{NULL} disables.}
+
+\item{header_above}{Passed to \code{\link[kableExtra:add_header_above]{kableExtra::add_header_above()}}.}
+
+\item{scale_row}{Add a row with an axis under every inline-plot column, see
+\code{\link[=add_inline_scale]{add_inline_scale()}}.}
+
+\item{align}{Column alignment, see \code{\link[knitr:kable]{knitr::kable()}}.}
+
+\item{full_width}{Passed to \code{\link[kableExtra:kable_styling]{kableExtra::kable_styling()}}.}
+
+\item{...}{Further arguments to \code{\link[kableExtra:kable_styling]{kableExtra::kable_styling()}}.}
+}
+\value{
+A \code{kableExtra} object (a character string with class attributes)
+that prints as HTML in R Markdown and Quarto. Wrap it in
+\code{\link[=render_html]{render_html()}} to view it in the browser with nightowl styling.
+}
 \description{
-MISSING_TITLE
+Renders a data frame as an HTML table in the nightowl style. Columns of
+class \link{NightowlPlots} are rendered as inline SVG; numeric columns are
+rounded; headers are wrapped.
+}
+\examples{
+render_kable(head(mtcars[, 1:4]), caption = "First cars")
 }

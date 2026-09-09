@@ -1,0 +1,157 @@
+/* nightowl: shared styles for rendered plots and tables */
+.nightowl {
+  font-family: Lato, "Helvetica Neue", Helvetica, Arial, sans-serif;
+  color: #1F1F1F;
+  line-height: 1.4;
+}
+.nightowl-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.5rem;
+  width: fit-content;
+  max-width: 100%;
+  padding: 1rem 1.25rem;
+  background: #FFFFFF;
+  border: 1px solid #E4E4E4;
+  border-radius: 6px;
+}
+.nightowl-card--plain {
+  border: none;
+  padding: 0;
+}
+.nightowl-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin: 0;
+}
+.nightowl-subtitle {
+  font-size: 0.95rem;
+  color: #6B6B6B;
+  margin: 0;
+}
+.nightowl-body {
+  width: 100%;
+  overflow-x: auto;
+}
+.nightowl-footnote {
+  font-size: 0.8rem;
+  color: #6B6B6B;
+  margin: 0;
+}
+.nightowl-footnote p {
+  margin: 0.15rem 0;
+}
+.nightowl-plot {
+  display: block;
+  position: relative;
+}
+.nightowl-plot svg {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+.nightowl-plot--fixed svg {
+  max-width: none;
+}
+.nightowl-download {
+  position: absolute;
+  top: 0.25rem;
+  right: 0.25rem;
+  font-size: 0.75rem;
+  color: #6B6B6B;
+  background: rgba(255, 255, 255, 0.85);
+  border: 1px solid #E4E4E4;
+  border-radius: 4px;
+  padding: 0.1rem 0.4rem;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.15s ease-in-out;
+}
+.nightowl-plot:hover .nightowl-download {
+  opacity: 1;
+}
+.nightowl-download:hover {
+  color: #1F1F1F;
+}
+
+/* kable tables */
+table.nightowl-table {
+  border-collapse: collapse;
+  font-size: 0.9rem;
+  margin: 0;
+}
+table.nightowl-table caption {
+  caption-side: top;
+  text-align: left;
+  font-weight: 700;
+  color: #1F1F1F;
+  padding: 0 0 0.5rem 0;
+}
+table.nightowl-table thead th {
+  text-align: center;
+  font-weight: 700;
+  vertical-align: bottom;
+  padding: 0.4rem 0.75rem;
+  border-bottom: 2px solid #1F1F1F;
+}
+table.nightowl-table thead tr:first-child th[colspan] {
+  border-bottom: 1px solid #1F1F1F;
+}
+table.nightowl-table tbody td {
+  padding: 0.3rem 0.75rem;
+  vertical-align: middle;
+  border-bottom: 1px solid #EEEEEE;
+}
+table.nightowl-table tbody tr:last-child td {
+  border-bottom: 1px solid #1F1F1F;
+}
+table.nightowl-table tfoot td,
+table.nightowl-table .footnote,
+table.nightowl-table tr.nightowl-scale-row td {
+  font-size: 0.8rem;
+  color: #6B6B6B;
+  border-bottom: none;
+}
+table.nightowl-table tr.nightowl-scale-row td {
+  padding-top: 0;
+}
+.nightowl-cell {
+  width: max-content;
+  margin: auto;
+  text-align: center;
+}
+.nightowl-cell--left {
+  margin: 0;
+  text-align: left;
+}
+.nightowl-swatch {
+  display: inline-block;
+  width: 0.6rem;
+  height: 0.6rem;
+  border-radius: 50%;
+  margin-right: 0.35rem;
+  vertical-align: middle;
+}
+.nightowl-forest-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-size: smaller;
+  font-weight: 400;
+  color: #6B6B6B;
+}
+
+/* reactable */
+.nightowl-reactable .rt-th-inner,
+.nightowl-reactable .rt-td-inner {
+  padding: 0.35rem 0.6rem;
+}
+.nightowl-reactable .nightowl-scale .rt-td-inner,
+.nightowl-reactable .nightowl-scale .rt-text-content {
+  overflow: visible;
+}
+.nightowl-reactable .rt-tfoot .rt-td {
+  border-top: 1px solid #1F1F1F;
+  padding: 0;
+}

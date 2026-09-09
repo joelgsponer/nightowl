@@ -2,10 +2,19 @@
 % Please edit documentation in R/plot.R
 \name{is_Plot}
 \alias{is_Plot}
-\title{MISSING_TITLE}
+\title{Is an object a \code{Plot}?}
 \usage{
 is_Plot(x)
 }
+\arguments{
+\item{x}{Any object.}
+}
+\value{
+\code{TRUE} or \code{FALSE}.
+}
 \description{
-MISSING_TITLE
+Is an object a \code{Plot}?
+}
+\examples{
+is_Plot(1)
 }

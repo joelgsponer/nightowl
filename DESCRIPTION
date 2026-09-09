@@ -1,53 +1,56 @@
 Package: nightowl
-Title: Statistical Visualization and Analysis for Clinical Research
-Version: 0.0.1.0
-Authors@R: 
+Title: Declarative Plots and Summary Tables with Inline Graphics for Clinical Research
+Version: 0.1.0
+Authors@R:
     person(given = "Joel",
-           family = "Sponer", 
+           family = "Gsponer",
            role = c("aut", "cre"),
-           email = "joel.sponer@example.com")
-Description: Provides a declarative plotting system built on ggplot2 with R6 classes, 
-    survival analysis capabilities, and interactive visualizations for clinical research 
-    applications. Features include Kaplan-Meier curves, Cox proportional hazards modeling, 
-    forest plots, and comprehensive statistical summaries with customizable styling.
-URL: https://joelgsponer.github.io/nightowl/
-BugReports: https://github.com/joelgsponer/nightowl/issues
+           email = "jgsponer@gmail.com")
+Description: A small grammar for publication-ready statistical graphics built on
+    'ggplot2'. Plots are declared as layer stacks, optionally from 'YAML' style
+    files, and rendered to 'SVG' with memoised rendering. Plots are first-class
+    vector elements, so a column of a data frame can hold sparklines that render
+    inside 'reactable' and 'kableExtra' tables. Includes an extensible summary
+    table engine, colour-blind-safe palettes, a house theme, and helpers for
+    snapshot-testing 'SVG' output.
 License: MIT + file LICENSE
+URL: https://joelgsponer.github.io/nightowl/, https://github.com/joelgsponer/nightowl
+BugReports: https://github.com/joelgsponer/nightowl/issues
 Encoding: UTF-8
-LazyData: true
-Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.2.3
-Imports: 
+Language: en-GB
+Roxygen: list(markdown = TRUE, r6 = TRUE)
+Depends:
+    R (>= 4.1.0)
+Imports:
     cli,
-    distributional,
     dplyr,
-    GGally,
-    ggdist,
-    ggiraph,
-    ggplot2,
-    ggpmisc,
-    ggpubr,
+    forcats,
+    ggplot2 (>= 3.5.0),
     glue,
-    gtools,
-    Hmisc,
+    grDevices,
     htmltools,
-    magrittr,
-    MetBrewer,
-    palmerpenguins,
-    pillar,
+    kableExtra,
+    memoise,
     purrr,
+    R6,
     reactable,
-    reactablefmtr,
     rlang,
-    rtables,
+    stats,
     stringr,
-    survival,
-    testthat,
+    svglite,
     tibble,
-    uuid,
-    vctrs
+    tidyr,
+    utils,
+    vctrs,
+    yaml
 Suggests:
+    ggdist,
     knitr,
-    pkgdown,
-    rmarkdown
+    rmarkdown,
+    testthat (>= 3.0.0),
+    vdiffr,
+    withr,
+    xml2
+Config/testthat/edition: 3
 VignetteBuilder: knitr
+Config/roxygen2/version: 8.1.0

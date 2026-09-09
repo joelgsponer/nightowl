@@ -1,7 +1,8 @@
-linters: with_defaults(
-  line_length_linter(120), 
-  commented_code_linter = NULL,
-  object_name_linter = NULL,
-  camel_case_linter = NULL
+linters: linters_with_defaults(
+    line_length_linter(120),
+    object_name_linter = NULL,
+    commented_code_linter = NULL,
+    T_and_F_symbol_linter(),
+    indentation_linter = NULL
   )
-
+exclusions: list("tests/testthat/_snaps")

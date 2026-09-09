@@ -1,102 +1,41 @@
 # CLAUDE.md
 
-ALWAYS use package::function notation, e.g. ggplot2::ggplot() not ggplot(), including the package itself e.g. nightowl::some_function instead of some_function
-The package is called nightowl
-The github repo has a project associated "nightowl" with columns:
-Backlog
-Ready
-In progress
-In review
-Done
-When working with github issues make sure to add them to the project in the correct column.
+Guidance for Claude Code when working in this repository.
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+## Rules
 
-## Project Overview
+* Use `package::function()` for every call to another package, including in
+  tests and vignettes. Internal nightowl calls are unqualified.
+* The package is called `nightowl`. Survival analysis lives in the companion
+  package `nightwatch`, which depends on nightowl; do not add survival code
+  here.
+* GitHub issues go on the project board "nightowl" (columns: Backlog, Ready,
+  In progress, In review, Done). Add every issue you create to the board in
+  the right column.
+* Read `CODE_STYLE.md` before writing code. Explicit formals, validation with
+  `cli::cli_abort()`, no `:::`, no `eval(parse())`, no globals, `TRUE`/`FALSE`.
+* Every export needs roxygen with `@return` and a runnable `@examples`.
+  Every behaviour needs a test with an assertion.
 
-`nightowl` is an R package for statistical visualization and analysis, focused on clinical research applications. It provides a declarative plotting system built on ggplot2 with R6 classes, survival analysis capabilities, and interactive visualizations.
+## Layout
 
-## Core Architecture
+* `R/plot.R`, `R/nightowl-plots.R`, `R/svg.R`: `Plot`, the `NightowlPlots`
+  vector, SVG rendering.
+* `R/declarative-plot.R`, `R/layers.R`, `R/layer-registry.R`,
+  `R/plot-finishers.R`, `R/styles.R`, `inst/styles/*.yaml`: declarative plots.
+* `R/summary.R`, `R/summarise.R`, `R/group-test.R`, `R/inline-plots.R`:
+  summary tables and sparklines.
+* `R/tables.R`, `R/utils-html.R`, `inst/assets/`: table rendering, CSS and JS.
+* `R/colours.R`, `R/theme.R`, `R/options.R`: palettes, theme, options.
+* `R/snapshot-svg.R`: `expect_snapshot_svg()`.
 
-### R6 Class System
-The package is built around three main R6 classes:
-- **Plot**: Main plotting class in `R/plot.R` with SVG rendering, HTML output, and options management
-- **Summary**: Statistical summaries in `R/Summary.r` with data aggregation and table generation  
-- **Coxph**: Cox proportional hazards modeling in `R/coxph.R` for survival analysis
+## Commands
 
-### Key Components
-- **Plotting**: Declarative plotting system with layers and customizable styling via YAML files in `inst/styles/`
-- **Statistical Analysis**: Built-in statistical tests and summary functions (`summarise_*` family in `R/summaries.R`)
-- **Survival Analysis**: Kaplan-Meier curves and Cox regression with forest plots
-- **Interactive Elements**: SVG rendering with hover effects and reactable tables
-- **Inline Plots**: Specialized mini-plots for embedding in tables (`R/inline_plots.R`)
-
-## Development Commands
-
-### Testing
 ```r
-# Run all tests
-devtools::test()
-
-# Run specific test file
-devtools::test(filter = "test-plot")
-
-# Check package
-devtools::check()
-```
-
-### Building and Documentation
-```r
-# Install package
-devtools::install()
-
-# Update documentation
 devtools::document()
-
-# Build pkgdown site
+devtools::test()
+rcmdcheck::rcmdcheck(args = c("--as-cran", "--no-manual"), error_on = "note")
 pkgdown::build_site()
 ```
 
-## File Structure
-
-### Core R Files
-- `R/plot.R` - Main Plot R6 class with SVG/HTML rendering capabilities
-- `R/Summary.r` - Summary R6 class for statistical summaries and table generation
-- `R/coxph.R` - Coxph R6 class for survival analysis
-- `R/summaries.R` - Summary functions (`summarise`, `summarise_*` family)
-- `R/inline_plots.R` - Inline plotting functions for embedding in tables
-- `R/km.R` - Kaplan-Meier survival curve functions
-- `R/forest.R` - Forest plot implementations
-- `R/grouped_chisq.R` - Chi-square test analysis functions
-
-### Configuration and Assets
-- `inst/styles/` - YAML configuration files for plot styling and templates
-- `inst/assets/` - JavaScript libraries (D3, ggiraph) and CSS for interactive elements
-- `inst/testapp/` - Shiny test application
-
-### Testing
-- Tests use `testthat` framework in `tests/testthat/`
-- Comprehensive test coverage including survival analysis, plotting, and statistical functions
-
-## Dependencies
-
-Core dependencies include:
-- **Visualization**: ggplot2, ggpubr, ggdist, GGally
-- **Data**: dplyr, purrr, magrittr, tibble
-- **Statistics**: survival, Hmisc
-- **Interactive**: reactable, ggiraph
-- **Utilities**: stringr, uuid, vctrs
-
-## Key Design Patterns
-
-### Method Chaining
-The R6 classes support method chaining for fluent interfaces:
-```r
-Summary$new(data, "column", method = summarise_numeric_pointrange)$reactable()
-```
-
-### YAML-Driven Styling
-Plot styles are defined in YAML files in `inst/styles/`, allowing declarative configuration of plot appearance and behavior.
-
-### Modular Summary Functions
-The `summarise_*` family of functions provides modular statistical summaries that can be combined and customized.
+Snapshot review after intentional figure changes: `testthat::snapshot_review()`.

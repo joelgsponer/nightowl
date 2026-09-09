@@ -1,22 +1,33 @@
-test_that("inline plots work", {
-  a <- nightowl::add_violin(runif(100), height = 4)
-  a
+test_that("inline plots return length-one NightowlPlots with fixed size", {
+  h <- add_inline_histogram(mtcars$mpg, xlim = range(mtcars$mpg))
+  expect_true(is_NightowlPlots(h))
+  expect_length(h, 1)
+  expect_false(h[[1]]$resize)
+  expect_equal(h[[1]]$type, "Inline-Histogram")
+  expect_false(isTRUE(h[[1]]$svg_options$download_button))
+  pr <- add_inline_pointrange(mtcars$mpg)
+  expect_equal(pr[[1]]$type, "Inline-Pointrange")
+  v <- add_inline_violin(mtcars$mpg, ylim = c(10, 35))
+  expect_equal(v[[1]]$type, "Violin")
+  b <- add_inline_barplot(factor(c("a", "b", NA)))
+  expect_equal(b[[1]]$type, "Barplot")
+  built <- ggplot2::ggplot_build(b[[1]]$plot)
+  expect_true(nightowl_missing_colour() %in% built$data[[1]]$fill)
+  custom <- add_inline_plot(data.frame(a = 1:5, b = 5:1), mapping = list(x = "a", y = "b"),
+                            layers = list(list(type = "points")), coord_flip = TRUE)
+  expect_true(is_NightowlPlots(custom))
+  expect_error(add_inline_plot(1:3), "style")
+})
 
-  nightowl::make_scale(a)
-
-  nightowl::add_inline_plot(rnorm(1000, 0, 1),
-    mapping = list(x = "x", y = NULL),
-    style = "Inline-Density"
-  )
-
-  nightowl::add_inline_histogram(rnorm(1000, 0, 1))
-
-  nightowl::add_inline_pointrange(tibble::tibble(y = 0, ymin = -1, ymax = 1)) %>%
-    nightowl::make_scale()
-
-
-
-  a$css <- list(style = list(background = "red"))
-  a$html(resize = FALSE)
-  htmltools::browsable()
+test_that("forest plot handles intervals leaving the range", {
+  inside <- add_inline_forestplot(1, 0.8, 1.3, xlim = c(0.5, 2), xintercept = 1)
+  expect_equal(inside[[1]]$type, "ForestPlot")
+  expect_equal(inside[[1]]$svg_options$height, 0.3)
+  clipped <- add_inline_forestplot(1, 0.1, 5, xlim = c(0.5, 2), xintercept = 1)
+  built <- ggplot2::ggplot_build(clipped[[1]]$plot)
+  expect_gt(length(built$data), length(ggplot2::ggplot_build(inside[[1]]$plot)$data))
+  free <- add_inline_forestplot(mtcars$mpg, fun_data = mean_ci)
+  expect_true(is_NightowlPlots(free))
+  expect_error(add_inline_forestplot(1), "fun_data")
+  expect_error(add_inline_forestplot(1:2, 1:2, 1:2), "length one")
 })

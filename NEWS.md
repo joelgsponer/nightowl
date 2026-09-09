@@ -1,32 +1,22 @@
-# nightowl (development version)
+# nightowl 0.1.0
 
-## New Features
+First release of the rebuilt package.
 
-### Documentation Enhancements
-* Added comprehensive vignettes covering all major package functionality:
-  - `getting-started`: Complete introduction to nightowl with R6 classes and declarative plotting
-  - `statistical-summaries`: Deep dive into Summary R6 class and `summarise_*` function family
-  - `survival-analysis`: Comprehensive survival analysis with Coxph R6 class and Kaplan-Meier functions
-* Implemented automated vignette code validation in test suite
-* Added pkgdown configuration for enhanced documentation website
-* Created automated documentation deployment via GitHub Actions
-
-### Testing Infrastructure
-* Added `test-vignettes.R` for comprehensive vignette code validation
-* Created `helper-vignette-data.R` with standardized test datasets
-* Implemented code extraction and execution testing for all vignette examples
-* Added YAML header validation and coding standards checks for vignettes
-
-### Configuration Updates
-* Added `VignetteBuilder: knitr` to DESCRIPTION for proper vignette building
-* Created comprehensive `_pkgdown.yml` with organized reference sections
-* Configured GitHub Actions workflow for automated pkgdown deployment
-
-## Developer Experience
-* Enhanced CI/CD pipeline with vignette validation
-* Comprehensive testing framework ensures all documentation examples execute correctly
-* Automated quality assurance for vignette content and structure
-
----
-
-*This release significantly enhances the package documentation and user onboarding experience while maintaining backward compatibility.*
+* Four pillars, one idea: `Plot` objects render to SVG once and can live in a
+  `NightowlPlots` column; `DeclarativePlot` and YAML styles declare plots as
+  data; `Summary` and `calc_summary()` build summary tables with inline
+  plots; `render_kable()`, `render_html()` and `render_reactable()` show them.
+* Plot specifications are validated (`validate_spec()`); unknown fields,
+  mapping keys and layer types are errors instead of silent no-ops.
+* Layer verbs `layer_*()` form the vocabulary of style files and can be used
+  directly on a ggplot.
+* Built-in colour-blind-safe palettes (`nightowl_palettes()`), semantic
+  colour roles, `theme_nightowl()` and a shared stylesheet
+  (`nightowl_dependency()`).
+* Package options live in `options()` under the `nightowl.` prefix
+  (`nightowl_options()`).
+* `expect_snapshot_svg()` for SVG snapshot tests with side-by-side review.
+* Survival analysis (Cox models, Kaplan-Meier) moves to the nightwatch
+  package. Meta-analysis, donut plots, correlation matrices, grouped
+  chi-square tables, stacked percentage plots and all private-package
+  dependencies were removed.
